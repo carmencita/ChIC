@@ -14,6 +14,13 @@
 ###############################################################
 
 
+require(spp)
+
+## load gene annotations
+require(girafe)
+require(snow)
+require(parallel)
+
 # calculates bin average values for a list of one- or two-point features
 # dat - $x/$y data frame
 # feat - data frame with either $x/{$strand} or $s/$e/{$strand}
@@ -161,7 +168,8 @@ one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=m,
 t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=inner_margin,lom=left_outer_margin, rom=right_outer_margin, bs=gene_body, nbins=predefnum_bins,separate.strands=F, min.feature.size=min.feature.size_carmen) {
 	chrl <- names(gdl);
 	names(chrl) <- chrl;
-	lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
+	#lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
+  mclapply(chrl[chrl %in% names(chipTags_current$td)],  mc.preschedule = FALSE,mc.cores=mc, FUN=function(chr) {
 		print(chr)
 		nsi <- gdl[[chr]]$strand=="-";
 		print(length(nsi))
@@ -199,7 +207,8 @@ t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=i
 t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F) { ##binning of the frame
     chrl <- names(gdl);
     names(chrl) <- chrl;
-    lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
+    #lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
+    mclapply(chrl[chrl %in% names(tl_current$td)],  mc.preschedule = FALSE,mc.cores=mc, FUN=function(chr) {
       nsi <- gdl[[chr]]$strand=="-";
       current_gene_names<-gdl[[chr]]$geneSymbol
 
@@ -234,7 +243,8 @@ t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up_d
 t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F) {
     chrl <- names(gdl);
     names(chrl) <- chrl;
-    lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
+    #lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
+    mclapply(chrl[chrl %in% names(tl_current$td)],  mc.preschedule = FALSE,mc.cores=mc, FUN=function(chr) {
       nsi <- gdl[[chr]]$strand=="-";
       current_gene_names<-gdl[[chr]]$geneSymbol
 
@@ -263,6 +273,9 @@ t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up_d
     })
   }
 
+#path="/gpfs/work/IscrC_CONCEPt/QC_pipeline/"
+#datafilename="ENCFF000OYO"
+#read_length=50
 
 
 ###############################################################
@@ -290,12 +303,7 @@ path=arg[6]
 datafilename=arg[7]
 print(datafilename)
 
-print ("get strandshift")
-#strandShift=as.integer(arg[8])
-ssfile=read.delim(paste(path,"CrossCorrelation/out/",datafilename,".results",sep=""))
-ssindex=grep("Substitution of StrandShift from",ssfile[,1])
-strandShift=as.integer(strsplit(as.character(ssfile[ssindex,])," ")[[1]][10])
-print(strandShift)
+
 
 source(paste(path,"GlobalParameters.R",sep=""))
 sampleinfo_file<-paste(path,"matchlist.txt",sep="")
@@ -343,45 +351,16 @@ rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return
 #################################
 #################################
 
-require(spp)
-#require(snow) # first load snow
-#require(Rmpi) # thel load Rmpi (the reverse sequence won't work)
-cluster<-NULL
 
 
-#strandShift.matrix= read.table("/data/FF/Carmen/Pipeline/Summary.Results",header=T)
-#current_tagShift=strandShift.matrix[which(strandShift.matrix$Name==datafilename),]$StrandShift
-#tag.shift <- round(current_tagShift/2)
-tag.shift= round(strandShift/2)
-
-#get readcount using specific aligner 
-#read.tags.current_function<-get(paste("read", reads.aligner.type , "tags", sep="."))
-#chip.data<-read.tags.current_function(file.path(path,paste(sampleinfo$Filename[sampleIndex],"bam",sep=".")))
-###step 1: tag distribution 
-#get binding characteristics 
-#chip.data_tagdistribution<-sapply(chip.data$tags, length)
-#binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
-
-
-## format as tag lists
-#chipTags <- list(chip.dataSelected )
-#names(chipTags)<-chip.data.samplename
-#names(chipTags)<-datafilename
-#inputTags<-input.dataSelected 
-#rm(chip.data,input.data)
-#gc()
-
-
-
-## load gene annotations
-require(girafe)
 
 print("Load geneannotation")
 load(geneAnnotations_file) #RefSeqGenesAll_object
 current_annotations_type<-gsub(pattern=".RData", replacement="", fixed=TRUE, x=basename(geneAnnotations_file))
 #current_annotations_object_name<-paste(current_annotations_type, "_genomeIntervals_object", sep="")
 #current_annotations_object<-get(current_annotations_object_name)
-current_annotations_object=Genes_genomeIntervals_object
+#current_annotations_object=Genes_genomeIntervals_object
+current_annotations_object=RefSeqGenes_annotated_filteredByOverlap_geneLength
 
 ##FILTER genes, otherwise it takes too much time
 #filterGenes=read.delim(paste(path,"HouseKeepingGenes_wikicell.org.txt",sep=""),header=TRUE) #X.Gene and geneSymbol
@@ -397,20 +376,11 @@ current_annotations_object$seq_name<-as.character(current_annotations_object$seq
 annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
 
 
-#MetaGeneDir="/data/FF/Carmen/Pipeline/MetaGenome"
 
-# genomic density, density (x and y coordinates per chromosome)
-#sd.gen <- get.smoothed.tag.density(inputTags,bandwidth=bw,step=step,tag.shift=tag.shift, rngl=rngl)
-#ts <- sum(unlist(lapply(inputTags,length)))/1e6
-#sd.gen <- lapply(sd.gen,function(d) { d$y <- d$y/ts; return(d); }) 
-
-#ts <- sum(unlist(lapply(input.dataSelected,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-#smoothed.density <- get.smoothed.tag.density(input.dataSelected, bandwidth=wig.bw, step=wig.step,tag.shift=tag.shift)
-#smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-#save(smoothed.density,file=paste(path,"TagDensity_",inputname,".RData",sep=""))
+mc <- getOption("mc.cores",mpi.universe.size() )
 
 print("Load TagDensisty input")
-load(paste(path,"TagDensity_",datafilename,"_",inputname,".RData",sep=""))
+load(paste(storagedir,"TagDensity_",datafilename,"_",inputname,".RData",sep=""))
 #input.smoothed.density=smoothed.density
 sd.gen=smoothed.density
 sd.gen=list(td=sd.gen)
@@ -419,26 +389,9 @@ rm(smoothed.density)
 gd.gen <- t.get.gene.av.density(sd.gen)
 
 
-#gd.gen <- t.get.gene.av.density(list(td=sd.gen)) 
-
-# calculate ChIP samples densities
-#bw = MetaprofilesSmoothingBandwidth  ##is slidingwindow shift
-#step <- MetaprofilesSmoothingStep ##is slidingwindow size
-
-#sd.r1 <- lapply(chipTags,function(chipTags_intern, current_tagshift=tag.shift) { ## splits the tag distribution per chromosmoem
-#	ts <- sum(unlist(lapply(chipTags_intern,length)))/1e6;
-#	td <- get.smoothed.tag.density(chipTags_intern, bandwidth=bw,step=step,tag.shift=current_tagshift, rngl=rngl); # tagsfhift is half strandshift#
-#	td <- lapply(td,function(d) { d$y <- d$y/ts; return(d); })
-#    	return(list(td=td));
-#})
-
-#ts <- sum(unlist(lapply(chip.dataSelected,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-#smoothed.density <- get.smoothed.tag.density(chip.dataSelected, bandwidth=wig.bw, step=wig.step,tag.shift=tag.shift)
-#smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-
 #save(smoothed.density,file=paste(path,"TagDensity_",datafilename,".RData",sep=""))
 print("Load TagDensisty chip")
-load(paste(path,"TagDensity_",datafilename,".RData",sep=""))
+load(paste(storagedir,"TagDensity_",datafilename,".RData",sep=""))
 sd.r1=smoothed.density
 sd.r1 <-list(td=sd.r1) ## need a list of list structure (nested list)
 rm(smoothed.density)
@@ -452,9 +405,9 @@ print("Calculate two point scaling")
 gd.r1 <- t.get.gene.av.density(sd.r1) ##frame with chromosome:genes:startsites:density
 gd.gfp<-gd.r1#[[1]] 	##%%%### ONLY ONE SAMPLE ### the first... there is only one sample btw
 #nam<-datafilename
-file.out<-paste(outputdir,"/two.point.scaling_",datafilename, ".RData", sep="")
+file.out<-paste(storagedir,"/two.point.scaling_",datafilename, ".RData", sep="")
 save(gd.gfp, gd.gen, file=file.out)
-#rm(gd.gen)
+rm(gd.gen)
 
 
 
@@ -466,16 +419,16 @@ gd.r1_TSS <- t.get.gene.av.density_TSS(sd.r1)
 #gd.gen_TSS <- t.get.gene.av.density_TSS(list(td=sd.gen))
 gd.gen_TSS <- t.get.gene.av.density_TSS(sd.gen)
 gd.gfp<-gd.r1_TSS#[[1]] 
-file.out<-paste(outputdir,"/one.point.scalingTSS_",datafilename, ".RData", sep="")
+file.out<-paste(storagedir,"/one.point.scalingTSS_",datafilename, ".RData", sep="")
 print(file.out)
 save(gd.gfp, gd.gen_TSS, file=file.out)
-#rm(gd.gen_TSS)
+rm(gd.gen_TSS)
 
 gd.r1_TES <- t.get.gene.av.density_TES(sd.r1)
 #gd.gen_TES <- t.get.gene.av.density_TES(list(td=sd.gen))
 gd.gen_TES <- t.get.gene.av.density_TES(sd.gen)
 gd.gfp<-gd.r1_TES#[[1]] 
-file.out<-paste(outputdir,"/one.point.scalingTES_",datafilename, ".RData", sep="")
+file.out<-paste(storagedir,"/one.point.scalingTES_",datafilename, ".RData", sep="")
 print(file.out)
 save(gd.gfp, gd.gen_TES, file=file.out)
 rm(gd.gen_TES)
@@ -484,129 +437,11 @@ t1<-proc.time()[3]
 deltat=t1-t0
 write(paste("prepare_profiles",datafilename,deltat,sep=" "),file=paste(timedir,"/timing",datafilename,"_",TFname,".txt",sep=""),append=TRUE)
 
-file.remove((paste(path,"TagDensity_",datafilename,"_",inputname,".RData",sep="")))
-file.remove((paste(path,"TagDensity_",datafilename,"_",inputname,".RData",sep="")))
-#print("Load control file...")
-#newControl=NULL
-#if (length(unlist(strsplit(inputname,"\\.")))>1)
-#{
-#	print("Concat multiple inputs...")
-#	for (element in unlist(strsplit(inputname,"\\.")))
-#	{	
-#		if (element!="")
-#		{
-#			if (is.null(newControl))
-#			{	
-#				##if newControl is empty, fill it with the first input-data
-#				print(element)
-#				load(file.path(datadir, paste(element,".RData",sep="")))
-#				newControl<-input.data
-#				print("original size")
-#				for (i in seq(length(newControl$tags)))
-#				{
-#					print(length(newControl$tags[[i]]))
-#				}
-#				#newControl.tags=(sapply(newControl$tags,c))
-#				#newControl.q=(sapply(newControl$quality,c))
-#				#print(length(newControl.tags[[25]]))
-#				#print(length(newControl.q[[25]]))
-#			}else{
-#				##otherwise add the input-data and sort
-#				print(element)
-#				load(file.path(datadir, paste(element,".RData",sep="")))
-#				temp<-input.data
-#				#temp.tags=(sapply(temp$tags,c))
-#				#temp.q=(sapply(temp$quality,c))
-#
-#				for (i in seq(length(newControl$tags)))
-#				{
-#					##appending tags and quality elements of all inputs to newControl
-#					newControl$tags[[i]]=append(newControl$tags[[i]],temp$tags[[i]])
-#					newControl$quality[[i]]=append(newControl$quality[[i]],temp$quality[[i]])
-#				}
-#
-#			}
-#		}
-#	}
-#	print("final size")
-#	for (i in seq(length(newControl$tags)))
-#	{
-#		print(length(newControl$tags[[i]]))
-#	}
-
-#	##sort tags and quality of the final NewControl to get an increasing list independently from the sign:  -57 -95 -112 151 159 166 169 -217...
-#	print("Sort tags and quality flags...")
-#	for (i in seq(length(newControl$tags)))
-#	{
-#		index=sort.list(abs(newControl$tags[[i]]))
-#		newControl$tags[[i]]=newControl$tags[[i]][index]	
-#		newControl$quality[[i]]=newControl$quality[[i]][index]	
-#	}
-#
-#	input.data=newControl
-#}else{
-#
-#	#inputIndex=as.integer(arg[8])
-#	print("Single input...")
-#	load(file.path(datadir, paste(inputname,".RData",sep="")))
-#	input.data<-input.data
-#}
 
 
 
-##   print("Filter tags")
-##   # select informative tags based on the binding characteristics
-##   chip.data <- select.informative.tags(chip.data,binding.characteristics)
-##  input.data <- select.informative.tags(input.data,binding.characteristics)
-## 
-## here we skip this step because it requires using of binding characteristics that we have manually modified to force the selection of tag shift within user specified window (100-200)
-#
-#     print("Filter tags")
-#    if (select.informative.tags_filter_metaprofiles) {
-#      print("select.informative.tags filter")
-#      load(paste("sppdata", "binding", chip.data.samplename, "RData", sep="."))
-#      chip.data <- select.informative.tags(chip.data, binding.characteristics)
-#       load(paste("sppdata", "binding", input.data.samplename, "RData", sep="."))
-#       input.data <- select.informative.tags(input.data, binding.characteristics)
-#    } else {
-#      print("SKIP select.informative.tags filter")
-#      chip.data<-chip.data$tags
-#       input.data<-input.data$tags
-#    }
-#    if (remove.local.tag.anomalies_filter_metaprofiles) {
-#      print("remove.local.tag.anomalies filter")
-#      # restrict or remove singular positions with very high tag counts
-#      chip.data <- remove.local.tag.anomalies(chip.data)
-#      input.data <- remove.local.tag.anomalies(input.data)
-#    } else {
-#      print("SKIP remove.local.tag.anomalies filter")
-#    }
 
-
-#print("Filter tags")
-#if (select.informative.tags_filter_metaprofiles) {
-#      print("select.informative.tags filter")
-#     #load(paste("sppdata", "binding", chip.data.samplename, "RData", sep="."))
-#      chip.dataSelected <- select.informative.tags(chip.data, binding.characteristics)
-#      #load(paste("sppdata", "binding", input.data.samplename, "RData", sep="."))
-#      input.dataSelected <- select.informative.tags(input.data, binding.characteristics)
-#} else {
-#      print("SKIP select.informative.tags filter")
-#      chip.dataSelected<-chip.data$tags
-#      input.dataSelected<-input.data$tags
-#}
-#
-#
-#if (remove.local.tag.anomalies_filter_metaprofiles) {
-#	print("remove.local.tag.anomalies filter")
-#      # restrict or remove singular positions with very high tag counts
-#	chip.dataSelected <- remove.local.tag.anomalies(chip.dataSelected)
-#	input.dataSelected <- remove.local.tag.anomalies(input.dataSelected)
-#} else {
-#	print("SKIP remove.local.tag.anomalies filter")
-#}
-
-
-
+file.remove((paste(storagedir,"TagDensity_",datafilename,"_",inputname,".RData",sep="")))
+file.remove((paste(storagedir,"TagDensity_",datafilename,".RData",sep="")))
 
 

@@ -126,12 +126,12 @@ print(arg)
 path=arg[6]
 datafilename=arg[7]
 print(datafilename)
-read_length=as.integer(arg[8])
+
 
 
 #print (sampleIndex)
 print(path)
-print(read_length)
+
 
 source(paste(path,"GlobalParameters.R",sep=""))
 sampleinfo_file<-paste(path,"matchlist.txt",sep="")

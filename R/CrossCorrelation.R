@@ -1,12 +1,11 @@
 library("spp")
-#library("snow")
+library("snow")
 library("girafe")
-#library("Rmpi")
+library("Rmpi")
 library("caTools")
 
-cluster=NULL
-#cluster=makeCluster(8, type="MPI")
-#options(bitmapType='cairo')
+
+
 f_plot <- function(datax_y, chipname, maintitel="title", plotname="plot",xlabname="x-axis",ylabname="y-axis",line=NULL, lineplotX=NULL,lineplotY=NULL) 
 {
 	#options(bitmapType='cairo')
@@ -17,9 +16,9 @@ f_plot <- function(datax_y, chipname, maintitel="title", plotname="plot",xlabnam
 	#bitmap(filename,"png16m")
 	#pdf(filename=file.path(outputdir, paste(plotname, chipname, "pdf", sep=".")))
 	par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-	plot(datax_y,type='l',xlab=xlabname,ylab=ylabname,main=maintitel)
+	plot(datax_y,type='l',xlab=xlabname,ylab=ylabname)
 	abline(v=line,lty=2,lwd=2, col="red")
-	title(chipname)
+	title(maintitel)
 	!is.null(lineplotX)
 	{
 		lines(x=lineplotX, y=lineplotY, lwd=2, col="blue")
@@ -114,6 +113,11 @@ f_getCustomStrandShift= function(x,y){
 	return(newShift)
 }
 
+#path="/gpfs/work/IscrC_CONCEPt/QC_pipeline/"
+#datafilename="ENCFF000OYO"
+#read_length=50
+
+
 t0<-proc.time()[3]
 
 
@@ -140,12 +144,17 @@ outputdir<-paste(workingdir,"out/",sep="")
 timedir<-paste(workingdir,"time_stamps/",sep="")
 plotsdir<-paste(workingdir,"plots/",sep="")
 
+mc <- getOption("mc.cores",mpi.universe.size() )
+if (cluster_ON_OFF==TRUE)
+{
+	cluster=makeCluster(mc, type="MPI")
+}else{cluster=NULL}
+
 chrominfo<-read.table(chrominfo_file, header=TRUE, quote="", sep="\t", stringsAsFactors=FALSE)
 rownames(chrominfo)<-chrominfo$chrom
 rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(as.integer(c(1,x)))})
 
 
-#sampleIndex=16
 ##step 00: binding characteristics
 #get dataset
 sampleIndex=which(sampleinfo$Filename==datafilename)
@@ -158,9 +167,20 @@ TFname=sampleinfo$IG[sampleIndex]
 
 #get readcount using specific aligner 
 read.tags.current_function<-get(paste("read", reads.aligner.type , "tags", sep="."))
-chip.data<-read.tags.current_function(file.path(path,paste(sampleinfo$Filename[sampleIndex],"bam",sep=".")))
+
+if (reads.aligner.type=="bam")
+{
+    chip.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[sampleIndex],"bam",sep=".")))
+}
+if (reads.aligner.type=="tagalign")
+{
+    chip.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[sampleIndex],"tagAlign",sep=".")))
+}
+
 readCount=sum(sapply(chip.data$tags, length))
 cat("READS count", "\n", datafilename, readCount, "\n")
+
+
 
 ###step 1: tag distribution 
 #get binding characteristics 
@@ -171,14 +191,25 @@ print("Cross correlation plot")
 f_plot(binding.characteristics$cross.correlation,datafilename,maintitel=TFname,plotname="CrossCorrelation",xlab="strand shift",ylab="cross-correlation",line=binding.characteristics$peak$x)
 
 
-file.remove(paste(path,datafilename,".bam",sep=""))
+if (reads.aligner.type=="bam")
+{
+    file.remove(paste(bamdir,datafilename,".bam",sep=""))
+    
+}
+if (reads.aligner.type=="tagalign")
+{
+    file.remove(paste(bamdir,datafilename,".tagAlign",sep=""))
+    file.remove(paste(bamdir,datafilename,".tagAlign.gz",sep=""))
+}
+
+
+
 print(binding.characteristics$peak$x)
 #save(input.data,file=paste("/data/FF/Carmen/Pipeline/",datafilename,".RData",sep=""))
 #load(file.path(datadir, paste(datafilename,".RData",sep="")))
 
 
 ###step 1.2: Phantom peak and cross-correlation
-#read_length<-sampleinfo[sampleIndex,"ReadLength"]
 print("Estimating fragment lengths")
 phantom.characteristics<-get.binding.characteristics(chip.data, srange=PhantomPeak_range, bin=PhantomPeak_bin, cluster=cluster)
 print(datafilename)
@@ -228,13 +259,6 @@ f_plot(binding.characteristics$cross.correlation,datafilename,maintitel=TFname,p
 
 strandShift<-binding.characteristics$peak$x
 
-#png(filename=file.path(outputdir, paste("customCrossCorrelation", chip.file, "png", sep=".")))
-#par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-#plot(binding.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation")
-#lines(x=binding.characteristics$cross.correlation$x, y=binding.characteristics_cross.correlation_y_smoothed, #lwd=2, col=cross_correlation_smoothing_color)
-#abline(v=binding.characteristics$peak$x,lty=2,lwd=2, col="red")
-#title(chip.file)
-#dev.off()
 
 
 newShift=f_getCustomStrandShift(x=binding.characteristics$cross.correlation$x, y=binding.characteristics_cross.correlation_y_smoothed)
@@ -252,12 +276,6 @@ if (newShift!="ERROR")
 }else{
 	print(paste("strandshift remains the same...",sep=""))
 }
-
-## strandShift.matrix[7:12,2]<-as.character(round(mean(as.numeric(strandShift.matrix[13:18,2]))))
-# strandShift.matrix[11,2]<-"215"
-#strandShift.matrix[(strandShift.matrix[,1]=="HistoneA549H3k36me3Etoh02AlnRep2"),2]<-strandShift.matrix[(strandShift.matrix[,1]=="HistoneA549H3k36me3Etoh02AlnRep1"),2]
-
-#save(strandShift.matrix, file="strandShift.matrix.RData")
 
 ###2.2 phantom peak with smoothing
 
@@ -404,21 +422,6 @@ inputname=sampleinfo$ControlName[inputIndex]
 
 
 
-#samples<-unlist(strsplit("ENCFF001HQW.ENCFF001GWT.ENCFF001HVW", split="\\."))
-#names(samples)<-samples
-#ALLreads<-lapply(samples, FUN=function(x) {
-#  load(paste(x, "RData", sep="."))
-#  return(input.data)
-#})
-#sapply(ALLreads, FUN=function(x) {
-#names(x$tags)
-#})
-#sapply(ALLreads, FUN=function(x) {
-#sapply(x$tags, length)
-#})
-
-
-
 print("Load control file...")
 newControl=NULL
 if (length(unlist(strsplit(inputname,"\\.")))>1)
@@ -485,7 +488,17 @@ if (length(unlist(strsplit(inputname,"\\.")))>1)
 	input.data<-input.data
 }
 
-	
+
+chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+
+
+chip.data$tags=chip.data$tags[chrl_final]
+chip.data$quality=chip.data$quality[chrl_final]
+
+input.data$tags=input.data$tags[chrl_final]
+input.data$quality=input.data$quality[chrl_final]
+
+
 print("Filter tags")
 if (select.informative.tags_filter) {
       print("select.informative.tags filter")
@@ -499,39 +512,6 @@ if (select.informative.tags_filter) {
       input.dataSelected<-input.data$tags
 }
 
-
-print("Smooth tag density input")
-ts <- sum(unlist(lapply(input.dataSelected,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-smoothed.density <- get.smoothed.tag.density(input.dataSelected, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift,rngl=rngl)
-smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-save(smoothed.density,file=paste(path,"TagDensity_",datafilename,"_",inputname,".RData",sep=""))
-str(smoothed.density)
-
-rm(smoothed.density)
-#save(input.dataSelected,file=paste(path,"Tags_",inputname,".RData",sep=""))
-
-#ENCFF000NEB 36 PBX3-human 1 x ENCFF000NFW Control-human 1 x Richard Myers
-#ENCFF000NGL 36 SIN3A-human 1 ethanol .ENCFF000NFT.ENCFF000NGE.ENCFF000NFJ.ENCFF000NFS Control-human 1 ethanol Richard Myers
-
-#print("Smooth tag density")
-#ts <- sum(unlist(lapply(input.dataSelected,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-#smoothed.density <- get.smoothed.tag.density(input.dataSelected, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift,rngl=rngl)
-#smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-#save(smoothed.density,file=paste(path,"TagDensity_",inputname,".RData",sep=""))
-#load(paste(path,"TagDensity_",inputname,".RData",sep=""))
-#input.smoothed.density=smoothed.density
-
-
-
-print("Smooth tag density Chip")
-ts <- sum(unlist(lapply(chip.dataSelected,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-smoothed.density <- get.smoothed.tag.density(chip.dataSelected, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift,rngl=rngl)
-smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-save(smoothed.density,file=paste(path,"TagDensity_",datafilename,".RData",sep=""))
-#load(paste(path,"TagDensity_",datafilename,".RData",sep=""))
-str(smoothed.density)
-rm(smoothed.density)
-
 if (remove.local.tag.anomalies_filter) {
 	print("remove.local.tag.anomalies filter")
       # restrict or remove singular positions with very high tag counts
@@ -543,12 +523,11 @@ if (remove.local.tag.anomalies_filter) {
 	chip.dataSelected=chip.data$tags
 }
 
-#print("Smooth enrichment MLE")
-#   ts <- sum(unlist(lapply(chip.data,length)))/1e6
-#smoothed.mle <- get.smoothed.enrichment.mle(signal.tags=chip.dataSelected, control.tags=input.dataSelected, bandwidth=wig.bw, step=wig.step,tag.shift=tag.shift)
-#     smoothed.mle<-lapply(smoothed.mle,function(d) { d$y <- d$y/ts; return(d); })
-#writewig(dat=smoothed.mle,fname=paste(datadir,"/mle", datafilename,"vs",inputname,".wig", sep=""),feature=paste(datafilename, "vs", inputname, "mle enrichment"), zip = T )
-#rm(smoothed.mle)
+
+
+
+##Save data object to be read afterwards for the densityt distribution
+save(input.dataSelected,tag.shift,chip.dataSelected,file=paste(storagedir,"dataSelected_",datafilename,"_",inputname,".RData",sep=""))
 
 
 ###5 broadRegions
@@ -587,11 +566,6 @@ for (current_window_size in window_sizes_list)
 }
 
 
-#write.table(STATS.matrix, file="STATS.enrichmentDetails_loop.xls", sep="\t", quote=FALSE, row.names=FALSE, append=FALSE)
-#names(extension_vector_list)<-paste(ChIP_input_matches[,"ChIP_sample"],"window", current_window_size, sep=".")
-#save(extension_vector_list, STATS.matrix, file="STATS.enrichmentDetails_loop.RData")
-
-
 ###12 get binding sites with FDR and eval
 
 
@@ -614,53 +588,73 @@ print(paste("detected",sum(unlist(lapply(bp_eval$npl,function(d) length(d$x)))),
 # output detected binding positions
 #output.binding.results(results=bp,filename=paste("WTC.binding.positions.evalue", chip.data.samplename,"input",input.data.samplename, "txt", sep="."))
 
-###14 get precise binding position using escore LARGE PEAKS
-bp_broadpeak <- add.broad.peak.regions(chip.data12,input.data12,bp_eval, window.size=1000, z.thr=3)
-md=f_converNarrowPeakFormat(bp_broadpeak)
-sharpPeak_selected_genes_genomeIntervals_object<-new("Genome_intervals",
-	.Data=(cbind(
-		as.integer(as.character(md[,2])), 
-		as.integer(as.character(md[,3]))) ), 
-	closed=TRUE,
-	annotation = data.frame(
-			seq_name = factor(md[,1]), 
-			inter_base=FALSE, 
-			start = as.integer(as.character(md[,2])),
-			end =as.integer(as.character(md[,3]))))
-
-###13 is only looping and writing into file
-###15 FRiP
-#require(girafe)
-chip.test<-lapply(chip.data$tags, FUN=function(x) {x+tag.shift}) ###SORTS the tags for each chrom
-TOTAL_reads<-sum(sapply(chip.test, length))
-
-##Frip broad binding sites (histones)
-broadPeak_selected_genes_genomeIntervals_object<-close_intervals(interval_union(broadPeak_selected_genes_genomeIntervals_object))
-regions_data_list<-split(as.data.frame(broadPeak_selected_genes_genomeIntervals_object), f=seq_name(broadPeak_selected_genes_genomeIntervals_object))
-
-chrl<-names(regions_data_list)
-names(chrl)<-chrl
-outcountsBroadPeak<-sum(sapply(chrl, FUN=function(chr) {
-      sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
-    }))
-
-FRiP_broadPeak<-outcountsBroadPeak/TOTAL_reads
 
 
-###Frip sharp peaks 14
-sharpPeak_selected_genes_genomeIntervals_object<-close_intervals(interval_union(sharpPeak_selected_genes_genomeIntervals_object))
-regions_data_list<-split(as.data.frame(sharpPeak_selected_genes_genomeIntervals_object), f=seq_name(sharpPeak_selected_genes_genomeIntervals_object))
+if (length(bp_eval$npl)>1)
+{
+	###14 get precise binding position using escore LARGE PEAKS
+	bp_broadpeak <- add.broad.peak.regions(chip.data12,input.data12,bp_eval, window.size=1000, z.thr=3)
+	md=f_converNarrowPeakFormat(bp_broadpeak)
+	sharpPeak_selected_genes_genomeIntervals_object<-new("Genome_intervals",
+		.Data=(cbind(
+			as.integer(as.character(md[,2])), 
+			as.integer(as.character(md[,3]))) ), 
+		closed=TRUE,
+		annotation = data.frame(
+				seq_name = factor(md[,1]), 
+				inter_base=FALSE, 
+				start = as.integer(as.character(md[,2])),
+				end =as.integer(as.character(md[,3]))))
 
-chrl<-names(regions_data_list)
-names(chrl)<-chrl
-outcountsSharpPeak<-sum(sapply(chrl, FUN=function(chr) {
-      sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
-    }))
+	###13 is only looping and writing into file
+	###15 FRiP
+	#require(girafe)
+	chip.test<-lapply(chip.data$tags, FUN=function(x) {x+tag.shift}) ###SORTS the tags for each chrom
+	TOTAL_reads<-sum(sapply(chip.test, length))
 
-FRiP_sharpPeak<-outcountsSharpPeak/TOTAL_reads
+	##Frip broad binding sites (histones)
+	broadPeak_selected_genes_genomeIntervals_object<-close_intervals(interval_union(broadPeak_selected_genes_genomeIntervals_object))
+	regions_data_list<-split(as.data.frame(broadPeak_selected_genes_genomeIntervals_object), f=seq_name(broadPeak_selected_genes_genomeIntervals_object))
+
+	chrl<-names(regions_data_list)
+	names(chrl)<-chrl
+	outcountsBroadPeak<-sum(sapply(chrl, FUN=function(chr) {
+	      sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
+	    }))
+
+	FRiP_broadPeak<-outcountsBroadPeak/TOTAL_reads
+
+
+	###Frip sharp peaks 14
+	sharpPeak_selected_genes_genomeIntervals_object<-close_intervals(interval_union(sharpPeak_selected_genes_genomeIntervals_object))
+	regions_data_list<-split(as.data.frame(sharpPeak_selected_genes_genomeIntervals_object), f=seq_name(sharpPeak_selected_genes_genomeIntervals_object))
+
+	chrl<-names(regions_data_list)
+	names(chrl)<-chrl
+	outcountsSharpPeak<-sum(sapply(chrl, FUN=function(chr) {
+	      sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
+	    }))
+
+	FRiP_sharpPeak<-outcountsSharpPeak/TOTAL_reads
+}else{
+	TOTAL_reads=0
+	FRiP_broadPeak=0
+	outcountsBroadPeak=0
+	FRiP_sharpPeak=0
+	outcountsSharpPeak=0
+}
+
 
 spaceUsage=sum(sort(sapply(ls(),function(x){object.size(get(x))}))) ##in bytes
 
+print("switch cluster off")
+if (cluster_ON_OFF==TRUE)
+{
+	 stopCluster(cluster)
+}
+
+
+print("write results in file")
 ################RESULTS
 outname=paste(outputdir,datafilename,".results",sep="")
 file.remove(outname)
@@ -676,8 +670,6 @@ write(paste("Read_length",read_length,sep=" "),file=outname,append=T)
 write(paste("StrandShift",strandShift,sep=" "),file=outname,append=T)
 write(paste("Substitution of StrandShift from ",oldShift," to ",strandShift,sep=" "),file=outname,append=T)
 
-#binding.characteristics$peak$x
-#binding.characteristics$peak$y
 #binding.characteristics$peak$whs
 write(paste("bindingCharacteristicsPeak (x,y,whs)",binding.characteristics$peak$x,binding.characteristics$peak$y,binding.characteristics$whs,sep=" "),file=outname,append=T)
 
@@ -713,6 +705,8 @@ write(paste("NRF",NRF,sep=" "),file=outname,append=T)
 write(paste("NRF_LibSizeadjusted",NRF_LibSizeadjusted,sep=" "),file=outname,append=T)
 write(paste("NRF_nostrand",NRF_nostrand,sep=" "),file=outname,append=T)
 write(paste("PBC",PBC,sep=" "),file=outname,append=T)
+write(paste("N1",N1,sep=" "),file=outname,append=T)
+write(paste("Nd",Nd,sep=" "),file=outname,append=T)
 #Frip
 write(paste("Total_reads",TOTAL_reads,"FRiP_broadPeak",round(FRiP_broadPeak, 2),"outcountsBroadPeak", outcountsBroadPeak, "FRiP_sharpPeak", FRiP_sharpPeak, "outcountsSharpPeak", outcountsSharpPeak, sep=" "),file=outname,append=T)
 

@@ -1,22 +1,14 @@
 library("spp")
-#library("snow")
+library("snow")
 library("girafe")
 #library("Rmpi")
-
-#library(spp)
-#library(snow) # first load snow
-#library(girafe)
-#library(Rmpi) # thel load Rmpi (the reverse sequence won't work)
-
-library(caTools)
-#cluster=makeCluster(8, type="MPI")
-cluster=NULL
+library("caTools")
 
 
-f_plot <- function(datax_y, chipname, plotname="plot",xlabname="x-axis",ylabname="y-axis",line=NULL, lineplotX=NULL,lineplotY=NULL) 
+
+f_plot <- function(datax_y, chipname, maintitel="title", plotname="plot",xlabname="x-axis",ylabname="y-axis",line=NULL, lineplotX=NULL,lineplotY=NULL) 
 {
 	#options(bitmapType='cairo')
-	
 	filename=file.path(plotsdir, paste(plotname, chipname, "pdf", sep="."))
 	print(filename)
 	pdf(filename)	
@@ -26,7 +18,7 @@ f_plot <- function(datax_y, chipname, plotname="plot",xlabname="x-axis",ylabname
 	par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
 	plot(datax_y,type='l',xlab=xlabname,ylab=ylabname)
 	abline(v=line,lty=2,lwd=2, col="red")
-	title(chipname)
+	title(maintitel)
 	!is.null(lineplotX)
 	{
 		lines(x=lineplotX, y=lineplotY, lwd=2, col="blue")
@@ -154,12 +146,26 @@ chrominfo<-read.table(chrominfo_file, header=TRUE, quote="", sep="\t", stringsAs
 rownames(chrominfo)<-chrominfo$chrom
 rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(c(1,x))})
 
+#mc <- getOption("mc.cores",mpi.universe.size() )
+#if (cluster_ON_OFF==TRUE)
+#{
+#	cluster=makeCluster(mc, type="MPI")
+#}else{cluster=NULL}
 
+cluster=NULL
 inputIndex=which(sampleinfo$Filename==inputname)
 print(inputIndex)
 #get readcount using specific aligner 
 read.tags.current_function<-get(paste("read", reads.aligner.type , "tags", sep="."))
-input.data<-read.tags.current_function(file.path(path,paste(sampleinfo$Filename[inputIndex],"bam",sep=".")))
+
+if (reads.aligner.type=="bam")
+{
+	input.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[inputIndex],"bam",sep=".")))
+}
+if (reads.aligner.type=="tagalign")
+{
+	input.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[inputIndex],"tagAlign",sep=".")))
+}
 
 #input.data<-read.tags.current_function(file.path(datadir,inputname))
 readCount=sum(sapply(input.data$tags, length))
@@ -168,7 +174,17 @@ save(input.data,file=paste(path,inputname,".RData",sep=""))
 #load(file.path(datadir, paste(inputname,".RData",sep="")))
 
 
-file.remove(paste(path,inputname,".bam",sep=""))
+if (reads.aligner.type=="bam")
+{
+	file.remove(paste(bamdir,inputname,".bam",sep=""))
+}
+if (reads.aligner.type=="tagalign")
+{
+	file.remove(paste(bamdir,inputname,".tagAlign",sep=""))
+	file.remove(paste(bamdir,inputname,".tagAlign.gz",sep=""))
+}
+
+
 ###step 1: tag distribution 
 #get binding characteristics 
 input.data_tagdistribution<-sapply(input.data$tags, length)
@@ -235,34 +251,6 @@ binding.characteristics$peak$x<-binding.characteristics$cross.correlation$x[(whi
 f_plot(binding.characteristics$cross.correlation,inputname,plotname="customCrossCorrelation",xlab="strand shift",ylab="cross-correlation",line=binding.characteristics$peak$x, lineplotX=binding.characteristics$cross.correlation$x,lineplotY=binding.characteristics_cross.correlation_y_smoothed)
 
 strandShift<-binding.characteristics$peak$x
-
-#png(filename=file.path(outputdir, paste("customCrossCorrelation", input.file, "png", sep=".")))
-#pdf(filename=file.path(outputdir, paste("customCrossCorrelation", input.file, "pdf", sep=".")))
-#par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-#plot(binding.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation")
-#lines(x=binding.characteristics$cross.correlation$x, y=binding.characteristics_cross.correlation_y_smoothed, lwd=2, col=cross_correlation_smoothing_color)
-#abline(v=binding.characteristics$peak$x,lty=2,lwd=2, col="red")
-#title(input.file)
-#dev.off()
-
-#newShift=f_getCustomStrandShift(x=binding.characteristics$cross.correlation$x, y=binding.characteristics_cross.correlation_y_smoothed)
-
-#oldShift=NULL
-#if (newShift!=strandShift)
-#{
-#	oldShift=strandShift
-#	strandShift=newShift
-#	print("Strandshift is substituted")
-#}
-
-###HERE PUT STRANDSHIFT ALGORITHM!!!!
-
-## strandShift.matrix[7:12,2]<-as.character(round(mean(as.numeric(strandShift.matrix[13:18,2]))))
-# strandShift.matrix[11,2]<-"215"
-#strandShift.matrix[(strandShift.matrix[,1]=="HistoneA549H3k36me3Etoh02AlnRep2"),2]<-strandShift.matrix[(strandShift.matrix[,1]=="HistoneA549H3k36me3Etoh02AlnRep1"),2]
-
-#save(strandShift.matrix, file="strandShift.matrix.RData")
-
 ###2.2 phantom peak with smoothing
 
 # phantom.characteristics<-phantom.characteristics
@@ -313,30 +301,6 @@ if (max_x_peakcheck>phantom.characteristics$peak$x) {
 }
 
 
-
-
-#filenn=file.path(outputdir, paste("phantomCrossCorrelation", inputname, "pdf", sep="."))
-  # plot cross correlation curve with smoothing
-#pdf(filenn)
-#  par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-#  plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation")
- # lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col=cross_correlation_smoothing_color)
- # lines(x=rep(phantom_peak.scores$peak$x, times=2), y=c(0,phantom_peak.scores$peak$y), lty=2,lwd=2, col="red")
-  #lines(x=rep(phantom_peak.scores$phantom_cc$x, times=2), y=c(0,phantom_peak.scores$phantom_cc$y), lty=2,lwd=2, col="orange")
-  #abline(h=phantom_peak.scores$min_cc$y, lty=2,lwd=2, col="grey")
-  #text(x=phantom_peak.scores$peak$x, y=phantom_peak.scores$peak$y, labels=paste("A =",signif(phantom_peak.scores$peak$y,3)), col="red", pos=3)
-  #text(x=phantom_peak.scores$phantom_cc$x, y=phantom_peak.scores$phantom_cc$y, labels=paste("B =",signif(phantom_peak.scores$phantom_cc$y,3)), col="orange", pos=2)
- # text(x=min(phantom.characteristics$cross.correlation$x), y=phantom_peak.scores$min_cc$y, labels=paste("C =",signif(phantom_peak.scores$min_cc$y,3)), col="grey", adj=c(0,-1))
-  #  legend(x="topright", legend=c(
-   # paste("NSC = A/C =", signif(phantom_peak.scores$NSC,3)),
-    #paste("RSC = (A-C)/(B-C) =", signif(phantom_peak.scores$RSC,3)),
-    #paste("Quality flag =", phantom_peak.scores$quality_flag),
-   # "",
-    #paste("Shift =", (phantom_peak.scores$peak$x)),
-    #paste("Read length =", (phantom_peak.scores$read_length))
-   # ))
-  #title(inputname)
-  #dev.off()
 
 phantomScores= c(
     Sample=inputname,
@@ -399,34 +363,6 @@ PBC = N1/Nd
 
 
 
-###3.0 save wig smoothed and 
-#tag.shift <- round(strandShift/2)
-
-#load inputdata
-
-#print("Filter tags")
-#if (select.informative.tags_filter) {
-#      print("select.informative.tags filter")
-      #load(paste("sppdata", "binding", input.data.samplename, "RData", sep="."))
-#      input.dataSelected <- select.informative.tags(input.data, binding.characteristics)
-#} else {
-#      print("SKIP select.informative.tags filter")
-#      input.dataSelected<-input.data$tags
-#}
-
-
-#print("Smooth tag density")
-#ts <- sum(unlist(lapply(input.dataSelected,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-#smoothed.density <- get.smoothed.tag.density(input.dataSelected, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift)
-#smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-
-#smoothing_parameters<-c("step"=smoothingStep, "bw"=smoothingBandwidth)
-#save(smoothed.density, smoothing_parameters, file=paste(path,"TagDensity_",inputname,".RData",sep=""))
-#save(smoothed.density, file=paste(path,"TagDensity_",inputname,".RData",sep=""))
-
-#save(smoothed.density, file=paste(path,"TagDensity_",inputname,".RData",sep=""))
-#load(paste(path,"TagDensity_",inputname,".RData",sep=""))
-
 
 
 #writewig(dat=smoothed.density,fname=paste("/data/FF/Carmen/Pipeline/tagDensity_input", inputname,"bw",wig.bw,"step",wig.step,"wig", sep="."),feature=paste(inputname, "tag density","bw",wig.bw,"step",wig.step), zip = T )
@@ -482,6 +418,8 @@ write(paste("NRF",NRF,sep=" "),file=outname,append=T)
 write(paste("NRF_LibSizeadjusted",NRF_LibSizeadjusted,sep=" "),file=outname,append=T)
 write(paste("NRF_nostrand",NRF_nostrand,sep=" "),file=outname,append=T)
 write(paste("PBC",PBC,sep=" "),file=outname,append=T)
+write(paste("N1",N1,sep=" "),file=outname,append=T)
+write(paste("Nd",Nd,sep=" "),file=outname,append=T)
 
 
 t1<-proc.time()[3]

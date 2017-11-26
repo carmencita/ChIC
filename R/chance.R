@@ -1,11 +1,7 @@
 library("girafe")#, lib.loc="/home/clivi/programs/R-3.2.2/library/")
-#library("Rmpi")#, lib.loc="/home/clivi/programs/R-3.2.2/library/")
 library("caTools")#, lib.loc="/home/clivi/programs/R-3.2.2/library/")
 library("spp")#, lib.loc="/home/clivi/programs/R-3.2.2/library/")
-#library("snow")#, lib.loc="/home/clivi/programs/R-3.2.2/library/")
 
-#cluster=makeCluster(8, type="MPI")
-cluster=NULL
 
 
 arg <- commandArgs()
@@ -51,109 +47,7 @@ TFname=sampleinfo$IG[sampleIndex]
 inputIndex=sampleIndex
 inputname=sampleinfo$ControlName[inputIndex]
 
-#wig.bw <- 100;
-#wig.step <- 50;
-#wig.bw
-#wig.step
-
-
-#wig.bw<-MetaprofilesSmoothingBandwidth
-#wig.step<-MetaprofilesSmoothingStep
-
-
-
-#print("Load control file...")
-#newControl=NULL
-#if (length(unlist(strsplit(inputname,"\\.")))>1)
-#{
-#	print("Concat multiple inputs...")
-#	for (element in unlist(strsplit(inputname,"\\.")))
-#	{	
-##		if (element!="")
-#		{
-#			if (is.null(newControl))
-#			{	
-				##if newControl is empty, fill it with the first input-data#
-#				print(element)
-#				load(file.path(path, paste(element,".RData",sep="")))
-#				newControl<-input.data
-#				print("original size")
-#				for (i in seq(length(newControl$tags)))
-#				{
-#					print(length(newControl$tags[[i]]))
-#				}
-				#newControl.tags=(sapply(newControl$tags,c))
-				#newControl.q=(sapply(newControl$quality,c))
-				#print(length(newControl.tags[[25]]))
-				#print(length(newControl.q[[25]]))
-#			}else{
-#				##otherwise add the input-data and sort
-#				print(element)
-#				load(file.path(path, paste(element,".RData",sep="")))
-#				temp<-input.data
-#				#temp.tags=(sapply(temp$tags,c))
-				#temp.q=(sapply(temp$quality,c))
-#
-#				for (i in seq(length(newControl$tags)))
-#				{
-#					##appending tags and quality elements of all inputs to newControl
-#					newControl$tags[[i]]=append(newControl$tags[[i]],temp$tags[[i]])
-#					newControl$quality[[i]]=append(newControl$quality[[i]],temp$quality[[i]])
-#				}
-#
-#			}
-#		}
-#	}
-#	print("final size")
-#	for (i in seq(length(newControl$tags)))
-#	{
-#		print(length(newControl$tags[[i]]))
-#	}
-#
-	##sort tags and quality of the final NewControl to get an increasing list independently from the sign:  -57 -95 -112 151 159 166 169 -217...
-#	print("Sort tags and quality flags...")
-#	for (i in seq(length(newControl$tags)))
-#	{
-#		index=sort.list(abs(newControl$tags[[i]]))
-#		newControl$tags[[i]]=newControl$tags[[i]][index]	
-#		newControl$quality[[i]]=newControl$quality[[i]][index]	
-#	}
-
-#	input.data=newControl
-#}else{
-#
-#	#inputIndex=as.integer(arg[8])
-#	print("Single input...")
-#	load(file.path(path, paste(inputname,".RData",sep="")))
-#	input.data<-input.data
-#}
-
-
-
-
-
-
-#load inputdata
-
-#print("Filter tags")
-#if (select.informative.tags_filter) {
-#      print("select.informative.tags filter")
-#      #load(paste("sppdata", "binding", input.data.samplename, "RData", sep="."))
-#      input.dataSelected <- select.informative.tags(input.data, binding.characteristics)
-#} else {
-#      print("SKIP select.informative.tags filter")
-#      input.dataSelected<-input.data$tags
-#}
-
-
-
-#print("Smooth tag density")
-#ts <- sum(unlist(lapply(input.dataSelected,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-#smoothed.density <- get.smoothed.tag.density(input.dataSelected, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift)
-#smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-
-#save(smoothed.density,file=paste(path,"TagDensity_",inputname,".RData",sep=""))
-load(paste(path,"TagDensity_",datafilename,"_",inputname,".RData",sep=""))
+load(paste(storagedir,"TagDensity_",datafilename,"_",inputname,".RData",sep=""))
 
 print("shorten frame")
 ##shorten frame
@@ -170,7 +64,7 @@ for (i in chrl)
 input.smoothed.density=input.new
 
 
-load(paste(path,"TagDensity_",datafilename,".RData",sep=""))
+load(paste(storagedir,"TagDensity_",datafilename,".RData",sep=""))
 new=NULL
 chrl=names(smoothed.density)
 for (i in chrl)

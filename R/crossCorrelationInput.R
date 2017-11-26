@@ -1,18 +1,21 @@
 library("spp")
-#library("snow")
+library("snow")
 library("girafe")
 #library("Rmpi")
+library("caTools")
 
-library(caTools)
-cluster=NULL
 
-crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),reads.aligner.type="bam")
+
+
+
+
+CrossCorrelationInput=function(path=arg[6],inputname=arg[7], print(inputname),read_length=as.integer(arg[8],reads.aligner.type<-"bam")
+) 
 {
 
-	f_plot <- function(datax_y, chipname, plotname="plot",xlabname="x-axis",ylabname="y-axis",line=NULL, lineplotX=NULL,lineplotY=NULL) 
+	f_plot <- function(datax_y, chipname, maintitel="title", plotname="plot",xlabname="x-axis",ylabname="y-axis",line=NULL, lineplotX=NULL,lineplotY=NULL) 
 	{
 		#options(bitmapType='cairo')
-		
 		filename=file.path(plotsdir, paste(plotname, chipname, "pdf", sep="."))
 		print(filename)
 		pdf(filename)	
@@ -22,7 +25,7 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 		par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
 		plot(datax_y,type='l',xlab=xlabname,ylab=ylabname)
 		abline(v=line,lty=2,lwd=2, col="red")
-		title(chipname)
+		title(maintitel)
 		!is.null(lineplotX)
 		{
 			lines(x=lineplotX, y=lineplotY, lwd=2, col="blue")
@@ -117,6 +120,9 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 		return(newShift)
 	}
 
+
+	
+
 	source(paste(path,"GlobalParameters.R",sep=""))
 	sampleinfo_file<-paste(path,"controllist.txt",sep="")
 	sampleinfo<-read.table(sampleinfo_file,  header=TRUE, quote="", stringsAsFactors=FALSE)
@@ -132,12 +138,26 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 	rownames(chrominfo)<-chrominfo$chrom
 	rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(c(1,x))})
 
+	#mc <- getOption("mc.cores",mpi.universe.size() )
+	#if (cluster_ON_OFF==TRUE)
+	#{
+	#	cluster=makeCluster(mc, type="MPI")
+	#}else{cluster=NULL}
 
+	cluster=NULL
 	inputIndex=which(sampleinfo$Filename==inputname)
 	print(inputIndex)
 	#get readcount using specific aligner 
 	read.tags.current_function<-get(paste("read", reads.aligner.type , "tags", sep="."))
-	input.data<-read.tags.current_function(file.path(path,paste(sampleinfo$Filename[inputIndex],"bam",sep=".")))
+
+	if (reads.aligner.type=="bam")
+	{
+		input.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[inputIndex],"bam",sep=".")))
+	}
+	if (reads.aligner.type=="tagalign")
+	{
+		input.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[inputIndex],"tagAlign",sep=".")))
+	}
 
 	#input.data<-read.tags.current_function(file.path(datadir,inputname))
 	readCount=sum(sapply(input.data$tags, length))
@@ -146,7 +166,17 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 	#load(file.path(datadir, paste(inputname,".RData",sep="")))
 
 
-	file.remove(paste(path,inputname,".bam",sep=""))
+	if (reads.aligner.type=="bam")
+	{
+		file.remove(paste(bamdir,inputname,".bam",sep=""))
+	}
+	if (reads.aligner.type=="tagalign")
+	{
+		file.remove(paste(bamdir,inputname,".tagAlign",sep=""))
+		file.remove(paste(bamdir,inputname,".tagAlign.gz",sep=""))
+	}
+
+
 	###step 1: tag distribution 
 	#get binding characteristics 
 	input.data_tagdistribution<-sapply(input.data$tags, length)
@@ -213,8 +243,6 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 	f_plot(binding.characteristics$cross.correlation,inputname,plotname="customCrossCorrelation",xlab="strand shift",ylab="cross-correlation",line=binding.characteristics$peak$x, lineplotX=binding.characteristics$cross.correlation$x,lineplotY=binding.characteristics_cross.correlation_y_smoothed)
 
 	strandShift<-binding.characteristics$peak$x
-
-
 	###2.2 phantom peak with smoothing
 
 	# phantom.characteristics<-phantom.characteristics
@@ -287,6 +315,8 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 	NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
 
 
+
+
 	## to compensate for lib size differences
 	nomi<-rep(names(input.data$tags), sapply(input.data$tags, length))
 	input.dataNRF<-unlist(input.data$tags)
@@ -324,7 +354,11 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 	PBC = N1/Nd
 
 
-	
+
+
+
+	#writewig(dat=smoothed.density,fname=paste("/data/FF/Carmen/Pipeline/tagDensity_input", inputname,"bw",wig.bw,"step",wig.step,"wig", sep="."),feature=paste(inputname, "tag density","bw",wig.bw,"step",wig.step), zip = T )
+	#rm(smoothed.density)
 
 	spaceUsage=sum(sort(sapply(ls(),function(x){object.size(get(x))}))) 
 	######################
@@ -376,6 +410,8 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 	write(paste("NRF_LibSizeadjusted",NRF_LibSizeadjusted,sep=" "),file=outname,append=T)
 	write(paste("NRF_nostrand",NRF_nostrand,sep=" "),file=outname,append=T)
 	write(paste("PBC",PBC,sep=" "),file=outname,append=T)
+	write(paste("N1",N1,sep=" "),file=outname,append=T)
+	write(paste("Nd",Nd,sep=" "),file=outname,append=T)
 
 
 	t1<-proc.time()[3]
@@ -383,6 +419,6 @@ crossCorrelationInput=function(inputname="Input",read_length=36,path=getwd(),rea
 
 	write(paste("CrossCorrelation_Timing",inputname,deltat,sep=" "),file=paste(timedir,"/timing",inputname,".txt",sep=""))
 	write(paste("Space_Usage",inputname,spaceUsage,sep=" "),file=paste(timedir,"/timing",inputname,".txt",sep=""),append=T)
-}
 
+}
 
