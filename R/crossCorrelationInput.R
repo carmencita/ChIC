@@ -9,8 +9,8 @@ library("caTools")
 
 
 
-CrossCorrelationInput=function(path=arg[6],inputname=arg[7], print(inputname),read_length=as.integer(arg[8],reads.aligner.type<-"bam")
-) 
+CrossCorrelationInput=function(path=arg[6],filename=arg[7], read_length=as.integer(arg[8]),reads.aligner.type<-"bam")
+ 
 {
 
 	f_plot <- function(datax_y, chipname, maintitel="title", plotname="plot",xlabname="x-axis",ylabname="y-axis",line=NULL, lineplotX=NULL,lineplotY=NULL) 
@@ -124,15 +124,6 @@ CrossCorrelationInput=function(path=arg[6],inputname=arg[7], print(inputname),re
 	
 
 	source(paste(path,"GlobalParameters.R",sep=""))
-	sampleinfo_file<-paste(path,"controllist.txt",sep="")
-	sampleinfo<-read.table(sampleinfo_file,  header=TRUE, quote="", stringsAsFactors=FALSE)
-
-
-	workingdir<-paste(path,"CrossCorrelation/",sep="")
-	outputdir<-paste(workingdir,"out/",sep="")
-	timedir<-paste(workingdir,"time_stamps/",sep="")
-	plotsdir<-paste(workingdir,"plots/",sep="")
-
 
 	chrominfo<-read.table(chrominfo_file, header=TRUE, quote="", sep="\t", stringsAsFactors=FALSE)
 	rownames(chrominfo)<-chrominfo$chrom
@@ -144,37 +135,34 @@ CrossCorrelationInput=function(path=arg[6],inputname=arg[7], print(inputname),re
 	#	cluster=makeCluster(mc, type="MPI")
 	#}else{cluster=NULL}
 
-	cluster=NULL
-	inputIndex=which(sampleinfo$Filename==inputname)
-	print(inputIndex)
-	#get readcount using specific aligner 
+	##get readcount using specific aligner 
 	read.tags.current_function<-get(paste("read", reads.aligner.type , "tags", sep="."))
 
 	if (reads.aligner.type=="bam")
 	{
-		input.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[inputIndex],"bam",sep=".")))
+		input.data<-read.tags.current_function(file.path(path,filename,"bam",sep=".")))
 	}
 	if (reads.aligner.type=="tagalign")
 	{
-		input.data<-read.tags.current_function(file.path(bamdir,paste(sampleinfo$Filename[inputIndex],"tagAlign",sep=".")))
+		input.data<-read.tags.current_function(file.path(path,filename,"tagAlign",sep=".")))
 	}
 
 	#input.data<-read.tags.current_function(file.path(datadir,inputname))
 	readCount=sum(sapply(input.data$tags, length))
-	cat("READS count", "\n", inputname, readCount, "\n")
-	save(input.data,file=paste(path,inputname,".RData",sep=""))
+	#cat("READS count", "\n", inputname, readCount, "\n")
+	
 	#load(file.path(datadir, paste(inputname,".RData",sep="")))
 
 
-	if (reads.aligner.type=="bam")
-	{
-		file.remove(paste(bamdir,inputname,".bam",sep=""))
-	}
-	if (reads.aligner.type=="tagalign")
-	{
-		file.remove(paste(bamdir,inputname,".tagAlign",sep=""))
-		file.remove(paste(bamdir,inputname,".tagAlign.gz",sep=""))
-	}
+	# if (reads.aligner.type=="bam")
+	# {
+	# 	file.remove(paste(bamdir,inputname,".bam",sep=""))
+	# }
+	# if (reads.aligner.type=="tagalign")
+	# {
+	# 	file.remove(paste(bamdir,inputname,".tagAlign",sep=""))
+	# 	file.remove(paste(bamdir,inputname,".tagAlign.gz",sep=""))
+	# }
 
 
 	###step 1: tag distribution 
@@ -420,5 +408,6 @@ CrossCorrelationInput=function(path=arg[6],inputname=arg[7], print(inputname),re
 	write(paste("CrossCorrelation_Timing",inputname,deltat,sep=" "),file=paste(timedir,"/timing",inputname,".txt",sep=""))
 	write(paste("Space_Usage",inputname,spaceUsage,sep=" "),file=paste(timedir,"/timing",inputname,".txt",sep=""),append=T)
 
+	save(input.data,file=paste(path,inputname,".RData",sep=""))
 }
 
