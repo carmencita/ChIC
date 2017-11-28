@@ -13,113 +13,103 @@ rownames(chrominfo)<-chrominfo$chrom
 rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(as.integer(c(1,x)))})
 
 
-##functions
-f_plot <- function(datax_y, chipname, maintitel="title", plotname="plot",xlabname="x-axis",ylabname="y-axis",line=NULL, lineplotX=NULL,lineplotY=NULL) 
-	{
-		#options(bitmapType='cairo')
-		filename=file.path(path, paste(plotname, chipname, "pdf", sep="."))
-		print(filename)
-		pdf(filename)	
-		#print(file.path(outputdir, paste(plotname, chipname, "pdf", sep=".")))
-		#bitmap(filename,"png16m")
-		#pdf(filename=file.path(outputdir, paste(plotname, chipname, "pdf", sep=".")))
-		par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-		plot(datax_y,type='l',xlab=xlabname,ylab=ylabname)
-		abline(v=line,lty=2,lwd=2, col="red")
-		title(maintitel)
-		!is.null(lineplotX)
-		{
-			lines(x=lineplotX, y=lineplotY, lwd=2, col="blue")
-		}
-		
-		dev.off()
-		return(TRUE)
-	}
 
 
 f_convertFormatBroadPeak <- function(given.clusters)
-	{
-		chrl <- names(given.clusters)
-		names(chrl) <- chrl
-		chrl <- chrl[unlist(lapply(given.clusters, function(d) length(d$s))) > 0]
-		md <- do.call(rbind, lapply(chrl, function(chr
-)		{ 
-			df <- given.clusters[[chr]]
-			cbind(chr, df$s, df$e, ".", "0", ".", df$rv, -1, -1)
-	    	}
-		))
-	    	md <- md[order(as.numeric(md[, 7]), decreasing = T), ]
-		md=data.frame(md)
-		return(md)
+{
+	chrl <- names(given.clusters)
+	names(chrl) <- chrl
+	chrl <- chrl[unlist(lapply(given.clusters, function(d) length(d$s))) > 0]
+	md <- do.call(rbind, lapply(chrl, function(chr)		
+	{ 
+		df <- given.clusters[[chr]]
+		cbind(chr, df$s, df$e, ".", "0", ".", df$rv, -1, -1)
 	}
+	))
+	md <- md[order(as.numeric(md[, 7]), decreasing = T), ]
+	md=data.frame(md)
+	return(md)
+}
 
 
-	f_converNarrowPeakFormat =function(bd, margin = bd$whs) 
+f_converNarrowPeakFormat =function(bd, margin = bd$whs) 
+{
+	if (is.null(margin)) 
 	{
-		if (is.null(margin)) {
-			margin <- 50
-		}
-		chrl <- names(bd$npl)
-		names(chrl) <- chrl
-		md <- do.call(rbind, lapply(chrl, function(chr) 
-		{
-			df <- bd$npl[[chr]]
-			x <- df$x
-			rs <- df$rs
-			if (is.null(rs)) {rs <- rep(NA, length(x))}
-		        re <- df$re
-	        	if (is.null(re)) {re <- rep(NA, length(x))}
+		margin <- 50
+	}
+	chrl <- names(bd$npl)
+	names(chrl) <- chrl
+	md <- do.call(rbind, lapply(chrl, function(chr) 
+	{
+		df <- bd$npl[[chr]]
+		x <- df$x
+		rs <- df$rs
+		if (is.null(rs)) {rs <- rep(NA, length(x))}
+			re <- df$re
+		if (is.null(re)) {re <- rep(NA, length(x))}
 			ivi <- which(is.na(rs))
-	        	if (any(ivi)) {rs[ivi] <- x[ivi] - margin}
+		if (any(ivi)) {rs[ivi] <- x[ivi] - margin}
 			ivi <- which(is.na(re))
-	        	if (any(ivi)) {re[ivi] <- x[ivi] + margin}
+		if (any(ivi)) {re[ivi] <- x[ivi] + margin}
 			cbind(chr, rs, re, ".", "0", ".", df$y, -1, format(df$fdr, scientific = T, digits = 3), x - rs)
-		}))
-		md <- md[order(as.numeric(md[, 7]), decreasing = T), ]
-		md=data.frame(md)
-	    #write.table(md, file = fname, col.names = F, row.names = F, quote = F, sep = "\t", append = F)
-		return(md)
-	}
+	}))
+	md <- md[order(as.numeric(md[, 7]), decreasing = T), ]
+	md=data.frame(md)
+	#write.table(md, file = fname, col.names = F, row.names = F, quote = F, sep = "\t", append = F)
+	return(md)
+}
 
 
-
-
-	f_getCustomStrandShift= function(x,y){
-		x=binding.characteristics$cross.correlation$x
-		y=binding.characteristics_cross.correlation_y_smoothed
-		deriv=diff(y)/diff(x)
-		#globalminY=min(abs(deriv))
-		deriv=append(0,deriv) ##to catch up the right index, because in deriv I loose one array-field
-		#globalminX=x[which(abs(deriv)==globalminY)] ###shift all um 5 nach rechts
-
-		#check from the right side and pick the points with the x (closest to zero) and y largest 
-		##means: search for regions with Vorzeichen change
-		startVorzeichen=sign(deriv[length(deriv)])
-		field=NULL
-		for (index in rev(seq(2,length(deriv))))
-		{
-			derivpoint=deriv[index]
-			xpoint=x[index]
-			ypoint=y[index]
-			#print(paste(xpoint,ypoint,sep=" "))
-			if (startVorzeichen!=sign(derivpoint))
-			{ 
-				##Vorzeichenwechsel
-				field=rbind(field,c(xpoint,ypoint,derivpoint))
-				startVorzeichen=sign(derivpoint)
-			}
+f_getCustomStrandShift= function(x,y){
+	x=binding.characteristics$cross.correlation$x
+	y=binding.characteristics_cross.correlation_y_smoothed
+	deriv=diff(y)/diff(x)
+	#globalminY=min(abs(deriv))
+	deriv=append(0,deriv) ##to catch up the right index, because in deriv I loose one array-field
+	#globalminX=x[which(abs(deriv)==globalminY)] ###shift all um 5 nach rechts
+	#check from the right side and pick the points with the x (closest to zero) and y largest 
+	##means: search for regions with Vorzeichen change
+	startVorzeichen=sign(deriv[length(deriv)])
+	field=NULL
+	for (index in rev(seq(2,length(deriv))))
+	{
+		derivpoint=deriv[index]
+		xpoint=x[index]
+		ypoint=y[index]
+		#print(paste(xpoint,ypoint,sep=" "))
+		if (startVorzeichen!=sign(derivpoint))
+		{ 
+			##Vorzeichenwechsel
+			field=rbind(field,c(xpoint,ypoint,derivpoint))
+			startVorzeichen=sign(derivpoint)
 		}
-		if (is.null(field) )
-		{
-			newShift="ERROR"
-		}else{
-		
-			field=data.frame(field)
-			colnames(field)=c("x","y","deriv")
-			newShift=field[which(max(field$y)==field$y),]$x
-		}
-		return(newShift)
 	}
+	if (is.null(field) )
+	{
+		newShift="ERROR"
+	}else{
+		field=data.frame(field)
+		colnames(field)=c("x","y","deriv")
+		newShift=field[which(max(field$y)==field$y),]$x
+	}
+	return(newShift)
+}
+
+
+f_readFile=function(f_filename,f_reads.aligner.type="bam",f_path=getwd())
+{
+	read.tags.current_function<-get(paste("read", f_reads.aligner.type , "tags", sep="."))
+	if (f_reads.aligner.type=="bam")
+	{
+	    data<-read.tags.current_function(file.path(f_path,paste(f_filename,".bam",sep="")))
+	}
+	if (f_reads.aligner.type=="tagalign")
+	{
+	    data<-read.tags.current_function(file.path(f_path,paste(f_filename,".tagAlign",sep="")))
+	}
+	return(data)
+}
 
 #MainSTeps
 
@@ -128,18 +118,7 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 {
 
 	###read files
-	f_readFile=function(f_filename,f_reads.aligner.type="bam",f_path=getwd())
-	{
-		read.tags.current_function<-get(paste("read", f_reads.aligner.type , "tags", sep="."))
-		if (f_reads.aligner.type=="bam")
-		{
-		    data<-read.tags.current_function(file.path(f_path,paste(f_filename,".bam",sep="")))
-		}
-		if (f_reads.aligner.type=="tagalign")
-		{
-		    data<-read.tags.current_function(file.path(f_path,paste(f_filename,".tagAlign",sep="")))
-		}
-	}
+
 
 	chip.data=f_readFile(chipName,f_path="/lustre/data/FF/Carmen/BitBucket/chic/data/")
 	input.data=f_readFile(inputName,f_path="/lustre/data/FF/Carmen/BitBucket/chic/data/")
@@ -147,25 +126,18 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 	#plot and calculate cross correlation and phantom
 	#chip_tagdistribution<-sapply(chip.data$tags, length)
 	#input_tagdistribution<-sapply(input.data$tags, length)
-
+	cluster=NULL
 	chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
 	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics)
 	
 	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
 	crossvalues_Chip=f_calculateCrossCorrelation(input.data,input_binding.characteristics)
 
-	f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36)
+	f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36,plotname="phantomCrossCorrelation")
 	{
-
-		readCount=sum(sapply(data$tags, length))
-		#get binding characteristics 
-		print("Cross correlation plot")
-		f_plot(binding.characteristics$cross.correlation,datafilename,maintitel=TFname,plotname="CrossCorrelation",xlab="strand shift",ylab="cross-correlation",line=binding.characteristics$peak$x)
-		print(binding.characteristics$peak$x)
-	
-
+		#readCount=sum(sapply(data$tags, length))
 		###step 1.2: Phantom peak and cross-correlation
-		print("Estimating fragment lengths")
+		print("Phantom peak and cross-correlation")
 		phantom.characteristics<-get.binding.characteristics(data, srange=PhantomPeak_range, bin=PhantomPeak_bin, cluster=cluster)
 		
 		ph_peakidx <- which( ( phantom.characteristics$cross.correlation$x >= ( read_length - round(2*PhantomPeak_bin) ) ) & ( phantom.characteristics$cross.correlation$x <= ( read_length + round(1.5*PhantomPeak_bin) ) ) )
@@ -192,10 +164,9 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		} else if ( (RSC >= 1.5) ) {
 			qflag <- 2
 		}
-
 		phantom_peak.scores <- list(phantom_cc=phantom_cc, NSC=NSC, RSC=RSC, quality_flag=qflag, min_cc=min_cc, peak=phantom.characteristics$peak, read_length=read_length)
 		
-
+		print("smooting...")
 		###2.0 smoothed cross correlation
 		subset_selection<- which(binding.characteristics$cross.correlation$x %in% cross_correlation_range_subset)
 		binding.characteristics$cross.correlation<-binding.characteristics$cross.correlation[subset_selection,]
@@ -205,11 +176,10 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		binding.characteristics$peak$y<-max(binding.characteristics_cross.correlation_y_smoothed)
 		binding.characteristics$peak$x<-binding.characteristics$cross.correlation$x[(which(binding.characteristics_cross.correlation_y_smoothed==binding.characteristics$peak$y))]
 
-
 		# plot cross correlation curve with smoothing
-		f_plot(binding.characteristics$cross.correlation,datafilename,maintitel=TFname,plotname="customCrossCorrelation",xlab="strand shift",ylab="cross-correlation",line=binding.characteristics$peak$x, lineplotX=binding.characteristics$cross.correlation$x,lineplotY=binding.characteristics_cross.correlation_y_smoothed)
+		#f_plot(binding.characteristics$cross.correlation,datafilename,maintitel=TFname,plotname="customCrossCorrelation",xlab="strand shift",ylab="cross-correlation",line=binding.characteristics$peak$x, lineplotX=binding.characteristics$cross.correlation$x,lineplotY=binding.characteristics_cross.correlation_y_smoothed)
 		strandShift<-binding.characteristics$peak$x
-
+		print("Check strandshift...")
 		newShift=f_getCustomStrandShift(x=binding.characteristics$cross.correlation$x, y=binding.characteristics_cross.correlation_y_smoothed)
 		print(paste("newShift  is ",newShift,sep=""))
 		oldShift=NULL
@@ -226,7 +196,7 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		}
 
 		###2.2 phantom peak with smoothing
-
+		print("Phantom peak with smooting")
 		# phantom.characteristics<-phantom.characteristics
 		# select a subset of cross correlation profile where we expect the peak
 		subset_selection_forPeakcheck<- which(phantom.characteristics$cross.correlation$x %in% cross_correlation_range_subset)
@@ -268,15 +238,14 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		    }
 		    phantom_peak.scores$quality_flag<-qflag
 
-
 		} else {
 		  phantom.characteristics$peak$y#<-max(phantom.characteristics_cross.correlation_y_smoothed)
 		  phantom.characteristics$peak$x#<-phantom.characteristics$cross.correlation$x[(which(phantom.characteristics_cross.correlation_y_smoothed==phantom.characteristics$peak$y))]
 		}
 
-
 		  # plot cross correlation curve with smoothing
-		  pdf((filename=file.path(path, paste("phantomCrossCorrelation", datafilename, "pdf", sep="."))))
+		  print("plot cross correlation curve with smoothing")
+		  pdf((filename=file.path(path, paste(plotname, "pdf", sep="."))))
 		  par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
 		  plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation",main=TFname)
 		  lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col=cross_correlation_smoothing_color)
@@ -292,13 +261,13 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		    paste("Quality flag =", phantom_peak.scores$quality_flag),
 		    "",
 		    paste("Shift =", (phantom_peak.scores$peak$x)),
-		    paste("Read length =", (phantom_peak.scores$read_length))
+		    paste("Read length =", (read_length))
 		    ))
-		  title(datafilename)
+		  title(TFname)
 		  dev.off()
 
-		phantomScores= c(
-		    Sample=datafilename,
+		phantomScores= list(
+		    Sample=TFname,
 		    NSC=phantom_peak.scores$NSC,
 		    RSC=phantom_peak.scores$RSC,
 		    quality_flag=phantom_peak.scores$quality_flag,
@@ -310,6 +279,7 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 
 
 		###4 NRF calculation
+		print("NRF calculation")
 		ALL_TAGS<-sum(sapply(data$tags, length))
 		UNIQUE_TAGS<-sum(sapply(lapply(data$tags, unique), length))
 		UNIQUE_TAGS_nostrand<-sum(sapply(lapply(data$tags, FUN=function(x) {unique(abs(x))}), length))
@@ -317,9 +287,8 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		NRF<-UNIQUE_TAGS/ALL_TAGS
 		NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
 
-
-
 		## to compensate for lib size differences
+		print("compensate for lib size differences")
 		nomi<-rep(names(data$tags), sapply(data$tags, length))
 		dataNRF<-unlist(data$tags)
 		names(dataNRF)<-NULL
@@ -334,19 +303,11 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		     return(length(unique(sample(dataNRF, size=10e6, replace=TRUE))))
 		   })))
 		}
-
 		NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/10e6
-
-		STATS_NRF=c(Sample=datafilename, ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS, UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF, NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
-
-
+		STATS_NRF=list(ALL_TAGS=ALL_TAGS, UNIQUE_TAGS=UNIQUE_TAGS, UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, NRF=NRF, NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
 
 		#N1= number of genomic locations to which EXACTLY one unique mapping read maps
 		#Nd = the number of genomic locations to which AT LEAST one unique mapping read maps, i.e. the number of non-redundant, unique mapping reads
-
-		#PBC = N1/Nd
-
-
 		N1<-sum(sapply(data$tags, FUN=function(x) {
 			checkDuplicate<-duplicated(x)
 			duplicated_positions<-unique(x[checkDuplicate])
@@ -359,7 +320,14 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 
 		tag.shift <- round(strandShift/2)
 		
-		finalList <- list("tag.shift"=tag.shift , "names" = bar)
+		finalList <- append(append(
+			list("strandShift"=strandShift,
+				"tag.shift"=tag.shift,
+				"N1"=N1,"Nd"=Nd,"PBC"=PBC,
+				"read_length"=read_length,
+				"UNIQUE_TAGS_LibSizeadjusted"=UNIQUE_TAGS_LibSizeadjusted),
+			phantomScores),STATS_NRF)
+	
 		return(finalList)
 	}
 
@@ -371,21 +339,21 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 	input.data$tags=input.data$tags[chrl_final]
 	input.data$quality=input.data$quality[chrl_final]
 
-	bindingScores=f_getBindingRegionsScores(chip.data,input.data)
+	bindingAnalysis=f_getBindingRegionsScores(chip.data,input.data)
 
-	f_getBindingRegionsScores=function(chip,input)
+	f_getBindingRegionsScores=function(chip,input,chip_b.characteristics,input_b.characteristics)
 	{
 		print("Filter tags")
 		if (select.informative.tags_filter) {
 		      print("select.informative.tags filter")
 		     #load(paste("sppdata", "binding", chip.data.samplename, "RData", sep="."))
-		      chip.dataSelected <- select.informative.tags(chip.data, chip_binding.characteristics)
+		      chip.dataSelected <- select.informative.tags(chip, chip_b.characteristics)
 		      #load(paste("sppdata", "binding", input.data.samplename, "RData", sep="."))
-		      input.dataSelected <- select.informative.tags(input.data, input_binding.characteristics)
+		      input.dataSelected <- select.informative.tags(input.data, input_b.characteristics)
 		} else {
 		      print("SKIP select.informative.tags filter")
-		      chip.dataSelected<-chip.data$tags
-		      input.dataSelected<-input.data$tags
+		      chip.dataSelected<-chip$tags
+		      input.dataSelected<-input$tags
 		}
 
 		if (remove.local.tag.anomalies_filter) {
@@ -395,9 +363,10 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 			input.dataSelected <- remove.local.tag.anomalies(input.dataSelected)
 		} else {
 			print("SKIP remove.local.tag.anomalies filter")
-			input.dataSelected<-input.data$tags
-			chip.dataSelected=chip.data$tags
+			input.dataSelected<-input$tags
+			chip.dataSelected=chip$tags
 		}
+
 
 		
 		###5 broadRegions
@@ -426,16 +395,15 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 							start = as.integer(as.character(md[,2])),
 							end =as.integer(as.character(md[,3]))))
 
-				extension_vector<-size(broadPeak_selected_genes_genomeIntervals_object) ##saves the size of the peaks (intervals)
+				#extension_vector<-size(broadPeak_selected_genes_genomeIntervals_object) ##saves the size of the peaks (intervals)
 
-				STATS= c("Sample"=datafilename, "window"=current_window_size,"zthresh"=current_zthresh, "Regions number"=length(extension_vector), "Total extension"=sum(extension_vector), "Mean extension"=mean(extension_vector), "Median extension"=median(extension_vector))
-				extension_vector_list<-c(extension_vector_list, list(extension_vector))
+				#STATS= c("window"=current_window_size,"zthresh"=current_zthresh, "Regions number"=length(extension_vector), "Total extension"=sum(extension_vector), "Mean extension"=mean(extension_vector), "Median extension"=median(extension_vector))
+				#extension_vector_list<-c(extension_vector_list, list(extension_vector))
 			}
 		}
 
 
 		###12 get binding sites with FDR and eval
-
 
 		chip.data12<-chip.dataSelected[(names(chip.dataSelected) %in% custom_chrorder)]
 		input.data12<-input.dataSelected[(names(input.dataSelected) %in% custom_chrorder)]
@@ -445,14 +413,13 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 		detection.window.halfsize <- tag.shift
 		print("Window Tag Density method - WTD")
 		bp_FDR <- find.binding.positions(signal.data=chip.data12,control.data=input.data12,fdr=fdr,whs=detection.window.halfsize*2, tag.count.whs=detection.window.halfsize, cluster=cluster)
-		print(paste("detected",sum(unlist(lapply(bp_FDR$npl,function(d) length(d$x)))),"peaks"))
-		# output detected binding positions
-		#output.binding.results(results=bp, filename=paste("WTC.binding.positions", chip.data.samplename, "txt", sep="."))
-
+		FDR_detect=	sum(unlist(lapply(bp_FDR$npl,function(d) length(d$x))))
+		
 		print("Binding sites detection evalue")
 		eval<-10
 		bp_eval <- find.binding.positions(signal.data=chip.data12,control.data=input.data12,e.value=eval,whs=detection.window.halfsize*2,cluster=cluster)
-		print(paste("detected",sum(unlist(lapply(bp_eval$npl,function(d) length(d$x)))),"peaks"))
+		eval_detect=sum(unlist(lapply(bp_eval$npl,function(d) length(d$x))))
+		
 		# output detected binding positions
 		#output.binding.results(results=bp,filename=paste("WTC.binding.positions.evalue", chip.data.samplename,"input",input.data.samplename, "txt", sep="."))
 
@@ -474,27 +441,23 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 
 			###13 is only looping and writing into file
 			###15 FRiP
-			#require(girafe)
-			chip.test<-lapply(chip.data$tags, FUN=function(x) {x+tag.shift}) ###SORTS the tags for each chrom
+			chip.test<-lapply(chip$tags, FUN=function(x) {x+tag.shift}) ###SORTS the tags for each chrom
 			TOTAL_reads<-sum(sapply(chip.test, length))
 
 			##Frip broad binding sites (histones)
 			broadPeak_selected_genes_genomeIntervals_object<-close_intervals(interval_union(broadPeak_selected_genes_genomeIntervals_object))
 			regions_data_list<-split(as.data.frame(broadPeak_selected_genes_genomeIntervals_object), f=seq_name(broadPeak_selected_genes_genomeIntervals_object))
-
 			chrl<-names(regions_data_list)
 			names(chrl)<-chrl
 			outcountsBroadPeak<-sum(sapply(chrl, FUN=function(chr) {
 			      sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
 			    }))
-
 			FRiP_broadPeak<-outcountsBroadPeak/TOTAL_reads
 
 
 			###Frip sharp peaks 14
 			sharpPeak_selected_genes_genomeIntervals_object<-close_intervals(interval_union(sharpPeak_selected_genes_genomeIntervals_object))
 			regions_data_list<-split(as.data.frame(sharpPeak_selected_genes_genomeIntervals_object), f=seq_name(sharpPeak_selected_genes_genomeIntervals_object))
-
 			chrl<-names(regions_data_list)
 			names(chrl)<-chrl
 			outcountsSharpPeak<-sum(sapply(chrl, FUN=function(chr) {
@@ -502,6 +465,7 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 			    }))
 
 			FRiP_sharpPeak<-outcountsSharpPeak/TOTAL_reads
+
 		}else{
 			TOTAL_reads=0
 			FRiP_broadPeak=0
@@ -510,63 +474,94 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 			outcountsSharpPeak=0
 		}
 
-		print("write results in file")
-	################RESULTS
-	outname=paste(outputdir,datafilename,".results",sep="")
-	file.remove(outname)
-	#sampleIndex datafilename
-	#readCount read_length
-	write(paste("TF: ",TFname,sep=" "),file=outname,append=T)
-	write(paste("Input: ",datafilename,sampleIndex,sep=" "),file=outname,append=T)
-	write(paste("Input: ",inputname,inputIndex,sep=" "),file=outname,append=T)
+		QCscoreList=list("FDR detected"=FDR_detect,
+			"eval detected"=eval_detect,
+			"FRiP_broadPeak"=FRiP_broadPeak, 
+			"outcountsBroadPeak"=outcountsBroadPeak, 
+			"FRiP_sharpPeak"=FRiP_sharpPeak, 
+			"outcountsSharpPeak", outcountsSharpPeak,
+			)
 
-	write(paste("ReadCount",readCount,sep=" "),file=outname,append=T)
-	write(paste("Read_length",read_length,sep=" "),file=outname,append=T)
-	#strandShift<-binding.characteristics$peak$x
-	write(paste("StrandShift",strandShift,sep=" "),file=outname,append=T)
-	write(paste("Substitution of StrandShift from ",oldShift," to ",strandShift,sep=" "),file=outname,append=T)
+		finalList=list(QCscoreList,
+			"input.dataSelected"=input.dataSelected
+			"chip.dataSelected"=chip.dataSelected)
+		return(finalList)
+	}
 
-	#binding.characteristics$peak$whs
-	write(paste("bindingCharacteristicsPeak (x,y,whs)",binding.characteristics$peak$x,binding.characteristics$peak$y,binding.characteristics$whs,sep=" "),file=outname,append=T)
+	bindingScores=bindingAnalysis$QCscoreList
+	input.dataSelected=bindingAnalysis$input.dataSelected
+	chip.dataSelected=bindingAnalysis$chip.dataSelected
 
-	#phantom.characteristics$peak$x 
-	#phantom.characteristics$peak$y
-	#phantom.characteristics$peak$whs
 
-	write(paste("phantomCharacteristicsPeak (x,y,whs)",phantom.characteristics$peak$x,phantom.characteristics$peak$y,phantom.characteristics$whs,sep=" "),file=outname,append=T)
-	#phantomScores
 
-	write(paste("ALL_TAGS",ALL_TAGS,sep=" "),file=outname,append=T)
-	write(paste("NSC",round(NSC, 2),sep=" "),file=outname,append=T)
-	write(paste("RSC",round(RSC, 2),sep=" "),file=outname,append=T)
-	write(paste("Quality flag: ", qflag,sep=" "),file=outname,append=T)
-	write(paste("shift: ", round(as.double(phantomScores["shift"]),2),sep=" "),file=outname,append=T)
 
-	write(paste("read length",round(as.double(phantomScores["read_length"]),2),sep=" "),file=outname,append=T)
-	write(paste("A: ", round(as.double(phantomScores["A"]),2),sep=" "),file=outname,append=T)
-	write(paste("B: ", round(as.double(phantomScores["B"]),2),sep=" "),file=outname,append=T)
-	write(paste("C: ", round(as.double(phantomScores["C"]),2),sep=" "),file=outname,append=T)
+	f_tagDensity=function(data,parallel.mc=NULL)
+	##takes dataSelected as input, parallel is the number of CPUs used for parallelization
+	{
+		## density distribution for data
+		print("Smooth tag density")
+		ts <- sum(unlist(lapply(data,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
+		##parallelisation
+		chromosomes_list<-names(data)
+		##creates a list of lists
+		data<-lapply(chromosomes_list, FUN=function(x) {
+			return(data[x])
+		})
+		if (parallel!=NULL)
+		{
+			smoothed.density<-mclapply(data, FUN=function(current_chr_list)
+			{
+			    current_chr<-names(current_chr_list)
+			    str(current_chr_list)
+			    if (length(current_chr) != 1) 
+			    {
+			        stop("unexpected input.dataSelected structure")
+			    }
+			    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+			}, mc.preschedule = FALSE,mc.cores=parallel.mc)
+		}else{
+			smoothed.density<-lapply(data, FUN=function(current_chr_list)
+			{
+			    current_chr<-names(current_chr_list)
+			    str(current_chr_list)
+			    if (length(current_chr) != 1) 
+			    {
+			        stop("unexpected input.dataSelected structure")
+			    }
+			    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+			})
+		}
+		smoothed.density=(unlist(smoothed.density,recursive=FALSE))
+		#normalizing smoothed tag density by library size
+		smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
+		return(smoothed.density)
+	}
 
-	write(paste("FDR detected",sum(unlist(lapply(bp_FDR$npl,function(d) length(d$x)))),"peaks",sep=" "),file=outname,append=T)
-	write(paste("eval detected",sum(unlist(lapply(bp_eval$npl,function(d) length(d$x)))),"peaks",sep=" "),file=outname,append=T)
+	smooted.densityChip=f_tagDensity(chip.dataSelected)
+	smooted.densityInput=f_tagDensity(input.dataSelected)
 
-	#STATS_NRF
 
-	write(paste("UNIQUE_TAGS_LibSizeadjusted",UNIQUE_TAGS_LibSizeadjusted,sep=" "),file=outname,append=T)
-	write(paste("NRF_LibSizeadjusted",NRF_LibSizeadjusted,sep=" "),file=outname,append=T)
-	write(paste("ALL_TAGS",ALL_TAGS,sep=" "),file=outname,append=T)
-	write(paste("UNIQUE_TAGS",UNIQUE_TAGS,sep=" "),file=outname,append=T)
-	write(paste("UNIQUE_TAGS_nostrand",UNIQUE_TAGS_nostrand,sep=" "),file=outname,append=T)
-	write(paste("NRF",NRF,sep=" "),file=outname,append=T)
-	write(paste("NRF_LibSizeadjusted",NRF_LibSizeadjusted,sep=" "),file=outname,append=T)
-	write(paste("NRF_nostrand",NRF_nostrand,sep=" "),file=outname,append=T)
-	write(paste("PBC",PBC,sep=" "),file=outname,append=T)
-	write(paste("N1",N1,sep=" "),file=outname,append=T)
-	write(paste("Nd",Nd,sep=" "),file=outname,append=T)
-	#Frip
-	write(paste("Total_reads",TOTAL_reads,"FRiP_broadPeak",round(FRiP_broadPeak, 2),"outcountsBroadPeak", outcountsBroadPeak, "FRiP_sharpPeak", FRiP_sharpPeak, "outcountsSharpPeak", outcountsSharpPeak, sep=" "),file=outname,append=T)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 }
+
