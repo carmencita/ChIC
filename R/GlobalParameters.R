@@ -4,12 +4,12 @@
 ###
 
 
-workingdir<-"/gpfs/work/IscrC_CONCEPt/QC_pipeline/"
-bamdir="/pico/scratch/userexternal/clivi000/bam/"
-storagedir="/pico/scratch/userexternal/clivi000/Storage/"
+# workingdir<-"/gpfs/work/IscrC_CONCEPt/QC_pipeline/"
+# bamdir="/pico/scratch/userexternal/clivi000/bam/"
+# storagedir="/pico/scratch/userexternal/clivi000/Storage/"
 #sampleinfo_file<-paste(workingdir,"/SampleinfoAlpha.txt",sep="")
 
-chrominfo_file<-"/gpfs/work/IscrC_CONCEPt/Annotations/hg19/hg19.chromInfo.txt"
+chrominfo_file<-"/lustre/data/FF/Carmen/BitBucket/chic/data/Annotations/hg19/hg19.chromInfo.txt"
 
 ###
 ###CLUSTER settings
@@ -24,7 +24,7 @@ cluster_ON_OFF=TRUE
 ###
 #reads.aligner.type<-"bowtie"
 #reads.aligner.type<-"bam"
-reads.aligner.type<-"tagalign"
+#reads.aligner.type<-"tagalign"
 
 
 ###
@@ -38,7 +38,8 @@ reads.aligner.type<-"tagalign"
 ###
 ### cross_correlation parameters
 ###
-custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
+#custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
+custom_chrorder<-paste("chr", c(1:22, "X","Y"), sep="")
 estimating_fragment_length_range<-c(0,500)
 estimating_fragment_length_bin<-5
 
