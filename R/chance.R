@@ -97,7 +97,7 @@ tail(Ysorted)
 print("partial summing")
 
 BINS_NUMBER<-1e4
-print("input ...")
+print("chip ...")
 cumulative_sum_Y<-cumsum(Ysorted)
 cumulative_sum_Y_bins<-quantile(cumulative_sum_Y, probs=seq(0,1,(1/BINS_NUMBER)))
 pj<-(cumulative_sum_Y_bins/cumulative_sum_Y[length(cumulative_sum_Y)])
@@ -108,7 +108,7 @@ Yfraction_of_reads_intop_1percent_bins<-(1-fcompY[(which(fcompY$x>=0.99)[1]),"pj
 Yfraction_of_bins_without_reads<-fcompY$x[(which(fcompY$pj>0)[1])]
 
 
-print("chip ...")
+print("input ...")
 cumulative_sum_X<-cumsum(Xsorted)
 cumulative_sum_X_bins<-quantile(cumulative_sum_X, probs=seq(0,1,(1/BINS_NUMBER)))
 pj<-(cumulative_sum_X_bins/cumulative_sum_X[length(cumulative_sum_X)])
