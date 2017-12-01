@@ -92,5 +92,7 @@ QCscores_global=function(densityChip,densityInput)
 		#"CrossPoint_Y_chip"=cross_pointY_chip,
 		#"CrossPoint_Y_input"=cross_pointY_input)
 	
+	write.table(finalList,file=paste(getwd(),"Chance.results",sep=""))
+
 	return(finalList)
 }

@@ -38,8 +38,8 @@ cluster_ON_OFF=TRUE
 ###
 ### cross_correlation parameters
 ###
-#custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
-custom_chrorder<-paste("chr", c(1:22, "X","Y"), sep="")
+custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
+#custom_chrorder<-paste("chr", c(1:22, "X","Y"), sep="")
 estimating_fragment_length_range<-c(0,500)
 estimating_fragment_length_bin<-5
 

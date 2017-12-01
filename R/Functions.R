@@ -285,9 +285,10 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 
 
 
-f_getBindingRegionsScores=function(chip,input,chip_b.characteristics,input_b.characteristics,tag.shift=75)
+f_selectInformativeTag=function(chip,input,chip_b.characteristics,input_b.characteristics)
 {
 	print("Filter tags")
+	#print(chrorder)
 	if (select.informative.tags_filter) {
 	      print("select.informative.tags filter")
 	     #load(paste("sppdata", "binding", chip.data.samplename, "RData", sep="."))
@@ -310,6 +311,13 @@ f_getBindingRegionsScores=function(chip,input,chip_b.characteristics,input_b.cha
 		chip.dataSelected=chip$tags
 	}
 
+	finalList=list("input.dataSelected"=input.dataSelected,
+		"chip.dataSelected"=chip.dataSelected)
+	return(finalList)
+}
+
+f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75,chrorder=NULL)
+{
 	###5 broadRegions
 	###6 enrichment broad regions
 	zthresh_list<-c(3,4)
@@ -337,8 +345,8 @@ f_getBindingRegionsScores=function(chip,input,chip_b.characteristics,input_b.cha
 	}
 
 	###12 get binding sites with FDR and eval
-	chip.data12<-chip.dataSelected[(names(chip.dataSelected) %in% custom_chrorder)]
-	input.data12<-input.dataSelected[(names(input.dataSelected) %in% custom_chrorder)]
+	chip.data12<-chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
+	input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
 
 	print("Binding sites detection fdr")
 	fdr <- 1e-2
@@ -351,7 +359,7 @@ f_getBindingRegionsScores=function(chip,input,chip_b.characteristics,input_b.cha
 	eval<-10
 	bp_eval <- find.binding.positions(signal.data=chip.data12,control.data=input.data12,e.value=eval,whs=detection.window.halfsize*2,cluster=cluster)
 	eval_detect=sum(unlist(lapply(bp_eval$npl,function(d) length(d$x))))
-		
+
 	# output detected binding positions
 	#output.binding.results(results=bp,filename=paste("WTC.binding.positions.evalue", chip.data.samplename,"input",input.data.samplename, "txt", sep="."))
 	if (length(bp_eval$npl)>1)
@@ -410,8 +418,49 @@ f_getBindingRegionsScores=function(chip,input,chip_b.characteristics,input_b.cha
 		"outcountsSharpPeak", outcountsSharpPeak,
 		)
 
-	finalList=list(QCscoreList,
-		"input.dataSelected"=input.dataSelected,
-		"chip.dataSelected"=chip.dataSelected)
 	return(finalList)
+}
+
+
+
+f_tagDensity=function(data,parallel.mc=NULL)
+##takes dataSelected as input, parallel is the number of CPUs used for parallelization
+{
+	## density distribution for data
+	print("Smooth tag density")
+	ts <- sum(unlist(lapply(data,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
+	##parallelisation
+	chromosomes_list<-names(data)
+	##creates a list of lists
+	data<-lapply(chromosomes_list, FUN=function(x) {
+		return(data[x])
+	})
+	if (parallel!=NULL)
+	{
+		smoothed.density<-mclapply(data, FUN=function(current_chr_list)
+		{
+		    current_chr<-names(current_chr_list)
+		    str(current_chr_list)
+		    if (length(current_chr) != 1) 
+		    {
+		        stop("unexpected input.dataSelected structure")
+		    }
+		    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+		}, mc.preschedule = FALSE,mc.cores=parallel.mc)
+	}else{
+		smoothed.density<-lapply(data, FUN=function(current_chr_list)
+		{
+		    current_chr<-names(current_chr_list)
+		    str(current_chr_list)
+		    if (length(current_chr) != 1) 
+		    {
+		        stop("unexpected input.dataSelected structure")
+		    }
+		    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+		})
+	}
+	smoothed.density=(unlist(smoothed.density,recursive=FALSE))
+	#normalizing smoothed tag density by library size
+	smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
+	return(smoothed.density)
 }

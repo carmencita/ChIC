@@ -8,6 +8,7 @@
 
 require("spp")
 ##neds caTools
+library("girafe")
 #private variables
 
 source("Functions.R")
@@ -43,61 +44,27 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 	input.data$tags=input.data$tags[chrl_final]
 	input.data$quality=input.data$quality[chrl_final]
 
-	bindingAnalysis=f_getBindingRegionsScores(chip.data,input.data,	final.tag.shift)
+
+
+	selectInformativeTags=f_selectInformativeTag(chip.data,input.data,chip_binding.characteristics,input_binding.characteristics)
+
+		##Save data object to be read afterwards for the densityt distribution
+
+	input.dataSelected=selectInformativeTags$input.dataSelected
+	chip.dataSelected=selectInformativeTags$chip.dataSelected
+	save(input.dataSelected,final.tag.shift,chip.dataSelected,file=paste(getwd(),"dataSelected.RData",sep=""))
+
+
+	bindingAnalysis=f_getBindingRegionsScores(chip.data,input.data,	chip.dataSelected,input.dataSelected,final.tag.shift,custom_chrorder)
 
 	bindingScores=bindingAnalysis$QCscoreList
 	input.dataSelected=bindingAnalysis$input.dataSelected
 	chip.dataSelected=bindingAnalysis$chip.dataSelected
 
 
-	f_tagDensity=function(data,parallel.mc=NULL)
-	##takes dataSelected as input, parallel is the number of CPUs used for parallelization
-	{
-		## density distribution for data
-		print("Smooth tag density")
-		ts <- sum(unlist(lapply(data,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
-		##parallelisation
-		chromosomes_list<-names(data)
-		##creates a list of lists
-		data<-lapply(chromosomes_list, FUN=function(x) {
-			return(data[x])
-		})
-		if (parallel!=NULL)
-		{
-			smoothed.density<-mclapply(data, FUN=function(current_chr_list)
-			{
-			    current_chr<-names(current_chr_list)
-			    str(current_chr_list)
-			    if (length(current_chr) != 1) 
-			    {
-			        stop("unexpected input.dataSelected structure")
-			    }
-			    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
-			}, mc.preschedule = FALSE,mc.cores=parallel.mc)
-		}else{
-			smoothed.density<-lapply(data, FUN=function(current_chr_list)
-			{
-			    current_chr<-names(current_chr_list)
-			    str(current_chr_list)
-			    if (length(current_chr) != 1) 
-			    {
-			        stop("unexpected input.dataSelected structure")
-			    }
-			    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
-			})
-		}
-		smoothed.density=(unlist(smoothed.density,recursive=FALSE))
-		#normalizing smoothed tag density by library size
-		smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
-		return(smoothed.density)
-	}
-
 	smoothed.densityChip=f_tagDensity(chip.dataSelected)
 	smoothed.densityInput=f_tagDensity(input.dataSelected)
 	
-
-	save(smoothed.densityChip,file=file.path(path,"TagDensityChip.RData"))
-	save(smoothed.densityInput,file=file.path(path,"TagDensityInput.RData"))
 
 	returnList=list("QCscores_ChIP"=crossvalues_Chip,
 		"QCscores_Input"=crossvalues_Input,
@@ -107,11 +74,11 @@ CrossCorrelationInput=function(chipName="ENCFF000BBB", inputName="ENCFF000BAF",r
 
 	return(returnList)
 
-################RESULTS
+################RESULTS save for different purposes
 
-file.remove(outname)
-#sampleIndex datafilename
-#readCount read_length
+save(smoothed.densityChip,file=file.path(path,"TagDensityChip.RData"))
+save(smoothed.densityInput,file=file.path(path,"TagDensityInput.RData"))
+
 write.table(crossvalues_Chip,file=paste(getwd(),"CC_chip.results",sep=""))
 write.table(crossvalues_Input,file=paste(getwd(),"CC_Input.results",sep=""))
 write.table(bindingScores,file=paste(getwd(),"CC_BindingScores.results",sep=""))
