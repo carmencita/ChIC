@@ -72,13 +72,13 @@ QCscores_global=function(densityChip,densityInput)
 
 
 	sign_sign=sign(max(cumSumInput$pj-cumSumChip$pj)) ##input-chip
-	cross_pointX=cumSumInput[which((cumSumInput$pj==cumSumChip$pj)&(cumSumInput$pj!=0)),]$x
-	cross_pointY_input=cumSumInput[which((cumSumInput$pj==cumSumChip$pj)&(cumSumInput$pj!=0)),]$pj
-	cross_pointY_chip=cumSumChip[which((cumSumInput$pj==cumSumChip$pj)&(cumSumInput$pj!=0)),]$pj
+	#cross_pointX=cumSumInput[which((cumSumInput$pj==cumSumChip$pj)&(cumSumInput$pj!=0)),]$x
+	#cross_pointY_input=cumSumInput[which((cumSumInput$pj==cumSumChip$pj)&(cumSumInput$pj!=0)),]$pj
+	#cross_pointY_chip=cumSumChip[which((cumSumInput$pj==cumSumChip$pj)&(cumSumInput$pj!=0)),]$pj
 	arrowx=cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$x
 
-	final=merge(cumSumInput,cumSumChip,by="x")
-	colnames(final)=c("x","y_input","y_chip")
+	#final=merge(cumSumInput,cumSumChip,by="x")
+	#colnames(final)=c("x","y_input","y_chip")
 
 	finalList=list("X-axis"=arrowx,
 		"Y-Input"=cumSumInput[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,
@@ -87,10 +87,10 @@ QCscores_global=function(densityChip,densityInput)
 		"FractionReadsTopbins_chip"=chipFractionOfReadsIntop1percentBins,
 		"FractionReadsTopbins_input"=inputFractionOfReadsIntop1percentBins,
 		"Fractions_without_reads_chip"=chipFractionOfBinsWithoutReads,
-		"Fractions_without_reads_input"=inputFractionOfBinsWithoutReads,
-		"CrossPoint_X"=cross_pointX,
-		"CrossPoint_Y_chip"=cross_pointY_chip,
-		"CrossPoint_Y_input"=cross_pointY_input)
+		"Fractions_without_reads_input"=inputFractionOfBinsWithoutReads)
+		#"CrossPoint_X"=cross_pointX,
+		#"CrossPoint_Y_chip"=cross_pointY_chip,
+		#"CrossPoint_Y_input"=cross_pointY_input)
 	
 	return(finalList)
 }
