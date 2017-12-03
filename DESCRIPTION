@@ -12,7 +12,9 @@ LazyData: true
 Imports:
     girafe,
     caTools,
-    spp
+    spp,
+    snow,
+    Rmpi
 Suggests: knitr,
     rmarkdown,
     testthat
