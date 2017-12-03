@@ -1,17 +1,19 @@
-###############################################################
-###############################################################
-####
-#### BEGINF OF PETER K.'s FUNCTIONS FOR BIN AVERAGES + SCALING OF METAGENES
-####
-###############################################################
-###############################################################
-####
-#### - feature.bin.averages
-#### - two.point.scaling
-#### - one.point.scaling
-####
-###############################################################
-###############################################################
+#' feature.bin.averages
+#'
+#' @param dat
+#' @param feat
+#' @param nu.feat.omit
+#' @param nu.point.omit
+#' @param scaling
+#' @param return.scaling
+#' @param trim
+#' @param min.feature.size
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
 feature.bin.averages <- function(dat,feat,nu.feat.omit=F,nu.point.omit=T, scaling=NULL, return.scaling=F, trim=0, min.feature.size=NULL, ... ) {
   if(is.null(feat)) { return(NULL) };
@@ -37,17 +39,35 @@ feature.bin.averages <- function(dat,feat,nu.feat.omit=F,nu.point.omit=T, scalin
       return(scaling);
     }
   }
-  
+
   if(!is.null(min.feature.size)) {
     if(!is.null(feat$e)) {
       scaling <- scaling[scaling$si %in% which(feat$e-feat$s>=min.feature.size),]
     }
   }
-  
+
   # determine and return gene bin average table
   return(tapply(dat$y[scaling$i],list(factor(scaling$si,levels=c(1:dim(feat)[1])),scaling$bin),function(x) mean(na.omit(x))))
   #return(tapply(dat$y[scaling$i],list(scaling$si,scaling$bin),mean,trim=trim,na.rm=T))
 }
+
+#' two.point.scaling
+#'
+#' @param x
+#' @param seg
+#' @param bs
+#' @param om
+#' @param im
+#' @param rom
+#' @param lom
+#' @param rim
+#' @param lim
+#' @param nbins
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
 two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=im,lim=im,nbins=predefnum_bins) {
   # map points to the segments defined by outer margins
@@ -76,9 +96,9 @@ two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=im,
   df$rx <- rep(NA,length(df$i));
   vi <- which(df$r3x >= -rim);
   df$rx[vi] <- df$r3x[vi]+lim+rim+bs;
-  
+
   #df$rx <- df$r3x+lim+rim+bs;
-  
+
   # body scaling
   vi <- which(df$r3x <  -rim & df$r5x > lim);
   df$rx[vi] <- ((df$r5x[vi]-lim)/((seg$e-seg$s)[df$si[vi]]-lim-rim))*bs+lim;
@@ -96,15 +116,30 @@ two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=im,
   return(df);
 }
 
+#' one.point.scaling
+#'
+#' @param x
+#' @param pos
+#' @param strand
+#' @param m
+#' @param lm
+#' @param rm
+#' @param nbins
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
 one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=m, nbins=predefnum_bins/2) {
- # print(nbins)
- # print (up_downStream)
- #  print(m)
+  # print(nbins)
+  # print (up_downStream)
+  #  print(m)
   if(is.null(pos)) { return(NULL) }
   nseg <- length(pos);
   if(nseg<1) { return(NULL) }
-  ml <- rep(lm,nseg); 
-  mr <- rep(rm,nseg); 
+  ml <- rep(lm,nseg);
+  mr <- rep(rm,nseg);
   if(!is.null(strand)) {
     nsi <- which(strand=="-");
     ml[nsi] <- rm;
@@ -130,124 +165,165 @@ one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=m,
   return(df);
 }
 
+#' t.get.gene.av.density
+#'
+#' @param chipTags_current
+#' @param gdl
+#' @param im
+#' @param lom
+#' @param rom
+#' @param bs
+#' @param nbins
+#' @param separate.strands
+#' @param min.feature.size
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
 t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=inner_margin,lom=left_outer_margin, rom=right_outer_margin, bs=gene_body, nbins=predefnum_bins,separate.strands=F, min.feature.size=min.feature.size_carmen) {
-	chrl <- names(gdl);
-	names(chrl) <- chrl;
-	lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
-		print(chr)
-		nsi <- gdl[[chr]]$strand=="-";
-		print(length(nsi))
-		current_gene_names<-gdl[[chr]]$geneSymbol
-		if ((sum(!nsi)>0)) {
-		#if ((sum(!nsi)>1)) {
-			px <- feature.bin.averages(chipTags_current$td[[chr]],data.frame(s=gdl[[chr]]$txStart[!nsi],e=gdl[[chr]]$txEnd[!nsi]),lom=lom,rom=rom,im=im,bs=bs, nbins=nbins, min.feature.size=min.feature.size, nu.point.omit=FALSE)
-			rownames(px)<-current_gene_names[!nsi]
-			} else { 
-			  px<-NULL
-			}
-		if ((sum(nsi)>0)) {
-		#if ((sum(nsi)>1)) {
-			  nd <- chipTags_current$td[[chr]]; nd$x <- -1*nd$x;
-			  nx <- feature.bin.averages(nd,data.frame(s=-1*gdl[[chr]]$txEnd[nsi],e=-1*gdl[[chr]]$txStart[nsi]), lom=lom,rom=rom,im=im,bs=bs, nbins=nbins,min.feature.size=min.feature.size, nu.point.omit=FALSE)
-			  rownames(nx)<-current_gene_names[nsi]
-		       } else { 
-			  nx<-NULL
-		}
-
-		if(separate.strands) {
-			return(p=px,n=nx);
-		      } else {
-			return(rbind(px,nx));
-		      }
-		})
-}
-
-t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F){ 
-    chrl <- names(gdl);
-    names(chrl) <- chrl;
-    lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
-      nsi <- gdl[[chr]]$strand=="-";
-      current_gene_names<-gdl[[chr]]$geneSymbol
-	if ((sum(!nsi)>0)) {
-          px <- feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
-	  #str(px)
-          rownames(px)<-current_gene_names[!nsi]
-  }else { 
-          px<-NULL
+  chrl <- names(gdl);
+  names(chrl) <- chrl;
+  lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
+    print(chr)
+    nsi <- gdl[[chr]]$strand=="-";
+    print(length(nsi))
+    current_gene_names<-gdl[[chr]]$geneSymbol
+    if ((sum(!nsi)>0)) {
+      #if ((sum(!nsi)>1)) {
+      px <- feature.bin.averages(chipTags_current$td[[chr]],data.frame(s=gdl[[chr]]$txStart[!nsi],e=gdl[[chr]]$txEnd[!nsi]),lom=lom,rom=rom,im=im,bs=bs, nbins=nbins, min.feature.size=min.feature.size, nu.point.omit=FALSE)
+      rownames(px)<-current_gene_names[!nsi]
+    } else {
+      px<-NULL
     }
-	if ((sum(nsi)>0)) {
-       #if ((sum(nsi)>0)) {
-          nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
-          nx <- feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
-          rownames(nx)<-current_gene_names[nsi]
-       } else { 
-          nx<-NULL
-       }
-      if(separate.strands) {
-        return(p=px,n=nx);
-      } else {
-        return(rbind(px,nx));
-      }
-    })
+    if ((sum(nsi)>0)) {
+      #if ((sum(nsi)>1)) {
+      nd <- chipTags_current$td[[chr]]; nd$x <- -1*nd$x;
+      nx <- feature.bin.averages(nd,data.frame(s=-1*gdl[[chr]]$txEnd[nsi],e=-1*gdl[[chr]]$txStart[nsi]), lom=lom,rom=rom,im=im,bs=bs, nbins=nbins,min.feature.size=min.feature.size, nu.point.omit=FALSE)
+      rownames(nx)<-current_gene_names[nsi]
+    } else {
+      nx<-NULL
+    }
+
+    if(separate.strands) {
+      return(p=px,n=nx);
+    } else {
+      return(rbind(px,nx));
+    }
+  })
 }
 
+#' t.get.gene.av.density_TSS
+#'
+#' @param tl_current
+#' @param gdl
+#' @param m
+#' @param nbins
+#' @param separate.strands
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
-# a function for getting bin-averaged profiles for individual genes TES ONE.POINT 
+t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F){
+  chrl <- names(gdl);
+  names(chrl) <- chrl;
+  lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
+    nsi <- gdl[[chr]]$strand=="-";
+    current_gene_names<-gdl[[chr]]$geneSymbol
+    if ((sum(!nsi)>0)) {
+      px <- feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+      #str(px)
+      rownames(px)<-current_gene_names[!nsi]
+    }else {
+      px<-NULL
+    }
+    if ((sum(nsi)>0)) {
+      #if ((sum(nsi)>0)) {
+      nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
+      nx <- feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+      rownames(nx)<-current_gene_names[nsi]
+    } else {
+      nx<-NULL
+    }
+    if(separate.strands) {
+      return(p=px,n=nx);
+    } else {
+      return(rbind(px,nx));
+    }
+  })
+}
+
+#' t.get.gene.av.density_TES
+#'
+#' @param tl_current
+#' @param gdl
+#' @param m
+#' @param nbins
+#' @param separate.strands
+#'
+#' @return
+#' @export
+#'
+#' @examples
+
 t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F) {
-    chrl <- names(gdl);
-    names(chrl) <- chrl;
-    lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
-      nsi <- gdl[[chr]]$strand=="-";
-      current_gene_names<-gdl[[chr]]$geneSymbol
+  chrl <- names(gdl);
+  names(chrl) <- chrl;
+  lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
+    nsi <- gdl[[chr]]$strand=="-";
+    current_gene_names<-gdl[[chr]]$geneSymbol
 
-        #if ((sum(!nsi)>0)) {
-        if ((sum(!nsi)>0)) {
-          px <- feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txEnd[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
-          rownames(px)<-current_gene_names[!nsi]
-        } else { 
-          px<-NULL
-        }
+    #if ((sum(!nsi)>0)) {
+    if ((sum(!nsi)>0)) {
+      px <- feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txEnd[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+      rownames(px)<-current_gene_names[!nsi]
+    } else {
+      px<-NULL
+    }
 
-       #if ((sum(nsi)>1)) {
-       if ((sum(nsi)>0)) {
-          nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
-          nx <- feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txStart[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
-          rownames(nx)<-current_gene_names[nsi]
-       } else { 
-          nx<-NULL
-       }
+    #if ((sum(nsi)>1)) {
+    if ((sum(nsi)>0)) {
+      nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
+      nx <- feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txStart[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+      rownames(nx)<-current_gene_names[nsi]
+    } else {
+      nx<-NULL
+    }
 
-      if(separate.strands) {
-        return(p=px,n=nx);
-      } else {
-        return(rbind(px,nx));
-      }
-    })
+    if(separate.strands) {
+      return(p=px,n=nx);
+    } else {
+      return(rbind(px,nx));
+    }
+  })
 }
 
+#' CreateMetageneProfile
+#'
+#' @param path
+#' @param datafilename
+#'
+#' @return
+#' @export
+#'
+#' @examples
 
-
-###############################################################
-###############################################################
-####
-#### END OF PETER K.'s FUNCTIONS FOR BIN AVERAGES + SCALING OF METAGENES
-####
-###############################################################
-###############################################################
 CreateMetageneProfile = function(path=NULL,datafilename=NULL){
 
-  cat ("[1] Getting strandshift...")
+  # cat ("[1] Getting strandshift...")
   ssfile=read.delim(paste(path,"CrossCorrelation/out/",datafilename,".results",sep=""))
-  ssindex=grep("Substitution of StrandShift from",ssfile[,1]) 
+  ssindex=grep("Substitution of StrandShift from",ssfile[,1])
   strandShift=as.integer(strsplit(as.character(ssfile[ssindex,])," ")[[1]][10])
-  print(strandShift)
+  # print(strandShift)
 
   source(paste(path,"GlobalParameters.R",sep=""))
   sampleinfo_file<-paste(path,"matchlist.txt",sep="")
   sampleinfo<-read.table(sampleinfo_file,  header=TRUE, quote="", stringsAsFactors=FALSE)
 
   t0<-proc.time()[3]
-
 
   workingdir<-paste(path,"/MetaGene",sep="")
   outputdir<-paste(workingdir,"/out",sep="")
@@ -257,15 +333,14 @@ CreateMetageneProfile = function(path=NULL,datafilename=NULL){
   ##step 00: binding characteristics
   #get dataset
   #datafilename=sampleinfo$Filename[sampleIndex]
-  print(datafilename)
+  # print(datafilename)
 
   #sampleIndex=16
   ##step 00: binding characteristics
   #get dataset
   sampleIndex=which(sampleinfo$Filename==datafilename)
-  print(sampleIndex)
+  # print(sampleIndex)
   TFname=sampleinfo$IG[sampleIndex]
-
 
   inputIndex=sampleIndex
   inputname=sampleinfo$ControlName[inputIndex]
@@ -280,11 +355,10 @@ CreateMetageneProfile = function(path=NULL,datafilename=NULL){
 
   tag.shift= round(strandShift/2)
 
-
   ## load gene annotations
   require(girafe)
 
-  print("Load geneannotation")
+  # print("Load geneannotation")
   load(geneAnnotations_file) #RefSeqGenesAll_object
   current_annotations_type<-gsub(pattern=".RData", replacement="", fixed=TRUE, x=basename(geneAnnotations_file))
   #current_annotations_object_name<-paste(current_annotations_type, "_genomeIntervals_object", sep="")
@@ -299,7 +373,7 @@ CreateMetageneProfile = function(path=NULL,datafilename=NULL){
 
   annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
 
-  print("Load TagDensisty input")
+  # print("Load TagDensisty input")
   load(paste(path,"TagDensity_",datafilename,"_",inputname,".RData",sep=""))
   #input.smoothed.density=smoothed.density
   sd.gen=smoothed.density
@@ -308,7 +382,7 @@ CreateMetageneProfile = function(path=NULL,datafilename=NULL){
   rm(smoothed.density)
   gd.gen <- t.get.gene.av.density(sd.gen)
 
-  print("Load TagDensisty chip")
+  # print("Load TagDensisty chip")
   load(paste(path,"TagDensity_",datafilename,".RData",sep=""))
   sd.r1=smoothed.density
   sd.r1 <-list(td=sd.r1) ## need a list of list structure (nested list)
@@ -318,7 +392,7 @@ CreateMetageneProfile = function(path=NULL,datafilename=NULL){
   #names(sd.r1)<-datafilename
 
   ##two.point.scaling\
-  print("Calculate two point scaling")
+  # print("Calculate two point scaling")
   #gd.r1 <- lapply(sd.r1, t.get.gene.av.density) ##frame with chromosome:genes:startsites:density
   gd.r1 <- t.get.gene.av.density(sd.r1) ##frame with chromosome:genes:startsites:density
   gd.gfp<-gd.r1#[[1]] 	##%%%### ONLY ONE SAMPLE ### the first... there is only one sample btw
@@ -327,24 +401,24 @@ CreateMetageneProfile = function(path=NULL,datafilename=NULL){
   save(gd.gfp, gd.gen, file=file.out)
   #rm(gd.gen)
 
-  print("Calculate one point scaling")
+  # print("Calculate one point scaling")
   ##one.point.scaling o mi calcolo in numero di bin cosi: up_downStream /10
   #gd.r1_TSS <- lapply(sd.r1, t.get.gene.av.density_TSS)
   gd.r1_TSS <- t.get.gene.av.density_TSS(sd.r1)
   #gd.gen_TSS <- t.get.gene.av.density_TSS(list(td=sd.gen))
   gd.gen_TSS <- t.get.gene.av.density_TSS(sd.gen)
-  gd.gfp<-gd.r1_TSS#[[1]] 
+  gd.gfp<-gd.r1_TSS#[[1]]
   file.out<-paste(outputdir,"/one.point.scalingTSS_",datafilename, ".RData", sep="")
-  print(file.out)
-  
+  # print(file.out)
+
   #rm(gd.gen_TSS)
 
   gd.r1_TES <- t.get.gene.av.density_TES(sd.r1)
   #gd.gen_TES <- t.get.gene.av.density_TES(list(td=sd.gen))
   gd.gen_TES <- t.get.gene.av.density_TES(sd.gen)
-  gd.gfp<-gd.r1_TES#[[1]] 
+  gd.gfp<-gd.r1_TES#[[1]]
   file.out<-paste(outputdir,"/one.point.scalingTES_",datafilename, ".RData", sep="")
-  print(file.out)
+  # print(file.out)
   save(gd.gfp, gd.gen_TES, file=file.out)
   rm(gd.gen_TES)
 
@@ -356,8 +430,3 @@ CreateMetageneProfile = function(path=NULL,datafilename=NULL){
   file.remove((paste(path,"TagDensity_",datafilename,"_",inputname,".RData",sep="")))
   return(list(gd.gfp, gd.gen_TSS))
 }
-
-
-
-
-
