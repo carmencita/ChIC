@@ -45,8 +45,8 @@ f_converNarrowPeakFormat =function(bd, margin = bd$whs)
 
 
 f_getCustomStrandShift= function(x,y){
-	x=binding.characteristics$cross.correlation$x
-	y=binding.characteristics_cross.correlation_y_smoothed
+	#x=binding.characteristics$cross.correlation$x
+	#y=binding.characteristics_cross.correlation_y_smoothed
 	deriv=diff(y)/diff(x)
 	#globalminY=min(abs(deriv))
 	deriv=append(0,deriv) ##to catch up the right index, because in deriv I loose one array-field
@@ -316,6 +316,7 @@ f_selectInformativeTag=function(chip,input,chip_b.characteristics,input_b.charac
 	return(finalList)
 }
 
+#> bindingAnalysis=f_getBindingRegionsScores(chip.data,input.data,chip.dataSelected,input.dataSelected,final.tag.shift,custom_chrorder)
 f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75,chrorder=NULL)
 {
 	###5 broadRegions
@@ -402,28 +403,27 @@ f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelect
 			sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
 		}))
 		FRiP_sharpPeak<-outcountsSharpPeak/TOTAL_reads
-		}else{
-			TOTAL_reads=0
-			FRiP_broadPeak=0
-			outcountsBroadPeak=0
-			FRiP_sharpPeak=0
-			outcountsSharpPeak=0
+	}else{
+		TOTAL_reads=0
+		FRiP_broadPeak=0
+		outcountsBroadPeak=0
+		FRiP_sharpPeak=0
+		outcountsSharpPeak=0
 	}
 
-	QCscoreList=list("FDR detected"=round(FDR_detect,3),
-		"eval detected"=round(eval_detect,3),
-		"FRiP_broadPeak"=round(FRiP_broadPeak,3), 
-		"outcountsBroadPeak"=outcountsBroadPeak, 
+	QCscoreList=list("FDR_detected"=round(FDR_detect,3),
+		"eval_detected"=round(eval_detect,3),
+		"FRiP_broadPeak"=round(FRiP_broadPeak,3),  
 		"FRiP_sharpPeak"=round(FRiP_sharpPeak,3), 
-		"outcountsSharpPeak", outcountsSharpPeak,
-		)
+		"outcountsBroadPeak"=outcountsBroadPeak,
+		"outcountsSharpPeak"= outcountsSharpPeak)
 
-	return(finalList)
+	return(QCscoreList)
 }
 
 
 
-f_tagDensity=function(data,parallel.mc=NULL)
+f_tagDensity=function(data,parallel.mc=1)
 ##takes dataSelected as input, parallel is the number of CPUs used for parallelization
 {
 	## density distribution for data
@@ -435,7 +435,7 @@ f_tagDensity=function(data,parallel.mc=NULL)
 	data<-lapply(chromosomes_list, FUN=function(x) {
 		return(data[x])
 	})
-	if (parallel!=NULL)
+	if (parallel.mc>1)
 	{
 		smoothed.density<-mclapply(data, FUN=function(current_chr_list)
 		{
@@ -463,4 +463,54 @@ f_tagDensity=function(data,parallel.mc=NULL)
 	#normalizing smoothed tag density by library size
 	smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
 	return(smoothed.density)
+}
+
+
+
+
+
+####GLOBAL features ###
+
+f_shortenFrame=function(smoothed.density)
+{
+	##shorten frame
+	newSmoothedDensity=NULL
+	chrl=names(smoothed.density)
+	for (i in chrl)
+	{
+		#print(i)
+		##appending tags and quality elements of all inputs to newControl
+		newSmoothedDensity[[i]]$x=smoothed.density[[i]]$x[seq.int(1, length(smoothed.density[[i]]$x), 6)]
+		newSmoothedDensity[[i]]$y=smoothed.density[[i]]$y[seq.int(1, length(smoothed.density[[i]]$y), 6)]
+	}
+	return(newSmoothedDensity)
+}
+
+
+f_sortAndBinning=function(shortframe)
+{
+	shortframeSorted=sort(shortframe)
+	BINS_NUMBER<-1e4
+
+	cumSum<-cumsum(shortframeSorted)
+	cumSumBins<-quantile(cumSum, probs=seq(0,1,(1/BINS_NUMBER)))
+	pj<-(cumSumBins/cumSum[length(cumSum)])
+	normalizedCumSum=data.frame(x=seq(0,1,(1/BINS_NUMBER)),pj=pj)
+	rownames(normalizedCumSum)<-NULL
+	return(normalizedCumSum)
+}
+
+
+f_chancePlots=function(cumChip,cumInput,plotname=NULL)
+{
+	
+	pdf(paste(plotname,".pdf",sep=""))
+	plot(cumChip,type="l",col="blue",lwd=2,xlab="Percentage of bins",ylab="Percentage of tags")
+	lines(cumInput,col="red",lwd=2)
+	arrowx=cumChip[which.max(abs(cumInput$pj-cumChip$pj)),]$x
+	abline(v =arrowx, col = "green",lty=2,lwd=2)
+	#abline(h=schneidePunktY,col='cyan',lty=2,lwd=2)
+	#abline(v=schneidePunktX,col='cyan',lty=2,lwd=2)
+	legend("topleft", legend = c("Input","ChIP"), fill = c("red","blue"))
+	dev.off()
 }

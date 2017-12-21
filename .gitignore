@@ -1,3 +1,5 @@
+*.bam
+*.pdf
 .Rproj.user
 .Rhistory
 .RData
