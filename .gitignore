@@ -3,6 +3,7 @@
 .Rproj.user
 .Rhistory
 .RData
+.txt
 .Ruserdata
 inst/doc
 Results

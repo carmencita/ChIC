@@ -1,21 +1,23 @@
 Package: CHIC
-Type: CHIp-seq quality Control package
-Title: What the Package Does (Title Case)
+Title: Quality control pipeline for ChIP-seq data
 Version: 0.1.0
-Author: carmen.livi@ifom.eu
-Maintainer: carmen.livi@ifom.eu
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Carmen Maria Livi, Francesco Ferrari
+Maintainer: Carmen Maria Livi <carmen.livi@ifom.eu>
+Description: Quality control for ChIP-seq data (blablabla)
+License: GPL-2 (?)
 Encoding: UTF-8
 LazyData: true
 Imports:
-    girafe,
-    caTools,
-    spp,
-    snow,
-    Rmpi
+	girafe,
+	caTools,
+	genomeIntervals
+Depends: spp
 Suggests: knitr,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
+NeedsCompilation: no
+Repository: CRAN
+
+
+
