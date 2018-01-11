@@ -1,3 +1,41 @@
+##private variables
+
+
+###
+### cross_correlation parameters
+###
+estimating_fragment_length_range<-c(0,500)
+estimating_fragment_length_bin<-5
+
+
+###
+### Phantom peaks
+###
+
+PhantomPeak_range<-c(-500, 1500)
+PhantomPeak_bin<-5
+#PhantomPeak_exclude.min<-10
+
+
+###
+### cross_correlation_customShift_withSmoothing parameters
+###
+cross_correlation_range_subset<-100:500
+cross_correlation_smoothing_k<-10
+
+##Smoothing parameters
+smoothingBandwidth<-50 ##is slidingwindow shift 
+smoothingStep<-20	##is size of sw ##before it was 10
+
+
+###
+### broadRegionsOfEnrichment_loop parameters
+###
+window_sizes_list<-1000 #c(1000, 500, 200)[1]
+remove.local.tag.anomalies_filter<-TRUE
+select.informative.tags_filter<-FALSE
+####
+
 f_convertFormatBroadPeak <- function(given.clusters)
 {
 	chrl <- names(given.clusters)
@@ -202,7 +240,7 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 	pdf((filename=file.path(path, paste(plotname, "pdf", sep="."))))
 		par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
 		plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation",main=TFname)
-		lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col=cross_correlation_smoothing_color)
+		lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col="blue")
 		lines(x=rep(phantom_peak.scores$peak$x, times=2), y=c(0,phantom_peak.scores$peak$y), lty=2,lwd=2, col="red")
 		lines(x=rep(phantom_peak.scores$phantom_cc$x, times=2), y=c(0,phantom_peak.scores$phantom_cc$y), lty=2,lwd=2, col="orange")
 		abline(h=phantom_peak.scores$min_cc$y, lty=2,lwd=2, col="grey")
@@ -276,7 +314,7 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 	finalList <- append(append(
 		list("strandShift"=strandShift,
 			"tag.shift"=tag.shift,
-			"N1"=N1,"Nd"=Nd,"PBC"=PBC,
+			"N1"=round(N1,3),"Nd"=round(Nd,3),"PBC"=round(PBC,3),
 			"read_length"=read_length,
 			"UNIQUE_TAGS_LibSizeadjusted"=UNIQUE_TAGS_LibSizeadjusted),
 		phantomScores),STATS_NRF)
@@ -288,7 +326,7 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 f_selectInformativeTag=function(chip,input,chip_b.characteristics,input_b.characteristics)
 {
 	print("Filter tags")
-	#print(chrorder)
+
 	if (select.informative.tags_filter) {
 	      print("select.informative.tags filter")
 	     #load(paste("sppdata", "binding", chip.data.samplename, "RData", sep="."))
@@ -317,8 +355,12 @@ f_selectInformativeTag=function(chip,input,chip_b.characteristics,input_b.charac
 }
 
 #> bindingAnalysis=f_getBindingRegionsScores(chip.data,input.data,chip.dataSelected,input.dataSelected,final.tag.shift,custom_chrorder)
-f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75,chrorder=NULL)
+f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75)#,chrorder=NULL)
 {
+	chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
+	#custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
+	#custom_chrorder<-paste("chr", c(1:22, "X","Y"), sep="")
+
 	###5 broadRegions
 	###6 enrichment broad regions
 	zthresh_list<-c(3,4)
@@ -423,7 +465,7 @@ f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelect
 
 
 
-f_tagDensity=function(data,parallel.mc=1)
+f_tagDensity=function(data,tag.shift,rngl,parallel.mc=1)
 ##takes dataSelected as input, parallel is the number of CPUs used for parallelization
 {
 	## density distribution for data
@@ -463,54 +505,4 @@ f_tagDensity=function(data,parallel.mc=1)
 	#normalizing smoothed tag density by library size
 	smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })
 	return(smoothed.density)
-}
-
-
-
-
-
-####GLOBAL features ###
-
-f_shortenFrame=function(smoothed.density)
-{
-	##shorten frame
-	newSmoothedDensity=NULL
-	chrl=names(smoothed.density)
-	for (i in chrl)
-	{
-		#print(i)
-		##appending tags and quality elements of all inputs to newControl
-		newSmoothedDensity[[i]]$x=smoothed.density[[i]]$x[seq.int(1, length(smoothed.density[[i]]$x), 6)]
-		newSmoothedDensity[[i]]$y=smoothed.density[[i]]$y[seq.int(1, length(smoothed.density[[i]]$y), 6)]
-	}
-	return(newSmoothedDensity)
-}
-
-
-f_sortAndBinning=function(shortframe)
-{
-	shortframeSorted=sort(shortframe)
-	BINS_NUMBER<-1e4
-
-	cumSum<-cumsum(shortframeSorted)
-	cumSumBins<-quantile(cumSum, probs=seq(0,1,(1/BINS_NUMBER)))
-	pj<-(cumSumBins/cumSum[length(cumSum)])
-	normalizedCumSum=data.frame(x=seq(0,1,(1/BINS_NUMBER)),pj=pj)
-	rownames(normalizedCumSum)<-NULL
-	return(normalizedCumSum)
-}
-
-
-f_chancePlots=function(cumChip,cumInput,plotname=NULL)
-{
-	
-	pdf(paste(plotname,".pdf",sep=""))
-	plot(cumChip,type="l",col="blue",lwd=2,xlab="Percentage of bins",ylab="Percentage of tags")
-	lines(cumInput,col="red",lwd=2)
-	arrowx=cumChip[which.max(abs(cumInput$pj-cumChip$pj)),]$x
-	abline(v =arrowx, col = "green",lty=2,lwd=2)
-	#abline(h=schneidePunktY,col='cyan',lty=2,lwd=2)
-	#abline(v=schneidePunktX,col='cyan',lty=2,lwd=2)
-	legend("topleft", legend = c("Input","ChIP"), fill = c("red","blue"))
-	dev.off()
 }

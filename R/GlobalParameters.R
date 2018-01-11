@@ -109,7 +109,7 @@ min_gene_length<-2000 ##select only genes with at least min_gene_length
 ###PLOT for TWO POINT SCALING
 ###
 psc <- 1; # pseudocount # required to avoid log2 of 0
-geneAnnotations_file<-"/gpfs/work/IscrC_CONCEPt/Annotations/hg19/RefSeqAllGenesFiltered.RData"
+geneAnnotations_file<-"/lustre/data/FF/Carmen/BitBucket/chic/data/Annotations/hg19/RefSeqAllGenesFiltered.RData"
 
 
 #### this is the less "painful" way to reduce the smoothing step in the output without changing all parameters
