@@ -11,9 +11,10 @@
 
 require("spp")
 ##neds caTools
-#library("girafe")
+library("girafe")
 #private variables
 #require(parallel)
+#library("caTools")
 
 path=getwd()
 dataPath<-"/lustre/data/FF/Carmen/BitBucket/chic/data/"
@@ -32,13 +33,13 @@ inputName="ENCFF000BKA"
 #debug=TRUE
 cluster=NULL
 
-
 ##### FOR DEVEL ONLY END
 #########################
 
 frameOfAllValues=NULL
 
 source("wrapper_QCscores_TFbased.R")
+
 CC_Result=f_CrossCorrelation(chipName, inputName, read_length=36, reads.aligner.type="bam", path=path, dataPath=dataPath, debug=debug,cluster=cluster,chrominfo_file=chrominfo_file)
 
 ##add values to completeListOfValues
@@ -56,7 +57,7 @@ smoothedDensityChip=CC_Result$TagDensityChip
 ###GLOBAL features#########
 
 source("wrapper_QCscores_global.R")
-Ch_Results=QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,chipName=chipName,debug=FALSE)
+Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=plotname=file.path(getwd(),paste(chipName,"chance.pdf",sep="_")),debug=FALSE)
 completeListOfValues=append(completeListOfValues,Ch_Results)
 ###LOCAL
 
@@ -67,17 +68,17 @@ mc=1
 
 geneAnnotations_file<-"/lustre/data/FF/Carmen/BitBucket/chic/data/Annotations/hg19/RefSeqAllGenesFiltered.RData"
 #CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,path=NULL,debug=FALSE)
-Meta_Result=CreateMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,path=path,geneAnnotations_file=geneAnnotations_file,debug=FALSE)
+Meta_Result=f_CreateMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,path=path,geneAnnotations_file=geneAnnotations_file,debug=FALSE)
 
 source("wrapper_plot_TSS_TES_allGenes.R")
-TSS_Plot=plotMetageneProfile_onePoint(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",path=getwd(),plotName=chipName,debug=FALSE)
+TSS_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",path=getwd(),plotName=chipName,debug=FALSE)
 completeListOfValues=append(completeListOfValues,TSS_Plot)
 
-TES_Plot=plotMetageneProfile_onePoint(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",path=getwd(),plotName=chipName,debug=FALSE)
+TES_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",path=getwd(),plotName=chipName,debug=FALSE)
 completeListOfValues=append(completeListOfValues,TES_Plot)
 
 source("wrapper_twopoint_allGenes_plot.R")
-geneBody_Plot=plotMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,path=getwd(),plotName=chipName,debug=FALSE)
+geneBody_Plot=f_plotMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,path=getwd(),plotName=chipName,debug=FALSE)
 completeListOfValues=append(completeListOfValues,geneBody_Plot)
 
 

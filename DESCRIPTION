@@ -12,12 +12,5 @@ Imports:
 	caTools,
 	genomeIntervals
 Depends: spp
-Suggests: knitr,
-    rmarkdown,
-    testthat
 VignetteBuilder: knitr
-NeedsCompilation: no
-Repository: CRAN
-
-
-
+RoxygenNote: 6.0.1

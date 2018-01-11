@@ -1,3 +1,4 @@
+###FOR DEVEL ONLY#####
 # path=getwd()
 # source(file.path(path,"GlobalParameters.R"))
 
@@ -14,8 +15,27 @@
 # binnedInput=binnedChip_TSS
 # binnedChip=binnedInput_TSS
 # tag="TSS"
+###FOR DEVEL ONLY####
 
-plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=getwd(),debug=FALSE,plotName="NA")
+
+#' f_plotMetageneProfile_onePoint
+#'
+#' @param chipName
+#' @param inputName
+#' @param read_length
+#' @param reads.aligner.type
+#' @param path
+#' @param dataPath
+#' @param debug
+#' @param cluster
+#' @param chrominfo_file
+#'
+#' @return returnList
+#' @export
+#'
+#' @examples
+
+f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=getwd(),debug=FALSE,plotName="NA")
 {
 	source("FunctionsLocal.R")
 	psc <- 1; # pseudocount # required to avoid log2 of 0
