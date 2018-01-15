@@ -81,7 +81,8 @@ f_QCscores_global=function(densityChip,densityInput,plotname=NULL,debug=FALSE)
 	#create chance plot
 	if (!is.null(plotname))
 	{
-		f_chancePlots(cumSumChip,cumSumInput,plotname=file.path(getwd(),plotname=plotname))
+		print("create pdf with plot")
+		f_chancePlots(cumSumChip,cumSumInput,plotname=plotname)
 	}
 	#f_chancePlots(cumSumChip,cumSumInput,plotname=file.path(getwd(),paste(chipName,"chance.pdf",sep="_")))
 

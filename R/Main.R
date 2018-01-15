@@ -11,7 +11,7 @@
 
 require("spp")
 ##neds caTools
-library("girafe")
+#library("girafe")
 #private variables
 #require(parallel)
 #library("caTools")
@@ -36,7 +36,7 @@ cluster=NULL
 ##### FOR DEVEL ONLY END
 #########################
 
-frameOfAllValues=NULL
+completeListOfValues=NULL
 
 source("wrapper_QCscores_TFbased.R")
 
@@ -57,13 +57,13 @@ smoothedDensityChip=CC_Result$TagDensityChip
 ###GLOBAL features#########
 
 source("wrapper_QCscores_global.R")
-Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=plotname=file.path(getwd(),paste(chipName,"chance.pdf",sep="_")),debug=FALSE)
+Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=file.path(getwd(),paste(chipName,"chance.pdf",sep="_")),debug=FALSE)
 completeListOfValues=append(completeListOfValues,Ch_Results)
 ###LOCAL
 
 
 source("wrapper_QCscores_local.R")
-require(parallel)
+#require(parallel)
 mc=1
 
 geneAnnotations_file<-"/lustre/data/FF/Carmen/BitBucket/chic/data/Annotations/hg19/RefSeqAllGenesFiltered.RData"

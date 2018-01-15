@@ -249,7 +249,7 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 		print("plot cross correlation curve with smoothing")
 		pdf((filename=file.path(path, paste(plotname, "pdf", sep="."))))
 			par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-			plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation")
+			plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation",main="CrossCorrelation Profile")
 			lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col="blue")
 			lines(x=rep(phantom_peak.scores$peak$x, times=2), y=c(0,phantom_peak.scores$peak$y), lty=2,lwd=2, col="red")
 			lines(x=rep(phantom_peak.scores$phantom_cc$x, times=2), y=c(0,phantom_peak.scores$phantom_cc$y), lty=2,lwd=2, col="orange")

@@ -40,7 +40,7 @@
 # ##### FOR DEVEL ONLY END
 
 
-CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,geneAnnotations_file,path=NULL,debug=FALSE)
+f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,geneAnnotations_file,path=NULL,debug=FALSE)
 {
   source("FunctionsLocal.R")
   print("Load geneannotation")

@@ -30,11 +30,11 @@ f_sortAndBinning=function(shortframe)
 }
 
 
-f_chancePlots=function(cumChip,cumInput,plotname=NULL)
+f_chancePlots=function(cumChip,cumInput,plotname="chancePlot.pdf")
 {
 	
-	pdf(paste(plotname,".pdf",sep=""))
-	plot(cumChip,type="l",col="blue",lwd=2,xlab="Percentage of bins",ylab="Percentage of tags")
+	pdf(plotname)
+	plot(cumChip,type="l",col="blue",lwd=2,xlab="Percentage of bins",ylab="Percentage of tags",main="Fingerprint: global read distribution")
 	lines(cumInput,col="red",lwd=2)
 	arrowx=cumChip[which.max(abs(cumInput$pj-cumChip$pj)),]$x
 	abline(v =arrowx, col = "green",lty=2,lwd=2)
