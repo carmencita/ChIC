@@ -1,4 +1,4 @@
-#Gene	Chromosome	Start	End	Expression Breadth	Description	GO Term	GO Function
+Gene	Chromosome	Start	End	Expression_Breadth	Description	GO_Term	GO_Function
 A2M	chr12	9111570	9159825	18	alpha-2-macroglobulin	0005515	protein binding
 AAMP	chr2	218837095	218843137	18	angio-associated, migratory cell protein	0005737	cytoplasm
 AARS	chr16	68843797	68880913	18	alanyl-tRNA synthetase	0000049	tRNA binding
@@ -45,7 +45,7 @@ ACTR3	chr2	114364006	114432637	18	ARP3 actin-related protein 3 homolog (yeast)	0
 ACTR8	chr3	53876194	53891227	18	ARP8 actin-related protein 8 homolog (yeast)	0005856	cytoskeleton
 ADAM10	chr15	56675801	56829469	18	ADAM metallopeptidase domain 10	0007219	Notch signaling pathway
 ADAR	chr1	152821157	152867061	18	adenosine deaminase, RNA-specific	0005737	cytoplasm
-SCAMP4				18	secretory carrier membrane protein 4		
+SCAMP4				18	secretory carrier membrane protein 4
 ADD1	chr4	2815381	2901587	18	adducin 1 (alpha)	0005634	nucleus
 ADD3	chr10	111755715	111885313	18	adducin 3 (gamma)	0005516	calmodulin binding
 ADH5	chr4	100211152	100228954	18	alcohol dehydrogenase 5 (class III), chi polypeptide	0009055	electron carrier activity
@@ -53,7 +53,7 @@ ADIPOR1	chr1	201176583	201194323	18	adiponectin receptor 1	0009755	hormone-media
 ADIPOR2	chr12	1670507	1768106	18	adiponectin receptor 2	0042562	hormone binding
 ADNP	chr20	48940289	48980934	18	activity-dependent neuroprotector homeobox	0009743	response to carbohydrate stimulus
 ADPRHL2	chr1	36327039	36332120	18	ADP-ribosylhydrolase like 2	0005634	nucleus
-ADSL	chr22	39072449	39092521	18	adenylosuccinate lyase	NOT	
+ADSL	chr22	39072449	39092521	18	adenylosuccinate lyase	NOT
 ADSS	chr1	242638418	242682036	18	adenylosuccinate synthase	0005575	cellular_component
 AES	chr19	3003907	3013371	18	amino-terminal enhancer of split	0016055	Wnt receptor signaling pathway
 AFF1	chr4	88147176	88281215	18	AF4/FMR2 family, member 1	0003700	transcription factor activity
@@ -68,7 +68,7 @@ AGPAT6	chr8	41554863	41601677	18	1-acylglycerol-3-phosphate O-acyltransferase 6 
 AHCY	chr20	32331736	32354784	18	S-adenosylhomocysteine hydrolase	0005829	cytosol
 AHCYL1	chr1	110328830	110367887	18	S-adenosylhomocysteine hydrolase-like 1	0006730	one-carbon metabolic process
 AHNAK	chr11	61957591	62070908	18	AHNAK nucleoprotein	0005634	nucleus
-PDCD6				18	programmed cell death 6		
+PDCD6				18	programmed cell death 6
 AHSA1	chr14	76994125	77005568	18	AHA1, activator of heat shock 90kDa protein ATPase homolog 1 (yeast)	0005737	cytoplasm
 AIDA	chr1	220907977	220952487	18	axin interactor, dorsalization associated	0046329	negative regulation of JNK cascade
 AIFM1	chrX	129091017	129099696	18	apoptosis-inducing factor, mitochondrion-associated, 1	0006309	DNA fragmentation involved in apoptotic nuclear change
@@ -78,7 +78,7 @@ AK3	chr9	4701157	4731227	18	adenylate kinase 3	0016740	transferase activity
 AKAP1	chr17	52517551	52553709	18	A kinase (PRKA) anchor protein 1	0005515	protein binding
 AKAP10	chr17	19749341	19821721	18	A kinase (PRKA) anchor protein 10	0005739	mitochondrion
 AKAP13	chr15	83724874	84093590	18	A kinase (PRKA) anchor protein 13	0005622	intracellular
-PALM2|PALM2-AKAP2				18	PALM2-AKAP2 readthrough transcript|paralemmin 2		
+PALM2|PALM2-AKAP2				18	PALM2-AKAP2 readthrough transcript|paralemmin 2
 AKAP8L	chr19	15351858	15390833	18	A kinase (PRKA) anchor protein 8-like	0017151	DEAD/H-box RNA helicase binding
 AKAP9	chr7	91408124	91577923	18	A kinase (PRKA) anchor protein (yotiao) 9	0005794	Golgi apparatus
 AKIRIN1	chr1	39229502	39244324	18	akirin 1	0005634	nucleus
@@ -97,7 +97,7 @@ ALDH7A1	chr5	125906816	125958981	18	aldehyde dehydrogenase 7 family, member A1	0
 ALDH9A1	chr1	163898072	163934524	18	aldehyde dehydrogenase 9 family, member A1	0005737	cytoplasm
 ALDOA	chr16	29971991	29989236	18	aldolase A, fructose-bisphosphate	0005975	carbohydrate metabolic process
 ALG1	chr16	5061810	5077381	18	asparagine-linked glycosylation 1, beta-1,4-mannosyltransferase homolog (S. cerevisiae)	0016020	membrane
-UTP14C				18	asparagine-linked glycosylation 11, alpha-1,2-mannosyltransferase homolog (yeast)		
+UTP14C				18	asparagine-linked glycosylation 11, alpha-1,2-mannosyltransferase homolog (yeast)
 ALG2	chr9	101018527	101024067	18	asparagine-linked glycosylation 2, alpha-1,3-mannosyltransferase homolog (S. cerevisiae)	0047485	protein N-terminus binding
 ALG9	chr11	111158128	111247515	18	asparagine-linked glycosylation 9, alpha-1,2-mannosyltransferase homolog (S. cerevisiae)	0016020	membrane
 AMD1	chr6	111302679	111323606	18	adenosylmethionine decarboxylase 1	0004014	adenosylmethionine decarboxylase activity
@@ -105,12 +105,12 @@ ANAPC1	chr2	112243109	112358212	18	anaphase promoting complex subunit 1	0005654	
 ANAPC5	chr12	120230430	120276395	18	anaphase promoting complex subunit 5	0051301	cell division
 ANAPC7	chr12	109295087	109325918	18	anaphase promoting complex subunit 7	0070979	protein K11-linked ubiquitination
 ANKFY1	chr17	4013413	4114023	18	ankyrin repeat and FYVE domain containing 1	0005515	protein binding
-ANKHD1-EIF4EBP3|EIF4EBP3				18	ankyrin repeat and KH domain containing 1|eukaryotic translation initiation factor 4E binding protein 3		
+ANKHD1-EIF4EBP3|EIF4EBP3				18	ankyrin repeat and KH domain containing 1|eukaryotic translation initiation factor 4E binding protein 3
 ANKLE2	chr12	131812326	131848524	18	ankyrin repeat and LEM domain containing 2	0016021	integral to membrane
-ANKRD10	chr13	110328887	110365417	18	ankyrin repeat domain 10		
+ANKRD10	chr13	110328887	110365417	18	ankyrin repeat domain 10
 ANKRD12	chr18	9126757	9275206	18	ankyrin repeat domain 12	0005634	nucleus
 ANKRD13A	chr12	108921617	108961618	18	ankyrin repeat domain 13A	0005515	protein binding
-ANKRD13D	chr11	66813394	66826530	18	ankyrin repeat domain 13 family, member D		
+ANKRD13D	chr11	66813394	66826530	18	ankyrin repeat domain 13 family, member D
 ANKRD17	chr4	74159365	74343366	18	ankyrin repeat domain 17	0003723	RNA binding
 ANKRD28	chr3	15683747	15876057	18	ankyrin repeat domain 28	0005515	protein binding
 ANKZF1	chr2	219802722	219809635	18	ankyrin repeat and zinc finger domain containing 1	0046872	metal ion binding
@@ -126,7 +126,7 @@ ANXA5	chr4	122808601	122837597	18	annexin A5	0005515	protein binding
 ANXA6	chr5	150460460	150517560	18	annexin A6	0048471	perinuclear region of cytoplasm
 ANXA7	chr10	74805194	74843847	18	annexin A7	0005515	protein binding
 AP1G1	chr16	70320404	70400477	18	adaptor-related protein complex 1, gamma 1 subunit	0006886	intracellular protein transport
-AP1GBP1	chr17	32952045	33043559	18	AP1 gamma subunit binding protein 1		
+AP1GBP1	chr17	32952045	33043559	18	AP1 gamma subunit binding protein 1
 AP1M1	chr19	16169664	16207156	18	adaptor-related protein complex 1, mu 1 subunit	0016020	membrane
 AP2A1	chr19	54961991	55002181	18	adaptor-related protein complex 2, alpha 1 subunit	0030117	membrane coat
 AP2A2	chr11	915840	1002240	18	adaptor-related protein complex 2, alpha 2 subunit	0006886	intracellular protein transport
@@ -148,7 +148,7 @@ APTX	chr9	32962607	32980086	18	aprataxin	0000012	single strand break repair
 AQR	chr15	32935843	33049287	18	aquarius homolog (mouse)	0003723	RNA binding
 ARAF	chrX	47305521	47316264	18	v-raf murine sarcoma 3611 viral oncogene homolog	0005057	receptor signaling protein activity
 ARCN1	chr11	117948311	117978957	18	archain 1	0016192	vesicle-mediated transport
-ARD1A	chrX	152848570	152853662	18	ARD1 homolog A, N-acetyltransferase (S. cerevisiae)		
+ARD1A	chrX	152848570	152853662	18	ARD1 homolog A, N-acetyltransferase (S. cerevisiae)
 ARF1	chr1	226336983	226353536	18	ADP-ribosylation factor 1	0005057	receptor signaling protein activity
 ARF3	chr12	47616258	47637519	18	ADP-ribosylation factor 3	0005794	Golgi apparatus
 ARF4	chr3	57532129	57558255	18	ADP-ribosylation factor 4	0015031	protein transport
@@ -157,7 +157,7 @@ ARFGAP1	chr20	61374609	61391587	18	ADP-ribosylation factor GTPase activating pro
 ARFGAP2	chr11	47142427	47154995	18	ADP-ribosylation factor GTPase activating protein 2	0016192	vesicle-mediated transport
 ARFGAP3	chr22	41522475	41583352	18	ADP-ribosylation factor GTPase activating protein 3	0046872	metal ion binding
 ARFIP2	chr11	6453501	6459171	18	ADP-ribosylation factor interacting protein 2	0031529	ruffle organization
-ARGLU1	chr13	105993662	106018515	18	arginine and glutamate rich 1		
+ARGLU1	chr13	105993662	106018515	18	arginine and glutamate rich 1
 ARHGAP17	chr16	24838212	24934176	18	Rho GTPase activating protein 17	0005737	cytoplasm
 ARHGDIA	chr17	77418885	77422527	18	Rho GDP dissociation inhibitor (GDI) alpha	0006916	anti-apoptosis
 ARHGDIB	chr12	14986216	15005829	18	Rho GDP dissociation inhibitor (GDI) beta	0005737	cytoplasm
@@ -230,7 +230,7 @@ ATP5H	chr17	70546549	70554669	18	ATP synthase, H+ transporting, mitochondrial F0
 ATP5J	chr21	26018661	26029836	18	ATP synthase, H+ transporting, mitochondrial F0 complex, subunit F6	0042776	mitochondrial ATP synthesis coupled proton transport
 ATP5L	chr11	117777313	117785772	18	ATP synthase, H+ transporting, mitochondrial F0 complex, subunit G	0000276	mitochondrial proton-transporting ATP synthase complex, coupling factor F(o)
 ATP5O	chr21	34197626	34210028	18	ATP synthase, H+ transporting, mitochondrial F1 complex, O subunit	0005215	transporter activity
-ATP5SL	chr19	46629063	46637650	18	ATP5S-like		
+ATP5SL	chr19	46629063	46637650	18	ATP5S-like
 ATP6AP1	chrX	153310171	153318056	18	ATPase, H+ transporting, lysosomal accessory protein 1	0005524	ATP binding
 ATP6AP2	chrX	40325159	40350832	18	ATPase, H+ transporting, lysosomal accessory protein 2	0009897	external side of plasma membrane
 ATP6V0D1	chr16	66029417	66072590	18	ATPase, H+ transporting, lysosomal 38kDa, V0 subunit d1	0007420	brain development
@@ -264,8 +264,8 @@ BANF1	chr11	65526125	65528193	18	barrier to autointegration factor 1	0005829	cyt
 BAP1	chr3	52410064	52419049	18	BRCA1 associated protein-1 (ubiquitin carboxy-terminal hydrolase)	0004221	ubiquitin thiolesterase activity
 BAT1	chr6	31605974	31618204	18	HLA-B associated transcript 1	0005515	protein binding
 BAT2	chr6	31696428	31713533	18	HLA-B associated transcript 2	0005515	protein binding
-BAT2D1	chr1	169721289	169829273	18	BAT2 domain containing 1		
-BAT2L	chr9	133295297	133365396	18	HLA-B associated transcript 2-like		
+BAT2D1	chr1	169721289	169829273	18	BAT2 domain containing 1
+BAT2L	chr9	133295297	133365396	18	HLA-B associated transcript 2-like
 BAT3	chr6	31714783	31728149	18	HLA-B associated transcript 3	0007283	spermatogenesis
 BAZ1A	chr14	34291687	34414604	18	bromodomain adjacent to zinc finger domain, 1A	0008270	zinc ion binding
 BAZ2A	chr12	55275646	55316430	18	bromodomain adjacent to zinc finger domain, 2A	0005677	chromatin silencing complex
@@ -301,7 +301,7 @@ BRD8	chr5	137503357	137542257	18	bromodomain containing 8	0005634	nucleus
 BRD9	chr5	916855	944403	18	bromodomain containing 9	0005515	protein binding
 BRP44	chr1	166153933	166172902	18	brain protein 44	0005739	mitochondrion
 BRWD1	chr21	39479273	39607426	18	bromodomain and WD repeat domain containing 1	0045449	regulation of transcription
-BRWD2	chr10	122600684	122659026	18	bromodomain and WD repeat domain containing 2		
+BRWD2	chr10	122600684	122659026	18	bromodomain and WD repeat domain containing 2
 BSCL2	chr11	62214322	62231776	18	Bernardinelli-Seip congenital lipodystrophy 2 (seipin)	0008150	biological_process
 BSDC1	chr1	32603291	32632649	18	BSD domain containing 1	0005515	protein binding
 BSG	chr19	522324	534493	18	basigin (Ok blood group)	0007596	blood coagulation
@@ -311,115 +311,115 @@ BTBD6	chr14	104786163	104788475	18	BTB (POZ) domain containing 6	0000932	cytopla
 BTBD7	chr14	92773648	92869138	18	BTB (POZ) domain containing 7	0005515	protein binding
 BTD	chr3	15618258	15662329	18	biotinidase	0005576	extracellular region
 BTF3	chr5	72830005	72837204	18	basic transcription factor 3	0005515	protein binding
-BTF3L4	chr1	52294444	52326678	18	basic transcription factor 3-like 4		
+BTF3L4	chr1	52294444	52326678	18	basic transcription factor 3-like 4
 BTG1	chr12	91058184	91063804	18	B-cell translocation gene 1, anti-proliferative	0005634	nucleus
 BTG2	chr1	201541286	201545352	18	BTG family, member 2	0009612	response to mechanical stimulus
 BTG3	chr21	17887838	17907139	18	BTG family, member 3	0005737	cytoplasm
 BTN2A1	chr6	26566167	26577844	18	butyrophilin, subfamily 2, member A1	0005887	integral to plasma membrane
 BTN3A2	chr6	26473376	26486527	18	butyrophilin, subfamily 3, member A2	0016020	membrane
 BTRC	chr10	103103814	103307060	18	beta-transducin repeat containing	0016874	ligase activity
-PAK6				18	p21 protein (Cdc42/Rac)-activated kinase 6		
+PAK6				18	p21 protein (Cdc42/Rac)-activated kinase 6
 BUB3	chr10	124903749	124914876	18	budding uninhibited by benzimidazoles 3 homolog (yeast)	0005515	protein binding
 BUD31	chr7	98844536	98855175	18	BUD31 homolog (S. cerevisiae)	0006357	regulation of transcription from RNA polymerase II promoter
 BZW1	chr2	201384891	201396805	18	basic leucine zipper and W2 domains 1	0016070	RNA metabolic process
 BZW2	chr7	16652283	16712672	18	basic leucine zipper and W2 domains 2	0030154	cell differentiation
-C10orf10	chr10	44791714	44794336	18	chromosome 10 open reading frame 10		
-C10orf104	chr10	73645811	73665624	18	chromosome 10 open reading frame 104		
+C10orf10	chr10	44791714	44794336	18	chromosome 10 open reading frame 10
+C10orf104	chr10	73645811	73665624	18	chromosome 10 open reading frame 104
 C10orf119	chr10	121578961	121622384	18	chromosome 10 open reading frame 119	0003674	molecular_function
-C10orf26	chr10	104493716	104566011	18	chromosome 10 open reading frame 26		
-C10orf32	chr10	104603956	104614708	18	chromosome 10 open reading frame 32		
+C10orf26	chr10	104493716	104566011	18	chromosome 10 open reading frame 26
+C10orf32	chr10	104603956	104614708	18	chromosome 10 open reading frame 32
 C10orf46	chr10	120430483	120504748	18	chromosome 10 open reading frame 46	0031461	cullin-RING ubiquitin ligase complex
 C10orf57	chr10	81828405	81842287	18	chromosome 10 open reading frame 57	0016021	integral to membrane
 C10orf58	chr10	82158221	82182733	18	chromosome 10 open reading frame 58	0005739	mitochondrion
 C11orf10	chr11	61313177	61316661	18	chromosome 11 open reading frame 10	0016021	integral to membrane
-C11orf31	chr11	57265297	57267459	18	chromosome 11 open reading frame 31		
-C11orf49	chr11	46914826	47140374	18	chromosome 11 open reading frame 49		
-C11orf58	chr11	16716723	16736477	18	chromosome 11 open reading frame 58		
+C11orf31	chr11	57265297	57267459	18	chromosome 11 open reading frame 31
+C11orf49	chr11	46914826	47140374	18	chromosome 11 open reading frame 49
+C11orf58	chr11	16716723	16736477	18	chromosome 11 open reading frame 58
 C12orf10	chr12	51979736	51987232	18	chromosome 12 open reading frame 10	0005575	cellular_component
 C12orf11	chr12	26949378	26982521	18	chromosome 12 open reading frame 11	0007049	cell cycle
 C12orf23	chr12	105873673	105891943	18	chromosome 12 open reading frame 23	0016021	integral to membrane
-C12orf4	chr12	4467161	4517898	18	chromosome 12 open reading frame 4		
+C12orf4	chr12	4467161	4517898	18	chromosome 12 open reading frame 4
 C12orf51	chr12	111082493	111228421	18	chromosome 12 open reading frame 51	0016881	acid-amino acid ligase activity
-C12orf52	chr12	112107937	112114502	18	chromosome 12 open reading frame 52		
-C12orf57	chr12	6923463	6925426	18	chromosome 12 open reading frame 57		
-C13orf23	chr13	38482001	38510252	18	chromosome 13 open reading frame 23		
-C14orf100	chr14	59020913	59041834	18	chromosome 14 open reading frame 100		
+C12orf52	chr12	112107937	112114502	18	chromosome 12 open reading frame 52
+C12orf57	chr12	6923463	6925426	18	chromosome 12 open reading frame 57
+C13orf23	chr13	38482001	38510252	18	chromosome 13 open reading frame 23
+C14orf100	chr14	59020913	59041834	18	chromosome 14 open reading frame 100
 C14orf101	chr14	56116263	56185985	18	chromosome 14 open reading frame 101	0016020	membrane
-C14orf118	chr14	75688011	75738887	18	chromosome 14 open reading frame 118		
-C14orf119	chr14	22634627	22639505	18	chromosome 14 open reading frame 119		
+C14orf118	chr14	75688011	75738887	18	chromosome 14 open reading frame 118
+C14orf119	chr14	22634627	22639505	18	chromosome 14 open reading frame 119
 C14orf138	chr14	49645099	49653047	18	chromosome 14 open reading frame 138	0008150	biological_process
-INF2				18	inverted formin, FH2 and WH2 domain containing		
+INF2				18	inverted formin, FH2 and WH2 domain containing
 C14orf166	chr14	51525977	51541170	18	chromosome 14 open reading frame 166	0005737	cytoplasm
 C14orf21	chr14	23838937	23844214	18	chromosome 14 open reading frame 21	0003723	RNA binding
 C14orf93	chr14	22525949	22549200	18	chromosome 14 open reading frame 93	0005576	extracellular region
-C15orf17	chr15	72979380	72986515	18	chromosome 15 open reading frame 17		
+C15orf17	chr15	72979380	72986515	18	chromosome 15 open reading frame 17
 C15orf24	chr15	32163515	32181345	18	chromosome 15 open reading frame 24	0005737	cytoplasm
-C15orf44	chr15	63658170	63690460	18	chromosome 15 open reading frame 44		
-C16orf35	chr16	75803	128610	18	chromosome 16 open reading frame 35		
+C15orf44	chr15	63658170	63690460	18	chromosome 15 open reading frame 44
+C16orf35	chr16	75803	128610	18	chromosome 16 open reading frame 35
 C16orf57	chr16	56592805	56613023	18	chromosome 16 open reading frame 57	0005575	cellular_component
 C16orf58	chr16	31408315	31427207	18	chromosome 16 open reading frame 58	0016020	membrane
 C16orf62	chr16	19474540	19619945	18	chromosome 16 open reading frame 62	0016020	membrane
 C16orf63	chr16	15867077	15889948	18	chromosome 16 open reading frame 63	0034453	microtubule anchoring
-C17orf45	chr17	16283025	16286065	18	chromosome 17 open reading frame 45		
+C17orf45	chr17	16283025	16286065	18	chromosome 17 open reading frame 45
 C17orf62	chr17	77993807	78001983	18	chromosome 17 open reading frame 62	0016021	integral to membrane
-C17orf63	chr17	24107122	24193967	18	chromosome 17 open reading frame 63		
+C17orf63	chr17	24107122	24193967	18	chromosome 17 open reading frame 63
 C18orf10	chr18	32630031	32663156	18	chromosome 18 open reading frame 10	0005737	cytoplasm
-C18orf25	chr18	42007985	42100953	18	chromosome 18 open reading frame 25		
+C18orf25	chr18	42007985	42100953	18	chromosome 18 open reading frame 25
 C19orf12	chr19	34881632	34897803	18	chromosome 19 open reading frame 12	0016021	integral to membrane
 C19orf42	chr19	16617958	16631968	18	chromosome 19 open reading frame 42	0016020	membrane
-C19orf43	chr19	12702453	12706529	18	chromosome 19 open reading frame 43		
+C19orf43	chr19	12702453	12706529	18	chromosome 19 open reading frame 43
 C19orf50	chr19	18529603	18541186	18	chromosome 19 open reading frame 50	0005515	protein binding
 C19orf6	chr19	960649	972141	18	chromosome 19 open reading frame 6	0016021	integral to membrane
-C19orf61	chr19	48927140	48950982	18	chromosome 19 open reading frame 61		
-C19orf62	chr19	17239231	17251162	18	chromosome 19 open reading frame 62		
+C19orf61	chr19	48927140	48950982	18	chromosome 19 open reading frame 61
+C19orf62	chr19	17239231	17251162	18	chromosome 19 open reading frame 62
 C1orf123	chr1	53452359	53458877	18	chromosome 1 open reading frame 123	0005575	cellular_component
-C1orf128	chr1	23977462	23987309	18	chromosome 1 open reading frame 128		
-C1orf144	chr1	16566169	16597227	18	chromosome 1 open reading frame 144		
-C1orf63	chr1	25441326	25446572	18	chromosome 1 open reading frame 63		
+C1orf128	chr1	23977462	23987309	18	chromosome 1 open reading frame 128
+C1orf144	chr1	16566169	16597227	18	chromosome 1 open reading frame 144
+C1orf63	chr1	25441326	25446572	18	chromosome 1 open reading frame 63
 C1orf77	chr1	151873148	151884603	18	chromosome 1 open reading frame 77	0043231	intracellular membrane-bounded organelle
 C1QBP	chr17	5276822	5283195	18	complement component 1, q subcomponent binding protein	0016020	membrane
 C1RL	chr12	7138290	7153069	18	complement component 1, r subcomponent-like	0045087	innate immune response
 C1S	chr12	7038240	7048596	18	complement component 1, s subcomponent	0008233	peptidase activity
 C20orf11	chr20	61039885	61050272	18	chromosome 20 open reading frame 11	0005515	protein binding
-C20orf3	chr20	24891579	24921425	18	chromosome 20 open reading frame 3		
+C20orf3	chr20	24891579	24921425	18	chromosome 20 open reading frame 3
 C20orf30	chr20	5028483	5041733	18	chromosome 20 open reading frame 30	0016020	membrane
 C20orf43	chr20	54477053	54527349	18	chromosome 20 open reading frame 43	0003674	molecular_function
 C20orf72	chr20	17897761	17919761	18	chromosome 20 open reading frame 72	0005739	mitochondrion
 C21orf59	chr21	32895977	32906537	18	chromosome 21 open reading frame 59	0005634	nucleus
-C22orf13	chr22	23266407	23281275	18	chromosome 22 open reading frame 13		
+C22orf13	chr22	23266407	23281275	18	chromosome 22 open reading frame 13
 C22orf28	chr22	31113561	31138274	18	chromosome 22 open reading frame 28	0034446	substrate adhesion-dependent cell spreading
-GNB1L				18	guanine nucleotide binding protein (G protein), beta polypeptide 1-like		
+GNB1L				18	guanine nucleotide binding protein (G protein), beta polypeptide 1-like
 C2orf24	chr2	219744862	219749946	18	chromosome 2 open reading frame 24	0016021	integral to membrane
-C2orf28	chr2	27288402	27293557	18	chromosome 2 open reading frame 28		
-C2orf30	chr2	53867571	53899999	18	chromosome 2 open reading frame 30		
+C2orf28	chr2	27288402	27293557	18	chromosome 2 open reading frame 28
+C2orf30	chr2	53867571	53899999	18	chromosome 2 open reading frame 30
 C3	chr19	6628845	6671662	18	complement component 3	0004866	endopeptidase inhibitor activity
 C3orf10	chr3	10132332	10143874	18	chromosome 3 open reading frame 10	0005856	cytoskeleton
 C3orf17	chr3	114203980	114221245	18	chromosome 3 open reading frame 17	0016021	integral to membrane
-C3orf37	chr3	130480373	130506825	18	chromosome 3 open reading frame 37		
-C3orf63	chr3	56629199	56692175	18	chromosome 3 open reading frame 63		
+C3orf37	chr3	130480373	130506825	18	chromosome 3 open reading frame 37
+C3orf63	chr3	56629199	56692175	18	chromosome 3 open reading frame 63
 C3orf75	chr3	47512133	47530203	18	chromosome 3 open reading frame 75	0008150	biological_process
 C4orf14	chr4	57524272	57538583	18	chromosome 4 open reading frame 14	0005743	mitochondrial inner membrane
-C4orf18	chr4	159265181	159313652	18	chromosome 4 open reading frame 18		
+C4orf18	chr4	159265181	159313652	18	chromosome 4 open reading frame 18
 C4orf3	chr4	120437021	120441416	18	chromosome 4 open reading frame 3	0016020	membrane
-C4orf41	chr4	184817439	184871739	18	chromosome 4 open reading frame 41		
+C4orf41	chr4	184817439	184871739	18	chromosome 4 open reading frame 41
 C5orf13	chr5	111092898	111340527	18	chromosome 5 open reading frame 13	0005737	cytoplasm
-C5orf15	chr5	133319096	133332305	18	chromosome 5 open reading frame 15		
-C5orf24	chr5	134209268	134223324	18	chromosome 5 open reading frame 24		
-C5orf32	chr5	139534836	139603558	18	chromosome 5 open reading frame 32		
+C5orf15	chr5	133319096	133332305	18	chromosome 5 open reading frame 15
+C5orf24	chr5	134209268	134223324	18	chromosome 5 open reading frame 24
+C5orf32	chr5	139534836	139603558	18	chromosome 5 open reading frame 32
 C5orf41	chr5	172415975	172496569	18	chromosome 5 open reading frame 41	0006355	regulation of transcription, DNA-dependent
-C5orf45	chr5	179196871	179218446	18	chromosome 5 open reading frame 45		
-C6orf106	chr6	34663046	34772603	18	chromosome 6 open reading frame 106		
-C6orf130	chr6	41142508	41148166	18	chromosome 6 open reading frame 130		
-C6orf48	chr6	31910671	31915520	18	chromosome 6 open reading frame 48		
+C5orf45	chr5	179196871	179218446	18	chromosome 5 open reading frame 45
+C6orf106	chr6	34663046	34772603	18	chromosome 6 open reading frame 106
+C6orf130	chr6	41142508	41148166	18	chromosome 6 open reading frame 130
+C6orf48	chr6	31910671	31915520	18	chromosome 6 open reading frame 48
 C6orf62	chr6	24813068	24827382	18	chromosome 6 open reading frame 62	0008150	biological_process
 C6orf89	chr6	36961617	37004718	18	chromosome 6 open reading frame 89	0016021	integral to membrane
-C7orf28A	chr7	5904866	5932129	18	chromosome 7 open reading frame 28A		
+C7orf28A	chr7	5904866	5932129	18	chromosome 7 open reading frame 28A
 C7orf28B	chr7	6805096	6832386	18	chromosome 7 open reading frame 28B	0005765	lysosomal membrane
 C7orf42	chr7	66023637	66060973	18	chromosome 7 open reading frame 42	0016021	integral to membrane
-C7orf59	chr7	99584465	99589769	18	chromosome 7 open reading frame 59		
+C7orf59	chr7	99584465	99589769	18	chromosome 7 open reading frame 59
 C8orf55	chr8	143805622	143815352	18	chromosome 8 open reading frame 55	0005576	extracellular region
 C9orf5	chr9	110817235	110922046	18	chromosome 9 open reading frame 5	0008150	biological_process
-C9orf80	chr9	114488611	114520208	18	chromosome 9 open reading frame 80		
+C9orf80	chr9	114488611	114520208	18	chromosome 9 open reading frame 80
 CAB39	chr2	231285800	231394034	18	calcium binding protein 39	0005515	protein binding
 CABC1	chr1	225194560	225241869	18	chaperone, ABC1 activity of bc1 complex homolog (S. pombe)	0008219	cell death
 CABIN1	chr22	22737764	22904596	18	calcineurin binding protein 1	0007166	cell surface receptor linked signaling pathway
@@ -428,8 +428,8 @@ CAD	chr2	27293761	27320158	18	carbamoyl-phosphate synthetase 2, aspartate transc
 CALCOCO1	chr12	52391168	52407574	18	calcium binding and coiled-coil domain 1	0003713	transcription coactivator activity
 CALCOCO2	chr17	44263370	44297228	18	calcium binding and coiled-coil domain 2	0005625	soluble fraction
 CALM1	chr14	89933125	89944363	18	calmodulin 1 (phosphorylase kinase, delta)	0005886	plasma membrane
-CALM2	chr2	47240808	47257154	18	calmodulin 2 (phosphorylase kinase, delta)		
-CALM3	chr19	51796351	51805879	18	calmodulin 3 (phosphorylase kinase, delta)		
+CALM2	chr2	47240808	47257154	18	calmodulin 2 (phosphorylase kinase, delta)
+CALM3	chr19	51796351	51805879	18	calmodulin 3 (phosphorylase kinase, delta)
 CALU	chr7	128166581	128198767	18	calumenin	0005515	protein binding
 CAMTA2	chr17	4812016	4831655	18	calmodulin binding transcription activator 2	0006357	regulation of transcription from RNA polymerase II promoter
 CAND1	chr12	65949327	65994655	18	cullin-associated and neddylation-dissociated 1	0005515	protein binding
@@ -438,7 +438,7 @@ CANX	chr5	179058535	179091245	18	calnexin	0005515	protein binding
 CAP1	chr1	40278841	40310908	18	CAP, adenylate cyclase-associated protein 1 (yeast)	0007163	establishment or maintenance of cell polarity
 CAPN1	chr11	64705918	64736052	18	calpain 1, (mu/I) large subunit	0008233	peptidase activity
 CAPN2	chr1	221955917	222030343	18	calpain 2, (m/II) large subunit	0007520	myoblast fusion
-GANC				18	glucosidase, alpha; neutral C		
+GANC				18	glucosidase, alpha; neutral C
 CAPN7	chr3	15222736	15269427	18	calpain 7	0008233	peptidase activity
 CAPNS1	chr19	41322757	41333095	18	calpain, small subunit 1	0005737	cytoplasm
 CAPRIN1	chr11	34029805	34080733	18	cell cycle associated protein 1	0005515	protein binding
@@ -460,16 +460,16 @@ CBX5	chr12	52910997	52939637	18	chromobox homolog 5 (HP1 alpha homolog, Drosophi
 CCAR1	chr10	70150976	70221315	18	cell division cycle and apoptosis regulator 1	0000398	nuclear mRNA splicing, via spliceosome
 CCBL2	chr1	89174043	89231104	18	cysteine conjugate-beta lyase 2	0006520	cellular amino acid metabolic process
 CCDC109A	chr10	74121894	74317458	18	coiled-coil domain containing 109A	0016021	integral to membrane
-CCDC12	chr3	46938224	46993243	18	coiled-coil domain containing 12		
-CCDC25	chr8	27646751	27686089	18	coiled-coil domain containing 25		
+CCDC12	chr3	46938224	46993243	18	coiled-coil domain containing 12
+CCDC25	chr8	27646751	27686089	18	coiled-coil domain containing 25
 CCDC47	chr17	59176341	59204820	18	coiled-coil domain containing 47	0006983	ER overload response
 CCDC50	chr3	192529567	192599153	18	coiled-coil domain containing 50	0005515	protein binding
 CCDC55	chr17	25467959	25537612	18	coiled-coil domain containing 55	0016607	nuclear speck
 CCDC56	chr17	38203177	38204230	18	coiled-coil domain containing 56	0016020	membrane
 CCDC6	chr10	61218526	61336824	18	coiled-coil domain containing 6	0005856	cytoskeleton
-CCDC72	chr3	48456689	48460541	18	coiled-coil domain containing 72		
+CCDC72	chr3	48456689	48460541	18	coiled-coil domain containing 72
 CCDC86	chr11	60366004	60375137	18	coiled-coil domain containing 86	0005634	nucleus
-CCDC93	chr2	118389616	118488167	18	coiled-coil domain containing 93		
+CCDC93	chr2	118389616	118488167	18	coiled-coil domain containing 93
 CCM2	chr7	45006311	45082594	18	cerebral cavernous malformation 2	0005515	protein binding
 CCNB1	chr5	68498668	68509826	18	cyclin B1	0005856	cytoskeleton
 CCNB1IP1	chr14	19849368	19871297	18	cyclin B1 interacting protein 1	0005515	protein binding
@@ -503,8 +503,8 @@ CD99L2	chrX	149685466	149817837	18	CD99 molecule-like 2	0016021	integral to memb
 CDC16	chr13	114018463	114056252	18	cell division cycle 16 homolog (S. cerevisiae)	0008283	cell proliferation
 CDC23	chr5	137551235	137576931	18	cell division cycle 23 homolog (S. cerevisiae)	0000080	G1 phase of mitotic cell cycle
 CDC27	chr17	42550309	42621664	18	cell division cycle 27 homolog (S. cerevisiae)	0005829	cytosol
-CDC2L2	chr1	1624029	1645651	18	cell division cycle 2-like 2 (PITSLRE proteins)		
-CDC2L5	chr7	39956483	40101672	18	cell division cycle 2-like 5 (cholinesterase-related cell division controller)		
+CDC2L2	chr1	1624029	1645651	18	cell division cycle 2-like 2 (PITSLRE proteins)
+CDC2L5	chr7	39956483	40101672	18	cell division cycle 2-like 5 (cholinesterase-related cell division controller)
 CDC34	chr19	482732	493087	18	cell division cycle 34 homolog (S. cerevisiae)	0000082	G1/S transition of mitotic cell cycle
 CDC37	chr19	10362808	10375271	18	cell division cycle 37 homolog (S. cerevisiae)	0060334	regulation of interferon-gamma-mediated signaling pathway
 CDC42	chr1	22251706	22292023	18	cell division cycle 42 (GTP binding protein, 25kDa)	0005515	protein binding
@@ -552,7 +552,7 @@ CHD9	chr16	51646445	51918915	18	chromodomain helicase DNA binding protein 9	0005
 CHEK1	chr11	125000245	125051360	18	CHK1 checkpoint homolog (S. pombe)	0000079	regulation of cyclin-dependent protein kinase activity
 CHERP	chr19	16489699	16514263	18	calcium homeostasis endoplasmic reticulum protein	0005622	intracellular
 CHID1	chr11	857858	900874	18	chitinase domain containing 1	0005764	lysosome
-CPT1B				18	choline kinase beta		
+CPT1B				18	choline kinase beta
 CHMP1B	chr18	11841388	11844448	18	chromatin modifying protein 1B	0019904	protein domain specific binding
 CHMP7	chr8	23157094	23175457	18	CHMP family, member 7	0045324	late endosome to vacuole transport
 CHORDC1	chr11	89573245	89596180	18	cysteine and histidine-rich domain (CHORD)-containing 1	0005575	cellular_component
@@ -601,7 +601,7 @@ COASY	chr17	37967617	37971821	18	Coenzyme A synthase	0004595	pantetheine-phospha
 COG2	chr1	228844824	228896354	18	component of oligomeric golgi complex 2	0008565	protein transporter activity
 COG4	chr16	69071972	69114958	18	component of oligomeric golgi complex 4	0048213	Golgi vesicle prefusion complex stabilization
 COG5	chr7	106630226	106991721	18	component of oligomeric golgi complex 5	0017119	Golgi transport complex
-PDF				18	peptide deformylase (mitochondrial)		
+PDF				18	peptide deformylase (mitochondrial)
 COL1A1	chr17	45616455	45633999	18	collagen, type I, alpha 1	0005515	protein binding
 COL4A3BP	chr5	74702683	74843562	18	collagen, type IV, alpha 3 (Goodpasture antigen) binding protein	0006672	ceramide metabolic process
 COL6A2	chr21	46342460	46377191	18	collagen, type VI, alpha 2	0005201	extracellular matrix structural constituent
@@ -626,8 +626,8 @@ COX4I1	chr16	84390696	84398108	18	cytochrome c oxidase subunit IV isoform 1	0022
 COX6A1	chr12	119360286	119362912	18	cytochrome c oxidase subunit VIa polypeptide 1	0005739	mitochondrion
 COX6C	chr8	100959547	100975071	18	cytochrome c oxidase subunit VIc	0005743	mitochondrial inner membrane
 CPD	chr17	25730109	25819825	18	carboxypeptidase D	0016021	integral to membrane
-RBM12				18	copine I		
-CPNE2	chr16	55684010	55739377	18	copine II		
+RBM12				18	copine I
+CPNE2	chr16	55684010	55739377	18	copine II
 CPSF1	chr8	145589253	145605541	18	cleavage and polyadenylation specific factor 1, 160kDa	0005654	nucleoplasm
 CPSF3	chr2	9481318	9530678	18	cleavage and polyadenylation specific factor 3, 73kDa	0008409	5'-3' exonuclease activity
 CPSF3L	chr1	1236827	1249909	18	cleavage and polyadenylation specific factor 3-like	0005634	nucleus
@@ -640,7 +640,7 @@ CRIM1	chr2	36436900	36631782	18	cysteine rich transmembrane BMP regulator 1 (cho
 CRK	chr17	1272207	1306294	18	v-crk sarcoma virus CT10 oncogene homolog (avian)	0005515	protein binding
 CRKL	chr22	19601713	19638037	18	v-crk sarcoma virus CT10 oncogene homolog (avian)-like	0004871	signal transducer activity
 CRNKL1	chr20	19963011	19984690	18	crooked neck pre-mRNA splicing factor-like 1 (Drosophila)	0000245	spliceosome assembly
-CROP	chr17	46151975	46185071	18	cisplatin resistance-associated overexpressed protein		
+CROP	chr17	46151975	46185071	18	cisplatin resistance-associated overexpressed protein
 CRTAP	chr3	33130453	33164269	18	cartilage associated protein	0005576	extracellular region
 CS	chr12	54951749	54980442	18	citrate synthase	0044262	cellular carbohydrate metabolic process
 CSDA	chr12	10742942	10767220	18	cold shock domain protein A	0003730	mRNA 3'-UTR binding
@@ -672,14 +672,14 @@ CTSD	chr11	1730560	1741798	18	cathepsin D	0005739	mitochondrion
 CTSH	chr15	77001146	77024475	18	cathepsin H	0031648	protein destabilization
 CTSK	chr1	149035310	149047436	18	cathepsin K	0005515	protein binding
 CTTN	chr11	69922259	69960338	18	cortactin	0005515	protein binding
-CUGBP1	chr11	47446520	47467152	18	CUG triplet repeat, RNA binding protein 1		
+CUGBP1	chr11	47446520	47467152	18	CUG triplet repeat, RNA binding protein 1
 CUL1	chr7	148026865	148129135	18	cullin 1	0000084	S phase of mitotic cell cycle
 CUL4A	chr13	112911086	112967393	18	cullin 4A	0031464	Cul4A-RING ubiquitin ligase complex
 CUL4B	chrX	119542473	119578845	18	cullin 4B	0005515	protein binding
 CUX1	chr7	101246011	101713970	18	cut-like homeobox 1	0006357	regulation of transcription from RNA polymerase II promoter
 CWC15	chr11	94335434	94346424	18	CWC15 spliceosome-associated protein homolog (S. cerevisiae)	0005634	nucleus
 CWC22	chr2	180517848	180580025	18	CWC22 spliceosome-associated protein homolog (S. cerevisiae)	0005515	protein binding
-CXorf39	chrX	103297956	103322783	18	chromosome X open reading frame 39		
+CXorf39	chrX	103297956	103322783	18	chromosome X open reading frame 39
 CXXC1	chr18	46062710	46068690	18	CXXC finger 1 (PHD domain)	0005515	protein binding
 CXXC5	chr5	139008484	139042864	18	CXXC finger 5	0004871	signal transducer activity
 CYB561	chr17	58863396	58877277	18	cytochrome b-561	0006810	transport
@@ -733,7 +733,7 @@ DDX5	chr17	59924835	59932946	18	DEAD (Asp-Glu-Ala-Asp) box polypeptide 5	0005524
 DDX56	chr7	44571927	44580662	18	DEAD (Asp-Glu-Ala-Asp) box polypeptide 56	0005634	nucleus
 DEF8	chr16	88542651	88553275	18	differentially expressed in FDCP 8 homolog (mouse)	0046872	metal ion binding
 DEK	chr6	18332378	18372778	18	DEK oncogene	0019079	viral genome replication
-DENND4B	chr1	152168600	152185778	18	DENN/MADD domain containing 4B		
+DENND4B	chr1	152168600	152185778	18	DENN/MADD domain containing 4B
 DENND5A	chr11	9116950	9243447	18	DENN/MADD domain containing 5A	0005515	protein binding
 DENR	chr12	121803323	121821906	18	density-regulated protein	0003674	molecular_function
 DERL1	chr8	124094748	124123829	18	Der1-like domain family, member 1	0030433	ER-associated protein catabolic process
@@ -746,7 +746,7 @@ DHFR	chr5	79957800	79986556	18	dihydrofolate reductase	0004146	dihydrofolate red
 DHRS1	chr14	23829643	23838879	18	dehydrogenase/reductase (SDR family) member 1	0005488	binding
 DHRS3	chr1	12550525	12600407	18	dehydrogenase/reductase (SDR family) member 3	0042572	retinol metabolic process
 DHRS7	chr14	59681248	59701964	18	dehydrogenase/reductase (SDR family) member 7	0016491	oxidoreductase activity
-ZBED1				18	zinc finger, BED-type containing 1		
+ZBED1				18	zinc finger, BED-type containing 1
 DHX15	chr4	24138185	24195282	18	DEAH (Asp-Glu-Ala-His) box polypeptide 15	0008380	RNA splicing
 DHX29	chr5	54587829	54639278	18	DEAH (Asp-Glu-Ala-His) box polypeptide 29	0006412	translation
 DHX30	chr3	47819402	47866690	18	DEAH (Asp-Glu-Ala-His) box polypeptide 30	0008026	ATP-dependent helicase activity
@@ -781,13 +781,13 @@ DNTTIP2	chr1	94107923	94117330	18	deoxynucleotidyltransferase, terminal, interac
 DOK4	chr16	56063370	56077886	18	docking protein 4	0005158	insulin receptor binding
 DPAGT1	chr11	118472422	118477995	18	dolichyl-phosphate (UDP-N-acetylglucosamine) N-acetylglucosaminephosphotransferase 1 (GlcNAc-1-P transferase)	0005792	microsome
 DPF2	chr11	64857921	64877027	18	D4, zinc and double PHD fingers family 2	0045449	regulation of transcription
-OVCA2				18	candidate tumor suppressor in ovarian cancer 2		
+OVCA2				18	candidate tumor suppressor in ovarian cancer 2
 DPH5	chr1	101227768	101263950	18	DPH5 homolog (S. cerevisiae)	0016740	transferase activity
 DPP8	chr15	63525050	63597088	18	dipeptidyl-peptidase 8	0005737	cytoplasm
 DPP9	chr19	4626243	4674855	18	dipeptidyl-peptidase 9	0016020	membrane
 DPYSL2	chr8	26491337	26571610	18	dihydropyrimidinase-like 2	0016810	hydrolase activity, acting on carbon-nitrogen (but not peptide) bonds
 DPYSL3	chr5	146750563	146813453	18	dihydropyrimidinase-like 3	0007165	signal transduction
-DRAM	chr12	100795235	100841532	18	damage-regulated autophagy modulator		
+DRAM	chr12	100795235	100841532	18	damage-regulated autophagy modulator
 DRG2	chr17	17932007	17952017	18	developmentally regulated GTP binding protein 2	0005739	mitochondrion
 DSCR3	chr21	37517595	37561703	18	Down syndrome critical region gene 3	0003674	molecular_function
 DSP	chr6	7486868	7531945	18	desmoplakin	0001533	cornified envelope
@@ -807,7 +807,7 @@ DYNC1H1	chr14	101500617	101586888	18	dynein, cytoplasmic 1, heavy chain 1	004262
 DYNC1I2	chr2	172252227	172313165	18	dynein, cytoplasmic 1, intermediate chain 2	0000086	G2/M transition of mitotic cell cycle
 DYNC1LI2	chr16	65312299	65343026	18	dynein, cytoplasmic 1, light intermediate chain 2	0005874	microtubule
 DYNLL1	chr12	119392042	119420681	18	dynein, light chain, LC8-type 1	0009653	anatomical structure morphogenesis
-DYNLT3	chrX	37583032	37591833	18	dynein, light chain, Tctex-type 3	colocalizes	
+DYNLT3	chrX	37583032	37591833	18	dynein, light chain, Tctex-type 3	colocalizes
 DZIP3	chr3	109791026	109896383	18	DAZ interacting protein 3, zinc finger	0003723	RNA binding
 EAPP	chr14	34054885	34078694	18	E2F-associated phosphoprotein	0008284	positive regulation of cell proliferation
 EARS2	chr16	23440834	23476197	18	glutamyl-tRNA synthetase 2, mitochondrial (putative)	0005739	mitochondrion
@@ -818,7 +818,7 @@ ECH1	chr19	43997901	44014337	18	enoyl Coenzyme A hydratase 1, peroxisomal	000573
 ECHDC1	chr6	127651549	127706447	18	enoyl Coenzyme A hydratase domain containing 1	0003824	catalytic activity
 ECHS1	chr10	135025976	135036898	18	enoyl Coenzyme A hydratase, short chain, 1, mitochondrial	0006631	fatty acid metabolic process
 ECM1	chr1	148747110	148752889	18	extracellular matrix protein 1	0005578	proteinaceous extracellular matrix
-ECOP	chr7	55505799	55607694	18	EGFR-coamplified and overexpressed protein		
+ECOP	chr7	55505799	55607694	18	EGFR-coamplified and overexpressed protein
 ECT2	chr3	173954991	174021957	18	epithelial cell transforming sequence 2 oncogene	0043123	positive regulation of I-kappaB kinase/NF-kappaB cascade
 EDEM2	chr20	33166820	33198822	18	ER degradation enhancer, mannosidase alpha-like 2	0005783	endoplasmic reticulum
 EEF1A1	chr6	74282193	74287476	18	eukaryotic translation elongation factor 1 alpha 1	0005853	eukaryotic translation elongation factor 1 complex
@@ -847,13 +847,13 @@ EIF2S1	chr14	66896786	66922986	18	eukaryotic translation initiation factor 2, su
 EIF2S2	chr20	32139775	32163746	18	eukaryotic translation initiation factor 2, subunit 2 beta, 38kDa	0003743	translation initiation factor activity
 EIF2S3	chrX	23982985	24006851	18	eukaryotic translation initiation factor 2, subunit 3 gamma, 52kDa	0008135	translation factor activity, nucleic acid binding
 EIF3A	chr10	120784530	120830324	18	eukaryotic translation initiation factor 3, subunit A	0005515	protein binding
-EIF3B	chr7	2360999	2386903	18	eukaryotic translation initiation factor 3, subunit B	contributes	
-EIF3C	chr16	28630282	28654551	18	eukaryotic translation initiation factor 3, subunit C	contributes	
-EIF3CL	chr16	28298400	28322663	18	eukaryotic translation initiation factor 3, subunit C-like		
+EIF3B	chr7	2360999	2386903	18	eukaryotic translation initiation factor 3, subunit B	contributes
+EIF3C	chr16	28630282	28654551	18	eukaryotic translation initiation factor 3, subunit C	contributes
+EIF3CL	chr16	28298400	28322663	18	eukaryotic translation initiation factor 3, subunit C-like
 EIF3D	chr22	35236842	35255223	18	eukaryotic translation initiation factor 3, subunit D	0005829	cytosol
 EIF3E	chr8	109283147	109330135	18	eukaryotic translation initiation factor 3, subunit E	0045947	negative regulation of translational initiation
 EIF3F	chr11	7965442	7974296	18	eukaryotic translation initiation factor 3, subunit F	0005515	protein binding
-EIF3H	chr8	117726235	117837243	18	eukaryotic translation initiation factor 3, subunit H	contributes	
+EIF3H	chr8	117726235	117837243	18	eukaryotic translation initiation factor 3, subunit H	contributes
 EIF3I	chr1	32460557	32469792	18	eukaryotic translation initiation factor 3, subunit I	0044267	cellular protein metabolic process
 EIF3J	chr15	42616557	42642293	18	eukaryotic translation initiation factor 3, subunit J	0005852	eukaryotic translation initiation factor 3 complex
 EIF3K	chr19	43801561	43819435	18	eukaryotic translation initiation factor 3, subunit K	0044267	cellular protein metabolic process
@@ -868,7 +868,7 @@ EIF4G1	chr3	185515049	185535840	18	eukaryotic translation initiation factor 4 ga
 EIF4G2	chr11	10775168	10787158	18	eukaryotic translation initiation factor 4 gamma, 2	0008219	cell death
 EIF4H	chr7	73226641	73249365	18	eukaryotic translation initiation factor 4H	0005829	cytosol
 EIF5	chr14	102870245	102881114	18	eukaryotic translation initiation factor 5	0006413	translational initiation
-EIF5AL1				18	eukaryotic translation initiation factor 5A-like 1		
+EIF5AL1				18	eukaryotic translation initiation factor 5A-like 1
 EIF5B	chr2	99320265	99383160	18	eukaryotic translation initiation factor 5B	0010467	gene expression
 EIF6	chr20	33330138	33336008	18	eukaryotic translation initiation factor 6	0042256	mature ribosome assembly
 ELAC2	chr17	12836426	12862084	18	elaC homolog 2 (E. coli)	0008033	tRNA processing
@@ -925,41 +925,41 @@ FADS2	chr11	61352288	61391401	18	fatty acid desaturase 2	0016020	membrane
 FADS3	chr11	61397573	61415582	18	fatty acid desaturase 3	0005624	membrane fraction
 FAF1	chr1	50679522	51198524	18	Fas (TNFRSF6) associated factor 1	0042176	regulation of protein catabolic process
 FAF2	chr5	175807961	175869681	18	Fas associated factor family member 2	0006986	response to unfolded protein
-FAM104A	chr17	68715086	68740128	18	family with sequence similarity 104, member A		
-FAM107B	chr10	14600564	14856902	18	family with sequence similarity 107, member B		
-FAM118B	chr11	125586828	125637751	18	family with sequence similarity 118, member B		
-FAM120AOS	chr9	95248602	95255695	18	family with sequence similarity 120A opposite strand		
+FAM104A	chr17	68715086	68740128	18	family with sequence similarity 104, member A
+FAM107B	chr10	14600564	14856902	18	family with sequence similarity 107, member B
+FAM118B	chr11	125586828	125637751	18	family with sequence similarity 118, member B
+FAM120AOS	chr9	95248602	95255695	18	family with sequence similarity 120A opposite strand
 FAM129A	chr1	183026788	183210305	18	family with sequence similarity 129, member A	0005886	plasma membrane
-FAM133B	chr7	92028007	92057642	18	family with sequence similarity 133, member B		
+FAM133B	chr7	92028007	92057642	18	family with sequence similarity 133, member B
 FAM134A	chr2	219751182	219758441	18	family with sequence similarity 134, member A	0005783	endoplasmic reticulum
 FAM134C	chr17	37985051	38014971	18	family with sequence similarity 134, member C	0016021	integral to membrane
 FAM136A	chr2	70376611	70382724	18	family with sequence similarity 136, member A	0005739	mitochondrion
-FAM156B				18	family with sequence similarity 156, member B		
-FAM160B1	chr10	116571492	116649576	18	family with sequence similarity 160, member B1		
-FAM168A	chr11	72794675	72986876	18	family with sequence similarity 168, member A		
-FAM168B	chr2	131521918	131567474	18	family with sequence similarity 168, member B		
-FAM178A	chr10	102662315	102709337	18	family with sequence similarity 178, member A		
-FAM18B	chr17	18625306	18650751	18	family with sequence similarity 18, member B		
+FAM156B				18	family with sequence similarity 156, member B
+FAM160B1	chr10	116571492	116649576	18	family with sequence similarity 160, member B1
+FAM168A	chr11	72794675	72986876	18	family with sequence similarity 168, member A
+FAM168B	chr2	131521918	131567474	18	family with sequence similarity 168, member B
+FAM178A	chr10	102662315	102709337	18	family with sequence similarity 178, member A
+FAM18B	chr17	18625306	18650751	18	family with sequence similarity 18, member B
 FAM20B	chr1	177261696	177312325	18	family with sequence similarity 20, member B	0016301	kinase activity
 FAM21A	chr10	51497689	51563275	18	family with sequence similarity 21, member A	0071203	WASH complex
 FAM21B	chr10	47414028	47469423	18	family with sequence similarity 21, member B	0005769	early endosome
 FAM21C	chr10	45542672	45608418	18	family with sequence similarity 21, member C	0042147	retrograde transport, endosome to Golgi
 FAM36A	chr1	243065261	243074982	18	family with sequence similarity 36, member A	0016021	integral to membrane
 FAM3C	chr7	120776140	120823658	18	family with sequence similarity 3, member C	0005125	cytokine activity
-FAM49B	chr8	130922897	131021182	18	family with sequence similarity 49, member B		
-FAM53C	chr5	137701122	137713317	18	family with sequence similarity 53, member C		
-FAM54B	chr1	26018983	26032020	18	family with sequence similarity 54, member B		
-FAM60A	chr12	31324786	31370388	18	family with sequence similarity 60, member A		
-FAM62A	chr12	54808320	54824721	18	family with sequence similarity 62 (C2 domain containing), member A		
-FAM62B	chr7	158216449	158315080	18	family with sequence similarity 62 (C2 domain containing) member B		
+FAM49B	chr8	130922897	131021182	18	family with sequence similarity 49, member B
+FAM53C	chr5	137701122	137713317	18	family with sequence similarity 53, member C
+FAM54B	chr1	26018983	26032020	18	family with sequence similarity 54, member B
+FAM60A	chr12	31324786	31370388	18	family with sequence similarity 60, member A
+FAM62A	chr12	54808320	54824721	18	family with sequence similarity 62 (C2 domain containing), member A
+FAM62B	chr7	158216449	158315080	18	family with sequence similarity 62 (C2 domain containing) member B
 FAM65A	chr16	66120254	66138190	18	family with sequence similarity 65, member A	0005488	binding
 FAM96A	chr15	62151813	62173260	18	family with sequence similarity 96, member A	0005575	cellular_component
-FAM98A	chr2	33662232	33677866	18	family with sequence similarity 98, member A		
+FAM98A	chr2	33662232	33677866	18	family with sequence similarity 98, member A
 FARSA	chr19	12894283	12905558	18	phenylalanyl-tRNA synthetase, alpha subunit	0010467	gene expression
 FARSB	chr2	223144405	223229071	18	phenylalanyl-tRNA synthetase, beta subunit	0016874	ligase activity
 FASTK	chr7	150404640	150408884	18	Fas-activated serine/threonine kinase	0005515	protein binding
 FASTKD2	chr2	207338356	207369156	18	FAST kinase domains 2	0005739	mitochondrion
-UBOX5				18	U-box domain containing 5		
+UBOX5				18	U-box domain containing 5
 FBL	chr19	45016932	45028894	18	fibrillarin	0005515	protein binding
 FBXL3	chr13	76477389	76499332	18	F-box and leucine-rich repeat protein 3	0000151	ubiquitin ligase complex
 FBXO11	chr2	47887562	47986318	18	F-box protein 11	0000151	ubiquitin ligase complex
@@ -986,8 +986,8 @@ FKBP4	chr12	2774368	2784848	18	FK506 binding protein 4, 59kDa	0005528	FK506 bind
 FKBP5	chr6	35649339	35804338	18	FK506 binding protein 5	0005515	protein binding
 FKBP8	chr19	18503567	18515383	18	FK506 binding protein 8, 38kDa	0005488	binding
 FLAD1	chr1	153222440	153232211	18	FAD1 flavin adenine dinucleotide synthetase homolog (S. cerevisiae)	0008152	metabolic process
-FLII	chr17	18088877	18102780	18	flightless I homolog (Drosophila)	NOT	
-FLJ10404	chr5	176879395	176914144	18	hypothetical protein FLJ10404		
+FLII	chr17	18088877	18102780	18	flightless I homolog (Drosophila)	NOT
+FLJ10404	chr5	176879395	176914144	18	hypothetical protein FLJ10404
 FLNA	chrX	153230093	153256200	18	filamin A, alpha (actin binding protein 280)	0034329	cell junction assembly
 FLNB	chr3	57969166	58133017	18	filamin B, beta (actin binding protein 278)	0030036	actin cytoskeleton organization
 FLOT1	chr6	30803489	30818432	18	flotillin 1	0005515	protein binding
@@ -1006,7 +1006,7 @@ FOXN3	chr14	88692268	89155247	18	forkhead box N3	0003704	specific RNA polymerase
 FOXO1	chr13	40027800	40138734	18	forkhead box O1	0008301	DNA bending activity
 FOXO3	chr6	108987718	109112664	18	forkhead box O3	0001547	antral ovarian follicle growth
 FOXRED1	chr11	125644264	125653237	18	FAD-dependent oxidoreductase domain containing 1	0055114	oxidation reduction
-FRAP1	chr1	11089174	11245195	18	FK506 binding protein 12-rapamycin associated protein 1		
+FRAP1	chr1	11089174	11245195	18	FK506 binding protein 12-rapamycin associated protein 1
 FSCN1	chr7	5598979	5612812	18	fascin homolog 1, actin-bundling protein (Strongylocentrotus purpuratus)	0005515	protein binding
 FTH1	chr11	61488332	61491708	18	ferritin, heavy polypeptide 1	0016491	oxidoreductase activity
 FTL	chr19	54160377	54161948	18	ferritin, light polypeptide	0005506	iron ion binding
@@ -1016,7 +1016,7 @@ FUBP1	chr1	78186178	78217365	18	far upstream element (FUSE) binding protein 1	00
 FUCA1	chr1	24044158	24067408	18	fucosidase, alpha-L- 1, tissue	0016798	hydrolase activity, acting on glycosyl bonds
 FUNDC2	chrX	153908257	153938385	18	FUN14 domain containing 2	0005739	mitochondrion
 FUS	chr16	31098953	31110600	18	fusion (involved in t(12;16) in malignant liposarcoma)	0005634	nucleus
-FUSIP1	chr1	24165525	24179408	18	FUS interacting protein (serine/arginine-rich) 1		
+FUSIP1	chr1	24165525	24179408	18	FUS interacting protein (serine/arginine-rich) 1
 FUT8	chr14	64947592	65279715	18	fucosyltransferase 8 (alpha (1,6) fucosyltransferase)	0001701	in utero embryonic development
 FXR1	chr3	182113145	182177644	18	fragile X mental retardation, autosomal homolog 1	0006915	apoptosis
 FYTTD1	chr3	198961079	198995583	18	forty-two-three domain containing 1	0005654	nucleoplasm
@@ -1043,7 +1043,7 @@ GBA	chr1	153470866	153477677	18	glucosidase, beta; acid (includes glucosylcerami
 GBA2	chr9	35726862	35739225	18	glucosidase, beta (bile acid) 2	0016142	O-glycoside catabolic process
 GBAS	chr7	55999789	56035365	18	glioblastoma amplified sequence	0005624	membrane fraction
 GBF1	chr10	103995298	104132639	18	golgi-specific brefeldin A resistant guanine nucleotide exchange factor 1	0000139	Golgi membrane
-GBL	chr16	2195450	2199419	18	G protein beta subunit-like		
+GBL	chr16	2195450	2199419	18	G protein beta subunit-like
 GBP1	chr1	89290574	89303631	18	guanylate binding protein 1, interferon-inducible, 67kDa	0000166	nucleotide binding
 GCC2	chr2	108432067	108492286	18	GRIP and coiled-coil domain containing 2	0042802	identical protein binding
 GCN1L1	chr12	119049396	119116896	18	GCN1 general control of amino-acid synthesis 1-like 1 (yeast)	0006417	regulation of translation
@@ -1057,7 +1057,7 @@ GGA3	chr17	70744289	70769272	18	golgi associated, gamma adaptin ear containing, 
 GHITM	chr10	85889164	85903291	18	growth hormone inducible transmembrane protein	0003674	molecular_function
 GIGYF2	chr2	233270258	233433531	18	GRB10 interacting GYF protein 2	0005515	protein binding
 GINS2	chr16	84268780	84280089	18	GINS complex subunit 2 (Psf2 homolog)	0005515	protein binding
-TMPPE				18	transmembrane protein with metallophosphoesterase domain		
+TMPPE				18	transmembrane protein with metallophosphoesterase domain
 GLE1	chr9	130306791	130344401	18	GLE1 RNA export mediator homolog (yeast)	0006406	mRNA export from nucleus
 GLG1	chr16	73038826	73198543	18	golgi apparatus protein 1	0016020	membrane
 GLO1	chr6	38751679	38778930	18	glyoxalase I	0006916	anti-apoptosis
@@ -1116,7 +1116,7 @@ GPR56	chr16	56211410	56256445	18	G protein-coupled receptor 56	0007186	G-protein
 GPS1	chr17	77603051	77608635	18	G protein pathway suppressor 1	0005095	GTPase inhibitor activity
 GPX1	chr3	49369612	49370795	18	glutathione peroxidase 1	0006917	induction of apoptosis
 GRAMD1A	chr19	40183085	40209213	18	GRAM domain containing 1A	0016020	membrane
-GRAMD3	chr5	125723686	125857752	18	GRAM domain containing 3		
+GRAMD3	chr5	125723686	125857752	18	GRAM domain containing 3
 GRB10	chr7	50625253	50767544	18	growth factor receptor-bound protein 10	0032868	response to insulin stimulus
 GRB2	chr17	70825751	70913384	18	growth factor receptor-bound protein 2	0007265	Ras protein signal transduction
 GRHPR	chr9	37412706	37426986	18	glyoxylate reductase/hydroxypyruvate reductase	0008465	glycerate dehydrogenase activity
@@ -1135,8 +1135,8 @@ GSTK1	chr7	142670643	142676344	18	glutathione S-transferase kappa 1	0016740	tran
 GTF2A1	chr14	80716146	80757047	18	general transcription factor IIA, 1, 19/37kDa	0005515	protein binding
 GTF2F1	chr19	6330579	6344291	18	general transcription factor IIF, polypeptide 1, 74kDa	0000398	nuclear mRNA splicing, via spliceosome
 GTF2I	chr7	73709965	73812958	18	general transcription factor II, i	0045449	regulation of transcription
-GTF3C2	chr2	27402224	27433372	18	general transcription factor IIIC, polypeptide 2, beta 110kDa	contributes	
-GTF3C5	chr9	134895882	134923711	18	general transcription factor IIIC, polypeptide 5, 63kDa	contributes	
+GTF3C2	chr2	27402224	27433372	18	general transcription factor IIIC, polypeptide 2, beta 110kDa	contributes
+GTF3C5	chr9	134895882	134923711	18	general transcription factor IIIC, polypeptide 5, 63kDa	contributes
 GTPBP1	chr22	37431752	37459538	18	GTP binding protein 1	0007165	signal transduction
 GTPBP4	chr10	1024348	1053708	18	GTP binding protein 4	0005525	GTP binding
 GUF1	chr4	44375189	44397454	18	GUF1 GTPase homolog (S. cerevisiae)	0000166	nucleotide binding
@@ -1148,14 +1148,14 @@ H2AFV	chr7	44833012	44854250	18	H2A histone family, member V	0000786	nucleosome
 H2AFY	chr5	134697969	134762827	18	H2A histone family, member Y	0003677	DNA binding
 H2AFZ	chr4	101088266	101090535	18	H2A histone family, member Z	0005694	chromosome
 H3F3A	chr1	224317043	224326326	18	H3 histone, family 3A	0009725	response to hormone stimulus
-H3F3B	chr17	71284109	71287455	18	H3 histone, family 3B (H3.3B)		
+H3F3B	chr17	71284109	71287455	18	H3 histone, family 3B (H3.3B)
 HADH	chr4	109130388	109175780	18	hydroxyacyl-Coenzyme A dehydrogenase	0005488	binding
 HADHA	chr2	26267007	26321098	18	hydroxyacyl-Coenzyme A dehydrogenase/3-ketoacyl-Coenzyme A thiolase/enoyl-Coenzyme A hydratase (trifunctional protein), alpha subunit	0016829	lyase activity
 HADHB	chr2	26321119	26366837	18	hydroxyacyl-Coenzyme A dehydrogenase/3-ketoacyl-Coenzyme A thiolase/enoyl-Coenzyme A hydratase (trifunctional protein), beta subunit	0044255	cellular lipid metabolic process
 HAGH	chr16	1799104	1817196	18	hydroxyacylglutathione hydrolase	0005759	mitochondrial matrix
 HARS	chr5	140033673	140051155	18	histidyl-tRNA synthetase	0006412	translation
 HBA1	chr16	166678	167520	18	hemoglobin, alpha 1	0005833	hemoglobin complex
-HBA2	chr16	162845	163709	18	hemoglobin, alpha 2		
+HBA2	chr16	162845	163709	18	hemoglobin, alpha 2
 HBB	chr11	5203271	5204877	18	hemoglobin, beta	0030492	hemoglobin binding
 HBP1	chr7	106596695	106630210	18	HMG-box transcription factor 1	0003677	DNA binding
 HBS1L	chr6	135323213	135417729	18	HBS1-like (S. cerevisiae)	0003924	GTPase activity
@@ -1185,7 +1185,7 @@ HIGD1A	chr3	42799403	42820938	18	HIG1 hypoxia inducible domain family, member 1A
 HINT1	chr5	130522773	130528933	18	histidine triad nucleotide binding protein 1	0005737	cytoplasm
 HIPK1	chr1	114273518	114316218	18	homeodomain interacting protein kinase 1	0016605	PML body
 HIPK3	chr11	33235743	33332515	18	homeodomain interacting protein kinase 3	0004674	protein serine/threonine kinase activity
-HISPPD1	chr5	102493155	102566808	18	histidine acid phosphatase domain containing 1		
+HISPPD1	chr5	102493155	102566808	18	histidine acid phosphatase domain containing 1
 HK1	chr10	70699761	70831643	18	hexokinase 1	0005829	cytosol
 HLA-A	chr6	30018309	30021633	18	major histocompatibility complex, class I, A	0006955	immune response
 HLA-B	chr6	31429627	31432968	18	major histocompatibility complex, class I, B	0019882	antigen processing and presentation
@@ -1271,10 +1271,10 @@ IGF1R	chr15	97010283	97325282	18	insulin-like growth factor 1 receptor	0004713	p
 IGF2R	chr6	160310120	160447573	18	insulin-like growth factor 2 receptor	0004872	receptor activity
 IGFBP3	chr7	45918368	45927396	18	insulin-like growth factor binding protein 3	0048662	negative regulation of smooth muscle cell proliferation
 IGFBP7	chr4	57592000	57671296	18	insulin-like growth factor binding protein 7	0007155	cell adhesion
-IIP45	chr1	12002098	12014693	18	invasion inhibitory protein 45		
+IIP45	chr1	12002098	12014693	18	invasion inhibitory protein 45
 IK	chr5	140007567	140022249	18	IK cytokine, down-regulator of HLA II	0006955	immune response
 IKZF5	chr10	124743186	124758301	18	IKAROS family zinc finger 5 (Pegasus)	0046872	metal ion binding
-NUP62				18	nucleoporin 62kDa		
+NUP62				18	nucleoporin 62kDa
 IL6ST	chr5	55272450	55326520	18	interleukin 6 signal transducer (gp130, oncostatin M receptor)	0005615	extracellular space
 ILF2	chr1	151901137	151910103	18	interleukin enhancer binding factor 2, 45kDa	0005515	protein binding
 ILF3	chr19	10625936	10657443	18	interleukin enhancer binding factor 3, 90kDa	0005515	protein binding
@@ -1285,7 +1285,7 @@ IMP4	chr2	130816958	130820667	18	IMP4, U3 small nucleolar ribonucleoprotein, hom
 IMPAD1	chr8	58033041	58068981	18	inositol monophosphatase domain containing 1	0005794	Golgi apparatus
 IMPDH1	chr7	127819566	127837272	18	IMP (inosine monophosphate) dehydrogenase 1	0016491	oxidoreductase activity
 IMPDH2	chr3	49036765	49041879	18	IMP (inosine monophosphate) dehydrogenase 2	0046872	metal ion binding
-INO80D	chr2	206566689	206659151	18	INO80 complex subunit D		
+INO80D	chr2	206566689	206659151	18	INO80 complex subunit D
 INTS10	chr8	19719197	19753866	18	integrator complex subunit 10	0005515	protein binding
 INTS6	chr13	50833701	50925276	18	integrator complex subunit 6	0005515	protein binding
 IP6K2	chr3	48700439	48729710	18	inositol hexakisphosphate kinase 2	0046854	phosphoinositide phosphorylation
@@ -1294,7 +1294,7 @@ IPO5	chr13	97403929	97474551	18	importin 5	0005095	GTPase inhibitor activity
 IPO9	chr1	200064910	200120045	18	importin 9	0006606	protein import into nucleus
 IQGAP1	chr15	88732476	88846479	18	IQ motif containing GTPase activating protein 1	0006112	energy reserve metabolic process
 IQSEC1	chr3	12913718	13089617	18	IQ motif and Sec7 domain 1	0005622	intracellular
-IQWD1	chr1	166172531	166311706	18	IQ motif and WD repeats 1		
+IQWD1	chr1	166172531	166311706	18	IQ motif and WD repeats 1
 IREB2	chr15	76517572	76580853	18	iron-responsive element binding protein 2	0006782	protoporphyrinogen IX biosynthetic process
 IRF2	chr4	185545869	185632720	18	interferon regulatory factor 2	0005515	protein binding
 IRF2BP2	chr1	232806637	232811894	18	interferon regulatory factor 2 binding protein 2	0005634	nucleus
@@ -1304,8 +1304,8 @@ ISCA1	chr9	88069282	88087310	18	iron-sulfur cluster assembly 1 homolog (S. cerev
 ISCU	chr12	107480423	107487289	18	iron-sulfur cluster scaffold homolog (E. coli)	0016226	iron-sulfur cluster assembly
 ISG20L2	chr1	154959036	154964329	18	interferon stimulated exonuclease gene 20kDa-like 2	0043231	intracellular membrane-bounded organelle
 ISYNA1	chr19	18406624	18409943	18	inositol-3-phosphate synthase 1	0006021	inositol biosynthetic process
-ITFG2	chr12	2792123	2804367	18	integrin alpha FG-GAP repeat containing 2		
-PELO				18	pelota homolog (Drosophila)		
+ITFG2	chr12	2792123	2804367	18	integrin alpha FG-GAP repeat containing 2
+PELO				18	pelota homolog (Drosophila)
 ITGA6	chr2	173000559	173079427	18	integrin, alpha 6	0005886	plasma membrane
 ITGAV	chr2	187163034	187253873	18	integrin, alpha V (vitronectin receptor, alpha polypeptide, antigen CD51)	0005515	protein binding
 ITGB1	chr10	33229251	33287299	18	integrin, beta 1 (fibronectin receptor, beta polypeptide, antigen CD29 includes MDF2, MSK12)	0007275	multicellular organismal development
@@ -1318,13 +1318,13 @@ IVNS1ABP	chr1	183532144	183553084	18	influenza virus NS1A binding protein	000563
 JAK1	chr1	65071493	65204775	18	Janus kinase 1	0005856	cytoskeleton
 JARID2	chr6	15354505	15630232	18	jumonji, AT rich interactive domain 2	0000122	negative regulation of transcription from RNA polymerase II promoter
 JMJD1C	chr10	64596993	64698988	18	jumonji domain containing 1C	0005622	intracellular
-JMJD4	chr1	225985557	225989735	18	jumonji domain containing 4		
+JMJD4	chr1	225985557	225989735	18	jumonji domain containing 4
 JMJD6	chr17	72220508	72234476	18	jumonji domain containing 6	0001568	blood vessel development
-JOSD1	chr22	37411493	37426405	18	Josephin domain containing 1		
+JOSD1	chr22	37411493	37426405	18	Josephin domain containing 1
 JUN	chr1	59019050	59022373	18	jun oncogene	0005515	protein binding
 JUNB	chr19	12763309	12765125	18	jun B proto-oncogene	0000785	chromatin
 KANK1	chr9	494702	736103	18	KN motif and ankyrin repeat domains 1	0030837	negative regulation of actin filament polymerization
-KANK2	chr19	11135942	11169224	18	KN motif and ankyrin repeat domains 2		
+KANK2	chr19	11135942	11169224	18	KN motif and ankyrin repeat domains 2
 KARS	chr16	74219122	74239086	18	lysyl-tRNA synthetase	0006430	lysyl-tRNA aminoacylation
 KAT5	chr11	65236064	65243651	18	K(lysine) acetyltransferase 5	0006978	DNA damage response, signal transduction by p53 class mediator resulting in transcription of p21 class mediator
 KBTBD2	chr7	32874302	32897993	18	kelch repeat and BTB (POZ) domain containing 2	0005515	protein binding
@@ -1340,31 +1340,31 @@ KDM5A	chr12	259483	368881	18	lysine (K)-specific demethylase 5A	0016491	oxidored
 KDM5B	chr1	200963154	201044172	18	lysine (K)-specific demethylase 5B	0034647	histone demethylase activity (H3-trimethyl-K4 specific)
 KDM5C	chrX	53237227	53271329	18	lysine (K)-specific demethylase 5C	0005575	cellular_component
 KDSR	chr18	59145950	59185486	18	3-ketodihydrosphingosine reductase	0006666	3-keto-sphinganine metabolic process
-KEAP1	chr19	10457795	10474481	18	kelch-like ECH-associated protein 1	NOT	
+KEAP1	chr19	10457795	10474481	18	kelch-like ECH-associated protein 1	NOT
 KHDRBS1	chr1	32252077	32282059	18	KH domain containing, RNA binding, signal transduction associated 1	0046831	regulation of RNA export from nucleus
 KIAA0090	chr1	19417170	19450633	18	KIAA0090	0016021	integral to membrane
 KIAA0100	chr17	23965584	23996300	18	KIAA0100	0005576	extracellular region
-KIAA0146	chr8	48336094	48811028	18	KIAA0146		
+KIAA0146	chr8	48336094	48811028	18	KIAA0146
 KIAA0174	chr16	70486946	70520407	18	KIAA0174	0005793	ER-Golgi intermediate compartment
 KIAA0195	chr17	70964258	71008128	18	KIAA0195	0016020	membrane
 KIAA0196	chr8	126105683	126173243	18	KIAA0196	0071203	WASH complex
 KIAA0247	chr14	69148062	69251614	18	KIAA0247	0003674	molecular_function
 KIAA0317	chr14	74197707	74249560	18	KIAA0317	0016021	integral to membrane
 KIAA0319L	chr1	35671677	35795624	18	KIAA0319-like	0016021	integral to membrane
-KIAA0323	chr14	23968980	23980387	18	KIAA0323		
+KIAA0323	chr14	23968980	23980387	18	KIAA0323
 KIAA0391	chr14	34661526	34813021	18	KIAA0391	0005739	mitochondrion
-KIAA0430	chr16	15595744	15644510	18	KIAA0430		
+KIAA0430	chr16	15595744	15644510	18	KIAA0430
 KIAA0494	chr1	46913417	46957323	18	KIAA0494	0005509	calcium ion binding
-KIAA0652	chr11	46595401	46652944	18	KIAA0652		
-KIAA0907	chr1	154149459	154170812	18	KIAA0907		
+KIAA0652	chr11	46595401	46652944	18	KIAA0652
+KIAA0907	chr1	154149459	154170812	18	KIAA0907
 KIAA1109	chr4	123311207	123503357	18	KIAA1109	0016020	membrane
-KIAA1147	chr7	141002996	141048422	18	KIAA1147		
+KIAA1147	chr7	141002996	141048422	18	KIAA1147
 KIAA1191	chr5	175705671	175721415	18	KIAA1191	0005575	cellular_component
-KIAA1219	chr20	36534899	36640918	18	KIAA1219		
+KIAA1219	chr20	36534899	36640918	18	KIAA1219
 KIAA1279	chr10	70418498	70446742	18	KIAA1279	0007275	multicellular organismal development
-KIAA1310	chr2	96622633	96667842	18	KIAA1310		
+KIAA1310	chr2	96622633	96667842	18	KIAA1310
 KIAA1609	chr16	83067466	83095789	18	KIAA1609	0005515	protein binding
-KIAA1737	chr14	76634330	76653383	18	KIAA1737		
+KIAA1737	chr14	76634330	76653383	18	KIAA1737
 KIAA1949	chr6	30752144	30763072	18	KIAA1949	0005737	cytoplasm
 KIAA1967	chr8	22518201	22533928	18	KIAA1967	0019899	enzyme binding
 KIDINS220	chr2	8786437	8895206	18	kinase D-interacting substrate, 220kDa	0016021	integral to membrane
@@ -1375,7 +1375,7 @@ KIF5B	chr10	32337943	32385377	18	kinesin family member 5B	0005874	microtubule
 KLC1	chr14	103165277	103237641	18	kinesin light chain 1	0003777	microtubule motor activity
 KLF10	chr8	103730180	103735344	18	Kruppel-like factor 10	0030282	bone mineralization
 KLF6	chr10	3811238	3817455	18	Kruppel-like factor 6	0016563	transcription activator activity
-KLHDC10	chr7	129497584	129560829	18	kelch domain containing 10		
+KLHDC10	chr7	129497584	129560829	18	kelch domain containing 10
 KLHDC2	chr14	49304536	49319606	18	kelch domain containing 2	0005634	nucleus
 KLHDC3	chr6	43089954	43097009	18	kelch domain containing 3	0000790	nuclear chromatin
 KLHL12	chr1	201126852	201162994	18	kelch-like 12 (Drosophila)	0005515	protein binding
@@ -1386,7 +1386,7 @@ KPNA4	chr3	161700655	161766070	18	karyopherin alpha 4 (importin alpha 3)	0006607
 KPNA6	chr1	32346230	32414755	18	karyopherin alpha 6 (importin alpha 7)	0006886	intracellular protein transport
 KPNB1	chr17	43082273	43116003	18	karyopherin (importin) beta 1	0000060	protein import into nucleus, translocation
 KRAS	chr12	25249446	25295121	18	v-Ki-ras2 Kirsten rat sarcoma viral oncogene homolog	0000186	activation of MAPKK activity
-KRI1	chr19	10524760	10537702	18	KRI1 homolog (S. cerevisiae)		
+KRI1	chr19	10524760	10537702	18	KRI1 homolog (S. cerevisiae)
 KRT8	chr12	51577237	51585135	18	keratin 8	0005515	protein binding
 KRTCAP2	chr1	153408507	153412428	18	keratinocyte associated protein 2	0016020	membrane
 KTELC1	chr3	120670474	120696244	18	KTEL (Lys-Tyr-Glu-Leu) containing 1	0005788	endoplasmic reticulum lumen
@@ -1395,13 +1395,13 @@ LAMA5	chr20	60317515	60375763	18	laminin, alpha 5	0005576	extracellular region
 LAMB2	chr3	49133550	49145603	18	laminin, beta 2 (laminin S)	0043260	laminin-11 complex
 LAMP1	chr13	112999469	113025742	18	lysosomal-associated membrane protein 1	0005624	membrane fraction
 LAMP2	chrX	119444030	119487232	18	lysosomal-associated membrane protein 2	0016021	integral to membrane
-LANCL1	chr2	211004217	211049674	18	LanC lantibiotic synthetase component C-like 1 (bacterial)	NOT	
+LANCL1	chr2	211004217	211049674	18	LanC lantibiotic synthetase component C-like 1 (bacterial)	NOT
 LAP3	chr4	17188024	17218688	18	leucine aminopeptidase 3	0004177	aminopeptidase activity
 LAPTM4A	chr2	20095891	20115270	18	lysosomal protein transmembrane 4 alpha	0016021	integral to membrane
 LAPTM4B	chr8	98856984	98934006	18	lysosomal protein transmembrane 4 beta	0006810	transport
 LAPTM5	chr1	30977901	31003270	18	lysosomal multispanning membrane protein 5	0005887	integral to plasma membrane
 LARP1	chr5	154072654	154177356	18	La ribonucleoprotein domain family, member 1	0005515	protein binding
-LARP5	chr10	845483	921702	18	La ribonucleoprotein domain family, member 5		
+LARP5	chr10	845483	921702	18	La ribonucleoprotein domain family, member 5
 LARP7	chr4	113777568	113798191	18	La ribonucleoprotein domain family, member 7	0003723	RNA binding
 LARS	chr5	145472781	145542487	18	leucyl-tRNA synthetase	0005829	cytosol
 LAS1L	chrX	64649192	64671392	18	LAS1-like (S. cerevisiae)	0071339	MLL1 complex
@@ -1415,12 +1415,12 @@ LDB1	chr10	103857314	103870200	18	LIM domain binding 1	0003714	transcription cor
 LDHA	chr11	18372511	18386341	18	lactate dehydrogenase A	0005515	protein binding
 LDHB	chr12	21679542	21702043	18	lactate dehydrogenase B	0005829	cytosol
 LDLRAP1	chr1	25742662	25767964	18	low density lipoprotein receptor adaptor protein 1	0005515	protein binding
-LDOC1L	chr22	43267113	43272669	18	leucine zipper, down-regulated in cancer 1-like		
+LDOC1L	chr22	43267113	43272669	18	leucine zipper, down-regulated in cancer 1-like
 LEMD2	chr6	33846967	33862697	18	LEM domain containing 2	0005637	nuclear inner membrane
 LEMD3	chr12	63849637	63928374	18	LEM domain containing 3	0030512	negative regulation of transforming growth factor beta receptor signaling pathway
 LENG8	chr19	59651876	59665008	18	leukocyte receptor cluster (LRC) member 8	0005515	protein binding
 LEPRE1	chr1	42984592	43005342	18	leucine proline-enriched proteoglycan (leprecan) 1	0008285	negative regulation of cell proliferation
-LEPROT				18	leptin receptor overlapping transcript		
+LEPROT				18	leptin receptor overlapping transcript
 LGALS3BP	chr17	74478929	74487656	18	lectin, galactoside-binding, soluble, 3 binding protein	0007165	signal transduction
 LGALS8	chr1	234748187	234779619	18	lectin, galactoside-binding, soluble, 8	0005615	extracellular space
 LIMK2	chr22	29938249	30006066	18	LIM domain kinase 2	0004674	protein serine/threonine kinase activity
@@ -1433,12 +1433,12 @@ LMAN2L	chr2	96735393	96769540	18	lectin, mannose-binding 2-like	0005783	endoplas
 LMBR1L	chr12	47777189	47790947	18	limb region 1 homolog (mouse)-like	0016021	integral to membrane
 LMBRD1	chr6	70442469	70563609	18	LMBR1 domain containing 1	0044419	interspecies interaction between organisms
 LMNA	chr1	154351084	154374281	18	lamin A/C	0048471	perinuclear region of cytoplasm
-LOC100132247	chr16	22432344	22455342	18	similar to Uncharacterized protein KIAA0220		
-LOC26010	chr2	200878848	201055231	18	viral DNA polymerase-transactivated protein 6		
-LOC339047	chr16	16333234	16351940	18	hypothetical protein LOC339047		
-LOC552889	chr12	73217817	73221499	18	hypothetical protein LOC552889		
-SDHC				18	succinate dehydrogenase complex, subunit C, integral membrane protein, 15kDa		
-LOC728661	chr1	1582801	1614103	18	similar to solute carrier family 35, member E2		
+LOC100132247	chr16	22432344	22455342	18	similar to Uncharacterized protein KIAA0220
+LOC26010	chr2	200878848	201055231	18	viral DNA polymerase-transactivated protein 6
+LOC339047	chr16	16333234	16351940	18	hypothetical protein LOC339047
+LOC552889	chr12	73217817	73221499	18	hypothetical protein LOC552889
+SDHC				18	succinate dehydrogenase complex, subunit C, integral membrane protein, 15kDa
+LOC728661	chr1	1582801	1614103	18	similar to solute carrier family 35, member E2
 LONP1	chr19	5642844	5671176	18	lon peptidase 1, mitochondrial	0004252	serine-type endopeptidase activity
 LONP2	chr16	46835711	46944908	18	lon peptidase 2, peroxisomal	0004252	serine-type endopeptidase activity
 LOXL2	chr8	23210354	23317667	18	lysyl oxidase-like 2	0005507	copper ion binding
@@ -1449,7 +1449,7 @@ LRCH4	chr7	100009569	100021712	18	leucine-rich repeats and calponin homology (CH
 LRP10	chr14	22410799	22417131	18	low density lipoprotein receptor-related protein 10	0004872	receptor activity
 LRPAP1	chr4	3484087	3504022	18	low density lipoprotein receptor-related protein associated protein 1	0008201	heparin binding
 LRPPRC	chr2	43966866	44076648	18	leucine-rich PPR-motif containing	0005634	nucleus
-LRRC41	chr1	46516658	46541625	18	leucine rich repeat containing 41		
+LRRC41	chr1	46516658	46541625	18	leucine rich repeat containing 41
 LRRC59	chr17	45813597	45829831	18	leucine rich repeat containing 59	0005789	endoplasmic reticulum membrane
 LRRFIP1	chr2	238200962	238355029	18	leucine rich repeat (in FLII) interacting protein 1	0003677	DNA binding
 LSG1	chr3	195842805	195874495	18	large subunit GTPase 1 homolog (S. cerevisiae)	0015030	Cajal body
@@ -1463,17 +1463,17 @@ LTBP4	chr19	45794980	45827565	18	latent transforming growth factor beta binding 
 LTBR	chr12	6363617	6370993	18	lymphotoxin beta receptor (TNFR superfamily, member 3)	0016021	integral to membrane
 LUC7L2	chr7	138695173	138758740	18	LUC7-like 2 (S. cerevisiae)	0019899	enzyme binding
 LUM	chr12	90021362	90029673	18	lumican	0005518	collagen binding
-MTPN				18	myotrophin		
+MTPN				18	myotrophin
 LY6E	chr8	144171276	144175202	18	lymphocyte antigen 6 complex, locus E	0035265	organ growth
 LZIC	chr1	9912362	9925413	18	leucine zipper and CTNNBIP1 domain containing	0008013	beta-catenin binding
 LZTR1	chr22	19666557	19683326	18	leucine-zipper-like transcription regulator 1	0009653	anatomical structure morphogenesis
 M6PR	chr12	8984230	8993519	18	mannose-6-phosphate receptor (cation dependent)	0016020	membrane
-M6PRBP1	chr19	4789345	4818676	18	mannose-6-phosphate receptor binding protein 1		
+M6PRBP1	chr19	4789345	4818676	18	mannose-6-phosphate receptor binding protein 1
 MACF1	chr1	39319704	39725376	18	microtubule-actin crosslinking factor 1	0005509	calcium ion binding
 MAF1	chr8	145231292	145234503	18	MAF1 homolog (S. cerevisiae)	0005622	intracellular
-MAGED2	chrX	54850895	54859170	18	melanoma antigen family D, 2		
+MAGED2	chrX	54850895	54859170	18	melanoma antigen family D, 2
 MAGT1	chrX	76968517	77037721	18	magnesium transporter 1	0008250	oligosaccharyltransferase complex
-MAK10	chr9	87745876	87827037	18	MAK10 homolog, amino-acid N-acetyltransferase subunit (S. cerevisiae)		
+MAK10	chr9	87745876	87827037	18	MAK10 homolog, amino-acid N-acetyltransferase subunit (S. cerevisiae)
 MAML1	chr5	179092456	179136893	18	mastermind-like 1 (Drosophila)	0045944	positive regulation of transcription from RNA polymerase II promoter
 MAN1A2	chr1	117711607	117869843	18	mannosidase, alpha, class 1A, member 2	0005794	Golgi apparatus
 MAN1B1	chr9	139101237	139123460	18	mannosidase, alpha, class 1B, member 1	0005783	endoplasmic reticulum
@@ -1485,20 +1485,20 @@ MAP2K1	chr15	64466264	64570936	18	mitogen-activated protein kinase kinase 1	0016
 MAP2K2	chr19	4041319	4075126	18	mitogen-activated protein kinase kinase 2	0002756	MyD88-independent toll-like receptor signaling pathway
 MAP2K3	chr17	21128560	21159144	18	mitogen-activated protein kinase kinase 3	0005524	ATP binding
 MAP3K7	chr6	91282073	91353628	18	mitogen-activated protein kinase kinase kinase 7	0005515	protein binding
-MAP3K7IP1	chr22	38125704	38157834	18	mitogen-activated protein kinase kinase kinase 7 interacting protein 1		
+MAP3K7IP1	chr22	38125704	38157834	18	mitogen-activated protein kinase kinase kinase 7 interacting protein 1
 MAP4	chr3	47867183	48105773	18	microtubule-associated protein 4	0005198	structural molecule activity
 MAP4K4	chr2	101680919	101877584	18	mitogen-activated protein kinase kinase kinase kinase 4	0005524	ATP binding
 MAP7D1	chr1	36394389	36419028	18	MAP7 domain containing 1	0005856	cytoskeleton
 MAPK1	chr22	20443946	20551970	18	mitogen-activated protein kinase 1	0004707	MAP kinase activity
-MAPK1IP1L	chr14	54588114	54606665	18	mitogen-activated protein kinase 1 interacting protein 1-like		
+MAPK1IP1L	chr14	54588114	54606665	18	mitogen-activated protein kinase 1 interacting protein 1-like
 MAPKAP1	chr9	127239493	127509334	18	mitogen-activated protein kinase associated protein 1	0006950	response to stress
 MAPKAPK2	chr1	204924911	204974249	18	mitogen-activated protein kinase-activated protein kinase 2	0000165	MAPKKK cascade
 MAPKAPK3	chr3	50629604	50661723	18	mitogen-activated protein kinase-activated protein kinase 3	0016740	transferase activity
 MAPRE1	chr20	30871359	30901872	18	microtubule-associated protein, RP/EB family, member 1	0005515	protein binding
 MAPRE2	chr18	30810889	30976376	18	microtubule-associated protein, RP/EB family, member 2	0007165	signal transduction
-MARCH5				18	membrane-associated ring finger (C3HC4) 5		
-MARCH6				18	membrane-associated ring finger (C3HC4) 6		
-MARCH7				18	membrane-associated ring finger (C3HC4) 7		
+MARCH5				18	membrane-associated ring finger (C3HC4) 5
+MARCH6				18	membrane-associated ring finger (C3HC4) 6
+MARCH7				18	membrane-associated ring finger (C3HC4) 7
 MARCKS	chr6	114285219	114291345	18	myristoylated alanine-rich protein kinase C substrate	0005886	plasma membrane
 MARCKSL1	chr1	32572026	32574421	18	MARCKS-like 1	0005516	calmodulin binding
 MARK3	chr14	102921453	103039919	18	MAP/microtubule affinity-regulating kinase 3	0005524	ATP binding
@@ -1558,7 +1558,7 @@ MGAT4B	chr5	179156710	179166547	18	mannosyl (alpha-1,3-)-glycoprotein beta-1,4-N
 MGEA5	chr10	103534189	103568212	18	meningioma expressed antigen 5 (hyaluronidase)	0008415	acyltransferase activity
 MGP	chr12	14926093	14930095	18	matrix Gla protein	0005615	extracellular space
 MIA3	chr1	220858066	220907974	18	melanoma inhibitory activity family, member 3	0005789	endoplasmic reticulum membrane
-MIER1	chr1	67163165	67226890	18	mesoderm induction early response 1 homolog (Xenopus laevis)	NOT	
+MIER1	chr1	67163165	67226890	18	mesoderm induction early response 1 homolog (Xenopus laevis)	NOT
 MIS12	chr17	5330970	5334854	18	MIS12, MIND kinetochore complex component, homolog (yeast)	0005634	nucleus
 MKI67	chr10	129784914	129814458	18	antigen identified by monoclonal antibody Ki-67	0007126	meiosis
 MKLN1	chr7	130445394	130831938	18	muskelin 1, intracellular mediator containing kelch motifs	0005515	protein binding
@@ -1594,7 +1594,7 @@ MPP1	chrX	153660161	153686957	18	membrane protein, palmitoylated 1, 55kDa	000551
 MPRIP	chr17	16886831	17029597	18	myosin phosphatase Rho interacting protein	0005856	cytoskeleton
 MPZL1	chr1	165957810	166027780	18	myelin protein zero-like 1	0007267	cell-cell signaling
 MRFAP1	chr4	6693345	6695350	18	Mof4 family associated protein 1	0005515	protein binding
-MRFAP1L1	chr4	6760329	6762507	18	Morf4 family associated protein 1-like 1		
+MRFAP1L1	chr4	6760329	6762507	18	Morf4 family associated protein 1-like 1
 MRPL16	chr11	59330183	59334921	18	mitochondrial ribosomal protein L16	0019843	rRNA binding
 MRPL18	chr6	160131481	160139451	18	mitochondrial ribosomal protein L18	0003735	structural constituent of ribosome
 MRPL21	chr11	68415321	68427879	18	mitochondrial ribosomal protein L21	0003723	RNA binding
@@ -1615,7 +1615,7 @@ MRPS21	chr1	148532892	148547443	18	mitochondrial ribosomal protein S21	0005763	m
 MRPS25	chr3	15065022	15081820	18	mitochondrial ribosomal protein S25	0003735	structural constituent of ribosome
 MRPS27	chr5	71550991	71651840	18	mitochondrial ribosomal protein S27	0005840	ribosome
 MRPS5	chr2	95116678	95151481	18	mitochondrial ribosomal protein S5	0005515	protein binding
-SLC5A3				18	solute carrier family 5 (sodium/myo-inositol cotransporter), member 3		
+SLC5A3				18	solute carrier family 5 (sodium/myo-inositol cotransporter), member 3
 MRRF	chr9	124066967	124125563	18	mitochondrial ribosome recycling factor	0032790	ribosome disassembly
 MSH6	chr2	47863724	47887596	18	mutS homolog 6 (E. coli)	0009411	response to UV
 MSI2	chr17	52688929	53112298	18	musashi homolog 2 (Drosophila)	0000166	nucleotide binding
@@ -1624,11 +1624,11 @@ MSL2	chr3	137350449	137396000	18	male-specific lethal 2 homolog (Drosophila)	000
 MSN	chrX	64804235	64878518	18	moesin	0005856	cytoskeleton
 MSTO1	chr1	153846630	153851382	18	misato homolog 1 (Drosophila)	0043234	protein complex
 MTA2	chr11	62117250	62125879	18	metastasis associated 1 family, member 2	0016581	NuRD complex
-MTAP	chr9	21792634	21855969	18	methylthioadenosine phosphorylase	NOT	
+MTAP	chr9	21792634	21855969	18	methylthioadenosine phosphorylase	NOT
 MTCH1	chr6	37043894	37061927	18	mitochondrial carrier homolog 1 (C. elegans)	0006919	activation of caspase activity
 MTCH2	chr11	47595433	47620782	18	mitochondrial carrier homolog 2 (C. elegans)	0005743	mitochondrial inner membrane
 MTDH	chr8	98725582	98811664	18	metadherin	0048471	perinuclear region of cytoplasm
-MTERFD2	chr2	241675181	241690397	18	MTERF domain containing 2		
+MTERFD2	chr2	241675181	241690397	18	MTERF domain containing 2
 MTF1	chr1	38047825	38097879	18	metal-regulatory transcription factor 1	0006357	regulation of transcription from RNA polymerase II promoter
 MTF2	chr1	93317379	93377226	18	metal response element binding transcription factor 2	0003677	DNA binding
 MTG1	chr10	135057610	135084164	18	mitochondrial GTPase 1 homolog (S. cerevisiae)	0005739	mitochondrion
@@ -1637,7 +1637,7 @@ MTHFD2	chr2	74279197	74295932	18	methylenetetrahydrofolate dehydrogenase (NADP+ 
 MTIF2	chr2	55317259	55349819	18	mitochondrial translational initiation factor 2	0000166	nucleotide binding
 MTIF3	chr13	26907780	26922711	18	mitochondrial translational initiation factor 3	0043024	ribosomal small subunit binding
 MTMR14	chr3	9666143	9719077	18	myotubularin related protein 14	0004725	protein tyrosine phosphatase activity
-MTMR3	chr22	28609157	28756857	18	myotubularin related protein 3	NOT	
+MTMR3	chr22	28609157	28756857	18	myotubularin related protein 3	NOT
 MTMR4	chr17	53921891	53950250	18	myotubularin related protein 4	0016787	hydrolase activity
 MTR	chr1	235025203	235133904	18	5-methyltetrahydrofolate-homocysteine methyltransferase	0005515	protein binding
 MTSS1	chr8	125632209	125809911	18	metastasis suppressor 1	0046847	filopodium assembly
@@ -1662,7 +1662,7 @@ MYO1C	chr17	1314229	1342751	18	myosin IC	0015031	protein transport
 MYO1D	chr17	27843740	28228015	18	myosin ID	0005516	calmodulin binding
 MYST2	chr17	45221069	45261457	18	MYST histone acetyltransferase 2	0005654	nucleoplasm
 MYST3	chr8	41906153	42028662	18	MYST histone acetyltransferase (monocytic leukemia) 3	0005634	nucleus
-N-PAC	chr16	4793204	4837304	18	cytokine-like nuclear factor n-pac		
+N-PAC	chr16	4793204	4837304	18	cytokine-like nuclear factor n-pac
 N4BP1	chr16	47130137	47201621	18	NEDD4 binding protein 1	0032435	negative regulation of proteasomal ubiquitin-dependent protein catabolic process
 N4BP2L2	chr13	31904929	32010936	18	NEDD4 binding protein 2-like 2	0003674	molecular_function
 NAB2	chr12	55768943	55775526	18	NGFI-A binding protein 2 (EGR1 binding protein 2)	0016564	transcription repressor activity
@@ -1676,12 +1676,12 @@ NAP1L4	chr11	2922235	2970183	18	nucleosome assembly protein 1-like 4	0005737	cyt
 NAPA	chr19	52682702	52710309	18	N-ethylmaleimide-sensitive factor attachment protein, alpha	0005829	cytosol
 NAPG	chr18	10515872	10542766	18	N-ethylmaleimide-sensitive factor attachment protein, gamma	0005794	Golgi apparatus
 NARF	chr17	78009348	78039432	18	nuclear prelamin A recognition factor	0005521	lamin binding
-NARG1	chr4	140442125	140531385	18	NMDA receptor regulated 1		
+NARG1	chr4	140442125	140531385	18	NMDA receptor regulated 1
 NARG2	chr15	58499099	58558636	18	NMDA receptor regulated 2	0005634	nucleus
 NARS	chr18	53418891	53440175	18	asparaginyl-tRNA synthetase	0006418	tRNA aminoacylation for protein translation
 NASP	chr1	45822303	45857154	18	nuclear autoantigenic sperm protein (histone-binding)	0007049	cell cycle
 NAT10	chr11	34083686	34125034	18	N-acetyltransferase 10 (GCN5-related)	0003674	molecular_function
-NAT13	chr3	114920530	114947786	18	N-acetyltransferase 13 (GCN5-related)		
+NAT13	chr3	114920530	114947786	18	N-acetyltransferase 13 (GCN5-related)
 NAT15	chr16	3433668	3476964	18	N-acetyltransferase 15 (GCN5-related, putative)	0008152	metabolic process
 NAT9	chr17	70278280	70284065	18	N-acetyltransferase 9 (GCN5-related, putative)	0008080	N-acetyltransferase activity
 NBPF10	chr1	144004727	144080041	18	neuroblastoma breakpoint family, member 10	0005737	cytoplasm
@@ -1742,7 +1742,7 @@ NGLY1	chr3	25735438	25799993	18	N-glycanase 1	0005515	protein binding
 NHLRC3	chr13	38510454	38522246	18	NHL repeat containing 3	0005576	extracellular region
 NHP2L1	chr22	40399882	40414859	18	NHP2 non-histone chromosome protein 2-like 1 (S. cerevisiae)	0003723	RNA binding
 NIN	chr14	50256230	50367589	18	ninein (GSK3B interacting protein)	0005509	calcium ion binding
-NIP30	chr16	55743878	55777477	18	NEFA-interacting nuclear protein NIP30		
+NIP30	chr16	55743878	55777477	18	NEFA-interacting nuclear protein NIP30
 NIPA2	chr15	20556787	20585849	18	non imprinted in Prader-Willi/Angelman syndrome 2	0005515	protein binding
 NIPAL3	chr1	24614831	24672060	18	NIPA-like domain containing 3	0016021	integral to membrane
 NIPBL	chr5	36912617	37101678	18	Nipped-B homolog (Drosophila)	0034088	maintenance of mitotic sister chromatid cohesion
@@ -1753,7 +1753,7 @@ NKIRAS2	chr17	37423119	37431182	18	NFKB inhibitor interacting Ras-like 2	0007264
 NKTR	chr3	42617150	42665237	18	natural killer-tumor recognition sequence	0006457	protein folding
 NLE1	chr17	30482480	30493435	18	notchless homolog 1 (Drosophila)	0001826	inner cell mass cell differentiation
 NLRP1	chr17	5345442	5428556	18	NLR family, pyrin domain containing 1	0006919	activation of caspase activity
-NME1-NME2|NME2				18	non-metastatic cells 1, protein (NM23A) expressed in|non-metastatic cells 2, protein (NM23B) expressed in		
+NME1-NME2|NME2				18	non-metastatic cells 1, protein (NM23A) expressed in|non-metastatic cells 2, protein (NM23B) expressed in
 NMT1	chr17	40494205	40541908	18	N-myristoyltransferase 1	0003824	catalytic activity
 NOB1	chr16	68333274	68346330	18	NIN1/RPN12 binding protein 1 homolog (S. cerevisiae)	0005634	nucleus
 NOC2L	chr1	869445	884542	18	nucleolar complex associated 2 homolog (S. cerevisiae)	0005515	protein binding
@@ -1781,8 +1781,8 @@ NRBP1	chr2	27504976	27518628	18	nuclear receptor binding protein 1	0042803	prote
 NRD1	chr1	52027453	52117197	18	nardilysin (N-arginine dibasic convertase)	0005829	cytosol
 NSMCE1	chr16	27143815	27187614	18	non-SMC element 1 homolog (S. cerevisiae)	0006281	DNA repair
 NSUN2	chr5	6652351	6686157	18	NOL1/NOP2/Sun domain family, member 2	0016428	tRNA (cytosine-5-)-methyltransferase activity
-NSUN5B	chr7	74877581	74884001	18	NOL1/NOP2/Sun domain family, member 5B		
-NSUN5C	chr7	72056767	72063222	18	NOL1/NOP2/Sun domain family, member 5C		
+NSUN5B	chr7	74877581	74884001	18	NOL1/NOP2/Sun domain family, member 5B
+NSUN5C	chr7	72056767	72063222	18	NOL1/NOP2/Sun domain family, member 5C
 NT5C2	chr10	104835929	104943046	18	5'-nucleotidase, cytosolic II	0005515	protein binding
 NT5C3	chr7	33020266	33068934	18	5'-nucleotidase, cytosolic III	0006213	pyrimidine nucleoside metabolic process
 NT5DC1	chr6	116528691	116673546	18	5'-nucleotidase domain containing 1	0046872	metal ion binding
@@ -1790,16 +1790,16 @@ NT5E	chr6	86216020	86262217	18	5'-nucleotidase, ecto (CD73)	0006195	purine nucle
 NUCB1	chr19	54095852	54118339	18	nucleobindin 1	0005615	extracellular space
 NUCKS1	chr1	203948569	203985984	18	nuclear casein kinase and cyclin-dependent kinase substrate 1	0005634	nucleus
 NUDC	chr1	27120810	27145474	18	nuclear distribution gene C homolog (A. nidulans)	0005654	nucleoplasm
-NUDCD3	chr7	44388489	44496910	18	NudC domain containing 3		
+NUDCD3	chr7	44388489	44496910	18	NudC domain containing 3
 NUDT21	chr16	55020548	55042762	18	nudix (nucleoside diphosphate linked moiety X)-type motif 21	0006397	mRNA processing
-NUDT22	chr11	63750313	63754064	18	nudix (nucleoside diphosphate linked moiety X)-type motif 22		
+NUDT22	chr11	63750313	63754064	18	nudix (nucleoside diphosphate linked moiety X)-type motif 22
 NUDT3	chr6	34363974	34468419	18	nudix (nucleoside diphosphate linked moiety X)-type motif 3	0015961	diadenosine polyphosphate catabolic process
 NUDT4	chr12	92295831	92321155	18	nudix (nucleoside diphosphate linked moiety X)-type motif 4	0008486	diphosphoinositol-polyphosphate diphosphatase activity
 NUDT5	chr10	12249578	12278149	18	nudix (nucleoside diphosphate linked moiety X)-type motif 5	0019144	ADP-sugar diphosphatase activity
 NUMA1	chr11	71391558	71469221	18	nuclear mitotic apparatus protein 1	0005829	cytosol
 NUP153	chr6	17723247	17814797	18	nucleoporin 153kDa	0005215	transporter activity
 NUP160	chr11	47756245	47826633	18	nucleoporin 160kDa	0005515	protein binding
-NUP43	chr6	150087149	150109381	18	nucleoporin 43kDa	colocalizes	
+NUP43	chr6	150087149	150109381	18	nucleoporin 43kDa	colocalizes
 NUP50	chr22	43938389	43962554	18	nucleoporin 50kDa	0015031	protein transport
 NUP85	chr17	70713191	70743449	18	nucleoporin 85kDa	0005515	protein binding
 NUP88	chr17	5230143	5263720	18	nucleoporin 88kDa	0051028	mRNA transport
@@ -1810,7 +1810,7 @@ OAT	chr10	126075861	126097509	18	ornithine aminotransferase (gyrate atrophy)	001
 OBFC1	chr10	105627307	105668035	18	oligonucleotide/oligosaccharide-binding fold containing 1	0000784	nuclear chromosome, telomeric region
 OCIAD1	chr4	48527771	48558589	18	OCIA domain containing 1	0005515	protein binding
 ODC1	chr2	10497958	10505904	18	ornithine decarboxylase 1	0006521	regulation of cellular amino acid metabolic process
-OFD1	chrX	13662752	13697401	18	oral-facial-digital syndrome 1	NOT	
+OFD1	chrX	13662752	13697401	18	oral-facial-digital syndrome 1	NOT
 OGDH	chr7	44612695	44682720	18	oxoglutarate (alpha-ketoglutarate) dehydrogenase (lipoamide)	0031966	mitochondrial membrane
 OGFOD1	chr16	55042924	55068908	18	2-oxoglutarate and iron-dependent oxygenase domain containing 1	0016702	oxidoreductase activity, acting on single donors with incorporation of molecular oxygen, incorporation of two atoms of oxygen
 OGT	chrX	70669657	70712465	18	O-linked N-acetylglucosamine (GlcNAc) transferase (UDP-N-acetylglucosamine:polypeptide-N-acetylglucosaminyl transferase)	0005515	protein binding
@@ -1863,7 +1863,7 @@ PCBP1	chr2	70168088	70169838	18	poly(rC) binding protein 1	0005737	cytoplasm
 PCBP2	chr12	52132152	52161213	18	poly(rC) binding protein 2	0050687	negative regulation of defense response to virus
 PCBP4	chr3	51966513	51970692	18	poly(rC) binding protein 4	0003723	RNA binding
 PCCB	chr3	137451856	137531701	18	propionyl Coenzyme A carboxylase, beta polypeptide	0005524	ATP binding
-PCDHGA10| PCDHGA11|PCDHGA12| PCDHGA2|PCDHGA3| PCDHGA4|PCDHGA5| PCDHGA6|PCDHGA7| PCDHGA8|PCDHGA9| PCDHGB1|PCDHGB2| PCDHGB3|PCDHGB4| PCDHGB5|PCDHGB6| PCDHGB7|PCDHGC3| PCDHGC4|PCDHGC5				18	protocadherin gamma subfamily A, 10|protocadherin gamma subfamily A, 11|protocadherin gamma subfamily A, 12|protocadherin gamma subfamily A, 2|protocadherin gamma subfamily A, 3|protocadherin gamma subfamily A, 4|protoca		
+PCDHGA10| PCDHGA11|PCDHGA12| PCDHGA2|PCDHGA3| PCDHGA4|PCDHGA5| PCDHGA6|PCDHGA7| PCDHGA8|PCDHGA9| PCDHGB1|PCDHGB2| PCDHGB3|PCDHGB4| PCDHGB5|PCDHGB6| PCDHGB7|PCDHGC3| PCDHGC4|PCDHGC5				18	protocadherin gamma subfamily A, 10|protocadherin gamma subfamily A, 11|protocadherin gamma subfamily A, 12|protocadherin gamma subfamily A, 2|protocadherin gamma subfamily A, 3|protocadherin gamma subfamily A, 4|protoca
 PCF11	chr11	82545784	82574483	18	PCF11, cleavage and polyadenylation factor subunit, homolog (S. cerevisiae)	0005654	nucleoplasm
 PCGF3	chr4	689572	754427	18	polycomb group ring finger 3	0008270	zinc ion binding
 PCGF5	chr10	92970348	93034001	18	polycomb group ring finger 5	0046872	metal ion binding
@@ -1872,7 +1872,7 @@ PCMTD1	chr8	52892692	52974288	18	protein-L-isoaspartate (D-aspartate) O-methyltr
 PCMTD2	chr20	62357491	62378023	18	protein-L-isoaspartate (D-aspartate) O-methyltransferase domain containing 2	0004719	protein-L-isoaspartate (D-aspartate) O-methyltransferase activity
 PCNP	chr3	102775731	102795971	18	PEST proteolytic signal containing nuclear protein	0007049	cell cycle
 PCSK7	chr11	116580997	116608021	18	proprotein convertase subtilisin/kexin type 7	0008233	peptidase activity
-PCTK1	chrX	46962471	46974338	18	PCTAIRE protein kinase 1		
+PCTK1	chrX	46962471	46974338	18	PCTAIRE protein kinase 1
 PCYOX1	chr2	70338734	70361821	18	prenylcysteine oxidase 1	0006821	chloride transport
 PCYT1A	chr3	197449649	197498981	18	phosphate cytidylyltransferase 1, choline, alpha	0016779	nucleotidyltransferase activity
 PDCD2	chr6	170728374	170735673	18	programmed cell death 2	0005634	nucleus
@@ -1896,7 +1896,7 @@ PEA15	chr1	158441748	158451786	18	phosphoprotein enriched in astrocytes 15	00055
 PEBP1	chr12	117058252	117067773	18	phosphatidylethanolamine binding protein 1	0000166	nucleotide binding
 PEF1	chr1	31868057	31883064	18	penta-EF-hand domain containing 1	0005737	cytoplasm
 PEPD	chr19	38569702	38704641	18	peptidase D	0004181	metallocarboxypeptidase activity
-PERLD1	chr17	35080900	35097836	18	per1-like domain containing 1		
+PERLD1	chr17	35080900	35097836	18	per1-like domain containing 1
 PERP	chr6	138451334	138470353	18	PERP, TP53 apoptosis effector	0005634	nucleus
 PES1	chr22	29302611	29317894	18	pescadillo homolog 1, containing BRCT domain (zebrafish)	0005515	protein binding
 PEX14	chr1	10457589	10613405	18	peroxisomal biogenesis factor 14	0032582	negative regulation of gene-specific transcription
@@ -1905,7 +1905,7 @@ PFDN5	chr12	51975501	51979501	18	prefoldin subunit 5	0016272	prefoldin complex
 PFKL	chr21	44544357	44571684	18	phosphofructokinase, liver	0005829	cytosol
 PFKM	chr12	46799294	46826154	18	phosphofructokinase, muscle	0006006	glucose metabolic process
 PFN1	chr17	4789691	4792570	18	profilin 1	0003779	actin binding
-PGAM4				18	phosphoglycerate mutase family member 4		
+PGAM4				18	phosphoglycerate mutase family member 4
 PGD	chr1	10381671	10402788	18	phosphogluconate dehydrogenase	0006098	pentose-phosphate shunt
 PGK1	chrX	77246321	77268980	18	phosphoglycerate kinase 1	0016310	phosphorylation
 PGM1	chr1	63831534	63898505	18	phosphoglucomutase 1	0016853	isomerase activity
@@ -1946,7 +1946,7 @@ PLAGL2	chr20	30243967	30259207	18	pleiomorphic adenoma gene-like 2	0003677	DNA b
 PLCG1	chr20	39199574	39237771	18	phospholipase C, gamma 1	0045766	positive regulation of angiogenesis
 PLD3	chr19	45546171	45576230	18	phospholipase D family, member 3	0016042	lipid catabolic process
 PLDN	chr15	43666708	43689201	18	pallidin homolog (mouse)	0042802	identical protein binding
-PLEC1	chr8	145061308	145121531	18	plectin 1, intermediate filament binding protein 500kDa		
+PLEC1	chr8	145061308	145121531	18	plectin 1, intermediate filament binding protein 500kDa
 PLEKHA1	chr10	124124209	124181856	18	pleckstrin homology domain containing, family A (phosphoinositide binding specific) member 1	0030165	PDZ domain binding
 PLEKHB2	chr2	131578889	131623895	18	pleckstrin homology domain containing, family B (evectins) member 2	0016020	membrane
 PLEKHM2	chr1	15883413	15933851	18	pleckstrin homology domain containing, family M (with RUN domain) member 2	0005737	cytoplasm
@@ -1987,11 +1987,11 @@ POLR2E	chr19	1037577	1046391	18	polymerase (RNA) II (DNA directed) polypeptide E
 POLR2F	chr22	36679619	36695265	18	polymerase (RNA) II (DNA directed) polypeptide F	0003899	DNA-directed RNA polymerase activity
 POLR3A	chr10	79405909	79459265	18	polymerase (RNA) III (DNA directed) polypeptide A, 155kDa	0016740	transferase activity
 POLR3E	chr16	22216241	22252844	18	polymerase (RNA) III (DNA directed) polypeptide E (80kD)	0006385	RNA elongation from RNA polymerase III promoter
-POLS	chr5	6767717	6810161	18	polymerase (DNA directed) sigma		
+POLS	chr5	6767717	6810161	18	polymerase (DNA directed) sigma
 POM121	chr7	71987871	72056774	18	POM121 membrane glycoprotein (rat)	0005783	endoplasmic reticulum
 POM121C	chr7	74884000	74953504	18	POM121 membrane glycoprotein C	0015031	protein transport
 POMGNT1	chr1	46426939	46436708	18	protein O-linked mannose beta1,2-N-acetylglucosaminyltransferase	0005792	microsome
-POMP	chr13	28131240	28151093	18	proteasome maturation protein	NOT	
+POMP	chr13	28131240	28151093	18	proteasome maturation protein	NOT
 POR	chr7	75382355	75454109	18	P450 (cytochrome) oxidoreductase	0016020	membrane
 PPA1	chr10	71632591	71663196	18	pyrophosphatase (inorganic) 1	0016787	hydrolase activity
 PPAP2B	chr1	56733020	56817845	18	phosphatidic acid phosphatase type 2B	0016020	membrane
@@ -2006,7 +2006,7 @@ PPM1F	chr22	20603792	20637217	18	protein phosphatase 1F (PP2C domain containing)
 PPM1G	chr2	27457564	27485881	18	protein phosphatase 1G (formerly 2C), magnesium-dependent, gamma isoform	0005634	nucleus
 PPME1	chr11	73560015	73643396	18	protein phosphatase methylesterase 1	0016787	hydrolase activity
 PPP1CA	chr11	66922227	66925952	18	protein phosphatase 1, catalytic subunit, alpha isoform	0070688	MLL5-L complex
-PPP1CB	chr2	28828117	28879310	18	protein phosphatase 1, catalytic subunit, beta isoform	0072357	
+PPP1CB	chr2	28828117	28879310	18	protein phosphatase 1, catalytic subunit, beta isoform	0072357
 PPP1CC	chr12	109641997	109665140	18	protein phosphatase 1, catalytic subunit, gamma isoform	0005515	protein binding
 PPP1R10	chr6	30676160	30692999	18	protein phosphatase 1, regulatory (inhibitor) subunit 10	0005515	protein binding
 PPP1R12A	chr12	78691473	78853366	18	protein phosphatase 1, regulatory (inhibitor) subunit 12A	0004871	signal transducer activity
@@ -2021,13 +2021,13 @@ PPP2R5A	chr1	210525501	210601828	18	protein phosphatase 2, regulatory subunit B'
 PPP2R5C	chr14	101345924	101463830	18	protein phosphatase 2, regulatory subunit B', gamma isoform	0005515	protein binding
 PPP2R5D	chr6	43060307	43088058	18	protein phosphatase 2, regulatory subunit B', delta isoform	0000159	protein phosphatase type 2A complex
 PPP3CA	chr4	102163609	102487651	18	protein phosphatase 3 (formerly 2B), catalytic subunit, alpha isoform	0005509	calcium ion binding
-PPP3CB	chr10	74866568	74925788	18	protein phosphatase 3 (formerly 2B), catalytic subunit, beta isoform		
+PPP3CB	chr10	74866568	74925788	18	protein phosphatase 3 (formerly 2B), catalytic subunit, beta isoform
 PPP3CC	chr8	22354540	22454582	18	protein phosphatase 3 (formerly 2B), catalytic subunit, gamma isoform	0008629	induction of apoptosis by intracellular signals
 PPP4C	chr16	29994884	30004196	18	protein phosphatase 4 (formerly X), catalytic subunit	0005634	nucleus
 PPP4R1	chr18	9536791	9604600	18	protein phosphatase 4, regulatory subunit 1	0006468	protein amino acid phosphorylation
 PPP5C	chr19	51542133	51585945	18	protein phosphatase 5, catalytic subunit	0051291	protein heterooligomerization
 PPP6C	chr9	126948672	126992039	18	protein phosphatase 6, catalytic subunit	0016787	hydrolase activity
-PPPDE1	chr1	242882974	242938957	18	PPPDE peptidase domain containing 1		
+PPPDE1	chr1	242882974	242938957	18	PPPDE peptidase domain containing 1
 PPT1	chr1	40310968	40335729	18	palmitoyl-protein thioesterase 1	0007399	nervous system development
 PQBP1	chrX	48640138	48645364	18	polyglutamine binding protein 1	0003713	transcription coactivator activity
 PRCP	chr11	82213056	82289205	18	prolylcarboxypeptidase (angiotensinase C)	0008233	peptidase activity
@@ -2095,7 +2095,7 @@ PSME3	chr17	38238948	38249303	18	proteasome (prosome, macropain) activator subun
 PSME4	chr2	53944707	54051481	18	proteasome (prosome, macropain) activator subunit 4	0000502	proteasome complex
 PSMF1	chr20	1041905	1096426	18	proteasome (prosome, macropain) inhibitor subunit 1 (PI31)	0006511	ubiquitin-dependent protein catabolic process
 PTBP1	chr19	748391	763327	18	polypyrimidine tract binding protein 1	0006397	mRNA processing
-PTCD1	chr7	98854681	98874355	18	pentatricopeptide repeat domain 1		
+PTCD1	chr7	98854681	98874355	18	pentatricopeptide repeat domain 1
 PTDSS1	chr8	97343342	97415950	18	phosphatidylserine synthase 1	0016021	integral to membrane
 PTEN	chr10	89613174	89718512	18	phosphatase and tensin homolog	0005737	cytoplasm
 PTGES2	chr9	129922792	129930295	18	prostaglandin E synthase 2	0016853	isomerase activity
@@ -2110,19 +2110,19 @@ PTPN1	chr20	48560297	48634493	18	protein tyrosine phosphatase, non-receptor type
 PTPN11	chr12	111340918	111432100	18	protein tyrosine phosphatase, non-receptor type 11	0005515	protein binding
 PTPN12	chr7	77004708	77107324	18	protein tyrosine phosphatase, non-receptor type 12	0004726	non-membrane spanning protein tyrosine phosphatase activity
 PTPN18	chr2	130830049	130849452	18	protein tyrosine phosphatase, non-receptor type 18 (brain-derived)	0005515	protein binding
-VPS16A				18	vacuolar protein sorting 16 homolog A (S. cerevisiae)		
+VPS16A				18	vacuolar protein sorting 16 homolog A (S. cerevisiae)
 PTRF	chr17	37807992	37828800	18	polymerase I and transcript release factor	0005737	cytoplasm
 PTTG1IP	chr21	45093940	45118169	18	pituitary tumor-transforming 1 interacting protein	0005634	nucleus
 PUM1	chr1	31176939	31311151	18	pumilio homolog 1 (Drosophila)	0005488	binding
 PUM2	chr2	20311933	20390625	18	pumilio homolog 2 (Drosophila)	0005737	cytoplasm
 PURB	chr7	44882416	44891485	18	purine-rich element binding protein B	0045637	regulation of myeloid cell differentiation
 PWP1	chr12	106603719	106630387	18	PWP1 homolog (S. cerevisiae)	0006350	transcription
-PXMP3	chr8	78055048	78075079	18	peroxisomal membrane protein 3, 35kDa		
+PXMP3	chr8	78055048	78075079	18	peroxisomal membrane protein 3, 35kDa
 PXN	chr12	119132632	119187946	18	paxillin	0005925	focal adhesion
 PYCR2	chr1	224174202	224178588	18	pyrroline-5-carboxylate reductase family, member 2	0016491	oxidoreductase activity
 PYGL	chr14	50441686	50480984	18	phosphorylase, glycogen, liver	0008144	drug binding
 QARS	chr3	49108368	49117175	18	glutaminyl-tRNA synthetase	0016874	ligase activity
-QSER1	chr11	32871367	32958390	18	glutamine and serine rich 1		
+QSER1	chr11	32871367	32958390	18	glutamine and serine rich 1
 QSOX1	chr1	178390590	178433792	18	quiescin Q6 sulfhydryl oxidase 1	0030173	integral to Golgi membrane
 R3HDM1	chr2	136005552	136199309	18	R3H domain containing 1	0003676	nucleic acid binding
 RAB10	chr2	26110477	26213782	18	RAB10, member RAS oncogene family	0015031	protein transport
@@ -2193,7 +2193,7 @@ RBPJ	chr4	25930429	26042376	18	recombination signal binding protein for immunogl
 RC3H2	chr9	124651552	124707383	18	ring finger and CCCH-type zinc finger domains 2	0048471	perinuclear region of cytoplasm
 RCAN1	chr21	34810653	34909252	18	regulator of calcineurin 1	0005515	protein binding
 RCBTB1	chr13	49004082	49057720	18	regulator of chromosome condensation (RCC1) and BTB (POZ) domain containing protein 1	0005634	nucleus
-SNHG3-RCC1				18	regulator of chromosome condensation 1		
+SNHG3-RCC1				18	regulator of chromosome condensation 1
 RCC2	chr1	17605837	17637644	18	regulator of chromosome condensation 2	0000236	mitotic prometaphase
 RCN1	chr11	32069052	32083848	18	reticulocalbin 1, EF-hand calcium binding domain	0005509	calcium ion binding
 RCOR3	chr1	209499330	209556348	18	REST corepressor 3	0005515	protein binding
@@ -2222,7 +2222,7 @@ RHOG	chr11	3804783	3818789	18	ras homolog gene family, member G (rho G)	0003924	
 RIC8A	chr11	198529	205110	18	resistance to inhibitors of cholinesterase 8 homolog A (C. elegans)	0005515	protein binding
 RIOK3	chr18	19286784	19317097	18	RIO kinase 3 (yeast)	0016301	kinase activity
 RIT1	chr1	154134224	154147801	18	Ras-like without CAAX 1	0005622	intracellular
-RMND5B	chr5	177490633	177508085	18	required for meiotic nuclear division 5 homolog B (S. cerevisiae)		
+RMND5B	chr5	177490633	177508085	18	required for meiotic nuclear division 5 homolog B (S. cerevisiae)
 RNASET2	chr6	167262993	167290067	18	ribonuclease T2	0033897	ribonuclease T2 activity
 RND3	chr2	151032955	151052426	18	Rho family GTPase 3	0030036	actin cytoskeleton organization
 RNF10	chr12	119456514	119499780	18	ring finger protein 10	0005515	protein binding
@@ -2355,7 +2355,7 @@ RRS1	chr8	67503816	67505522	18	RRS1 ribosome biogenesis regulator homolog (S. ce
 RSAD1	chr17	45911188	45918335	18	radical S-adenosyl methionine domain containing 1	0016491	oxidoreductase activity
 RSF1	chr11	77054921	77209528	18	remodeling and spacing factor 1	0005515	protein binding
 RSL24D1	chr15	53260803	53276523	18	ribosomal L24 domain containing 1	0003735	structural constituent of ribosome
-RSRC2	chr12	121555225	121577499	18	arginine/serine-rich coiled-coil 2		
+RSRC2	chr12	121555225	121577499	18	arginine/serine-rich coiled-coil 2
 RTCD1	chr1	100504301	100530914	18	RNA terminal phosphate cyclase domain 1	0005654	nucleoplasm
 RTF1	chr15	39496593	39563053	18	Rtf1, Paf1/RNA polymerase II complex component, homolog (S. cerevisiae)	0003697	single-stranded DNA binding
 RTN3	chr11	63205497	63283918	18	reticulon 3	0006950	response to stress
@@ -2371,11 +2371,11 @@ S100A6	chr1	151773699	151775341	18	S100 calcium binding protein A6	0007409	axono
 S100PBP	chr1	33055762	33073252	18	S100P binding protein	0005634	nucleus
 SACM1L	chr3	45705757	45761904	18	SAC1 suppressor of actin mutations 1-like (yeast)	0016021	integral to membrane
 SAE1	chr19	52325919	52405733	18	SUMO1 activating enzyme subunit 1	0005515	protein binding
-SAFB	chr19	5574163	5619489	18	scaffold attachment factor B	NOT	
+SAFB	chr19	5574163	5619489	18	scaffold attachment factor B	NOT
 SAMHD1	chr20	34954058	35013590	18	SAM domain and HD domain 1	0006955	immune response
 SAMM50	chr22	42682593	42723745	18	sorting and assembly machinery component 50 homolog (S. cerevisiae)	0005739	mitochondrion
 SAP18	chr13	20612652	20621224	18	Sin3A-associated protein, 18kDa	0006357	regulation of transcription from RNA polymerase II promoter
-SAPS3	chr11	67984774	68139377	18	SAPS domain family, member 3		
+SAPS3	chr11	67984774	68139377	18	SAPS domain family, member 3
 SARS	chr1	109558062	109582308	18	seryl-tRNA synthetase	0003723	RNA binding
 SARS2	chr19	44097743	44113376	18	seryl-tRNA synthetase 2, mitochondrial	0005737	cytoplasm
 SART1	chr11	65485735	65504183	18	squamous cell carcinoma antigen recognized by T cells	0005829	cytosol
@@ -2390,7 +2390,7 @@ SCAMP2	chr15	72924249	72952723	18	secretory carrier membrane protein 2	0055038	r
 SCAP	chr3	47430187	47492449	18	SREBF chaperone	0051082	unfolded protein binding
 SCARB2	chr4	77298917	77354059	18	scavenger receptor class B, member 2	0016020	membrane
 SCD	chr10	102096761	102114578	18	stearoyl-CoA desaturase (delta-9-desaturase)	0016020	membrane
-SCFD1	chr14	30161271	30274769	18	sec1 family domain containing 1	colocalizes	
+SCFD1	chr14	30161271	30274769	18	sec1 family domain containing 1	colocalizes
 SCO1	chr17	10524373	10541610	18	SCO cytochrome oxidase deficient homolog 1 (yeast)	0006091	generation of precursor metabolites and energy
 SCOC	chr4	141397889	141523160	18	short coiled-coil protein	0005794	Golgi apparatus
 SCP2	chr1	53165535	53232492	18	sterol carrier protein 2	0016740	transferase activity
@@ -2418,19 +2418,19 @@ SEC63	chr6	108295652	108386175	18	SEC63 homolog (S. cerevisiae)	0005783	endoplas
 SECISBP2	chr9	91123231	91164381	18	SECIS binding protein 2	0003730	mRNA 3'-UTR binding
 SECTM1	chr17	77872188	77885210	18	secreted and transmembrane 1	0004871	signal transducer activity
 SEL1L	chr14	81008991	81069958	18	sel-1 suppressor of lin-12-like (C. elegans)	0005515	protein binding
-SELI	chr2	26422457	26472263	18	selenoprotein I		
+SELI	chr2	26422457	26472263	18	selenoprotein I
 SELT	chr3	151803755	151830924	18	selenoprotein T	0045454	cell redox homeostasis
 SENP6	chr6	76368341	76484714	18	SUMO1/sentrin specific peptidase 6	0006508	proteolysis
-SEP15				18	15 kDa selenoprotein		
+SEP15				18	15 kDa selenoprotein
 SEPHS1	chr10	13400086	13430286	18	selenophosphate synthetase 1	0005524	ATP binding
 SEPP1	chr5	42835738	42847781	18	selenoprotein P, plasma, 1	0008430	selenium binding
-SEPT2				18	septin 2		
-SEPT6				18	septin 6		
-SEPT7				18	septin 7		
-SEPT9				18	septin 9		
+SEPT2				18	septin 2
+SEPT6				18	septin 6
+SEPT7				18	septin 7
+SEPT9				18	septin 9
 SEPW1	chr19	52973653	52979755	18	selenoprotein W, 1	0005737	cytoplasm
 SERBP1	chr1	67646080	67668711	18	SERPINE1 mRNA binding protein 1	0005737	cytoplasm
-SERF2	chr15	41871768	41875579	18	small EDRK-rich factor 2		
+SERF2	chr15	41871768	41875579	18	small EDRK-rich factor 2
 SERINC1	chr6	122806191	122834651	18	serine incorporator 1	0016021	integral to membrane
 SERINC2	chr1	31658549	31680112	18	serine incorporator 2	0016021	integral to membrane
 SERINC3	chr20	42558277	42584140	18	serine incorporator 3	0005515	protein binding
@@ -2445,8 +2445,8 @@ SESN1	chr6	109414337	109521970	18	sestrin 1	0005634	nucleus
 SESN3	chr11	94545780	94603894	18	sestrin 3	0007050	cell cycle arrest
 SET	chr9	130485754	130498496	18	SET nuclear oncogene	0048471	perinuclear region of cytoplasm
 SETD2	chr3	47032901	47180471	18	SET domain containing 2	0016568	chromatin modification
-SETD3	chr14	98933835	99016979	18	SET domain containing 3		
-SETD5	chr3	9414402	9494838	18	SET domain containing 5		
+SETD3	chr14	98933835	99016979	18	SET domain containing 3
+SETD5	chr3	9414402	9494838	18	SET domain containing 5
 SETD8	chr12	122434656	122459853	18	SET domain containing (lysine methyltransferase) 8	0007049	cell cycle
 SETX	chr9	134126647	134220193	18	senataxin	0016787	hydrolase activity
 SF1	chr11	64288653	64302817	18	splicing factor 1	0045449	regulation of transcription
@@ -2458,20 +2458,20 @@ SF3B3	chr16	69115191	69169072	18	splicing factor 3b, subunit 3, 130kDa	0006461	p
 SF3B4	chr1	148161834	148166326	18	splicing factor 3b, subunit 4, 49kDa	0005654	nucleoplasm
 SF4	chr19	19248321	19292307	18	splicing factor 4	0003723	RNA binding
 SFPQ	chr1	35421787	35431330	18	splicing factor proline/glutamine-rich (polypyrimidine tract binding protein associated)	0005515	protein binding
-SFRS1	chr17	53433278	53439706	18	splicing factor, arginine/serine-rich 1		
-SFRS11	chr1	70443952	70490272	18	splicing factor, arginine/serine-rich 11		
+SFRS1	chr17	53433278	53439706	18	splicing factor, arginine/serine-rich 1
+SFRS11	chr1	70443952	70490272	18	splicing factor, arginine/serine-rich 11
 SFRS12	chr5	65475840	65512470	18	splicing factor, arginine/serine-rich 12	0003676	nucleic acid binding
 SFRS14	chr19	18962696	19005380	18	splicing factor, arginine/serine-rich 14	0003723	RNA binding
 SFRS16	chr19	50234137	50266054	18	splicing factor, arginine/serine-rich 16	0006397	mRNA processing
 SFRS18	chr6	99954561	99979928	18	splicing factor, arginine/serine-rich 18	0016607	nuclear speck
-SFRS2	chr17	72241791	72245007	18	splicing factor, arginine/serine-rich 2		
-SFRS2B	chr11	94439703	94444036	18	splicing factor, arginine/serine-rich 2B		
-SFRS2IP	chr12	44599180	44670668	18	splicing factor, arginine/serine-rich 2, interacting protein		
-SFRS3	chr6	36670067	36680222	18	splicing factor, arginine/serine-rich 3		
-SFRS4	chr1	29346836	29381224	18	splicing factor, arginine/serine-rich 4		
-SFRS5	chr14	69303581	69308475	18	splicing factor, arginine/serine-rich 5		
-SFRS6	chr20	41519917	41525658	18	splicing factor, arginine/serine-rich 6		
-SFRS7	chr2	38824244	38832140	18	splicing factor, arginine/serine-rich 7, 35kDa		
+SFRS2	chr17	72241791	72245007	18	splicing factor, arginine/serine-rich 2
+SFRS2B	chr11	94439703	94444036	18	splicing factor, arginine/serine-rich 2B
+SFRS2IP	chr12	44599180	44670668	18	splicing factor, arginine/serine-rich 2, interacting protein
+SFRS3	chr6	36670067	36680222	18	splicing factor, arginine/serine-rich 3
+SFRS4	chr1	29346836	29381224	18	splicing factor, arginine/serine-rich 4
+SFRS5	chr14	69303581	69308475	18	splicing factor, arginine/serine-rich 5
+SFRS6	chr20	41519917	41525658	18	splicing factor, arginine/serine-rich 6
+SFRS7	chr2	38824244	38832140	18	splicing factor, arginine/serine-rich 7, 35kDa
 SFT2D1	chr6	166653506	166675981	18	SFT2 domain containing 1	0016020	membrane
 SGK1	chr6	134532076	134680889	18	serum/glucocorticoid regulated kinase 1	0005515	protein binding
 SGPL1	chr10	72245709	72310938	18	sphingosine-1-phosphate lyase 1	0006672	ceramide metabolic process
@@ -2575,7 +2575,7 @@ SNRPA	chr19	45948618	45963134	18	small nuclear ribonucleoprotein polypeptide A	0
 SNRPA1	chr15	99639237	99652983	18	small nuclear ribonucleoprotein polypeptide A'	0008380	RNA splicing
 SNRPC	chr6	34833666	34849549	18	small nuclear ribonucleoprotein polypeptide C	0005685	U1 snRNP
 SNRPD3	chr22	23281617	23298509	18	small nuclear ribonucleoprotein D3 polypeptide 18kDa	0005654	nucleoplasm
-SNURF				18	small nuclear ribonucleoprotein polypeptide N		
+SNURF				18	small nuclear ribonucleoprotein polypeptide N
 SNTB2	chr16	67778550	67900456	18	syntrophin, beta 2 (dystrophin-associated protein A1, 59kDa, basic component 2)	0005515	protein binding
 SNUPN	chr15	73677478	73705501	18	snurportin 1	0016070	RNA metabolic process
 SNW1	chr14	77253696	77297250	18	SNW domain containing 1	0005515	protein binding
@@ -2637,7 +2637,7 @@ SRRM1	chr1	24842180	24872359	18	serine/arginine repetitive matrix 1	0005654	nucl
 SRRM2	chr16	2742330	2761414	18	serine/arginine repetitive matrix 2	0015030	Cajal body
 SRRT	chr7	100310636	100324221	18	serrate RNA effector molecule homolog (Arabidopsis)	0008283	cell proliferation
 SS18	chr18	21850214	21924609	18	synovial sarcoma translocation, chromosome 18	0005515	protein binding
-SS18L2	chr3	42607301	42611494	18	synovial sarcoma translocation gene on chromosome 18-like 2		
+SS18L2	chr3	42607301	42611494	18	synovial sarcoma translocation gene on chromosome 18-like 2
 SSB	chr2	170363634	170376821	18	Sjogren syndrome antigen B (autoantigen La)	0005634	nucleus
 SSBP1	chr7	141084644	141096726	18	single-stranded DNA binding protein 1	0051096	positive regulation of helicase activity
 SSBP2	chr5	80751427	81082828	18	single-stranded DNA binding protein 2	0003697	single-stranded DNA binding
@@ -2656,7 +2656,7 @@ ST6GALNAC4	chr9	129709985	129719126	18	ST6 (alpha-N-acetyl-neuraminyl-2,3-beta-g
 ST6GALNAC6	chr9	129687421	129701692	18	ST6 (alpha-N-acetyl-neuraminyl-2,3-beta-galactosyl-1, 3)-N-acetylgalactosaminide alpha-2,6-sialyltransferase 6	0005886	plasma membrane
 STAG1	chr3	137538688	137953935	18	stromal antigen 1	0000278	mitotic cell cycle
 STAG2	chrX	122922155	123064186	18	stromal antigen 2	0000785	chromatin
-STARD10	chr11	72143421	72182398	18	StAR-related lipid transfer (START) domain containing 10		
+STARD10	chr11	72143421	72182398	18	StAR-related lipid transfer (START) domain containing 10
 STAT1	chr2	191542006	191587221	18	signal transducer and activator of transcription 1, 91kDa	0005515	protein binding
 STAT3	chr17	37718868	37794039	18	signal transducer and activator of transcription 3 (acute-phase response factor)	0060397	JAK-STAT cascade involved in growth hormone signaling pathway
 STAT5A	chr17	37693090	37717486	18	signal transducer and activator of transcription 5A	0005515	protein binding
@@ -2708,7 +2708,7 @@ SYPL1	chr7	105518187	105540293	18	synaptophysin-like 1	0007268	synaptic transmis
 SYS1	chr20	43425114	43431263	18	SYS1 Golgi-localized integral membrane protein homolog (S. cerevisiae)	0005794	Golgi apparatus
 SYVN1	chr11	64651326	64658579	18	synovial apoptosis inhibitor 1, synoviolin	0030433	ER-associated protein catabolic process
 TACC1	chr8	38704864	38829703	18	transforming, acidic coiled-coil containing protein 1	0005515	protein binding
-TADA3L	chr3	9796655	9809420	18	transcriptional adaptor 3 (NGG1 homolog, yeast)-like		
+TADA3L	chr3	9796655	9809420	18	transcriptional adaptor 3 (NGG1 homolog, yeast)-like
 TAF11	chr6	34953532	34963797	18	TAF11 RNA polymerase II, TATA box binding protein (TBP)-associated factor, 28kDa	0047485	protein N-terminus binding
 TAF1D	chr11	93108745	93114310	18	TATA box binding protein (TBP)-associated factor, RNA polymerase I, D, 41kDa	0003677	DNA binding
 TAF7	chr5	140678240	140680535	18	TAF7 RNA polymerase II, TATA box binding protein (TBP)-associated factor, 55kDa	0006469	negative regulation of protein kinase activity
@@ -2738,8 +2738,8 @@ TCERG1	chr5	145807065	145871262	18	transcription elongation regulator 1	0005634	
 TCF12	chr15	54998124	55368006	18	transcription factor 12	0007275	multicellular organismal development
 TCF25	chr16	88467494	88505293	18	transcription factor 25 (basic helix-loop-helix)	0000122	negative regulation of transcription from RNA polymerase II promoter
 TCF4	chr18	51040559	51406858	18	transcription factor 4	0045893	positive regulation of transcription, DNA-dependent
-TCP1	chr6	160119519	160130725	18	t-complex 1	NOT	
-TCTA	chr3	49424642	49428913	18	T-cell leukemia translocation altered gene		
+TCP1	chr6	160119519	160130725	18	t-complex 1	NOT
+TCTA	chr3	49424642	49428913	18	T-cell leukemia translocation altered gene
 TCTN1	chr12	109536262	109571319	18	tectonic family member 1	0005576	extracellular region
 TCTN3	chr10	97413142	97443890	18	tectonic family member 3	0016020	membrane
 TDG	chr12	102883722	102906786	18	thymine-DNA glycosylase	0030983	mismatched DNA binding
@@ -2762,7 +2762,7 @@ TGOLN2	chr2	85398656	85408885	18	trans-golgi network protein 2	0016021	integral 
 TH1L	chr20	56989705	57003583	18	TH1-like (Drosophila)	0005654	nucleoplasm
 THBD	chr20	22974269	22978301	18	thrombomodulin	0005509	calcium ion binding
 THOC5	chr22	28234155	28279736	18	THO complex 5	0000346	transcription export complex
-THUMPD1	chr16	20652489	20660700	18	THUMP domain containing 1		
+THUMPD1	chr16	20652489	20660700	18	THUMP domain containing 1
 THUMPD3	chr3	9379716	9403475	18	THUMP domain containing 3	0016740	transferase activity
 TIA1	chr2	70290079	70329283	18	TIA1 cytotoxic granule-associated RNA binding protein	0006917	induction of apoptosis
 TIAL1	chr10	121322967	121346531	18	TIA1 cytotoxic granule-associated RNA binding protein-like 1	0010494	stress granule
@@ -2772,7 +2772,7 @@ TIMM44	chr19	7897602	7914538	18	translocase of inner mitochondrial membrane 44 h
 TIMM9	chr14	57945122	57963985	18	translocase of inner mitochondrial membrane 9 homolog (yeast)	0045039	protein import into mitochondrial inner membrane
 TIMP1	chrX	47326633	47331134	18	TIMP metallopeptidase inhibitor 1	0002576	platelet degranulation
 TINF2	chr14	23778689	23781720	18	TERF1 (TRF1)-interacting nuclear factor 2	0005515	protein binding
-TINP1	chr5	74098858	74108490	18	TGF beta-inducible nuclear protein 1		
+TINP1	chr5	74098858	74108490	18	TGF beta-inducible nuclear protein 1
 TJAP1	chr6	43553238	43582272	18	tight junction associated protein 1 (peripheral)	0005515	protein binding
 TKT	chr3	53233762	53265108	18	transketolase	0006112	energy reserve metabolic process
 TLN1	chr9	35687333	35722392	18	talin 1	0002576	platelet degranulation
@@ -2798,7 +2798,7 @@ TMEM161A	chr19	19091429	19110267	18	transmembrane protein 161A	0016021	integral 
 TMEM168	chr7	112193022	112217714	18	transmembrane protein 168	0030133	transport vesicle
 TMEM179B	chr11	62311449	62314448	18	transmembrane protein 179B	0016020	membrane
 TMEM184B	chr22	36945243	36998962	18	transmembrane protein 184B	0016021	integral to membrane
-TMEM189-UBE2V1|UBE2V1				18	transmembrane protein 189|ubiquitin-conjugating enzyme E2 variant 1		
+TMEM189-UBE2V1|UBE2V1				18	transmembrane protein 189|ubiquitin-conjugating enzyme E2 variant 1
 TMEM192	chr4	166216679	166253474	18	transmembrane protein 192	0005737	cytoplasm
 TMEM194A	chr12	55735692	55758841	18	transmembrane protein 194A	0008150	biological_process
 TMEM199	chr17	23708813	23713216	18	transmembrane protein 199	0016020	membrane
@@ -2821,13 +2821,13 @@ TMEM9B	chr11	8925415	8942565	18	TMEM9 domain family, member B	0016021	integral t
 TMF1	chr3	69151667	69184174	18	TATA element modulatory factor 1	0005515	protein binding
 TMPO	chr12	97433539	97466866	18	thymopoietin	0005634	nucleus
 TMSB10	chr2	84986273	84987310	18	thymosin beta 10	0030036	actin cytoskeleton organization
-TMSL3				18	thymosin-like 3		
+TMSL3				18	thymosin-like 3
 TMX2	chr11	57236617	57265021	18	thioredoxin-related transmembrane protein 2	0016021	integral to membrane
 TMX4	chr20	7909715	7948393	18	thioredoxin-related transmembrane protein 4	0006810	transport
 TNFAIP1	chr17	23686674	23698162	18	tumor necrosis factor, alpha-induced protein 1 (endothelial)	0006260	DNA replication
 TNFRSF14	chr1	2479150	2486613	18	tumor necrosis factor receptor superfamily, member 14 (herpesvirus entry mediator)	0005031	tumor necrosis factor receptor activity
 TNFSF10	chr3	173706157	173723963	18	tumor necrosis factor (ligand) superfamily, member 10	0005102	receptor binding
-TNFSF12-TNFSF13|TNFSF13				18	tumor necrosis factor (ligand) superfamily, member 12|tumor necrosis factor (ligand) superfamily, member 13		
+TNFSF12-TNFSF13|TNFSF13				18	tumor necrosis factor (ligand) superfamily, member 12|tumor necrosis factor (ligand) superfamily, member 13
 TNIP1	chr5	150389698	150441190	18	TNFAIP3 interacting protein 1	0045071	negative regulation of viral genome replication
 TNPO1	chr5	72148173	72245971	18	transportin 1	0008565	protein transporter activity
 TNPO2	chr19	12671007	12695810	18	transportin 2	0005515	protein binding
@@ -2906,7 +2906,7 @@ TTC3	chr21	37367440	37497278	18	tetratricopeptide repeat domain 3	0005515	protei
 TTC37	chr5	94825877	94916438	18	tetratricopeptide repeat domain 37	0005515	protein binding
 TTC38	chr22	45042524	45068569	18	tetratricopeptide repeat domain 38	0005488	binding
 TTC4	chr1	54954116	54980569	18	tetratricopeptide repeat domain 4	0005515	protein binding
-TTRAP	chr6	24758183	24775094	18	TRAF and TNF receptor associated protein		
+TTRAP	chr6	24758183	24775094	18	TRAF and TNF receptor associated protein
 TUBA1A	chr12	47864849	47869128	18	tubulin, alpha 1a	0000166	nucleotide binding
 TUBA1B	chr12	47807833	47811571	18	tubulin, alpha 1b	0005515	protein binding
 TUBA1C	chr12	47945131	47953380	18	tubulin, alpha 1c	0005874	microtubule
@@ -2937,7 +2937,7 @@ UBA6	chr4	68164073	68249484	18	ubiquitin-like modifier activating enzyme 6	00197
 UBAC2	chr13	98650679	98836754	18	UBA domain containing 2	0016021	integral to membrane
 UBAP1	chr9	34169010	34242521	18	ubiquitin associated protein 1	0005737	cytoplasm
 UBAP2	chr9	33911690	34038947	18	ubiquitin associated protein 2	0005515	protein binding
-UBAP2L	chr1	152459278	152502604	18	ubiquitin associated protein 2-like	colocalizes	
+UBAP2L	chr1	152459278	152502604	18	ubiquitin associated protein 2-like	colocalizes
 UBB	chr17	16225091	16226779	18	ubiquitin B	0000084	S phase of mitotic cell cycle
 UBC	chr12	123962144	123965530	18	ubiquitin C	0005829	cytosol
 UBE2A	chrX	118592526	118602407	18	ubiquitin-conjugating enzyme E2A (RAD6 homolog)	0070936	protein K48-linked ubiquitination
@@ -2963,7 +2963,7 @@ UBE4A	chr11	117735511	117775136	18	ubiquitination factor E4A (UFD2 homolog, yeas
 UBE4B	chr1	10015602	10163883	18	ubiquitination factor E4B (UFD2 homolog, yeast)	0000151	ubiquitin ligase complex
 UBFD1	chr16	23476362	23493211	18	ubiquitin family domain containing 1	0005515	protein binding
 UBL3	chr13	29236544	29322820	18	ubiquitin-like 3	0005886	plasma membrane
-UBL4A	chrX	153365249	153368126	18	ubiquitin-like 4A	0071818	
+UBL4A	chrX	153365249	153368126	18	ubiquitin-like 4A	0071818
 UBL5	chr19	9799567	9801797	18	ubiquitin-like 5	0005737	cytoplasm
 UBL7	chr15	72525370	72540563	18	ubiquitin-like 7 (bone marrow stromal cell-derived)	0005515	protein binding
 UBP1	chr3	33404832	33456874	18	upstream binding protein 1 (LBP-1a)	0016481	negative regulation of transcription
@@ -2981,10 +2981,10 @@ UFD1L	chr22	17817700	17846726	18	ubiquitin fusion degradation 1 like (yeast)	000
 UFM1	chr13	37821941	37835143	18	ubiquitin-fold modifier 1	0005634	nucleus
 UGP2	chr2	63921601	63972200	18	UDP-glucose pyrophosphorylase 2	0003983	UTP:glucose-1-phosphate uridylyltransferase activity
 UHMK1	chr1	160734278	160760468	18	U2AF homology motif (UHM) kinase 1	0005524	ATP binding
-UNC119B	chr12	119632213	119645826	18	unc-119 homolog B (C. elegans)		
+UNC119B	chr12	119632213	119645826	18	unc-119 homolog B (C. elegans)
 UNC45A	chr15	89274413	89298327	18	unc-45 homolog A (C. elegans)	0007275	multicellular organismal development
-UNC84A	chr7	822777	881065	18	unc-84 homolog A (C. elegans)		
-UNC84B	chr22	37460680	37481893	18	unc-84 homolog B (C. elegans)		
+UNC84A	chr7	822777	881065	18	unc-84 homolog A (C. elegans)
+UNC84B	chr22	37460680	37481893	18	unc-84 homolog B (C. elegans)
 UNG	chr12	108019797	108033181	18	uracil-DNA glycosylase	0016446	somatic hypermutation of immunoglobulin genes
 UPF1	chr19	18803743	18840039	18	UPF1 regulator of nonsense transcripts homolog (yeast)	0005515	protein binding
 UPF2	chr10	12002026	12124814	18	UPF2 regulator of nonsense transcripts homolog (yeast)	0005515	protein binding
@@ -2992,7 +2992,7 @@ UQCC	chr20	33353794	33463247	18	ubiquinol-cytochrome c reductase complex chapero
 UQCRC1	chr3	48611435	48622102	18	ubiquinol-cytochrome c reductase core protein I	0022904	respiratory electron transport chain
 UQCRC2	chr16	21872109	21902169	18	ubiquinol-cytochrome c reductase core protein II	0046872	metal ion binding
 UQCRQ	chr5	132230217	132232435	18	ubiquinol-cytochrome c reductase, complex III subunit VII, 9.5kDa	0006810	transport
-URG4	chr7	43882025	43912756	18	up-regulated gene 4		
+URG4	chr7	43882025	43912756	18	up-regulated gene 4
 URM1	chr9	130173418	130192836	18	ubiquitin related modifier 1 homolog (S. cerevisiae)	0034227	tRNA thio-modification
 UROD	chr1	45250416	45253928	18	uroporphyrinogen decarboxylase	0005634	nucleus
 UROS	chr10	127467136	127501827	18	uroporphyrinogen III synthase	0016829	lyase activity
@@ -3041,7 +3041,7 @@ VPS26B	chr11	133599770	133622896	18	vacuolar protein sorting 26 homolog B (S. po
 VPS28	chr8	145619807	145624735	18	vacuolar protein sorting 28 homolog (S. cerevisiae)	0031397	negative regulation of protein ubiquitination
 VPS35	chr16	45251089	45280645	18	vacuolar protein sorting 35 homolog (S. cerevisiae)	0005515	protein binding
 VPS45	chr1	148305965	148384129	18	vacuolar protein sorting 45 homolog (S. cerevisiae)	0005794	Golgi apparatus
-VPS4A	chr16	67902787	67916447	18	vacuolar protein sorting 4 homolog A (S. cerevisiae)	colocalizes	
+VPS4A	chr16	67902787	67916447	18	vacuolar protein sorting 4 homolog A (S. cerevisiae)	colocalizes
 VPS4B	chr18	59207404	59240732	18	vacuolar protein sorting 4 homolog B (S. cerevisiae)	0005769	early endosome
 VPS52	chr6	33326026	33347640	18	vacuolar protein sorting 52 homolog (S. cerevisiae)	0015031	protein transport
 VPS72	chr1	149415557	149429264	18	vacuolar protein sorting 72 homolog (S. cerevisiae)	0016568	chromatin modification
@@ -3054,20 +3054,20 @@ WBP2	chr17	71353374	71363096	18	WW domain binding protein 2	0005575	cellular_com
 WBSCR22	chr7	72735833	72750478	18	Williams Beuren syndrome chromosome region 22	0008152	metabolic process
 WDFY2	chr13	51056484	51234172	18	WD repeat and FYVE domain containing 2	0008270	zinc ion binding
 WDR1	chr4	9685060	9727671	18	WD repeat domain 1	0030168	platelet activation
-WDR21A	chr14	72462837	72496110	18	WD repeat domain 21A		
-WDR22	chr14	68587389	68689667	18	WD repeat domain 22		
-WDR23	chr14	23653860	23664291	18	WD repeat domain 23		
+WDR21A	chr14	72462837	72496110	18	WD repeat domain 21A
+WDR22	chr14	68587389	68689667	18	WD repeat domain 22
+WDR23	chr14	23653860	23664291	18	WD repeat domain 23
 WDR26	chr1	222639467	222688355	18	WD repeat domain 26	0005737	cytoplasm
 WDR33	chr2	128178277	128285215	18	WD repeat domain 33	0007283	spermatogenesis
 WDR36	chr5	110455768	110494099	18	WD repeat domain 36	0005575	cellular_component
-WDR40A	chr9	34076381	34116755	18	WD repeat domain 40A		
+WDR40A	chr9	34076381	34116755	18	WD repeat domain 40A
 WDR41	chr5	76763824	76824088	18	WD repeat domain 41	0005515	protein binding
-WDR42A	chr1	158452128	158498603	18	WD repeat domain 42A		
+WDR42A	chr1	158452128	158498603	18	WD repeat domain 42A
 WDR48	chr3	39068510	39112885	18	WD repeat domain 48	0005515	protein binding
 WDR5	chr9	135991030	136014915	18	WD repeat domain 5	0005515	protein binding
 WDR59	chr16	73464972	73576518	18	WD repeat domain 59	0003674	molecular_function
 WDR6	chr3	49019640	49028390	18	WD repeat domain 6	0007050	cell cycle arrest
-WDR68	chr17	58981553	59025373	18	WD repeat domain 68		
+WDR68	chr17	58981553	59025373	18	WD repeat domain 68
 WDR75	chr2	190014403	190048509	18	WD repeat domain 75	0005730	nucleolus
 WDR77	chr1	111784034	111793353	18	WD repeat domain 77	0060770	negative regulation of epithelial cell proliferation involved in prostate gland development
 WDR8	chr1	3537190	3556531	18	WD repeat domain 8	0005515	protein binding
@@ -3078,7 +3078,7 @@ WHSC1L1	chr8	38251717	38358947	18	Wolf-Hirschhorn syndrome candidate 1-like 1	00
 WIPF1	chr2	175132547	175255873	18	WAS/WASL interacting protein family, member 1	0005737	cytoplasm
 WIPF2	chr17	35629099	35691965	18	WAS/WASL interacting protein family, member 2	0005737	cytoplasm
 WIPI1	chr17	63929016	63965248	18	WD repeat domain, phosphoinositide interacting 1	0005737	cytoplasm
-WIPI2	chr7	5196360	5240012	18	WD repeat domain, phosphoinositide interacting 2	colocal	
+WIPI2	chr7	5196360	5240012	18	WD repeat domain, phosphoinositide interacting 2	colocal
 WIZ	chr19	15393317	15421762	18	widely interspaced zinc finger motifs	0046872	metal ion binding
 WNK1	chr12	732485	890879	18	WNK lysine deficient protein kinase 1	0050794	regulation of cellular process
 WRNIP1	chr6	2710664	2730978	18	Werner helicase interacting protein 1	0030174	regulation of DNA-dependent DNA replication initiation
@@ -3090,7 +3090,7 @@ WWP2	chr16	68353774	68533144	18	WW domain containing E3 ubiquitin protein ligase
 XBP1	chr22	27520547	27526560	18	X-box binding protein 1	0043565	sequence-specific DNA binding
 XPC	chr3	14161648	14195176	18	xeroderma pigmentosum, complementation group C	0005654	nucleoplasm
 XPO1	chr2	61558572	61618922	18	exportin 1 (CRM1 homolog, yeast)	0005515	protein binding
-XPO5	chr6	43598045	43651790	18	exportin 5	NOT	
+XPO5	chr6	43598045	43651790	18	exportin 5	NOT
 XPO6	chr16	28016816	28130691	18	exportin 6	0006611	protein export from nucleus
 XPO7	chr8	21833125	21920042	18	exportin 7	0051028	mRNA transport
 XPOT	chr12	63084499	63128730	18	exportin, tRNA (nuclear export receptor for tRNAs)	0006810	transport
@@ -3107,7 +3107,7 @@ YLPM1	chr14	74299821	74373766	18	YLP motif containing 1	0003674	molecular_functi
 YME1L1	chr10	27439388	27483327	18	YME1-like 1 (S. cerevisiae)	0006508	proteolysis
 YPEL5	chr2	30223253	30236903	18	yippee-like 5 (Drosophila)	0008113	peptide-methionine-(S)-S-oxide reductase activity
 YTHDF2	chr1	28935722	28968874	18	YTH domain family, member 2	0006959	humoral immune response
-YTHDF3	chr8	64243674	64287900	18	YTH domain family, member 3		
+YTHDF3	chr8	64243674	64287900	18	YTH domain family, member 3
 YWHAB	chr20	42947757	42970575	18	tyrosine 3-monooxygenase/tryptophan 5-monooxygenase activation protein, beta polypeptide	0005515	protein binding
 YWHAE	chr17	1194583	1250306	18	tyrosine 3-monooxygenase/tryptophan 5-monooxygenase activation protein, epsilon polypeptide	0023034	intracellular signaling pathway
 YWHAG	chr7	75794043	75826278	18	tyrosine 3-monooxygenase/tryptophan 5-monooxygenase activation protein, gamma polypeptide	0005829	cytosol
@@ -3116,7 +3116,7 @@ YWHAQ	chr2	9641556	9688557	18	tyrosine 3-monooxygenase/tryptophan 5-monooxygenas
 YWHAZ	chr8	101999979	102034397	18	tyrosine 3-monooxygenase/tryptophan 5-monooxygenase activation protein, zeta polypeptide	0005829	cytosol
 YY1	chr14	99774854	99814557	18	YY1 transcription factor	0006357	regulation of transcription from RNA polymerase II promoter
 YY1AP1	chr1	153895856	153925189	18	YY1 associated protein 1	0005737	cytoplasm
-ZAK	chr2	173648810	173840983	18	sterile alpha motif and leucine zipper containing kinase AZK		
+ZAK	chr2	173648810	173840983	18	sterile alpha motif and leucine zipper containing kinase AZK
 ZBTB4	chr17	7303408	7323668	18	zinc finger and BTB domain containing 4	0008270	zinc ion binding
 ZBTB44	chr11	129601783	129689817	18	zinc finger and BTB domain containing 44	0008270	zinc ion binding
 ZC3H11A	chr1	202031373	202089879	18	zinc finger CCCH-type containing 11A	0005515	protein binding
