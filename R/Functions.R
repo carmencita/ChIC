@@ -37,6 +37,7 @@ select.informative.tags_filter<-FALSE
 ####
 
 ##format conversion
+##private function
 f_convertFormatBroadPeak <- function(given.clusters)
 {
 	chrl <- names(given.clusters)
@@ -55,6 +56,7 @@ f_convertFormatBroadPeak <- function(given.clusters)
 
 
 ##format conversion
+##private function
 f_converNarrowPeakFormat =function(bd, margin = bd$whs) 
 {
 	if (is.null(margin)) 
@@ -85,6 +87,7 @@ f_converNarrowPeakFormat =function(bd, margin = bd$whs)
 
 
 ##get strand shift
+##private function
 f_getCustomStrandShift= function(x,y){
 	#x=binding.characteristics$cross.correlation$x
 	#y=binding.characteristics_cross.correlation_y_smoothed
@@ -121,23 +124,25 @@ f_getCustomStrandShift= function(x,y){
 }
 
 
-##reda bam file of tagalign file 
+##read bam file of tagalign file 
+##private function based on spp
 f_readFile=function(f_filename,f_reads.aligner.type="bam",f_path=getwd())
 {
-	read.tags.current_function<-get(paste("read", f_reads.aligner.type , "tags", sep="."))
+	read_tags_current_function<-get(paste("read", f_reads.aligner.type , "tags", sep="."))
 	if (f_reads.aligner.type=="bam")
 	{
-	    data<-read.tags.current_function(file.path(f_path,paste(f_filename,".bam",sep="")))
+	    data<-read_tags_current_function(file.path(f_path,paste(f_filename,".bam",sep="")))
 	}
 	if (f_reads.aligner.type=="tagalign")
 	{
-	    data<-read.tags.current_function(file.path(f_path,paste(f_filename,".tagAlign",sep="")))
+	    data<-read_tags_current_function(file.path(f_path,paste(f_filename,".tagAlign",sep="")))
 	}
 	return(data)
 }
 
 
 ##caluclate QC tag
+##private function
 f_qflag=function(RSC)
 {
 	qflag=NA
@@ -156,8 +161,44 @@ f_qflag=function(RSC)
 }
 
 
-##create crosscorrelation profile, phantom peak and sample different values, and create plot
-f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36,plotname=NULL)
+#'@title Creating cross-correlation profile, phantom peak and calcualting derived QC-metrics
+#'
+#' @description
+#' We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 
+#' After calculating the strand cross-correlation coefficient (Kharchenko et al., 2008), we take the following values from the profile: the coordinates of the 
+#' ChIP-peak (fragment length, height A), the coordinates at the phantom-peak (read length, height B) and the baseline (C), the strand-shift, the number of uniquely mapped 
+#' reads (unique_tags), uniquely mapped reads corrected by the library size, the number of reads and the read lengths. We  calculate different values using the relative and 
+#' absolute height of the cross-correlation peaks: the relative and normalized strand coefficient RSC and NSC  (Landt et al., 2012), and the quality control tag (Fig. 1B) 
+#' (Marinov et al., 2013). Other values regarding the library complexity (Landt et al., 2012) like the fraction of non-redundant mapped reads 
+#' (NRF; ratio between the number of uniquely mapped reads divided by the total number of reads), the NRF adjusted by library size and ignoring the strand direction 
+#' (NRF_nostrand), and the PCR bottleneck coefficient PBC (number of genomic locations to which exactly one unique mapping read maps, divided by the number of unique 
+#' mapping reads). 
+#'
+#' f_calculateCrossCorrelation
+#'
+#' @param data Spp-package based object with tag information from bam or tagAlign file(!!!DESCRIBE BETTER)
+#' @param binding.characteristics (!!!DESCRIBE BETTER)
+#' @param read_length Integer, read length of "data" (Defaul="36")
+#' @param plotname Name and path were the CrossCorrelation plot (pdf) should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working directory)
+#' @param cluster Integer, indicating the number of CPUs to parallelize a few functions (default=NULL)
+#'
+#' @return finalList containing (!!!DESCRIBE BETTER)
+#' strandShift Integer strand shift value from the cross correlation profile
+#' tag.shift Integer rounded halfsize of strandShift
+#' N1 
+#' Nd 
+#' PBC
+#' @param read_length Integer, length of the reads
+#' UNIQUE_TAGS_LibSizeadjusted
+#' phantomScores
+#' STATS_NRF
+#'
+#' @examples
+#'\dontrun{
+#'CC_Result=f_CrossCorrelation(chipName, inputName, read_length=36, reads.aligner.type="bam", path=path, dataPath=dataPath, debug=debug,cluster=cluster,chrominfo_file=chrominfo_file)
+#'}
+
+f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36,plotname=file.path(getwd(),"phantomCrossCorrelation.pdf"),cluster=NULL)
 {
 
 	###step 1.2: Phantom peak and cross-correlation
@@ -208,7 +249,7 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 		print(paste("strandshift remains the same...",sep=""))
 	}
 		###2.2 phantom peak with smoothing
-	print("Phantom peak with smooting")
+	print("Phantom peak with smoothing")
 	# phantom.characteristics<-phantom.characteristics
 	# select a subset of cross correlation profile where we expect the peak
 	subset_selection_forPeakcheck<- which(phantom.characteristics$cross.correlation$x %in% cross_correlation_range_subset)
@@ -247,7 +288,8 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 	{
 		# plot cross correlation curve with smoothing
 		print("plot cross correlation curve with smoothing")
-		pdf((filename=file.path(path, paste(plotname, "pdf", sep="."))))
+		pdf(plotname)
+		print(plotname)
 			par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
 			plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation",main="CrossCorrelation Profile")
 			lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col="blue")
@@ -366,8 +408,36 @@ f_selectInformativeTag=function(chip,input,chip_b.characteristics,input_b.charac
 }
 
 
-##get QC-values from peak calling procedure
-f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75)#,chrorder=NULL)
+
+#'@title Calculating QC-values from peak calling procedure
+#'
+#' @description
+#' Other measures we include in our analysis are the fraction of usable reads in the peak regions (FRiP) (Landt et al., 2012), for which the function calls sharp- and 
+#' broad-binding peaks to obtain two types: the FRiP_sharpsPeak and the FRiP_broadPeak. The function takes the number of called of peaks using an FDR of 0.01 and an 
+#' evalue of 10 (Kharchenko et al., 2008). And count the number of peaks called when using the sharp- and broad-binding option. 
+#' f_getBindingRegionsScores
+#'
+#' @param chip (!!!DESCRIBE BETTER)
+#' @param input (!!!DESCRIBE BETTER)
+#' @param chip.dataSelected (!!!DESCRIBE BETTER)
+#' @param input.dataSelected (!!!DESCRIBE BETTER)
+#' @param tag.shift=75 (!!!DESCRIBE BETTER)
+#' @param cluster Integer indicating the number of CPUs to parallelize a few functions (default=NULL)
+#'
+#' @return QCscoreList, containing (!!!DESCRIBE BETTER)
+#' FDR_detected"=round(FDR_detect,3),
+#'		"eval_detected"=round(eval_detect,3),
+#'		"FRiP_broadPeak"=round(FRiP_broadPeak,3),  
+#'		"FRiP_sharpPeak"=round(FRiP_sharpPeak,3), 
+#'		"outcountsBroadPeak"=outcountsBroadPeak,
+#'		"outcountsSharpPeak"= outcountsSharpPeak)
+#'
+#' @examples
+#'\{dontrun
+#' DESCRIBE HERE
+#'}
+
+f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75,cluster=NULL)#,chrorder=NULL)
 {
 	chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
 	#custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")

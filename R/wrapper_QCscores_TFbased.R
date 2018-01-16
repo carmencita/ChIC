@@ -28,7 +28,7 @@
 
 
 
-#'@title Cross-correlation analysis and metrics designed for TFs
+#'@title Wrapper function for calculating cross-correlation analysis and metrics designed for TFs
 #'
 #' @description
 #' We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 
@@ -46,25 +46,29 @@
 #'
 #' f_CrossCorrelation
 #'
-#' @param chipName
-#' @param inputName
-#' @param read_length
-#' @param reads.aligner.type
-#' @param path
-#' @param dataPath
-#' @param debug
-#' @param cluster
-#' @param chrominfo_file
+#' @param chipName String, filename (without extension) of the input file for ChIP
+#' @param inputName String, filename (without extension) of the input file for ChIP
+#' @param read_length Integer, length of the reads
+#' @param reads.aligner.type String, indicating the aligner type. Can be "bam" or "tagAlign" (Default="bam")
+#' @param dataPath Path were to find the input files chipName and inputName, default is working directory
+#' @param debug Boolean value to enter in debugging mode (default= FALSE)
+#' @param cluster Integer indicating the number of CPUs to parallelize a few functions (default=NULL)
+#' @param chrominfo_file Path to the chromatin information file
 #'
-#' @return returnList
-#' @export
+#' @return returnList, containing (!!!DESCRIBE BETTER)
+#' QCscores_ChIP List with Crosscorrelation values of the ChIP
+#' QCscores_Input List with Crosscorrelation values of the Input
+#' QCscores_binding List with QCscores from called peaks
+#' TagDensityChip (!!!DESCRIBE BETTER)
+#' TagDensityInput (!!!DESCRIBE BETTER)
 #'
 #' @examples
-#'CC_Result=f_CrossCorrelation(chipName, inputName, read_length=36, reads.aligner.type="bam", path=path, dataPath=dataPath, debug=debug,cluster=cluster,chrominfo_file=chrominfo_file)
+#'\{dontrun
+#' CC_Result=f_CrossCorrelation(chipName, inputName, read_length=36, reads.aligner.type="bam", dataPath=dataPath, debug=debug,cluster=cluster,chrominfo_file=chrominfo_file)
+#'}
 
 
-
-f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.type="bam", path=getwd(), dataPath=getwd(), debug=FALSE,cluster=NULL,chrominfo_file=pwd())
+f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.type="bam", dataPath=getwd(),plotname=file.path(getwd(),"CrossCorrelation.pdf"), debug=FALSE,cluster=NULL,chrominfo_file=pwd())
 {
 	source("Functions.R")
 
@@ -73,19 +77,31 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 	rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(as.integer(c(1,x)))})
 
 	###read files
+	print(paste("reading",reads.aligner.type,"files",sep=" "))
 	chip.data=f_readFile(chipName,f_path=dataPath)
 	input.data=f_readFile(inputName,f_path=dataPath)
 
+
+	#plot and calculate cross correlation and phantom characteristics for the input
+	print("binding characteristics Input")
+	inputplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"Input",".pdf",sep=""))
+	print(inputName)
+	print(inputplotID)
+	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
+	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,plotname=inputplotID)
+
+
 	#plot and calculate cross correlation and phantom characteristics for the ChIP
+	print("binding characteristics ChIP")
+	chipplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"ChIP",".pdf",sep=""))
+	print(chipName)
+	print(chipplotID)
 	chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
-	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics,plotname=paste("phantomCrossCorrelation",chipName,sep="_"))
+	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics,plotname=chipplotID)
 	##save the tag.shift
 	final.tag.shift= crossvalues_Chip$tag.shift
 
-	#plot and calculate cross correlation and phantom characteristics for the input
-	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
-	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,plotname=paste("phantomCrossCorrelation",inputName,sep="_"))
-
+	
 	##get chromosome information and order chip and input by it
 	chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
 	chip.data$tags=chip.data$tags[chrl_final]
@@ -105,7 +121,7 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 	#}
 
 	#get QC-values from peak calling
-	bindingScores=f_getBindingRegionsScores(chip.data,input.data,	chip.dataSelected,input.dataSelected,final.tag.shift)#,custom_chrorder)
+	bindingScores=f_getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift,cluster=cluster)#,custom_chrorder)
 
 	##objects of smoothed tag density for ChIP and Input
 	smoothed.densityChip=f_tagDensity(chip.dataSelected,final.tag.shift,rngl=rngl)

@@ -51,19 +51,19 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
   current_annotations_object<-data.frame(current_annotations_object@.Data, annotation(current_annotations_object), stringsAsFactors=FALSE)
   current_annotations_object$interval_starts<-as.integer(current_annotations_object$interval_starts)
   current_annotations_object$interval_ends<-as.integer(current_annotations_object$interval_ends)
-  current_annotations_object$seq_name<-as.character(current_annotations_object$seq_name)
-  annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
+  current_annotations_object$seqName<-as.character(current_annotations_object$seqName)
+  annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seqName)
 
   ##two.point.scaling
   #Input smoothed.densityInput
   print("Calculate two point scaling")
   smoothed.densityInput=list(td=smoothed.densityInput)
   print("process input")
-  binned_Input = t.get.gene.av.density(smoothed.densityInput,gdl=annotatedGenesPerChr)
+  binned_Input = f_t.get.gene.av.density(smoothed.densityInput,gdl=annotatedGenesPerChr)
   #Chip smoothed.densityChip
   smoothed.densityChip=list(td=smoothed.densityChip)
   print("process ChIP")
-  binned_Chip= t.get.gene.av.density(smoothed.densityChip,gdl=annotatedGenesPerChr)
+  binned_Chip= f_t.get.gene.av.density(smoothed.densityChip,gdl=annotatedGenesPerChr)
 
   twopoint=list(chip=binned_Chip,input= binned_Input)
   if (debug)
@@ -75,8 +75,8 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
   print("Calculate one point scaling...")
 
   print("...TSS")
-  binnedInput_TSS <- t.get.gene.av.density_TSS(smoothed.densityInput,gdl=annotatedGenesPerChr)
-  binnedChip_TSS <- t.get.gene.av.density_TSS(smoothed.densityChip,gdl=annotatedGenesPerChr)
+  binnedInput_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityInput,gdl=annotatedGenesPerChr)
+  binnedChip_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityChip,gdl=annotatedGenesPerChr)
 
   onepointTSS=list(chip=binnedChip_TSS,input= binnedInput_TSS)
   if (debug)
@@ -86,8 +86,8 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
 
    ##one.point.scaling
   print("...TSS")
-  binnedInput_TES <- t.get.gene.av.density_TES(smoothed.densityInput,gdl=annotatedGenesPerChr)
-  binnedChip_TES <- t.get.gene.av.density_TES(smoothed.densityChip,gdl=annotatedGenesPerChr)
+  binnedInput_TES <- f_t.get.gene.av.density_TES(smoothed.densityInput,gdl=annotatedGenesPerChr)
+  binnedChip_TES <- f_t.get.gene.av.density_TES(smoothed.densityChip,gdl=annotatedGenesPerChr)
 
   onepointTES=list(chip=binnedChip_TES,input= binnedInput_TES)
   if (debug)

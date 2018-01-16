@@ -10,6 +10,7 @@ LazyData: true
 Imports:
 	girafe,
 	caTools,
-	genomeIntervals
+	genomeIntervals,
+	fastcluster
 Depends: spp
 RoxygenNote: 6.0.1

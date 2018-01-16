@@ -18,7 +18,7 @@
 # binned_Chip=binned_Input
 # binned_Input=help
 
-plotMetageneProfile=function(binnedChip,binnedInput,path=getwd(),debug=FALSE,plotName="NA")
+f_plotMetageneProfile=function(binnedChip,binnedInput,path=getwd(),debug=FALSE,plotName="NA")
 {
 	source("FunctionsLocal.R")
 	psc <- 1; # pseudocount # required to avoid log2 of 0

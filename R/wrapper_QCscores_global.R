@@ -1,4 +1,4 @@
-# ###FOR DEVEL#########
+####FOR DEVEL#########
 # debug=TRUE
 # path=getwd()
 # dataPath<-"/lustre/data/FF/Carmen/BitBucket/chic/data/"
@@ -8,13 +8,14 @@
 # source(file.path(path,"GlobalParameters.R"))
 # load(file.path(getwd(), paste(chipName, inputName, "TagDensityChip.RData", sep="_")))
 # load(file.path(getwd(), paste(chipName, inputName, "TagDensityInput.RData", sep="_")))
+####END DEVEL#########
 
 
 #'@title Metrics taken from global read distribution
 #'
 #' @description
 #' This set of values is based on the global read distribution along the genome for immunoprecipitation and input data (Diaz et al., 2012). 
-#' The genome is binnde and the read coverage counted for each bin. Then the function computes the cumulative distribution of reads density per genomic bin and plots the 
+#' The genome is binned and the read coverage counted for each bin. Then the function computes the cumulative distribution of reads density per genomic bin and plots the 
 #' fraction of the coverage on the y-axis and the fraction of bins on the x-axis. Then different values can be sampled from the cumulative distribution: 
 #' like the fraction of bins without reads for in immunoprecipitation and input,the point of the maximum distance between the ChIP and the input (x-axis, y-axis for 
 #' immunoprecipitation and input, distance (as absolute difference), the sign of the differences), the fraction of reads in the top 1%bin for immunoprecipitation and input. 
@@ -22,20 +23,29 @@
 #'
 #' f_QCscores_global
 #'
-#' @param densityChip
-#' @param densityInput
-#' @param chipName
-#' @param debug
+#' @param densityChip A smoothed tag density object for the ChIP (returned by f_CrossCorrelation)
+#' @param densityInput smoothed tag density object for the Inpt (returned by f_CrossCorrelation)
+#' @param plotname Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )
+#' @param debug Only for debugging
 #'
-#' @return finalList
-#' @export
+#' @return List with the following values: 
+#' X-axis, Y-Input,Y-Chip (the point of the maximum distance between the ChIP and the input (x-axis, y-axis for immunoprecipitation and input) ,
+#' Ch_sign_chipVSinput (the sign of the maximum distance) 
+#' FractionReadsTopbins_chip, FractionReadsTopbins_input, Fractions_without_reads_chip, Fractions_without_reads_input
+#'
 #'
 #' @examples
-#' Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,chipName=chipName,debug=FALSE)
+#'\dontrun{
+#'CC_Result=f_CrossCorrelation(chipName, inputName, read_length=36, reads.aligner.type="bam", path=path, dataPath=dataPath, debug=debug,cluster=cluster,chrominfo_file=chrominfo_file,plotname=file.path(getwd(),paste(chipName,"CrossCorelationPlot.pdf",sep="_")))
+#'smoothedDensityInput=CC_Result$TagDensityInput
+#'smoothedDensityChip=CC_Result$TagDensityChip
+#'plotname=file.path(getwd(),paste(chipName,"FingerPrintPlot.pdf",sep="_"))
+#'Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=plotname,debug=FALSE)
+#' }
 
 
 
-f_QCscores_global=function(densityChip,densityInput,plotname=NULL,debug=FALSE)
+f_QCscores_global=function(densityChip,densityInput,plotname=file.path(getwd(),"FingerPrintPlot.pdf",sep="_"),debug=FALSE)
 {
 	##sourcing functions
 	source("FunctionsGlobal.R")
@@ -78,11 +88,11 @@ f_QCscores_global=function(densityChip,densityInput,plotname=NULL,debug=FALSE)
 		#"CrossPoint_Y_chip"=cross_pointY_chip,
 		#"CrossPoint_Y_input"=cross_pointY_input)
 
-	#create chance plot
+	#create Fingerprint plot
 	if (!is.null(plotname))
 	{
 		print("create pdf with plot")
-		f_chancePlots(cumSumChip,cumSumInput,plotname=plotname)
+		f_fingerPrintPlot(cumSumChip,cumSumInput,plotname=plotname)
 	}
 	#f_chancePlots(cumSumChip,cumSumInput,plotname=file.path(getwd(),paste(chipName,"chance.pdf",sep="_")))
 
