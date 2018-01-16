@@ -83,20 +83,22 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 
 
 	#plot and calculate cross correlation and phantom characteristics for the input
-	print("binding characteristics Input")
+	print("calculate binding characteristics Input")
 	inputplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"Input",".pdf",sep=""))
 	print(inputName)
 	print(inputplotID)
 	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
+	print("calculate cross correlation QC-metrics for the Input")
 	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,plotname=inputplotID)
 
 
 	#plot and calculate cross correlation and phantom characteristics for the ChIP
-	print("binding characteristics ChIP")
+	print("calculate binding characteristics ChIP")
 	chipplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"ChIP",".pdf",sep=""))
 	print(chipName)
 	print(chipplotID)
 	chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
+	print("calculate cross correlation QC-metrics for the Chip")
 	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics,plotname=chipplotID)
 	##save the tag.shift
 	final.tag.shift= crossvalues_Chip$tag.shift

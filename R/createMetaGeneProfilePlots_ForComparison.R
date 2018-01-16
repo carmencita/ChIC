@@ -67,35 +67,47 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMa
 	dev.off()
 }
 
-f_plotValueDistribution = function(value,title,coordinateLine, color)
+f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=NULL)
 {   #png(paste(profileclass,label,".png",sep=""))
         #pdf(paste(name,label,".pdf",sep=""))
-        maxi=max(value$v)
-        mini=min(value$v)
+    if (!is.null(savePlotPath))
+    {
+    	filename=file.path(savePlotPath,"PlotValueDistribution.pdf")
+		pdf(file=filename,width=10, height=7)
+	}
+    mycolors= c("lightsteelblue1","lightsteelblue3")
+	maxi=max(compendium)
+    mini=min(compendium)
 
-        d=density(value$v)
-        plot(d,main=title,xlim=c(mini,maxi))
+	d=density(compendium)
+	plot(d,main=title,xlim=c(mini,maxi))
        
-        median=median(value$v)
-        qq=quantile(value$v,probs = c(0.05, 0.25,0.50,0.75,0.95))
+	median=median(compendium)
+	qq=quantile(compendium,probs = c(0.05, 0.25,0.50,0.75,0.95))
         
-        i <-  d$x >= (qq[1]) &  d$x <= (qq[2])
-        lines(d$x, d$y)
-        polygon(c(qq[1],d$x[i],qq[2]), c(0,d$y[i],0), col=mycolors[2])
+	i <-  d$x >= (qq[1]) &  d$x <= (qq[2])
+	lines(d$x, d$y)
+	polygon(c(qq[1],d$x[i],qq[2]), c(0,d$y[i],0), col=mycolors[1])
 
-        i <-  d$x >= (qq[2]) &  d$x <= (qq[3])
-        lines(d$x, d$y)
-        polygon(c(qq[2],d$x[i],qq[3]), c(0,d$y[i],0), col=mycolors[4])
+	i <-  d$x >= (qq[2]) &  d$x <= (qq[3])
+    lines(d$x, d$y)
+    polygon(c(qq[2],d$x[i],qq[3]), c(0,d$y[i],0), col=mycolors[2])
 
-        i <-  d$x >= (qq[3]) &  d$x <= (qq[4])
-        lines(d$x, d$y)
-        polygon(c(qq[3],d$x[i],qq[4]), c(0,d$y[i],0), col=mycolors[4])
+    i <-  d$x >= (qq[3]) &  d$x <= (qq[4])
+    lines(d$x, d$y)
+    polygon(c(qq[3],d$x[i],qq[4]), c(0,d$y[i],0), col=mycolors[2])
         
-        i <-  d$x >= (qq[4]) &  d$x <= (qq[5])
-        lines(d$x, d$y)
-        polygon(c(qq[4],d$x[i],qq[5]), c(0,d$y[i],0), col=mycolors[2])
+    i <-  d$x >= (qq[4]) &  d$x <= (qq[5])
+    lines(d$x, d$y)
+    polygon(c(qq[4],d$x[i],qq[5]), c(0,d$y[i],0), col=mycolors[1])
 
-        abline(v =coordinateLine, ,col=color,lwd=3,lty=2)
+    abline(v =coordinateLine, ,col="red",lwd=3,lty=2)
+
+    if (!is.null(savePlotPath))
+    {
+    	dev.off()
+    	print(paste("pdf saved under",filename,sep=" "))
+	}
     
 }
 
@@ -124,14 +136,16 @@ f_plotValueDistribution = function(value,title,coordinateLine, color)
 #' f_metagenePlotsForComparison(chrommark="H3K4me1",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES,plotName=chipName,profilePath="/lustre/data/FF/Carmen/BitBucket/chic/data/Profiles")
 
 #'}
+##GLOBAL VARIABLES
+dataDirectory="../data"
+profilePath="../data/profile"
+Hlist=c("H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
+	"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac",
+	"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph")
 
-f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements,profilePath, savePlotPath=getwd())
+f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=getwd())
 {
 	psc <- 1; # pseudocount # required to avoid log2 of 0
-
-	Hlist=c("H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
-"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac",
-"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph")
 	if (chrommark %in% Hlist)
 	{
 		for (endung in c("TWO","TES","TSS"))
@@ -211,9 +225,48 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			f_plotProfiles(i_mean, iframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Input",sep="_"),savePlotPath)
 			f_plotProfiles(c_mean, cframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Chip",sep="_"),savePlotPath)
 			f_plotProfiles(n_mean, nframe, endung, c(normMin-0.001,normMax+0.001),maintitel=paste(chrommark,endung,"norm",sep="_"),ylab="mean log2 enrichment (signal/input)")
+			print(paste("pdf saved under",savePlotPath,sep=" "))
 		}
 	}else{
 		print("Chromatin marks has to be one of the following:")
 		print(Hlist)
+	}
+}
+
+
+#'@title Function to create reference distribution plot for comparison
+#'
+#' @description
+#' Creates a density plot (in pdf) for the sample against the reference distribution (density plots) of the compendium values stratified by chromatin marks.
+#' 
+#'
+#' f_metagenePlotsForComparison
+#' @param chrommark
+#' @param 
+#' @param valueToBePlotted Default="RSC"
+#' @param currentValue
+#' @param savePlotPath Default=NULL, when set saves the density plot as pdf under the gieven path
+#'
+#' @examples
+#'\{dontrun
+#' WHATEVER
+#'}
+
+
+f_plotReferenceDistribution=function(chrommark,valueToBePlotted="RSC",currentValue,savePlotPath=NULL)
+{
+	if (chrommark %in% Hlist)
+	{
+	
+		filename=file.path(dataDirectory,"numbersHistone_AllGenes_ENCODE.txt")
+		d1=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
+		filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
+		d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
+		values=rbind(d1,d2)
+		#get values for chrommark
+		fake=paste("CC",valueToBePlotted,sep="_")
+		subset= values[which(values$CC_TF==chrommark),fake]
+		
+		f_plotValueDistribution(subset,valueToBePlotted,currentValue,savePlotPath)
 	}
 }
