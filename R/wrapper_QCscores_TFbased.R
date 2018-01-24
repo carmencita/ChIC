@@ -81,15 +81,21 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 	chip.data=f_readFile(chipName,f_path=dataPath)
 	input.data=f_readFile(inputName,f_path=dataPath)
 
+	ORDERED_data<-chip.data
+	for (chr in names(chip.data$tags)) {
+  		orderingVector<-order(abs(chip.data$tags[[chr]]))
+  		ORDERED_data$tags[[chr]]<-chip.data$tags[[chr]][orderingVector]
+  		ORDERED_data$quality[[chr]]<-chip.data$quality[[chr]][orderingVector]
+	}
+	chip.data=ORDERED_data
 
-	#plot and calculate cross correlation and phantom characteristics for the input
-	print("calculate binding characteristics Input")
-	inputplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"Input",".pdf",sep=""))
-	print(inputName)
-	print(inputplotID)
-	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
-	print("calculate cross correlation QC-metrics for the Input")
-	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,plotname=inputplotID)
+	ORDERED_data<-input.data
+	for (chr in names(input.data$tags)) {
+  		orderingVector<-order(abs(input.data$tags[[chr]]))
+  		ORDERED_data$tags[[chr]]<-input.data$tags[[chr]][orderingVector]
+  		ORDERED_data$quality[[chr]]<-input.data$quality[[chr]][orderingVector]
+	}
+	input.data=ORDERED_data
 
 
 	#plot and calculate cross correlation and phantom characteristics for the ChIP
@@ -97,11 +103,23 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 	chipplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"ChIP",".pdf",sep=""))
 	print(chipName)
 	print(chipplotID)
-	chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster)
+	#chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
+	chip_binding.characteristics<-get.binding.characteristicsMy(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Chip")
 	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics,plotname=chipplotID)
 	##save the tag.shift
 	final.tag.shift= crossvalues_Chip$tag.shift
+
+
+	#plot and calculate cross correlation and phantom characteristics for the input
+	print("calculate binding characteristics Input")
+	inputplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"Input",".pdf",sep=""))
+	print(inputName)
+	print(inputplotID)
+	input_binding.characteristics<-get.binding.characteristicsMy(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
+	print("calculate cross correlation QC-metrics for the Input")
+	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,plotname=inputplotID)
+
 
 	
 	##get chromosome information and order chip and input by it
@@ -135,6 +153,15 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 		"QCscores_binding"=bindingScores,
 		"TagDensityChip"=smoothed.densityChip,
 		"TagDensityInput"=smoothed.densityInput)
+
+
+	if (debug)
+	{
+		writeout=list("QCscores_ChIP"=crossvalues_Chip,
+		"QCscores_Input"=crossvalues_Input,
+		"QCscores_binding"=bindingScores)
+		write.table(writeout,file=file.path(getwd(),"CC.results"))
+	}
 
 	return(returnList)
 

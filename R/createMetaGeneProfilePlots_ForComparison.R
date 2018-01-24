@@ -1,37 +1,7 @@
-##########DEVEL##########
+##################
+##PRIVATE functions
+##################
 
-
-#source("/lustre/data/FF/Carmen/Pipeline_allEncodeBeta/CinecaScripts/QC_pipeline/GlobalParameters.R")
-
-
-# chipName="ENCFF000BBB"
-# ll="H3K4me3"
-# dataPath="/lustre/data/FF/Carmen/BitBucket/chic/data/Profiles"
-
-
-# load("two.point.scaling_ENCFF000BBB.RData")
-# #input is a list: list("twopoint"=twopoint,"TSS"=TSS,"TES"=TES))
-# twopointElements=NULL
-# twopointElements$Input=gd.gfp
-# twopointElements$Chip=gd.gen
-
-# load("one.point.scalingTES_ENCFF000BBB.RData")
-# TESElements=NULL
-# TESElements$Input=gd.gfp
-# TESElements$Chip=gd.gen_TES
-
-
-# load("one.point.scalingTSS_ENCFF000BBB.RData")
-# #input is a list: list("twopoint"=twopoint,"TSS"=TSS,"TES"=TES))
-# TSSElements=NULL
-# TSSElements$Input=gd.gfp
-# TSSElements$Chip=gd.gen_TSS
-
-##########DEVEL##########
-
-
-
-##private function
 f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMax, maintitel="title",ylab="mean of log2 tag density",savePlotPath=getwd())#, color="green") 
 {
 	filename=paste(maintitel,".pdf", sep="")
@@ -111,6 +81,12 @@ f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=
     
 }
 
+
+##################
+##GLOBAL functions
+##################
+
+
 #'@title Function to create metage plots for comparison
 #'
 #' @description
@@ -138,7 +114,7 @@ f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=
 #'}
 ##GLOBAL VARIABLES
 dataDirectory="../data"
-profilePath="../data/profile"
+profilePath="../data/Profiles"
 Hlist=c("H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
 	"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac",
 	"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph")
@@ -222,9 +198,9 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			normMin=min(nframe$mean,normMin)
 			normMax=max(nframe$mean,normMax)
 
-			f_plotProfiles(i_mean, iframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Input",sep="_"),savePlotPath)
-			f_plotProfiles(c_mean, cframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Chip",sep="_"),savePlotPath)
-			f_plotProfiles(n_mean, nframe, endung, c(normMin-0.001,normMax+0.001),maintitel=paste(chrommark,endung,"norm",sep="_"),ylab="mean log2 enrichment (signal/input)")
+			f_plotProfiles(i_mean, iframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Input",sep=" "),savePlotPath)
+			f_plotProfiles(c_mean, cframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Chip",sep=" "),savePlotPath)
+			f_plotProfiles(n_mean, nframe, endung, c(normMin-0.001,normMax+0.001),maintitel=paste(chrommark,endung,"norm",sep=" "),ylab="mean log2 enrichment (signal/input)")
 			print(paste("pdf saved under",savePlotPath,sep=" "))
 		}
 	}else{
@@ -241,19 +217,20 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 #' 
 #'
 #' f_metagenePlotsForComparison
-#' @param chrommark
-#' @param 
-#' @param valueToBePlotted Default="RSC"
-#' @param currentValue
-#' @param savePlotPath Default=NULL, when set saves the density plot as pdf under the gieven path
+#' @param chrommark Chromatin mark to be plotted. Has to be on of the following: "H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
+#'	"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac"
+#'	"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph"
+#' @param metricToBePlotted The metric to be plotted (Default="RSC")
+#' @param currentValue The value of the current sample
+#' @param savePlotPath Default=NULL, when set saves the density plot (pdf format) under the given path.
 #'
 #' @examples
 #'\{dontrun
-#' WHATEVER
+#' f_plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
 #'}
 
 
-f_plotReferenceDistribution=function(chrommark,valueToBePlotted="RSC",currentValue,savePlotPath=NULL)
+f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValue,savePlotPath=NULL)
 {
 	if (chrommark %in% Hlist)
 	{
@@ -262,11 +239,56 @@ f_plotReferenceDistribution=function(chrommark,valueToBePlotted="RSC",currentVal
 		d1=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
 		filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
 		d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
-		values=rbind(d1,d2)
+		compendium=rbind(d1,d2)
+
+		ac=unique(compendium[grep("ac",compendium$CC_TF),]$CC_TF)
+		ac=as.vector(as.factor(ac))
+
+		pe_frame=ac[(!ac=="H2AK5ac")&(!ac=="H2BK120ac")&(!ac=="H2BK12ac")&(!ac=="H2BK15ac")&(!ac=="H2BK20ac")&(!ac=="H3K4ac")&(!ac=="H3K56ac")&(!ac=="H4K12ac")&(!ac=="H4K5ac")&(!ac=="H4K8ac")]
+		pe_frame=c(pe_frame,"H3K4me3","H3K4me2","H3K79me1")
+		hete_frame=c("H3K23me2","H3K9me2","H3K9me3")
+		PRC_frame=c("H3K27me3")
+		sharp_from_remaining_frame=c("H2AFZ","H2A.Z","H4K12ac","H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
+		broad_from_remaining_frame=c("H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
+		pPol_frame= as.vector(unique(compendium[grep("POL",compendium$CC_TF),]$CC_TF))
+
+		all=unique(compendium$CC_TF)
+
+		allSharp=c(pe_frame,sharp_from_remaining_frame)
+		allBroad=c(hete_frame,PRC_frame,broad_from_remaining_frame)
+		RNAPol2=pPol_frame
+		##USE ONLY POLR2A
+		RNAPol2="POLR2A"
+
+		others_frame=all[which((!all%in%allSharp)&(!all%in%allBroad)&(!all%in%RNAPol2))]
+
+	    if (chrommark%in%allSharp)
+	    {
+	        profileSet=allSharp
+	        tag="(Sharp class)"
+	    }
+	    if (chrommark%in%allBroad)
+	    {
+	        profileSet=allBroad
+	        tag="(Broad class)"
+	    }
+	    if (chrommark%in%RNAPol2)
+	    {
+	        profileSet=RNAPol2
+	        tag="(RNAPol2 class)"
+	    }
+	   
+	    subset= compendium[which(compendium$CC_TF%in%profileSet),]
+    
 		#get values for chrommark
-		fake=paste("CC",valueToBePlotted,sep="_")
-		subset= values[which(values$CC_TF==chrommark),fake]
+		alias=paste("CC",metricToBePlotted,sep="_")
+		subset= compendium[which(compendium$CC_TF==chrommark),alias]
 		
-		f_plotValueDistribution(subset,valueToBePlotted,currentValue,savePlotPath)
+		f_plotValueDistribution(subset,title=paste(metricToBePlotted,"\n", chrommark,tag,set=" "),currentValue,savePlotPath)
+	}else{
+		print("Chromatin marks has to be one of the following:")
+		print(Hlist)
 	}
 }
+
+

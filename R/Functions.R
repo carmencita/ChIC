@@ -137,6 +137,10 @@ f_readFile=function(f_filename,f_reads.aligner.type="bam",f_path=getwd())
 	{
 	    data<-read_tags_current_function(file.path(f_path,paste(f_filename,".tagAlign",sep="")))
 	}
+	readCount=sum(sapply(data$tags, length))
+	print(readCount)
+
+
 	return(data)
 }
 
@@ -159,6 +163,123 @@ f_qflag=function(RSC)
 	}
 	return(qflag)
 }
+
+
+
+
+# for binding detection.
+get.binding.characteristicsMy = function(data,srange=c(50,500),bin=5,cluster=NULL,debug=F,min.tag.count=1e3,acceptance.z.score=3,remove.tag.anomalies=T,anomalies.z=5,accept.all.tags=F) 
+{
+  if(remove.tag.anomalies) {
+    data <- remove.tag.anomalies(data,z=anomalies.z);
+  }
+  
+  # take highest quality tag bin
+  if(!is.null(data$quality) && !accept.all.tags) {
+    min.bin <- min(unlist(lapply(data$quality,min)))
+    chrl <- names(data$tags); names(chrl) <- chrl;
+    otl <- lapply(chrl,function(chr) data$tags[[chr]][data$quality[[chr]]==min.bin]);
+  } else {
+    otl <- data$tags;
+  }
+  # remove empty chromosomes
+  otl <- otl[unlist(lapply(otl,length))!=0];
+
+
+  # calculate strand scc
+  if(!is.null(cluster)) {
+    cc <- clusterApplyLB(cluster,otl,tag.scc,srange=srange,bin=bin);
+    names(cc) <- names(otl); 
+  } else {
+    cc <- lapply(otl,tag.scc,srange=srange,bin=bin);
+  }
+  ccl<-list(sample=cc);
+  ccl.av <- lapply(names(ccl),t.plotavcc,type='l',ccl=ccl,return.ac=T,ttl=list(sample=otl),plot=F)[[1]]
+  ccl.av <- data.frame(x=as.numeric(names(ccl.av)),y=as.numeric(ccl.av));
+  
+  # find peak
+  pi <- which.max(ccl.av$y);
+  
+  # determine width at third-height
+  th <- (ccl.av$y[pi]-ccl.av$y[length(ccl.av$y)])/3+ccl.av$y[length(ccl.av$y)]
+  whs <- max(ccl.av$x[ccl.av$y>=th]);
+
+#  if (! is.integer(whs)) { # Anshul: added this to avoid situations where whs ends up being -Inf
+  if (!is.finite(whs)) { # fixed to avoid a TRUE with numeric values
+    whs <- ccl.av$x[ min(c(2*pi,length(ccl.av$y))) ]
+  }
+
+  # determine acceptance of different quality bins
+  
+  # calculates tag scc for the best tags, and combinations of best tag category with every other category
+  # for subsequent selection of acceptable categories
+  scc.acceptance.calc <- function() {
+
+    qr <- range(unlist(lapply(data$quality,range)))
+
+    # start with best tags
+
+    # determine half-width for scc calculations
+    pi <- which.max(ccl.av$y);
+
+    # determine width at half-height
+    th <- (ccl.av$y[pi]-ccl.av$y[length(ccl.av$y)])/2+ccl.av$y[length(ccl.av$y)]
+    lwhs <- max(ccl.av$x[ccl.av$y>=th])-ccl.av$x[pi];
+    lwhs <- max(c(20,bin*10,lwhs));
+    srange <- ccl.av$x[pi]+c(-lwhs,lwhs)
+
+    # calculate chromosome-average scc
+    t.scc <- function(tags) {
+      if(is.null(cluster)) {
+        cc <- lapply(tags,tag.scc,srange=srange,bin=bin);
+      } else {
+        cc <- clusterApplyLB(cluster,tags,tag.scc,srange=srange,bin=bin); names(cc) <- names(tags);
+      }
+      return(t.plotavcc(1,type='l',ccl=list(cc),ttl=list(tags),plot=F,return.ac=T))
+    }
+
+
+    # returns info list for a given tag length (lv), mismatch count (nv)
+    t.cat <- function(qual) {
+      # construct tag set
+      if(qual==qr[1]) {
+        ts <- otl;
+      } else {
+        nts <- names(otl); names(nts) <- nts;
+        # select tags
+        at <- lapply(nts,function(chr) data$tags[[chr]][data$quality[[chr]]==qual]);
+        ntags <- sum(unlist(lapply(at,length)));
+        if(ntags<min.tag.count) { return(NULL); }
+
+        # append to otl
+        ts <- lapply(nts,function(nam) c(otl[[nam]],at[[nam]]));
+      }
+
+      return(t.scc(ts));
+    }
+
+
+    # calculate cross-correlation values for each quality bin
+    ql <- sort(unique(unlist(lapply(data$quality,unique)))); names(ql) <- ql;
+
+    qccl <- lapply(ql,t.cat);
+
+    # acceptance tests
+    ac <- c(T,unlist(lapply(qccl[-1],function(d) if(is.null(d)) { return(F) } else { t.test(d-qccl[[as.character(min.bin)]],alternative="greater")$p.value<pnorm(acceptance.z.score,lower.tail=F) }))); names(ac) <- names(qccl);
+    return(list(informative.bins=ac,quality.cc=qccl))
+  }
+
+  if(accept.all.tags | is.null(data$quality)) {
+    return(list(cross.correlation=ccl.av,peak=list(x=ccl.av$x[pi],y=ccl.av$y[pi]),whs=whs))    
+  } else {
+    acc <- scc.acceptance.calc();
+    return(list(cross.correlation=ccl.av,peak=list(x=ccl.av$x[pi],y=ccl.av$y[pi]),whs=whs,quality.bin.acceptance=acc));
+  }
+
+}
+
+
+
 
 
 #'@title Creating cross-correlation profile, phantom peak and calcualting derived QC-metrics
@@ -203,7 +324,7 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 
 	###step 1.2: Phantom peak and cross-correlation
 	print("Phantom peak and cross-correlation")
-	phantom.characteristics<-get.binding.characteristics(data, srange=PhantomPeak_range, bin=PhantomPeak_bin, cluster=cluster)
+	phantom.characteristics<-get.binding.characteristicsMy(data, srange=PhantomPeak_range, bin=PhantomPeak_bin, cluster=cluster,accept.all.tags=T)
 	
 	ph_peakidx <- which( ( phantom.characteristics$cross.correlation$x >= ( read_length - round(2*PhantomPeak_bin) ) ) & ( phantom.characteristics$cross.correlation$x <= ( read_length + round(1.5*PhantomPeak_bin) ) ) )
 	ph_peakidx <- ph_peakidx[ which.max(phantom.characteristics$cross.correlation$y[ph_peakidx]) ]
@@ -436,6 +557,7 @@ f_selectInformativeTag=function(chip,input,chip_b.characteristics,input_b.charac
 #'\{dontrun
 #' DESCRIBE HERE
 #'}
+#	bindingScores=f_getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift,cluster=cluster)#,custom_chrorder)
 
 f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75,cluster=NULL)#,chrorder=NULL)
 {
@@ -547,6 +669,48 @@ f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelect
 
 
 
+
+
+# -------- ROUTINES FOR WRITING OUT TAG DENSITY AND ENRICHMENT PROFILES  ------------
+# calculate smoothed tag density, optionally subtracting the background
+get.smoothed.tag.densityMy <- function(signal.tags,control.tags=NULL,bandwidth=150,bg.weight=NULL,tag.shift=146/2,step=round(bandwidth/3),background.density.scaling=T,rngl=NULL,scale.by.dataset.size=F) {
+  chrl <- names(signal.tags);
+  #if(!is.null(rngl)) { chrl <- names(rngl); }
+  names(chrl) <- chrl;
+  
+
+  if(!is.null(control.tags) && is.null(bg.weight)) {
+    bg.weight <- dataset.density.ratio(signal.tags,control.tags,background.density.scaling=background.density.scaling);
+  }
+
+  if(scale.by.dataset.size) {
+    den.scaling <- 1/(dataset.density.size(signal.tags,background.density.scaling=background.density.scaling)/1e6);
+  } else {
+    den.scaling <- 1;
+  }
+  
+  lapply(chrl,function(chr) {
+    ad <- abs(signal.tags[[chr]]+tag.shift);
+    rng <- NULL;
+    if(!is.null(rngl)) {
+      rng <- rngl[[chr]];
+    }
+    if(is.null(rng)) {
+      rng <- range(ad);
+    }
+
+    ds <- densum(ad,bw=bandwidth,from=rng[1],to=rng[2],return.x=T,step=step);
+    if(!is.null(control.tags)) {
+      if(!is.null(control.tags[[chr]])) {
+        bsd <- densum(abs(control.tags[[chr]]+tag.shift),bw=bandwidth,from=rng[1],to=rng[2],return.x=F,step=step);
+        ds$y <- ds$y-bsd*bg.weight;
+      }
+    }
+    return(data.frame(x=seq(ds$x[1],ds$x[2],by=step),y=den.scaling*ds$y))
+  })
+}
+
+
 f_tagDensity=function(data,tag.shift,rngl,parallel.mc=1)
 ##takes dataSelected as input, parallel is the number of CPUs used for parallelization
 {
@@ -567,9 +731,9 @@ f_tagDensity=function(data,tag.shift,rngl,parallel.mc=1)
 		    str(current_chr_list)
 		    if (length(current_chr) != 1) 
 		    {
-		        stop("unexpected input.dataSelected structure")
+		        stop("unexpected dataSelected structure")
 		    }
-		    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+		    get.smoothed.tag.densityMy(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
 		}, mc.preschedule = FALSE,mc.cores=parallel.mc)
 	}else{
 		smoothed.density<-lapply(data, FUN=function(current_chr_list)
@@ -578,9 +742,9 @@ f_tagDensity=function(data,tag.shift,rngl,parallel.mc=1)
 		    str(current_chr_list)
 		    if (length(current_chr) != 1) 
 		    {
-		        stop("unexpected input.dataSelected structure")
+		        stop("unexpected dataSelected structure")
 		    }
-		    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+		    get.smoothed.tag.densityMy(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
 		})
 	}
 	smoothed.density=(unlist(smoothed.density,recursive=FALSE))

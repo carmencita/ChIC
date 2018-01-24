@@ -77,8 +77,8 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,path=getwd(),debug=FALSE,p
 	finalValues=rbind(hotSpotsValues,maxAucValues,hotSpotsValuesNorm,maxAucValuesNorm)
 	if (debug)
 	{
-		outname=file.path(path, paste(plotName,"twopoints.result",sep="_"))
-
+		outname=file.path(path, "twopoints.result")
+		print(outname)
 		file.remove(outname)
 
 		write.table(finalValues,file=outname,row.names = FALSE,col.names=FALSE,append=TRUE, quote = FALSE)

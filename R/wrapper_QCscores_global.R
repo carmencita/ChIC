@@ -76,14 +76,14 @@ f_QCscores_global=function(densityChip,densityInput,plotname=file.path(getwd(),"
 	arrowx=cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$x
 
 	##prepare list to be returned
-	finalList=list("X-axis"=arrowx,
-		"Y-Input"=cumSumInput[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,
-		"Y-Chip"=cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,
+	finalList=list("X-axis"=round(arrowx,3),
+		"Y-Input"=round(cumSumInput[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3),
+		"Y-Chip"=round(cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3),
 		"Ch_sign_chipVSinput"=sign_sign,
-		"FractionReadsTopbins_chip"=chipFractionOfReadsIntop1percentBins,
-		"FractionReadsTopbins_input"=inputFractionOfReadsIntop1percentBins,
-		"Fractions_without_reads_chip"=chipFractionOfBinsWithoutReads,
-		"Fractions_without_reads_input"=inputFractionOfBinsWithoutReads)
+		"FractionReadsTopbins_chip"=round(chipFractionOfReadsIntop1percentBins,3),
+		"FractionReadsTopbins_input"=round(inputFractionOfReadsIntop1percentBins,3),
+		"Fractions_without_reads_chip"=round(chipFractionOfBinsWithoutReads,3),
+		"Fractions_without_reads_input"=round(inputFractionOfBinsWithoutReads,3))
 		#"CrossPoint_X"=cross_pointX,
 		#"CrossPoint_Y_chip"=cross_pointY_chip,
 		#"CrossPoint_Y_input"=cross_pointY_input)

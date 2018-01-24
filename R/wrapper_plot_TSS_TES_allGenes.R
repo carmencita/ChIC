@@ -145,8 +145,21 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=ge
 	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
 	dev.off()
 
+
 	result=NULL
 	result=rbind(hotSpotsValues,maxAucValues,variabilityValues,hotSpotsValuesNorm,maxAucValuesNorm,variabilityValuesNorm)
+
+
+	if (debug)
+	{
+		outname=file.path(path, paste(tag,"onepoints.result",sep="_"))
+
+		file.remove(outname)
+
+		write.table(result,file=outname,row.names = FALSE,col.names=FALSE,append=TRUE, quote = FALSE)
+	}
+
+
 	return(result)
 
 }

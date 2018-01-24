@@ -40,8 +40,9 @@
 # ##### FOR DEVEL ONLY END
 
 
-f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,geneAnnotations_file,path=NULL,debug=FALSE)
+f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,geneAnnotations_file,debug=FALSE)
 {
+
   source("FunctionsLocal.R")
   print("Load geneannotation")
   load(geneAnnotations_file) #RefSeqGenesAll_object
@@ -51,8 +52,8 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
   current_annotations_object<-data.frame(current_annotations_object@.Data, annotation(current_annotations_object), stringsAsFactors=FALSE)
   current_annotations_object$interval_starts<-as.integer(current_annotations_object$interval_starts)
   current_annotations_object$interval_ends<-as.integer(current_annotations_object$interval_ends)
-  current_annotations_object$seqName<-as.character(current_annotations_object$seqName)
-  annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seqName)
+  current_annotations_object$seq_name<-as.character(current_annotations_object$seq_name)
+  annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
 
   ##two.point.scaling
   #Input smoothed.densityInput
@@ -68,7 +69,7 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
   twopoint=list(chip=binned_Chip,input= binned_Input)
   if (debug)
   {
-    save(binned_Chip, binned_Input,file=file.path(path, paste(chipName,inputName,"Twopoint.RData",sep="_")))
+    save(binned_Chip, binned_Input,file=file.path(getwd(), paste(chipName,inputName,"Twopoint.RData",sep="_")))
   }
 
    ##one.point.scaling
@@ -81,7 +82,7 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
   onepointTSS=list(chip=binnedChip_TSS,input= binnedInput_TSS)
   if (debug)
   {
-    save(binnedChip_TSS, binnedInput_TSS,file=file.path(path, paste(chipName,inputName,"OnePointTSS.RData",sep="_")))
+    save(binnedChip_TSS, binnedInput_TSS,file=file.path(getwd(), paste(chipName,inputName,"OnePointTSS.RData",sep="_")))
   }
 
    ##one.point.scaling
@@ -92,7 +93,7 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
   onepointTES=list(chip=binnedChip_TES,input= binnedInput_TES)
   if (debug)
   {
-    save(binnedChip_TES, binnedInput_TES,file=file.path(path, paste(chipName,inputName,"OnePointTES.RData",sep="_")))
+    save(binnedChip_TES, binnedInput_TES,file=file.path(getwd(), paste(chipName,inputName,"OnePointTES.RData",sep="_")))
   }
 
 

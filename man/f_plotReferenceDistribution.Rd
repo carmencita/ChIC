@@ -4,13 +4,19 @@
 \alias{f_plotReferenceDistribution}
 \title{Function to create reference distribution plot for comparison}
 \usage{
-f_plotReferenceDistribution(chrommark, valueToBePlotted = "RSC", currentValue,
-  savePlotPath = NULL)
+f_plotReferenceDistribution(chrommark, metricToBePlotted = "RSC",
+  currentValue, savePlotPath = NULL)
 }
 \arguments{
-\item{valueToBePlotted}{Default="RSC"}
+\item{chrommark}{Chromatin mark to be plotted. Has to be on of the following: "H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
+"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac"
+"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph"}
 
-\item{savePlotPath}{Default=NULL, when set saves the density plot as pdf under the gieven path}
+\item{metricToBePlotted}{The metric to be plotted (Default="RSC")}
+
+\item{currentValue}{The value of the current sample}
+
+\item{savePlotPath}{Default=NULL, when set saves the density plot (pdf format) under the given path.}
 }
 \description{
 Creates a density plot (in pdf) for the sample against the reference distribution (density plots) of the compendium values stratified by chromatin marks.
@@ -20,6 +26,6 @@ f_metagenePlotsForComparison
 }
 \examples{
 \\{dontrun
-WHATEVER
+f_plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
 }
 }

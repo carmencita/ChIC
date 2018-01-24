@@ -41,7 +41,7 @@ estimated_bin_size_1P<-up_downStream/predefnum_bins_1P
 ###############################################################
 ###############################################################
 ####
-#### - feature.bin.averages
+#### - f_sfeature.bin.averages
 #### - two.point.scaling
 #### - one.point.scaling
 ####
@@ -205,7 +205,7 @@ f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im
     current_gene_names<-gdl[[chr]]$geneSymbol
     if ((sum(!nsi)>0)) {
     #if ((sum(!nsi)>1)) {
-      px <- feature.bin.averages(chipTags_current$td[[chr]],data.frame(s=gdl[[chr]]$txStart[!nsi],e=gdl[[chr]]$txEnd[!nsi]),lom=lom,rom=rom,im=im,bs=bs, nbins=nbins, min.feature.size=min.feature.size, nu.point.omit=FALSE)
+      px <- f_feature.bin.averages(chipTags_current$td[[chr]],data.frame(s=gdl[[chr]]$txStart[!nsi],e=gdl[[chr]]$txEnd[!nsi]),lom=lom,rom=rom,im=im,bs=bs, nbins=nbins, min.feature.size=min.feature.size, nu.point.omit=FALSE)
       rownames(px)<-current_gene_names[!nsi]
       } else { 
         px<-NULL
@@ -213,7 +213,7 @@ f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im
     if ((sum(nsi)>0)) {
     #if ((sum(nsi)>1)) {
         nd <- chipTags_current$td[[chr]]; nd$x <- -1*nd$x;
-        nx <- feature.bin.averages(nd,data.frame(s=-1*gdl[[chr]]$txEnd[nsi],e=-1*gdl[[chr]]$txStart[nsi]), lom=lom,rom=rom,im=im,bs=bs, nbins=nbins,min.feature.size=min.feature.size, nu.point.omit=FALSE)
+        nx <- f_feature.bin.averages(nd,data.frame(s=-1*gdl[[chr]]$txEnd[nsi],e=-1*gdl[[chr]]$txStart[nsi]), lom=lom,rom=rom,im=im,bs=bs, nbins=nbins,min.feature.size=min.feature.size, nu.point.omit=FALSE)
         rownames(nx)<-current_gene_names[nsi]
            } else { 
         nx<-NULL
@@ -250,7 +250,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up
 
        # if ((sum(!nsi)>0)) {
   if ((sum(!nsi)>0)) {
-          px <- feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+          px <- f_feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
     #str(px)
           rownames(px)<-current_gene_names[!nsi]
         } else { 
@@ -260,7 +260,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up
   if ((sum(nsi)>0)) {
        #if ((sum(nsi)>0)) {
           nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
-          nx <- feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+          nx <- f_feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
           rownames(nx)<-current_gene_names[nsi]
        } else { 
           nx<-NULL
@@ -286,7 +286,7 @@ f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up
 
         #if ((sum(!nsi)>0)) {
         if ((sum(!nsi)>0)) {
-          px <- feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txEnd[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+          px <- f_feature.bin.averages(tl_current$td[[chr]],data.frame(x=gdl[[chr]]$txEnd[!nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
           rownames(px)<-current_gene_names[!nsi]
         } else { 
           px<-NULL
@@ -295,7 +295,7 @@ f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up
        #if ((sum(nsi)>1)) {
        if ((sum(nsi)>0)) {
           nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
-          nx <- feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txStart[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+          nx <- f_feature.bin.averages(nd,data.frame(x=-1*gdl[[chr]]$txStart[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
           rownames(nx)<-current_gene_names[nsi]
        } else { 
           nx<-NULL
