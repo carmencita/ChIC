@@ -1,16 +1,3 @@
-####FOR DEVEL#########
-# debug=TRUE
-# path=getwd()
-# dataPath<-"/lustre/data/FF/Carmen/BitBucket/chic/data/"
-# chipName="ENCFF000BBB"
-# inputName="ENCFF000BAF"
-# source("FunctionsGlobal.R")
-# source(file.path(path,"GlobalParameters.R"))
-# load(file.path(getwd(), paste(chipName, inputName, "TagDensityChip.RData", sep="_")))
-# load(file.path(getwd(), paste(chipName, inputName, "TagDensityInput.RData", sep="_")))
-####END DEVEL#########
-
-
 #'@title Metrics taken from global read distribution
 #'
 #' @description

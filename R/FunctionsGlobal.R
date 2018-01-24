@@ -1,3 +1,7 @@
+####################
+##PRIVATE functions
+####################
+
 f_shortenFrame=function(smoothedDensity)
 {
 	##shorten frame with cumulative distribution
@@ -13,7 +17,7 @@ f_shortenFrame=function(smoothedDensity)
 	return(newSmoothedDensity)
 }
 
-
+##sorts and bins the dataframe
 f_sortAndBinning=function(shortframe)
 {
 	shortframeSorted=sort(shortframe)
@@ -27,6 +31,9 @@ f_sortAndBinning=function(shortframe)
 	return(normalizedCumSum)
 }
 
+####################
+##GLOBAL functions
+####################
 
 #'@title Finger Print Plot
 #'

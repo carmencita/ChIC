@@ -1,6 +1,3 @@
-
-require(spp)
-
 ## load gene annotations
 require(girafe)
 require(snow)
@@ -226,8 +223,6 @@ f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im
           }
     })
   }
-
-
 
 
 ###############################################################

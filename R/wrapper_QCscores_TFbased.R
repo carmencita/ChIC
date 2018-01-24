@@ -1,33 +1,3 @@
-# #########################
-# ##### FOR DEVEL ONLY
-
-
-# #MAIN
-
-# #library("snow")
-# require("spp")
-# ##neds caTools
-# library("girafe")
-# #private variables
-
-# source("Functions.R")
-# path=getwd()
-# dataPath<-"/lustre/data/FF/Carmen/BitBucket/chic/data/"
-# source(paste(path,"GlobalParameters.R",sep="/"))
-# chrominfo<-read.table(chrominfo_file, header=TRUE, quote="", sep="\t", stringsAsFactors=FALSE)
-# rownames(chrominfo)<-chrominfo$chrom
-# rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(as.integer(c(1,x)))})
-# chipName="ENCFF000BBB"
-# inputName="ENCFF000BAF"
-# debug=TRUE
-# cluster=NULL
-# dataPath="/lustre//data/FF/Carmen/BitBucket/chic/data"
-# #test=f_CrossCorrelation(chipName, inputName, 36, "bam", path, dataPath, debug=TRUE)
-# ##### FOR DEVEL ONLY END
-# #########################
-
-
-
 #'@title Wrapper function for calculating cross-correlation analysis and metrics designed for TFs
 #'
 #' @description
