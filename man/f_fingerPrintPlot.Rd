@@ -14,12 +14,17 @@ f_fingerPrintPlot(cumChip, cumInput, plotname = file.path(getwd(),
 
 \item{plotname}{Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )}
 }
+\value{
+returnList
+}
 \description{
 The plot function creates the "Fingerprint plot" i.e. the cumulative distribution of the read counts across genomic bins for Input and ChIP.
 
 f_fingerPrintPlot
 }
 \examples{
+\dontrun{
 print("create pdf with plot")
 f_fingerPrintPlot(cumSumChip,cumSumInput,plotname=paste(file.path(getwd(),"FingerPrintPlot.pdf",sep="_")
+}
 }

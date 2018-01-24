@@ -16,8 +16,6 @@
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
-
-#''  return(list("twopoint"=twopoint,"TSS"=onepointTSS,"TES"=onepointTES)
 #' @return list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS (TSS) and TES (TES). each object is made of two lists 
 #' the chip and the input profile
 #'

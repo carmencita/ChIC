@@ -18,11 +18,6 @@ f_calculateCrossCorrelation(data, binding.characteristics, read_length = 36,
 \item{plotname}{Name and path were the CrossCorrelation plot (pdf) should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working directory)}
 
 \item{cluster}{Integer, indicating the number of CPUs to parallelize a few functions (default=NULL)}
-
-\item{read_length}{Integer, length of the reads
-UNIQUE_TAGS_LibSizeadjusted
-phantomScores
-STATS_NRF}
 }
 \value{
 finalList containing (!!!DESCRIBE BETTER)
@@ -31,6 +26,9 @@ tag.shift Integer rounded halfsize of strandShift
 N1 
 Nd 
 PBC
+UNIQUE_TAGS_LibSizeadjusted
+phantomScores
+STATS_NRF
 }
 \description{
 We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 

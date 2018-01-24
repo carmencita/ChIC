@@ -46,9 +46,13 @@ f_sortAndBinning=function(shortframe)
 #' @param cumInput The cumulative distribution of the read counts for the Input
 #' @param plotname Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )
 #'
+#' @return returnList
 #' @examples
+#'\dontrun{
 #' print("create pdf with plot")
 #' f_fingerPrintPlot(cumSumChip,cumSumInput,plotname=paste(file.path(getwd(),"FingerPrintPlot.pdf",sep="_")
+#'}
+
 f_fingerPrintPlot=function(cumChip,cumInput,plotname=file.path(getwd(),"FingerPrintPlot.pdf"))
 {	
 	pdf(plotname)

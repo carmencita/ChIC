@@ -1,41 +1,32 @@
-###FOR DEVEL ONLY#####
-# path=getwd()
-# source(file.path(path,"GlobalParameters.R"))
-
-# chipName="ENCFF000BBB"
-# inputName="ENCFF000BAF"
-# debug=TRUE
-# dataPath="/lustre//data/FF/Carmen/BitBucket/chic/data"
-
-
-# load(file.path(path, paste(chipName,inputName,"TSS.RData",sep="_")))
-
-# outname=file.path(path, paste(chipName,inputName,"TSS.result",sep="_"))
-
-# binnedInput=binnedChip_TSS
-# binnedChip=binnedInput_TSS
-# tag="TSS"
-###FOR DEVEL ONLY####
-
-
+#'@title Wrapper to plot non-scaled profiles for TSS or TES and to collect feature values
+#'@description The non-scaled profile is constructed around the TSS/TES, with 2KB up- and downstream regions respectively. 
+#' Different values are taken at the TSS/TES and surroundings with +/-2KB, +/-1KB and +/-500 sizes. 
+#' For all the genomic positions, we kept the values for the ChIP and the normalized profile, as the normalization already contains 
+#' information from the input. Additionally, we calculated for all of the intervals between the predefined positions the area under the profile, 
+#' the local maxima (x, y coordinates), the variance, the standard deviation and the quantiles at 0%, 25%, 50% and 75%. 
+#' In total the function returns 43 QC-metrics
+#'
 #' f_plotMetageneProfile_onePoint
 #'
-#' @param chipName
-#' @param inputName
-#' @param read_length
-#' @param reads.aligner.type
-#' @param path
-#' @param dataPath
+#' @param binnedChip 
+#' @param binnedInput
+#' @param tag String, can be "TSS" or "TES". Indicates if the TSS or the TES should be calcualted (Default="TSS")
+#' @param savePlotPath Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL) 
 #' @param debug
-#' @param cluster
-#' @param chrominfo_file
 #'
 #' @return returnList
-#' @export
 #'
 #' @examples
+#'\{dontrun
+#'source("wrapper_plot_TSS_TES_allGenes.R")
+#'TSS_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",path=getwd(),debug=TRUE)
+#'completeListOfValues=append(completeListOfValues,TSS_Plot)
+#'
+#'TES_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",path=getwd(),debug=TRUE)
+#'completeListOfValues=append(completeListOfValues,TES_Plot)
+#'}
 
-f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=getwd(),debug=FALSE,plotName="NA")
+f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlotPath=NULL,debug=FALSE)
 {
 	source("FunctionsLocal.R")
 	psc <- 1; # pseudocount # required to avoid log2 of 0
@@ -94,16 +85,24 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=ge
 	##make plots
 
 	colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
-	pdf(file=file.path(path,paste(plotName,"ChIP_Input_",tag,".pdf",sep="")),width=10, height=7)
-	    par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
-	    matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
-	    col=colori,xlab="metagene coordinates",ylab="mean of log2 tag density",main=tag,xaxt='n')
-		abline(v=0,lty=2,col="darkgrey", lwd=2) ##plot TSS	    
-		plotPoints=c(-2000,-1000,-500,500,1000,2000) ##plot remaining be
-		abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
-		axis(side = 1, at = sort(c(plotPoints,0)), labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
-	    legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
-	dev.off()
+	if (!is.null(savePlotPath))
+	{
+		filename=paste("ChIP_Input_",tag,".pdf",sep="")
+		pdf(file=file.path(path,filename),width=10, height=7)
+	}    
+	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
+	matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
+	col=colori,xlab="metagene coordinates",ylab="mean of log2 tag density",main=tag,xaxt='n')
+	abline(v=0,lty=2,col="darkgrey", lwd=2) ##plot TSS	    
+	plotPoints=c(-2000,-1000,-500,500,1000,2000) ##plot remaining be
+	abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
+	axis(side = 1, at = sort(c(plotPoints,0)), labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
+	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
+	if (!is.null(savePlotPath))
+	{
+		dev.off()
+		print(paste("pdf saved under ",filename.sep=""))
+	}
 
 
 	##normalized plot and values
@@ -135,7 +134,11 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=ge
 	}
 	colnames(variabilityValuesNorm)=c("Feature","Value")
 
-	pdf(file=file.path(path,paste(plotName,"Normalized_",tag,".pdf",sep="")),width=10, height=7)
+	if (!is.null(savePlotPath))
+	{
+		filename=paste("Normalized_",tag,".pdf",sep="")
+		pdf(file=file.path(path,filename),width=10, height=7)
+	}
 	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	plot(x=as.numeric(names(all.Norm)),y=all.Norm, type="l", lwd=2, lty=1, col="orange",xlab="metagene coordinates",ylab="mean log2 enrichment (signal/input)",
 		main=paste("normalized",tag,sep=" "), xaxt='n')#,cex.axis=1.3,cex.lab=1.3)
@@ -143,8 +146,11 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=ge
 	abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
 	axis(side = 1, at = sort(c(plotPoints,0)), labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
 	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
-	dev.off()
-
+	if (!is.null(savePlotPath))
+	{
+		dev.off()
+		print(paste("pdf saved under ",filename.sep=""))
+	}
 
 	result=NULL
 	result=rbind(hotSpotsValues,maxAucValues,variabilityValues,hotSpotsValuesNorm,maxAucValuesNorm,variabilityValuesNorm)
@@ -152,10 +158,8 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",path=ge
 
 	if (debug)
 	{
-		outname=file.path(path, paste(tag,"onepoints.result",sep="_"))
-
+		outname=file.path(getwd(), paste(tag,"onepoints.result",sep="_"))
 		file.remove(outname)
-
 		write.table(result,file=outname,row.names = FALSE,col.names=FALSE,append=TRUE, quote = FALSE)
 	}
 

@@ -2,10 +2,13 @@
 ##PRIVATE functions
 ##################
 
-f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMax, maintitel="title",ylab="mean of log2 tag density",savePlotPath=getwd())#, color="green") 
+f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMax, maintitel="title",ylab="mean of log2 tag density",savePlotPath=NULL)#, color="green") 
 {
-	filename=paste(maintitel,".pdf", sep="")
-	pdf(file=file.path(savePlotPath,filename),width=10, height=7)
+	if (!is.null(savePlotPath))
+    {
+		filename=paste(maintitel,".pdf", sep="")
+		pdf(file=file.path(savePlotPath,filename),width=10, height=7)
+	}
 	#The standard error of the mean (SEM) is the standard deviation of the sample-mean's estimate of a population mean. 
 	#(It can also be viewed as the standard deviation of the error in the sample mean with respect to the true mean, 
 	#since the sample mean is an unbiased estimator.) SEM is usually estimated by the sample estimate of the population 
@@ -34,7 +37,11 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMa
 	    abline(v=TSSbreak_points,lty=3,col="darkgrey", lwd=2)
 	}
 	legend("topleft",legend=c("mean","2*stdErr"),fill=c("black","lightblue"),bg="white")
-	dev.off()
+	if (!is.null(savePlotPath))
+    {
+    	dev.off()
+    	print(paste("pdf saved under",filename,sep=" "))
+	}
 }
 
 f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=NULL)
@@ -106,12 +113,12 @@ f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=
 #' @param profilePath Path and dirctory in which the precalculated stratified reference profiles are stored (default=)
 #' @param savePlotPath Path in which the profiles (in pdf) should be saved (Default=working directory)
 #'
-#'
+#' @return returnList
 #' @examples
 #'\{dontrun
 #' f_metagenePlotsForComparison(chrommark="H3K4me1",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES,plotName=chipName,profilePath="/lustre/data/FF/Carmen/BitBucket/chic/data/Profiles")
-
 #'}
+
 ##GLOBAL VARIABLES
 dataDirectory="../data"
 profilePath="../data/Profiles"
@@ -214,16 +221,19 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 #'
 #' @description
 #' Creates a density plot (in pdf) for the sample against the reference distribution (density plots) of the compendium values stratified by chromatin marks.
-#' 
 #'
 #' f_metagenePlotsForComparison
-#' @param chrommark Chromatin mark to be plotted. Has to be on of the following: "H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
+#'
+#' @param chrommark Chromatin mark to be plotted. Has to be on of the following: "H3K36me3","POLR2A","H3K4me3","POLR3G",
+#' "H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
 #'	"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac"
 #'	"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph"
 #' @param metricToBePlotted The metric to be plotted (Default="RSC")
 #' @param currentValue The value of the current sample
 #' @param savePlotPath Default=NULL, when set saves the density plot (pdf format) under the given path.
 #'
+#'
+#' @return finalList containing (!!!DESCRIBE BETTER)
 #' @examples
 #'\{dontrun
 #' f_plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
@@ -290,5 +300,3 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 		print(Hlist)
 	}
 }
-
-

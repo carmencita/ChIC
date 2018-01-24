@@ -1,24 +1,28 @@
-# path=getwd()
-# source(file.path(path,"GlobalParameters.R"))
-# source(file.path(path,"Functions_MetaGenePlots.R"))
+#'@title Wrapper to plot scaled profile and to collect feature values
+#'@description The scaled metagene profile that includes the gene body, the signal is captured on a real scale from the TSS and 
+#' an upstream region of 2KB. From the TSS, the gene body is constructed with 0.5KB in real scale at the gene start (TSS + 0.5KB) 
+#' and the gene end (TES - 0.5KB), whereas the remaining gene body is scaled to a virtual length of 2000. 
+#' Considering the length of these regions, the minimum gene length required is 3KB and shorter genes are filtered out. 
+#' From the profile, we take enrichment values at different coordinates: at -2KB, at the TSS, inner margin (0.5KB), 
+#' gene body (2KB + 2 * inner margin), gene body+1KB. We collect in total 42 QC-metrics from the ChIP and normalized profile. 
+#'
+#' f_plotMetageneProfile
+#'
+#' @param binnedChip 
+#' @param binnedInput
+#' @param savePlotPath Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL) 
+#' @param debug
+#'
+#' @return returnList
+#'
+#' @examples
+#'\{dontrun
+#' source("wrapper_twopoint_allGenes_plot.R")
+#' geneBody_Plot=f_plotMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
+#' completeListOfValues=append(completeListOfValues,geneBody_Plot)
+#'}
 
-
-
-# chipName="ENCFF000BBB"
-# inputName="ENCFF000BAF"
-# debug=TRUE
-# cluster=NULL
-# dataPath="/lustre//data/FF/Carmen/BitBucket/chic/data"
-
-
-# load(file.path(path, paste(chipName,inputName,"Twopoint.RData",sep="_")))
-
-
-# help=binned_Chip
-# binned_Chip=binned_Input
-# binned_Input=help
-
-f_plotMetageneProfile=function(binnedChip,binnedInput,path=getwd(),debug=FALSE,plotName="NA")
+f_plotMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FALSE)
 {
 	source("FunctionsLocal.R")
 	psc <- 1; # pseudocount # required to avoid log2 of 0
@@ -40,17 +44,24 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,path=getwd(),debug=FALSE,p
 
 	##make plots
 	colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
-	pdf(file=file.path(path,paste(plotName,"ChIP_Input_MetaGene.pdf",sep="_")),width=10, height=7)
-	    par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
-	    matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
-	    col=colori,xlab="metagene coordinates",ylab="mean of log2 tag density",main="metagene",xaxt='n')
-		plotpoints=c(-2000,-1000,500,2500,4000)
-		abline(v=c(0,totalGeneLength),lty=2,col="darkgrey", lwd=3)
-		abline(v=plotpoints,lty=3,col="darkgrey", lwd=2)
-	    axis(side = 1, at =sort(c(plotpoints,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))    
-	    legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
-	dev.off()
-
+	if (!is.null(savePlotPath))
+	{
+		filename=paste(plotName,"ChIP_Input_MetaGene.pdf",sep="_")
+		pdf(file=file.path(path,filename),width=10, height=7)
+	}    
+	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
+	matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
+	col=colori,xlab="metagene coordinates",ylab="mean of log2 tag density",main="metagene",xaxt='n')
+	plotpoints=c(-2000,-1000,500,2500,4000)
+	abline(v=c(0,totalGeneLength),lty=2,col="darkgrey", lwd=3)
+	abline(v=plotpoints,lty=3,col="darkgrey", lwd=2)
+	axis(side = 1, at =sort(c(plotpoints,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))    
+	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
+	if (!is.null(savePlotPath))
+	{
+		dev.off()
+		print(paste("pdf saved under ",filename.sep=""))
+	}
 
 	###################
 	##normalized plot and values
@@ -64,7 +75,11 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,path=getwd(),debug=FALSE,p
 
 	maxAucValuesNorm=f_maximaAucfunctionNorm(frameNormalized, break_points_2P, estimated_bin_size_2P, tag="norm")
 
-	pdf(file.path(path, paste(plotName,"twopointsNormalized.pdf",sep="_")),width=10, height=7)
+	if (!is.null(savePlotPath))
+	{
+		filename=paste(plotName,"twopointsNormalized.pdf",sep="_")
+		pdf(file.path(path, filename),width=10, height=7)
+	}
     par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	plot(x=as.numeric(names(frameNormalized)),y=frameNormalized, type="l", lwd=2, lty=1, col="orange",xlab="metagene coordinates",ylab="mean log2 enrichment (signal/input)",
 		main="normalized metagene", xaxt='n')#,cex.axis=1.3,cex.lab=1.3)
@@ -72,7 +87,11 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,path=getwd(),debug=FALSE,p
 	abline(v=plotpoints,lty=3,col="darkgrey", lwd=2)
 	   axis(side = 1, at =sort(c(plotpoints,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))    
 	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
-	dev.off()
+	if (!is.null(savePlotPath))
+	{
+		dev.off()
+		print(paste("pdf saved under ",filename.sep=""))
+	}
 
 	finalValues=rbind(hotSpotsValues,maxAucValues,hotSpotsValuesNorm,maxAucValuesNorm)
 	if (debug)

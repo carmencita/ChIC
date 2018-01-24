@@ -2,17 +2,40 @@
 % Please edit documentation in R/wrapper_plot_TSS_TES_allGenes.R
 \name{f_plotMetageneProfile_onePoint}
 \alias{f_plotMetageneProfile_onePoint}
-\title{f_plotMetageneProfile_onePoint}
+\title{Wrapper to plot non-scaled profiles for TSS or TES and to collect feature values}
 \usage{
 f_plotMetageneProfile_onePoint(binnedChip, binnedInput, tag = "TSS",
-  path = getwd(), debug = FALSE, plotName = "NA")
+  savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{chrominfo_file}{}
+\item{binnedChip}{}
+
+\item{tag}{String, can be "TSS" or "TES". Indicates if the TSS or the TES should be calcualted (Default="TSS")}
+
+\item{savePlotPath}{Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL)}
+
+\item{debug}{}
 }
 \value{
 returnList
 }
 \description{
+The non-scaled profile is constructed around the TSS/TES, with 2KB up- and downstream regions respectively. 
+Different values are taken at the TSS/TES and surroundings with +/-2KB, +/-1KB and +/-500 sizes. 
+For all the genomic positions, we kept the values for the ChIP and the normalized profile, as the normalization already contains 
+information from the input. Additionally, we calculated for all of the intervals between the predefined positions the area under the profile, 
+the local maxima (x, y coordinates), the variance, the standard deviation and the quantiles at 0%, 25%, 50% and 75%. 
+In total the function returns 43 QC-metrics
+
 f_plotMetageneProfile_onePoint
+}
+\examples{
+\\{dontrun
+source("wrapper_plot_TSS_TES_allGenes.R")
+TSS_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",path=getwd(),debug=TRUE)
+completeListOfValues=append(completeListOfValues,TSS_Plot)
+
+TES_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",path=getwd(),debug=TRUE)
+completeListOfValues=append(completeListOfValues,TES_Plot)
+}
 }

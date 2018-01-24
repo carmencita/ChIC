@@ -284,7 +284,7 @@ get.binding.characteristicsMy = function(data,srange=c(50,500),bin=5,cluster=NUL
 
 #'@title Creating cross-correlation profile, phantom peak and calcualting derived QC-metrics
 #'
-#' @description
+#' @description 
 #' We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 
 #' After calculating the strand cross-correlation coefficient (Kharchenko et al., 2008), we take the following values from the profile: the coordinates of the 
 #' ChIP-peak (fragment length, height A), the coordinates at the phantom-peak (read length, height B) and the baseline (C), the strand-shift, the number of uniquely mapped 
@@ -309,7 +309,6 @@ get.binding.characteristicsMy = function(data,srange=c(50,500),bin=5,cluster=NUL
 #' N1 
 #' Nd 
 #' PBC
-#' @param read_length Integer, length of the reads
 #' UNIQUE_TAGS_LibSizeadjusted
 #' phantomScores
 #' STATS_NRF
