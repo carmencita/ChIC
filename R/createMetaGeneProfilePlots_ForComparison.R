@@ -2,6 +2,7 @@
 ##PRIVATE functions
 ##################
 
+##plot profiles compendium versus current dataset
 f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMax, maintitel="title",ylab="mean of log2 tag density",savePlotPath=NULL)#, color="green") 
 {
 	if (!is.null(savePlotPath))
@@ -44,10 +45,10 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMa
 	}
 }
 
+##density plot for QC-value distribution versus a single value
 f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=NULL)
-{   #png(paste(profileclass,label,".png",sep=""))
-        #pdf(paste(name,label,".pdf",sep=""))
-    if (!is.null(savePlotPath))
+{   
+	if (!is.null(savePlotPath))
     {
     	filename=file.path(savePlotPath,"PlotValueDistribution.pdf")
 		pdf(file=filename,width=10, height=7)
@@ -56,6 +57,7 @@ f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=
 	maxi=max(compendium)
     mini=min(compendium)
 
+    ##get density
 	d=density(compendium)
 	plot(d,main=title,xlim=c(mini,maxi))
        
@@ -129,12 +131,13 @@ Hlist=c("H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3
 
 f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=getwd())
 {
-	psc <- 1; # pseudocount # required to avoid log2 of 0
+	psc <- 1; # pseudocount, required to avoid log2 of 0
 	if (chrommark %in% Hlist)
 	{
 		for (endung in c("TWO","TES","TSS"))
 		{
 			print(endung)
+			#loading current profiles 
 			if (endung=="TWO")
 			{
 				iframe=log2(do.call(rbind,twopointElements$input)+psc)
@@ -147,8 +150,9 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 				cframe=log2(do.call(rbind,TSSElements$chip)+psc)	
 			}
 
+			#load data from compendium 
 			frame=NULL
-			#load average dataframe
+			#load average dataframe normalized
 			name=paste(chrommark,"_",endung,"norm.RData", sep="")
 			a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
 			normMin=min(frame$mean-frame$sderr)
@@ -156,7 +160,7 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			n_mean=frame
 
 			frame=NULL
-			#load average dataframe
+			#load average dataframe chip
 			name=paste(chrommark,"_",endung,"chip.RData", sep="")
 			a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
 			absoluteMin=min(frame$mean-frame$sderr)
@@ -164,7 +168,7 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			c_mean=frame
 
 			frame=NULL
-			#load average dataframe
+			#load average dataframe input
 			name= paste(chrommark,"_",endung,"input.RData", sep="")
 			a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
 			if ((min(frame$mean-frame$sderr))<absoluteMin){absoluteMin=min(frame$mean-frame$sderr)}
@@ -172,8 +176,7 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			i_mean=frame
 
 			
-			##prepare individual data
-			#nframe<-colMeans(t(t(iframe)-t(cframe)),na.rm=T)
+			##prepare individual data normalized, input and chip
 			nframe<-colMeans(t(t(cframe)-t(iframe)),na.rm=T)
 			iframe=colMeans(iframe,na.rm=T)
 			cframe= colMeans(cframe,na.rm=T)
@@ -182,16 +185,17 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			finalframe=cbind(c_mean$x,iframe)
 			rownames(finalframe)=NULL
 			finalframe=as.data.frame(finalframe)	
-			colnames(finalframe)=c("x","mean") ##q for: 0% 25% 50% 75% 100%
+			colnames(finalframe)=c("x","mean") 
 			iframe=finalframe
 
 			finalframe=NULL
 			finalframe=cbind(c_mean$x,cframe)
 			rownames(finalframe)=NULL
 			finalframe=as.data.frame(finalframe)	
-			colnames(finalframe)=c("x","mean") ##q for: 0% 25% 50% 75% 100%
+			colnames(finalframe)=c("x","mean") 
 			cframe=finalframe
 
+			##get max and min for same y-axis values for chip and input
 			newMin=min(cframe$mean,absoluteMin,iframe$mean)
 			newMax= max(cframe$mean,absoluteMax,iframe$mean)
 
@@ -200,12 +204,14 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			finalframe=cbind(c_mean$x,nframe)
 			rownames(finalframe)=NULL
 			finalframe=as.data.frame(finalframe)	
-			colnames(finalframe)=c("x","mean") ##q for: 0% 25% 50% 75% 100%
+			colnames(finalframe)=c("x","mean") 
 			nframe=finalframe
 			
+			##get max and min for y-axis values for input
 			normMin=min(nframe$mean,normMin)
 			normMax=max(nframe$mean,normMax)
 
+			#create comparison plots
 			f_plotProfiles(i_mean, iframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Input",sep=" "),savePlotPath)
 			f_plotProfiles(c_mean, cframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Chip",sep=" "),savePlotPath)
 			f_plotProfiles(n_mean, nframe, endung, c(normMin-0.001,normMax+0.001),maintitel=paste(chrommark,endung,"norm",sep=" "),ylab="mean log2 enrichment (signal/input)")
@@ -244,23 +250,21 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 {
 	if (chrommark %in% Hlist)
 	{
-	
+		##reading compendium
 		filename=file.path(dataDirectory,"numbersHistone_AllGenes_ENCODE.txt")
 		d1=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
 		filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
 		d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
 		compendium=rbind(d1,d2)
 
+		##defining class members for sharp broad and RNAPol2 class
 		allSharp=c("H3K27ac","H3K9ac","H3K14ac","H2BK5ac","H4K91ac","H3K18ac","H3K23ac","H2AK9ac","H3K4me3","H3K4me2","H3K79me1","H2AFZ","H2A.Z","H4K12ac"
 			,"H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
-		
 		allBroad=c("H3K23me2","H3K9me2","H3K9me3","H3K27me3","H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
-		
-		##USE ONLY POLR2A
+		##USE ONLY POLR2A for Pol2 class
 		RNAPol2="POLR2A"
 
-		others_frame=all[which((!all%in%allSharp)&(!all%in%allBroad)&(!all%in%RNAPol2))]
-
+		##select the class for the respective chromatin mark
 	    if (chrommark%in%allSharp)
 	    {
 	        profileSet=allSharp
@@ -276,13 +280,14 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 	        profileSet=RNAPol2
 	        tag="(RNAPol2 class)"
 	    }
-	   
+	   	
+	   	##load values of respective set
 	    subset= compendium[which(compendium$CC_TF%in%profileSet),]
     
 		#get values for chrommark
 		alias=paste("CC",metricToBePlotted,sep="_")
 		subset= compendium[which(compendium$CC_TF==chrommark),alias]
-		
+		##plot distribution
 		f_plotValueDistribution(subset,title=paste(metricToBePlotted,"\n", chrommark,tag,set=" "),currentValue,savePlotPath)
 	}else{
 		print("Chromatin marks has to be one of the following:")
