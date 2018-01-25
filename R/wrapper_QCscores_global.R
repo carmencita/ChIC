@@ -30,8 +30,6 @@
 #'Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=plotname,debug=FALSE)
 #' }
 
-
-
 f_QCscores_global=function(densityChip,densityInput,plotname=file.path(getwd(),"FingerPrintPlot.pdf",sep="_"),debug=FALSE)
 {
 	##sourcing functions

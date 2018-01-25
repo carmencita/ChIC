@@ -7,12 +7,12 @@
 #' In total the function returns 43 QC-metrics
 #'
 #' f_plotMetageneProfile_onePoint
-#'
-#' @param binnedChip 
-#' @param binnedInput
+#''
+#' @param binnedChip DESCRIBE!!
+#' @param binnedInput DESCRiBE!!
 #' @param tag String, can be "TSS" or "TES". Indicates if the TSS or the TES should be calcualted (Default="TSS")
 #' @param savePlotPath Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL) 
-#' @param debug
+#' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
 #' @return returnList
 #'

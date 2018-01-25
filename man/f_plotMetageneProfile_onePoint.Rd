@@ -8,13 +8,15 @@ f_plotMetageneProfile_onePoint(binnedChip, binnedInput, tag = "TSS",
   savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{binnedChip}{}
+\item{binnedChip}{DESCRIBE!!}
+
+\item{binnedInput}{DESCRiBE!!}
 
 \item{tag}{String, can be "TSS" or "TES". Indicates if the TSS or the TES should be calcualted (Default="TSS")}
 
 \item{savePlotPath}{Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL)}
 
-\item{debug}{}
+\item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
 \value{
 returnList
@@ -28,6 +30,7 @@ the local maxima (x, y coordinates), the variance, the standard deviation and th
 In total the function returns 43 QC-metrics
 
 f_plotMetageneProfile_onePoint
+'
 }
 \examples{
 \\{dontrun

@@ -8,11 +8,13 @@ f_plotMetageneProfile(binnedChip, binnedInput, savePlotPath = NULL,
   debug = FALSE)
 }
 \arguments{
-\item{binnedChip}{}
+\item{binnedChip}{DESCRIBE!!}
+
+\item{binnedInput}{DESCRiBE!!}
 
 \item{savePlotPath}{Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL)}
 
-\item{debug}{}
+\item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
 \value{
 returnList

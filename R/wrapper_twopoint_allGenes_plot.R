@@ -8,10 +8,10 @@
 #'
 #' f_plotMetageneProfile
 #'
-#' @param binnedChip 
-#' @param binnedInput
+#' @param binnedChip DESCRIBE!!
+#' @param binnedInput DESCRiBE!!
 #' @param savePlotPath Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL) 
-#' @param debug
+#' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
 #' @return returnList
 #'
@@ -99,76 +99,9 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 		outname=file.path(path, "twopoints.result")
 		print(outname)
 		file.remove(outname)
-
 		write.table(finalValues,file=outname,row.names = FALSE,col.names=FALSE,append=TRUE, quote = FALSE)
 	}
 
 	return(finalValues)
 	
 }
-
-
-
-# chip_hotSpots_twopoints_-2000 
-# chip_hotSpots_twopoints_0 
-# chip_hotSpots_twopoints_2500 
-# chip_hotSpots_twopoints_3000 
-# chip_hotSpots_twopoints_4000 
-# chip_hotSpots_twopoints_500
-# chip_localMax_twopoint_1_x 
-# chip_localMax_twopoint_1_y 
-# chip_localMax_twopoint_2_x 
-# chip_localMax_twopoint_2_y 
-# chip_localMax_twopoint_3_x 
-# chip_localMax_twopoint_3_y 
-# chip_localMax_twopoint_4_x 
-# chip_localMax_twopoint_4_y 
-# chip_localMax_twopoint_5_x 
-# chip_localMax_twopoint_5_y 
-# chip_auc_twopoint_1 
-# chip_auc_twopoint_2 
-# chip_auc_twopoint_3 
-# chip_auc_twopoint_4 
-# chip_auc_twopoint_5  
-# input_auc_twopoint_1 
-# input_auc_twopoint_2 
-# input_auc_twopoint_3 
-# input_auc_twopoint_4 
-# input_auc_twopoint_5 
-# input_hotSpots_twopoints_-2000 
-# input_hotSpots_twopoints_0 
-# input_hotSpots_twopoints_2500 
-# input_hotSpots_twopoints_3000 
-# input_hotSpots_twopoints_4000 
-# input_hotSpots_twopoints_500 
-# input_localMax_twopoint_1_x 
-# input_localMax_twopoint_1_y 
-# input_localMax_twopoint_2_x 
-# input_localMax_twopoint_2_y 
-# input_localMax_twopoint_3_x 
-# input_localMax_twopoint_3_y 
-# input_localMax_twopoint_4_x 
-# input_localMax_twopoint_4_y 
-# input_localMax_twopoint_5_x 
-# input_localMax_twopoint_5_y
-# norm_auc_twopoints_1 
-# norm_auc_twopoints_2 
-# norm_auc_twopoints_3 
-# norm_auc_twopoints_4 
-# norm_auc_twopoints_5 
-# norm_hotSpots_twopoints_-2000 
-# norm_hotSpots_twopoints_0 
-# norm_hotSpots_twopoints_2500 
-# norm_hotSpots_twopoints_3000 
-# norm_hotSpots_twopoints_4000 
-# norm_hotSpots_twopoints_500
-# norm_localMax_twopoints_1_x
-# norm_localMax_twopoints_1_y
-# norm_localMax_twopoints_2_x 
-# norm_localMax_twopoints_2_y 
-# norm_localMax_twopoints_3_x 
-# norm_localMax_twopoints_3_y 
-# norm_localMax_twopoints_4_x 
-# norm_localMax_twopoints_4_y 
-# norm_localMax_twopoints_5_x 
-# norm_localMax_twopoints_5_y

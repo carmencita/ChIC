@@ -92,4 +92,4 @@ f_metagenePlotsForComparison(chrommark="H3K36me3",Meta_Result$twopoint, Meta_Res
 
 f_plotReferenceDistribution(chrommark="H3K36me3",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
 
-f_plotPredictionScore(chrommark="H3K4me1",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
+f_plotPredictionScore(chrommark="H3K4me1",completeListOfValues,savePlotPath=getwd())

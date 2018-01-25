@@ -1,3 +1,5 @@
+annotationPath="/lustre/data/FF/Carmen/BitBucket/chic/data/Annotations/"
+
 #'@title Wrapper function to create scaled and non-scaled metageneprofiles 
 #'
 #' @description
@@ -16,15 +18,13 @@
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
-#' @return list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS (TSS) and TES (TES). each object is made of two lists 
+#' @return list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS (TSS) and TES (TES). Each object is made of a list containing 
 #' the chip and the input profile
 #'
 #' @examples
 #'\{dontrun
 #' Meta_Result=f_CreateMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,annotationID="hg19",debug=FALSE)
 #'}
-
-annotationPath="/lustre/data/FF/Carmen/BitBucket/chic/data/Annotations/"
 
 f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,annotationID,debug=FALSE)
 {
@@ -58,12 +58,7 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
 
   twopoint=list(chip=binned_Chip,input= binned_Input)
 
-  if (debug)
-  {
-    save(binned_Chip, binned_Input,file=file.path(getwd(), paste(chipName,inputName,"Twopoint.RData",sep="_")))
-  }
-
-   ##one.point.scaling
+  ##one.point.scaling
   #create non-scaled metageneprofile for TSS
   print("Creating scaled metageneprofiles...")
 
@@ -72,24 +67,21 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
   binnedChip_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityChip,gdl=annotatedGenesPerChr)
 
   onepointTSS=list(chip=binnedChip_TSS,input= binnedInput_TSS)
-  if (debug)
-  {
-    save(binnedChip_TSS, binnedInput_TSS,file=file.path(getwd(), paste(chipName,inputName,"OnePointTSS.RData",sep="_")))
-  }
-
+  
   ##one.point.scaling
   #create non-scaled metageneprofile for TES
-
   print("...TES")
   binnedInput_TES <- f_t.get.gene.av.density_TES(smoothed.densityInput,gdl=annotatedGenesPerChr)
   binnedChip_TES <- f_t.get.gene.av.density_TES(smoothed.densityChip,gdl=annotatedGenesPerChr)
 
   onepointTES=list(chip=binnedChip_TES,input= binnedInput_TES)
+  
   if (debug)
   {
+    save(binned_Chip, binned_Input,file=file.path(getwd(), paste(chipName,inputName,"Twopoint.RData",sep="_")))
+    save(binnedChip_TSS, binnedInput_TSS,file=file.path(getwd(), paste(chipName,inputName,"OnePointTSS.RData",sep="_")))
     save(binnedChip_TES, binnedInput_TES,file=file.path(getwd(), paste(chipName,inputName,"OnePointTES.RData",sep="_")))
   }
-
 
   return(list("twopoint"=twopoint,"TSS"=onepointTSS,"TES"=onepointTES))
 }
