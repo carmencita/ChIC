@@ -251,22 +251,11 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 		d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
 		compendium=rbind(d1,d2)
 
-		ac=unique(compendium[grep("ac",compendium$CC_TF),]$CC_TF)
-		ac=as.vector(as.factor(ac))
-
-		pe_frame=ac[(!ac=="H2AK5ac")&(!ac=="H2BK120ac")&(!ac=="H2BK12ac")&(!ac=="H2BK15ac")&(!ac=="H2BK20ac")&(!ac=="H3K4ac")&(!ac=="H3K56ac")&(!ac=="H4K12ac")&(!ac=="H4K5ac")&(!ac=="H4K8ac")]
-		pe_frame=c(pe_frame,"H3K4me3","H3K4me2","H3K79me1")
-		hete_frame=c("H3K23me2","H3K9me2","H3K9me3")
-		PRC_frame=c("H3K27me3")
-		sharp_from_remaining_frame=c("H2AFZ","H2A.Z","H4K12ac","H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
-		broad_from_remaining_frame=c("H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
-		pPol_frame= as.vector(unique(compendium[grep("POL",compendium$CC_TF),]$CC_TF))
-
-		all=unique(compendium$CC_TF)
-
-		allSharp=c(pe_frame,sharp_from_remaining_frame)
-		allBroad=c(hete_frame,PRC_frame,broad_from_remaining_frame)
-		RNAPol2=pPol_frame
+		allSharp=c("H3K27ac","H3K9ac","H3K14ac","H2BK5ac","H4K91ac","H3K18ac","H3K23ac","H2AK9ac","H3K4me3","H3K4me2","H3K79me1","H2AFZ","H2A.Z","H4K12ac"
+			,"H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
+		
+		allBroad=c("H3K23me2","H3K9me2","H3K9me3","H3K27me3","H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
+		
 		##USE ONLY POLR2A
 		RNAPol2="POLR2A"
 
