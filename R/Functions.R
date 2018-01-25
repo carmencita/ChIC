@@ -325,6 +325,7 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 	print("Phantom peak and cross-correlation")
 	phantom.characteristics<-get.binding.characteristicsMy(data, srange=PhantomPeak_range, bin=PhantomPeak_bin, cluster=cluster,accept.all.tags=T)
 	
+	
 	ph_peakidx <- which( ( phantom.characteristics$cross.correlation$x >= ( read_length - round(2*PhantomPeak_bin) ) ) & ( phantom.characteristics$cross.correlation$x <= ( read_length + round(1.5*PhantomPeak_bin) ) ) )
 	ph_peakidx <- ph_peakidx[ which.max(phantom.characteristics$cross.correlation$y[ph_peakidx]) ]
 	phantom_cc <- phantom.characteristics$cross.correlation[ph_peakidx,]
@@ -564,6 +565,7 @@ f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelect
 	#custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
 	#custom_chrorder<-paste("chr", c(1:22, "X","Y"), sep="")
 
+
 	###5 broadRegions
 	###6 enrichment broad regions
 	zthresh_list<-c(3,4)
@@ -605,6 +607,7 @@ f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelect
 	eval<-10
 	bp_eval <- find.binding.positions(signal.data=chip.data12,control.data=input.data12,e.value=eval,whs=detection.window.halfsize*2,cluster=cluster)
 	eval_detect=sum(unlist(lapply(bp_eval$npl,function(d) length(d$x))))
+
 
 	# output detected binding positions
 	#output.binding.results(results=bp,filename=paste("WTC.binding.positions.evalue", chip.data.samplename,"input",input.data.samplename, "txt", sep="."))

@@ -3,8 +3,9 @@ require(girafe)
 require(snow)
 require(parallel)
 
-
+##################
 #private variables
+##################
 min.feature.sizeMy=3000
 predefnum_bins=301   # 151
 
@@ -184,11 +185,16 @@ f_one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=
 }
 
 
+###############################################################
+###############################################################
+####
+#### END OF PETER K.'s FUNCTIONS FOR BIN AVERAGES + SCALING OF METAGENES
+####
+###############################################################
+###############################################################
 
 
-# a function for getting bin-averaged profiles for individual genes TWO.POINT
-#t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=500,lom=5e3, rom=1e3, bs=2e3, nbins=400,separate.strands=F) {
-
+##MODIFIED VERSION OF t.get.gene.av.density for TWO.POINT
 # a function for getting bin-averaged profiles for individual genes TWO.POINT
 #t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=500,lom=5e3, rom=1e3, bs=2e3, nbins=400,separate.strands=F) {
 f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=inner_margin,lom=left_outer_margin, rom=right_outer_margin, bs=gene_body, nbins=predefnum_bins,separate.strands=F, min.feature.size=min.feature.sizeMy) {
@@ -225,13 +231,6 @@ f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im
   }
 
 
-###############################################################
-###############################################################
-####
-#### END OF PETER K.'s FUNCTIONS FOR BIN AVERAGES + SCALING OF METAGENES
-####
-###############################################################
-###############################################################
 
 ##MODIFIED VERSION OF t.get.gene.av.density FOR TSS
 # a function for getting bin-averaged profiles for individual genes TSS ONE.POINT

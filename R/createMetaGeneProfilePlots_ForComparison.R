@@ -94,10 +94,17 @@ f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=
 
 ##GLOBAL VARIABLES
 dataDirectory="../data"
-profilePath="../data/Profiles"
+profilePath=file.path(dataDirectory,"Profiles")
+mlModelPath=file.path(dataDirectory,"ML_models")
 Hlist=c("H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
 	"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac",
 	"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph")
+##defining class members for sharp broad and RNAPol2 class
+allSharp=c("H3K27ac","H3K9ac","H3K14ac","H2BK5ac","H4K91ac","H3K18ac","H3K23ac","H2AK9ac","H3K4me3","H3K4me2","H3K79me1","H2AFZ","H2A.Z","H4K12ac"
+		,"H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
+allBroad=c("H3K23me2","H3K9me2","H3K9me3","H3K27me3","H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
+##USE ONLY POLR2A for Pol2 class
+RNAPol2="POLR2A"
 
 ##################
 ##GLOBAL functions
@@ -256,14 +263,6 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 		filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
 		d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
 		compendium=rbind(d1,d2)
-
-		##defining class members for sharp broad and RNAPol2 class
-		allSharp=c("H3K27ac","H3K9ac","H3K14ac","H2BK5ac","H4K91ac","H3K18ac","H3K23ac","H2AK9ac","H3K4me3","H3K4me2","H3K79me1","H2AFZ","H2A.Z","H4K12ac"
-			,"H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
-		allBroad=c("H3K23me2","H3K9me2","H3K9me3","H3K27me3","H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
-		##USE ONLY POLR2A for Pol2 class
-		RNAPol2="POLR2A"
-
 		##select the class for the respective chromatin mark
 	    if (chrommark%in%allSharp)
 	    {
@@ -293,4 +292,39 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 		print("Chromatin marks has to be one of the following:")
 		print(Hlist)
 	}
+}
+
+
+f_plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
+{
+	require(caret)
+	SelectedFeatures=as.character(read.table("/lustre/data/FF/Carmen/Pipeline_allEncodeBeta/CinecaScripts/Cineca_Results_Analysis_NewNegatives/Mixed_encode_roadmap_unconsolidated_withDownsampled/Clustering_ForFeatureSelection_ByCategorie_MetaGenes_andRest_ALLGenes/Histones/FinalFeatures_H_From_hClusteringALLGENES.txt")$x)
+	Hall=Hall[c(SelectedFeatures)]
+
+	if (chrommark%in%allSharp)
+	{
+	    model=
+	}
+	if (chrommark%in%allBroad)
+	{
+		model=
+	}
+	if (chrommark%in%RNAPol2)
+	{
+		model=
+	
+	}
+	if (chrommark=="H3K9me3")
+	{model=load(file.path(mlModelPath, "H3K9Encode.Rdata"))}
+	if (chrommark=="H3K27me3")
+	{model=load(file.path(mlModelPath, "H3K27Encode.Rdata"))}
+	if (chrommark=="H3K36me3")
+	{model=load(file.path(mlModelPath, "H3K36Encode.Rdata"))}
+
+	prediction=predict(model, newdata=featureVector,type="prob")
+	
+
+
+
+
 }

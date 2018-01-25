@@ -38,7 +38,7 @@
 #'}
 
 
-f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.type="bam", dataPath=getwd(),plotname=file.path(getwd(),"CrossCorrelation.pdf"), debug=FALSE,cluster=NULL,chrominfo_file=pwd())
+f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.type="bam", dataPath=getwd(),plotname=file.path(getwd(),"CrossCorrelation.pdf"), debug=FALSE,cluster=NULL,mc=1,chrominfo_file=pwd())
 {
 	source("Functions.R")
 
@@ -67,6 +67,12 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 	}
 	input.data=ORDERED_data
 
+
+	if (!is.null(cluster))
+	{
+		print("using clusterApplyLB function...")
+		cluster=makeCluster(mc)
+	}
 
 	#plot and calculate cross correlation and phantom characteristics for the ChIP
 	print("calculate binding characteristics ChIP")
@@ -106,12 +112,14 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 	input.dataSelected=selectInformativeTags$input.dataSelected
 	chip.dataSelected=selectInformativeTags$chip.dataSelected
 
-	#if (debug) {
-	#	save(input.dataSelected,final.tag.shift,chip.dataSelected,file=file.path(getwd(), paste(chipName, inputName, "dataSelected.RData", sep="_")))
-	#}
-
 	#get QC-values from peak calling
 	bindingScores=f_getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift,cluster=cluster)#,custom_chrorder)
+	print("switch cluster off")
+	
+	if (!is.null(cluster))
+	{
+		stopCluster(cluster)
+	}
 
 	##objects of smoothed tag density for ChIP and Input
 	smoothed.densityChip=f_tagDensity(chip.dataSelected,final.tag.shift,rngl=rngl)
