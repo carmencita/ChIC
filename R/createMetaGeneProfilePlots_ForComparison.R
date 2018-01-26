@@ -136,7 +136,7 @@ RNAPol2="POLR2A"
 #' f_metagenePlotsForComparison(chrommark="H3K4me1",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES,plotName=chipName,profilePath="/lustre/data/FF/Carmen/BitBucket/chic/data/Profiles")
 #'}
 
-f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=getwd())
+f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=NULL)
 {
 	psc <- 1; # pseudocount, required to avoid log2 of 0
 	if (chrommark %in% Hlist)
@@ -219,9 +219,9 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			normMax=max(nframe$mean,normMax)
 
 			#create comparison plots
-			f_plotProfiles(i_mean, iframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Input",sep=" "),savePlotPath)
-			f_plotProfiles(c_mean, cframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Chip",sep=" "),savePlotPath)
-			f_plotProfiles(n_mean, nframe, endung, c(normMin-0.001,normMax+0.001),maintitel=paste(chrommark,endung,"norm",sep=" "),ylab="mean log2 enrichment (signal/input)")
+			f_plotProfiles(i_mean, iframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Input",sep=" "),savePlotPath=savePlotPath)
+			f_plotProfiles(c_mean, cframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Chip",sep=" "),savePlotPath=savePlotPath)
+			f_plotProfiles(n_mean, nframe, endung, c(normMin-0.001,normMax+0.001),maintitel=paste(chrommark,endung,"norm",sep=" "),ylab="mean log2 enrichment (signal/input)",savePlotPath=savePlotPath)
 			print(paste("pdf saved under",savePlotPath,sep=" "))
 		}
 	}else{
@@ -297,21 +297,19 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 
 f_plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 {
-	require(caret)
-	SelectedFeatures=as.character(read.table("/lustre/data/FF/Carmen/Pipeline_allEncodeBeta/CinecaScripts/Cineca_Results_Analysis_NewNegatives/Mixed_encode_roadmap_unconsolidated_withDownsampled/Clustering_ForFeatureSelection_ByCategorie_MetaGenes_andRest_ALLGenes/Histones/FinalFeatures_H_From_hClusteringALLGENES.txt")$x)
-	Hall=Hall[c(SelectedFeatures)]
-
+	library(caret)
+	
 	if (chrommark%in%allSharp)
 	{
-	    model=
+	    model=1
 	}
 	if (chrommark%in%allBroad)
 	{
-		model=
+		model=1
 	}
 	if (chrommark%in%RNAPol2)
 	{
-		model=
+		model=1
 	
 	}
 	if (chrommark=="H3K9me3")
@@ -321,7 +319,16 @@ f_plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 	if (chrommark=="H3K36me3")
 	{model=load(file.path(mlModelPath, "H3K36Encode.Rdata"))}
 
-	prediction=predict(model, newdata=featureVector,type="prob")
+	if (chrommark%in%Hlist){
+		features=c(colnames(HfinalModel$trainingData))
+		features=features[-(which(features==".outcome"))]
+	}
+
+
+	dataToPredict=
+	features[features%in%rownames(featureVector)]
+
+	prediction=predict(model, newdata=dataToPredict,type="prob")
 	
 
 

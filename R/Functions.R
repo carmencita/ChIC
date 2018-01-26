@@ -300,6 +300,7 @@ get.binding.characteristicsMy = function(data,srange=c(50,500),bin=5,cluster=NUL
 #' @param data Spp-package based object with tag information from bam or tagAlign file(!!!DESCRIBE BETTER)
 #' @param binding.characteristics (!!!DESCRIBE BETTER)
 #' @param read_length Integer, read length of "data" (Defaul="36")
+#' @param savePlotPath
 #' @param plotname Name and path were the CrossCorrelation plot (pdf) should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working directory)
 #' @param cluster Integer, indicating the number of CPUs to parallelize a few functions (default=NULL)
 #'
@@ -318,7 +319,7 @@ get.binding.characteristicsMy = function(data,srange=c(50,500),bin=5,cluster=NUL
 #'CC_Result=f_CrossCorrelation(chipName, inputName, read_length=36, reads.aligner.type="bam", path=path, dataPath=dataPath, debug=debug,cluster=cluster,chrominfo_file=chrominfo_file)
 #'}
 
-f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36,plotname=file.path(getwd(),"phantomCrossCorrelation.pdf"),cluster=NULL)
+f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=70,savePlotPath=NULL,plotname="name",cluster=NULL)
 {
 
 	###step 1.2: Phantom peak and cross-correlation
@@ -404,42 +405,47 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 		phantom.characteristics$peak$x
 		#<-phantom.characteristics$cross.correlation$x[(which(phantom.characteristics_cross.correlation_y_smoothed==phantom.characteristics$peak$y))]
 	}
-
-	if (!is.null(plotname))
+	
+	if (!is.null(savePlotPath))
 	{
-		# plot cross correlation curve with smoothing
-		print("plot cross correlation curve with smoothing")
-		pdf(plotname)
-		print(plotname)
-			par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-			plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation",main="CrossCorrelation Profile")
-			lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col="blue")
-			lines(x=rep(phantom_peak.scores$peak$x, times=2), y=c(0,phantom_peak.scores$peak$y), lty=2,lwd=2, col="red")
-			lines(x=rep(phantom_peak.scores$phantom_cc$x, times=2), y=c(0,phantom_peak.scores$phantom_cc$y), lty=2,lwd=2, col="orange")
-			abline(h=phantom_peak.scores$min_cc$y, lty=2,lwd=2, col="grey")
-			text(x=phantom_peak.scores$peak$x, y=phantom_peak.scores$peak$y, labels=paste("A =",signif(phantom_peak.scores$peak$y,3)), col="red", pos=3)
-			text(x=phantom_peak.scores$phantom_cc$x, y=phantom_peak.scores$phantom_cc$y, labels=paste("B =",signif(phantom_peak.scores$phantom_cc$y,3)), col="orange", pos=2)
-			text(x=min(phantom.characteristics$cross.correlation$x), y=phantom_peak.scores$min_cc$y, labels=paste("C =",signif(phantom_peak.scores$min_cc$y,3)), col="grey", adj=c(0,-1))
-			legend(x="topright", legend=c(
-				paste("NSC = A/C =", signif(phantom_peak.scores$NSC,3)),
-				paste("RSC = (A-C)/(B-C) =", signif(phantom_peak.scores$RSC,3)),
-				paste("Quality flag =", phantom_peak.scores$quality_flag),
-				"",
-				paste("Shift =", (phantom_peak.scores$peak$x)),
-				paste("Read length =", (read_length))))
-			
+		filename=file.path(savePlotPath,paste(plotname,"CrossCorrelation.pdf",sep="_"))
+		pdf(file=filename)
+	}
+
+	# plot cross correlation curve with smoothing
+	print("plot cross correlation curve with smoothing")
+	par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
+	plot(phantom.characteristics$cross.correlation,type='l',xlab="strand shift",ylab="cross-correlation",main="CrossCorrelation Profile")
+	lines(x=phantom.characteristics$cross.correlation$x, y=phantom.characteristics_cross.correlation_y_smoothed, lwd=2, col="blue")
+	lines(x=rep(phantom_peak.scores$peak$x, times=2), y=c(0,phantom_peak.scores$peak$y), lty=2,lwd=2, col="red")
+	lines(x=rep(phantom_peak.scores$phantom_cc$x, times=2), y=c(0,phantom_peak.scores$phantom_cc$y), lty=2,lwd=2, col="orange")
+	abline(h=phantom_peak.scores$min_cc$y, lty=2,lwd=2, col="grey")
+	text(x=phantom_peak.scores$peak$x, y=phantom_peak.scores$peak$y, labels=paste("A =",signif(phantom_peak.scores$peak$y,3)), col="red", pos=3)
+	text(x=phantom_peak.scores$phantom_cc$x, y=phantom_peak.scores$phantom_cc$y, labels=paste("B =",signif(phantom_peak.scores$phantom_cc$y,3)), col="orange", pos=2)
+	text(x=min(phantom.characteristics$cross.correlation$x), y=phantom_peak.scores$min_cc$y, labels=paste("C =",signif(phantom_peak.scores$min_cc$y,3)), col="grey", adj=c(0,-1))
+	legend(x="topright", legend=c(
+		paste("NSC = A/C =", signif(phantom_peak.scores$NSC,3)),
+			paste("RSC = (A-C)/(B-C) =", signif(phantom_peak.scores$RSC,3)),
+			paste("Quality flag =", phantom_peak.scores$quality_flag),
+			"",
+			paste("Shift =", (phantom_peak.scores$peak$x)),
+			paste("Read length =", (read_length))))
+	
+	if (!is.null(savePlotPath))
+	{
 		dev.off()
+    	print(paste("pdf saved under",filename,sep=" "))
 	}
 
 	phantomScores= list(
-		NSC=round(phantom_peak.scores$NSC,3),
-		RSC=round(phantom_peak.scores$RSC,3),
-		quality_flag=phantom_peak.scores$quality_flag,
-		shift=phantom_peak.scores$peak$x,
-		read_length=phantom_peak.scores$read_length,
-		A=round(phantom_peak.scores$peak$y,3),
-		B=round(phantom_peak.scores$phantom_cc$y,3),
-		C=round(phantom_peak.scores$min_cc$y,3))
+		"CC_NSC"=round(phantom_peak.scores$NSC,3),
+		"CC_RSC"=round(phantom_peak.scores$RSC,3),
+		"CC_QualityFlag"=phantom_peak.scores$quality_flag,
+		#"shift"=phantom_peak.scores$peak$x,
+		#"read_length"=phantom_peak.scores$read_length,
+		"CC_A"=round(phantom_peak.scores$peak$y,3),
+		"CC_B"=round(phantom_peak.scores$phantom_cc$y,3),
+		"CC_C"=round(phantom_peak.scores$min_cc$y,3))
 	
 	#4 NRF calculation
 
@@ -469,10 +475,13 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 	}
 	
 	NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/10e6
-	STATS_NRF=list(ALL_TAGS=ALL_TAGS, 
-		UNIQUE_TAGS=UNIQUE_TAGS, 
-		UNIQUE_TAGS_nostrand=UNIQUE_TAGS_nostrand, 
-		NRF=NRF, NRF_nostrand=NRF_nostrand, NRF_LibSizeadjusted=NRF_LibSizeadjusted)
+	STATS_NRF=list("CC_ALL_TAGS"=ALL_TAGS, 
+		"CC_UNIQUE_TAGS"=UNIQUE_TAGS, 
+		"CC_UNIQUE_TAGS_nostrand"=UNIQUE_TAGS_nostrand, 
+		"CC_NRF"=NRF, 
+		"CC_NRF_nostrand"=NRF_nostrand, 
+		"CC_NRF_LibSizeadjusted"=NRF_LibSizeadjusted)
+
 	#N1= number of genomic locations to which EXACTLY one unique mapping read maps
 	#Nd = the number of genomic locations to which AT LEAST one unique mapping read maps, i.e. the number of non-redundant, unique mapping reads
 	N1<-sum(sapply(data$tags, FUN=function(x) {
@@ -486,11 +495,13 @@ f_calculateCrossCorrelation=function(data,binding.characteristics,read_length=36
 	tag.shift <- round(strandShift/2)
 		
 	finalList <- append(append(
-		list("strandShift"=strandShift,
+		list("CC_strandShift"=strandShift,
 			"tag.shift"=tag.shift,
-			"N1"=round(N1,3),"Nd"=round(Nd,3),"PBC"=round(PBC,3),
-			"read_length"=read_length,
-			"UNIQUE_TAGS_LibSizeadjusted"=UNIQUE_TAGS_LibSizeadjusted),
+			"N1"=round(N1,3),
+			"Nd"=round(Nd,3),
+			"CC_PBC"=round(PBC,3),
+			"CC_readLength"=read_length,
+			"CC_UNIQUE_TAGS_LibSizeadjusted"=UNIQUE_TAGS_LibSizeadjusted),
 		phantomScores),STATS_NRF)
 	return(finalList)
 }
@@ -659,12 +670,12 @@ f_getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelect
 		outcountsSharpPeak=0
 	}
 
-	QCscoreList=list("FDR_detected"=round(FDR_detect,3),
-		"eval_detected"=round(eval_detect,3),
-		"FRiP_broadPeak"=round(FRiP_broadPeak,3),  
-		"FRiP_sharpPeak"=round(FRiP_sharpPeak,3), 
-		"outcountsBroadPeak"=outcountsBroadPeak,
-		"outcountsSharpPeak"= outcountsSharpPeak)
+	QCscoreList=list("CC_FDRpeaks"=round(FDR_detect,3),
+		"CC_evalpeaks"=round(eval_detect,3),
+		"CC_FRiP_broadPeak"=round(FRiP_broadPeak,3),  
+		"CC_FRiP_sharpPeak"=round(FRiP_sharpPeak,3), 
+		"CC_outcountsBroadPeak"=outcountsBroadPeak,
+		"CC_outcountsSharpPeak"= outcountsSharpPeak)
 
 	return(QCscoreList)
 }

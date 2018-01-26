@@ -4,9 +4,8 @@
 \alias{f_calculateCrossCorrelation}
 \title{Creating cross-correlation profile, phantom peak and calcualting derived QC-metrics}
 \usage{
-f_calculateCrossCorrelation(data, binding.characteristics, read_length = 36,
-  plotname = file.path(getwd(), "phantomCrossCorrelation.pdf"),
-  cluster = NULL)
+f_calculateCrossCorrelation(data, binding.characteristics, read_length = 70,
+  savePlotPath = NULL, plotname = "name", cluster = NULL)
 }
 \arguments{
 \item{data}{Spp-package based object with tag information from bam or tagAlign file(!!!DESCRIBE BETTER)}

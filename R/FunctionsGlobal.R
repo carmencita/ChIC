@@ -44,7 +44,7 @@ f_sortAndBinning=function(shortframe)
 #'
 #' @param cumChip The cumulative distribution of the read counts for the ChIP
 #' @param cumInput The cumulative distribution of the read counts for the Input
-#' @param plotname Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )
+#' @param savePlotPath 
 #'
 #' @return returnList
 #' @examples
@@ -53,9 +53,14 @@ f_sortAndBinning=function(shortframe)
 #' f_fingerPrintPlot(cumSumChip,cumSumInput,plotname=paste(file.path(getwd(),"FingerPrintPlot.pdf",sep="_")
 #'}
 
-f_fingerPrintPlot=function(cumChip,cumInput,plotname=file.path(getwd(),"FingerPrintPlot.pdf"))
+f_fingerPrintPlot=function(cumChip,cumInput,savePlotPath=NULL)
 {	
-	pdf(plotname)
+	
+	if (!is.null(savePlotPath))
+	{
+		filename=file.path(savePlotPath,"FingerPrintPlot.pdf")
+		pdf(file=filename,width=7, height=7)
+	}
 	plot(cumChip,type="l",col="blue",lwd=2,xlab="Percentage of bins",ylab="Percentage of tags",main="Fingerprint: global read distribution")
 	lines(cumInput,col="red",lwd=2)
 	arrowx=cumChip[which.max(abs(cumInput$pj-cumChip$pj)),]$x
@@ -63,5 +68,10 @@ f_fingerPrintPlot=function(cumChip,cumInput,plotname=file.path(getwd(),"FingerPr
 	#abline(h=schneidePunktY,col='cyan',lty=2,lwd=2)
 	#abline(v=schneidePunktX,col='cyan',lty=2,lwd=2)
 	legend("topleft", legend = c("Input","ChIP"), fill = c("red","blue"))
-	dev.off()
+	if (!is.null(savePlotPath))
+	{
+		dev.off()
+    	print(paste("pdf saved under",filename,sep=" "))
+
+	}
 }

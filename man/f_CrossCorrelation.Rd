@@ -4,10 +4,9 @@
 \alias{f_CrossCorrelation}
 \title{Wrapper function for calculating cross-correlation analysis and metrics designed for TFs}
 \usage{
-f_CrossCorrelation(chipName, inputName, read_length = 36,
-  reads.aligner.type = "bam", dataPath = getwd(),
-  plotname = file.path(getwd(), "CrossCorrelation.pdf"), debug = FALSE,
-  cluster = NULL, chrominfo_file = pwd())
+f_CrossCorrelation(chipName, inputName, read_length,
+  reads.aligner.type = "bam", dataPath = getwd(), savePlotPath = NULL,
+  debug = FALSE, cluster = NULL, mc = 1, chrominfo_file = pwd())
 }
 \arguments{
 \item{chipName}{String, filename (without extension) of the input file for ChIP}

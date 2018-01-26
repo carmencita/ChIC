@@ -46,8 +46,8 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 	colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
 	if (!is.null(savePlotPath))
 	{
-		filename=paste(plotName,"ChIP_Input_MetaGene.pdf",sep="_")
-		pdf(file=file.path(path,filename),width=10, height=7)
+		filename=file.path(savePlotPath,"ScaledMetaGene_ChIP_Input.pdf")
+		pdf(file=filename,width=10, height=7)
 	}    
 	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
@@ -60,7 +60,7 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 	if (!is.null(savePlotPath))
 	{
 		dev.off()
-		print(paste("pdf saved under ",filename.sep=""))
+		print(paste("pdf saved under ",filename,sep=""))
 	}
 
 	###################
@@ -77,8 +77,8 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 
 	if (!is.null(savePlotPath))
 	{
-		filename=paste(plotName,"twopointsNormalized.pdf",sep="_")
-		pdf(file.path(path, filename),width=10, height=7)
+		filename=file.path(savePlotPath,"ScaledMetaGene_normalized.pdf")
+		pdf(filename,width=10, height=7)
 	}
     par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	plot(x=as.numeric(names(frameNormalized)),y=frameNormalized, type="l", lwd=2, lty=1, col="orange",xlab="metagene coordinates",ylab="mean log2 enrichment (signal/input)",
@@ -90,12 +90,13 @@ f_plotMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 	if (!is.null(savePlotPath))
 	{
 		dev.off()
-		print(paste("pdf saved under ",filename.sep=""))
+		print(paste("pdf saved under ",filename,sep=""))
 	}
 
 	finalValues=rbind(hotSpotsValues,maxAucValues,hotSpotsValuesNorm,maxAucValuesNorm)
 	if (debug)
 	{
+		print("Debugging mode ON")
 		outname=file.path(path, "twopoints.result")
 		print(outname)
 		file.remove(outname)

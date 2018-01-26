@@ -5,7 +5,7 @@
 \title{Function to create metage plots for comparison}
 \usage{
 f_metagenePlotsForComparison(chrommark, twopointElements, TSSElements,
-  TESElements, savePlotPath = getwd())
+  TESElements, savePlotPath = NULL)
 }
 \arguments{
 \item{chrommark}{String, chromatin mark to be analysed. Has to be one of the following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",

@@ -11,7 +11,8 @@
 
 require("spp")
 ##neds caTools
-library("girafe")
+require("girafe")
+
 #library(parallel)
 
 #private variables
@@ -34,7 +35,6 @@ debug=TRUE
 
 print(chipName)
 print(inputName)
-completeListOfValues=NULL
 
 cluster=TRUE
 mc=1
@@ -47,10 +47,12 @@ if (cluster)
 ##calculate values
 source("wrapper_QCscores_TFbased.R")
 
-CC_Result=f_CrossCorrelation(chipName=chipName,inputName=inputName, read_length=36, reads.aligner.type="bam", dataPath=dataPath, debug=debug,cluster=cluster,mc=mc,chrominfo_file=chrominfo_file,plotname=file.path(getwd(),"CrossCorrelationPlot.pdf"))
+CC_Result=f_CrossCorrelation(chipName=chipName,inputName=inputName, read_length=36, reads.aligner.type="bam", dataPath=dataPath, debug=debug,cluster=cluster,mc=mc,chrominfo_file=chrominfo_file,savePlotPath=getwd())
 
 ##add values to completeListOfValues
+completeListOfValues=NULL
 completeListOfValues=rbind(cbind(unlist(CC_Result$QCscores_ChIP)),cbind(unlist(CC_Result$QCscores_binding)))
+colnames(completeListOfValues)=c("Value")
 
 ##CC_Result$TagDensityChip    #CC_Result$TagDensityInput
 #CC_Result$QCscores_Input not needed but are calculated
@@ -64,11 +66,10 @@ smoothedDensityChip=CC_Result$TagDensityChip
 ###GLOBAL features#########
 
 source("wrapper_QCscores_global.R")
-Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=file.path(getwd(),"FingerPrintPlot.pdf"),debug=debug)
-completeListOfValues=append(completeListOfValues,Ch_Results)
-#save(Ch_Results,file=file.path(getwd(),"Results_ChangeR.Rdata"))
+Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,savePlotPath=getwd(),debug=debug)
+completeListOfValues=rbind(completeListOfValues,cbind(unlist(Ch_Results)))
 
-###LOCAL
+###LOCAL features########
 
 
 source("wrapper_QCscores_local.R")
@@ -80,23 +81,32 @@ source("wrapper_QCscores_local.R")
 Meta_Result=f_CreateMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,annotationID="hg19",debug=debug)
 
 source("wrapper_plot_TSS_TES_allGenes.R")
-TSS_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",path=getwd(),debug=debug)
-completeListOfValues=append(completeListOfValues,TSS_Plot)
+TSS_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",savePlotPath=getwd(),debug=debug)
+helper=TSS_Plot
+helper$Feature=NULL
+rownames(helper)=TSS_Plot$Feature
+completeListOfValues=rbind(completeListOfValues,helper)
 
-TES_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",path=getwd(),debug=debug)
-completeListOfValues=append(completeListOfValues,TES_Plot)
+TES_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",savePlotPath=getwd(),debug=debug)
+helper=TES_Plot
+helper$Feature=NULL
+rownames(helper)=TES_Plot$Feature
+completeListOfValues=rbind(completeListOfValues,helper)
 
 source("wrapper_twopoint_allGenes_plot.R")
-geneBody_Plot=f_plotMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,path=getwd(),debug=debug)
-completeListOfValues=append(completeListOfValues,geneBody_Plot)
+geneBody_Plot=f_plotMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,savePlotPath=getwd(),debug=debug)
+helper=geneBody_Plot
+helper$Feature=NULL
+rownames(helper)=geneBody_Plot$Feature
+completeListOfValues=rbind(completeListOfValues,helper)
 
 
 
 ##additional plots
 source("createMetaGeneProfilePlots_ForComparison.R")
 
-f_metagenePlotsForComparison(chrommark="H3K36me3",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES)
+f_metagenePlotsForComparison(chrommark="H3K36me3",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES,savePlotPath=getwd())
 
-f_plotReferenceDistribution(chrommark="H3K36me3",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
+f_plotReferenceDistribution(chrommark="H3K36me3",metricToBePlotted="RSC",currentValue=CC_Result$QCscores_ChIP$CC_RSC,savePlotPath=getwd())
 
-f_plotPredictionScore(chrommark="H3K4me1",featureVector=completeListOfValues,savePlotPath=getwd())
+f_plotPredictionScore(chrommark="H3K36me3",featureVector=completeListOfValues,savePlotPath=getwd())

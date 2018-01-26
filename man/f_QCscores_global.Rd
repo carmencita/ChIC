@@ -4,17 +4,17 @@
 \alias{f_QCscores_global}
 \title{Metrics taken from global read distribution}
 \usage{
-f_QCscores_global(densityChip, densityInput, plotname = file.path(getwd(),
-  "FingerPrintPlot.pdf", sep = "_"), debug = FALSE)
+f_QCscores_global(densityChip, densityInput, savePlotPath = NULL,
+  debug = FALSE)
 }
 \arguments{
 \item{densityChip}{A smoothed tag density object for the ChIP (returned by f_CrossCorrelation)}
 
 \item{densityInput}{smoothed tag density object for the Inpt (returned by f_CrossCorrelation)}
 
-\item{plotname}{Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )}
-
 \item{debug}{Only for debugging}
+
+\item{plotname}{Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )}
 }
 \value{
 List with the following values: 

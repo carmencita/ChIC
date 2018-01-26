@@ -60,7 +60,7 @@ f_CreateMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,ta
 
   ##one.point.scaling
   #create non-scaled metageneprofile for TSS
-  print("Creating scaled metageneprofiles...")
+  print("Creating non-scaled metageneprofiles...")
 
   print("...TSS")
   binnedInput_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityInput,gdl=annotatedGenesPerChr)

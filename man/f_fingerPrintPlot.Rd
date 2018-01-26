@@ -4,15 +4,14 @@
 \alias{f_fingerPrintPlot}
 \title{Finger Print Plot}
 \usage{
-f_fingerPrintPlot(cumChip, cumInput, plotname = file.path(getwd(),
-  "FingerPrintPlot.pdf"))
+f_fingerPrintPlot(cumChip, cumInput, savePlotPath = NULL)
 }
 \arguments{
 \item{cumChip}{The cumulative distribution of the read counts for the ChIP}
 
 \item{cumInput}{The cumulative distribution of the read counts for the Input}
 
-\item{plotname}{Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )}
+\item{savePlotPath}{}
 }
 \value{
 returnList

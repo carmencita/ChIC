@@ -30,7 +30,7 @@
 #'Ch_Results=f_QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=plotname,debug=FALSE)
 #' }
 
-f_QCscores_global=function(densityChip,densityInput,plotname=file.path(getwd(),"FingerPrintPlot.pdf",sep="_"),debug=FALSE)
+f_QCscores_global=function(densityChip,densityInput,savePlotPath=NULL,debug=FALSE)
 {
 	##sourcing functions
 	source("FunctionsGlobal.R")
@@ -61,24 +61,22 @@ f_QCscores_global=function(densityChip,densityInput,plotname=file.path(getwd(),"
 	arrowx=cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$x
 
 	##prepare list to be returned
-	finalList=list("X-axis"=round(arrowx,3),
-		"Y-Input"=round(cumSumInput[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3),
-		"Y-Chip"=round(cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3),
+	finalList=list("Ch_X.axis"=round(arrowx,3),
+		"Ch_Y.Input"=round(cumSumInput[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3),
+		"Ch_Y.Chip"=round(cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3),
 		"Ch_sign_chipVSinput"=sign_sign,
-		"FractionReadsTopbins_chip"=round(chipFractionOfReadsIntop1percentBins,3),
-		"FractionReadsTopbins_input"=round(inputFractionOfReadsIntop1percentBins,3),
-		"Fractions_without_reads_chip"=round(chipFractionOfBinsWithoutReads,3),
-		"Fractions_without_reads_input"=round(inputFractionOfBinsWithoutReads,3))
+		"Ch_FractionReadsTopbins_chip"=round(chipFractionOfReadsIntop1percentBins,3),
+		"Ch_FractionReadsTopbins_input"=round(inputFractionOfReadsIntop1percentBins,3),
+		"Ch_Fractions_without_reads_chip"=round(chipFractionOfBinsWithoutReads,3),
+		"Ch_Fractions_without_reads_input"=round(inputFractionOfBinsWithoutReads,3))
 		#"CrossPoint_X"=cross_pointX,
 		#"CrossPoint_Y_chip"=cross_pointY_chip,
 		#"CrossPoint_Y_input"=cross_pointY_input)
 
+
 	#create Fingerprint plot
-	if (!is.null(plotname))
-	{
-		print("create pdf with plot")
-		f_fingerPrintPlot(cumSumChip,cumSumInput,plotname=plotname)
-	}
+	f_fingerPrintPlot(cumSumChip,cumSumInput,savePlotPath=savePlotPath)
+	
 	#f_chancePlots(cumSumChip,cumSumInput,plotname=file.path(getwd(),paste(chipName,"chance.pdf",sep="_")))
 
 	if (debug)

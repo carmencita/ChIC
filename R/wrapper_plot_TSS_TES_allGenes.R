@@ -87,8 +87,8 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlo
 	colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
 	if (!is.null(savePlotPath))
 	{
-		filename=paste("ChIP_Input_",tag,".pdf",sep="")
-		pdf(file=file.path(path,filename),width=10, height=7)
+		filename=file.path(savePlotPath,paste("ChIP_Input_",tag,".pdf",sep=""))
+		pdf(file=filename,width=10, height=7)
 	}    
 	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
@@ -101,7 +101,7 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlo
 	if (!is.null(savePlotPath))
 	{
 		dev.off()
-		print(paste("pdf saved under ",filename.sep=""))
+		print(paste("pdf saved under ",filename,sep=""))
 	}
 
 
@@ -136,8 +136,8 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlo
 
 	if (!is.null(savePlotPath))
 	{
-		filename=paste("Normalized_",tag,".pdf",sep="")
-		pdf(file=file.path(path,filename),width=10, height=7)
+		filename=file.path(savePlotPath,paste("Normalized_",tag,".pdf",sep=""))
+		pdf(file=filename,width=10, height=7)
 	}
 	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	plot(x=as.numeric(names(all.Norm)),y=all.Norm, type="l", lwd=2, lty=1, col="orange",xlab="metagene coordinates",ylab="mean log2 enrichment (signal/input)",
@@ -149,7 +149,7 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlo
 	if (!is.null(savePlotPath))
 	{
 		dev.off()
-		print(paste("pdf saved under ",filename.sep=""))
+		print(paste("pdf saved under ",filename,sep=""))
 	}
 
 	result=NULL
@@ -158,6 +158,7 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlo
 
 	if (debug)
 	{
+		print("Debugging mode ON")
 		outname=file.path(getwd(), paste(tag,"onepoints.result",sep="_"))
 		file.remove(outname)
 		write.table(result,file=outname,row.names = FALSE,col.names=FALSE,append=TRUE, quote = FALSE)

@@ -38,7 +38,7 @@
 #'}
 
 
-f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.type="bam", dataPath=getwd(),plotname=file.path(getwd(),"CrossCorrelation.pdf"), debug=FALSE,cluster=NULL,mc=1,chrominfo_file=pwd())
+f_CrossCorrelation=function(chipName, inputName, read_length, reads.aligner.type="bam", dataPath=getwd(),savePlotPath=NULL,debug=FALSE,cluster=NULL,mc=1,chrominfo_file=pwd())
 {
 	source("Functions.R")
 
@@ -76,25 +76,23 @@ f_CrossCorrelation=function(chipName, inputName, read_length=36, reads.aligner.t
 
 	#plot and calculate cross correlation and phantom characteristics for the ChIP
 	print("calculate binding characteristics ChIP")
-	chipplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"ChIP",".pdf",sep=""))
-	print(chipName)
-	print(chipplotID)
+
+
 	#chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
+
 	chip_binding.characteristics<-get.binding.characteristicsMy(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Chip")
-	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics,plotname=chipplotID)
+	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP",cluster=cluster)
 	##save the tag.shift
 	final.tag.shift= crossvalues_Chip$tag.shift
 
 
 	#plot and calculate cross correlation and phantom characteristics for the input
 	print("calculate binding characteristics Input")
-	inputplotID=file.path(paste(strsplit(plotname,".pdf")[[1]],"Input",".pdf",sep=""))
-	print(inputName)
-	print(inputplotID)
+	
 	input_binding.characteristics<-get.binding.characteristicsMy(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Input")
-	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,plotname=inputplotID)
+	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input",cluster=cluster)
 
 
 	
