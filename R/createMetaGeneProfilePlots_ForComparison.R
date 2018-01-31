@@ -23,7 +23,6 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMa
 	{
 		break_points=c(-2000,-1000,500,2500,4000)
 		abline(v=c(0,totalGeneLength),lty=2,col="darkgrey", lwd=3)
-	   	#abline(v=c(inner_margin,totalGeneLength-inner_margin),lty=3,col="darkgrey", lwd=2)
 	   	abline(v=break_points,lty=3,col="darkgrey", lwd=2)
 	   	axis(side = 1, at = sort(c(break_points,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))
 	}else{
@@ -80,7 +79,7 @@ f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=
     lines(d$x, d$y)
     polygon(c(qq[4],d$x[i],qq[5]), c(0,d$y[i],0), col=mycolors[1])
 
-    abline(v =coordinateLine, ,col="red",lwd=3,lty=2)
+    abline(v=coordinateLine,,col="red",lwd=3,lty=2)
 
     if (!is.null(savePlotPath))
     {
@@ -91,20 +90,6 @@ f_plotValueDistribution = function(compendium,title,coordinateLine,savePlotPath=
 }
 
 
-
-##GLOBAL VARIABLES
-dataDirectory="../data"
-profilePath=file.path(dataDirectory,"Profiles")
-mlModelPath=file.path(dataDirectory,"ML_models")
-Hlist=c("H3K36me3","POLR2A","H3K4me3","POLR3G","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
-	"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac",
-	"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph")
-##defining class members for sharp broad and RNAPol2 class
-allSharp=c("H3K27ac","H3K9ac","H3K14ac","H2BK5ac","H4K91ac","H3K18ac","H3K23ac","H2AK9ac","H3K4me3","H3K4me2","H3K79me1","H2AFZ","H2A.Z","H4K12ac"
-		,"H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
-allBroad=c("H3K23me2","H3K9me2","H3K9me3","H3K27me3","H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
-##USE ONLY POLR2A for Pol2 class
-RNAPol2="POLR2A"
 
 ##################
 ##GLOBAL functions
@@ -120,7 +105,7 @@ RNAPol2="POLR2A"
 #' compendium’s mean signal (black line) and its 2 x standard error (blue shadow). Additionally the function plots the desired QC-metric
 #' as a red dashed line for the sample plotted against the reference distribution (density plots) of the compendium values stratified by chromatin marks.
 #'
-#' f_metagenePlotsForComparison
+#' metagenePlotsForComparison
 #' @param chrommark String, chromatin mark to be analysed. Has to be one of the following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
 #' H3K9me1, H3K4me1, H3K79me1,H3K4ac,H3K14ac,H2BK5ac,H2BK120ac,H2BK15ac,H4K91ac,H4K8ac,H3K18ac,H2BK12ac,H3K56ac
 #' H3K23ac, H2AK5ac, H2BK20ac,H4K5ac,H4K12ac,H2A.Z,H3K23me2,H2AK9ac,H3T11ph. For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G and POLR2AphosphoS2
@@ -133,11 +118,12 @@ RNAPol2="POLR2A"
 #' @return returnList
 #' @examples
 #'\{dontrun
-#' f_metagenePlotsForComparison(chrommark="H3K4me1",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES,plotName=chipName,profilePath="/lustre/data/FF/Carmen/BitBucket/chic/data/Profiles")
+#' metagenePlotsForComparison(chrommark="H3K4me1",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES,plotName=chipName,profilePath="/lustre/data/FF/Carmen/BitBucket/chic/data/Profiles")
 #'}
 
-f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=NULL)
+metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=NULL)
 {
+	load("CompendiumProfiles.RData")
 	psc <- 1; # pseudocount, required to avoid log2 of 0
 	if (chrommark %in% Hlist)
 	{
@@ -160,24 +146,27 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 			#load data from compendium 
 			frame=NULL
 			#load average dataframe normalized
-			name=paste(chrommark,"_",endung,"norm.RData", sep="")
-			a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
+			name=paste(chrommark,"_",endung,"norm", sep="")
+			#a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
+			frame=compendiumProfiles[[name]]
 			normMin=min(frame$mean-frame$sderr)
 			normMax= max(frame$mean+frame$sderr)
 			n_mean=frame
 
 			frame=NULL
 			#load average dataframe chip
-			name=paste(chrommark,"_",endung,"chip.RData", sep="")
-			a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
+			name=paste(chrommark,"_",endung,"chip", sep="")
+			#a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
+			frame=compendiumProfiles[[name]]
 			absoluteMin=min(frame$mean-frame$sderr)
 			absoluteMax= max(frame$mean+frame$sderr)
 			c_mean=frame
 
 			frame=NULL
 			#load average dataframe input
-			name= paste(chrommark,"_",endung,"input.RData", sep="")
-			a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
+			name= paste(chrommark,"_",endung,"input", sep="")
+			#a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
+			frame=compendiumProfiles[[name]]
 			if ((min(frame$mean-frame$sderr))<absoluteMin){absoluteMin=min(frame$mean-frame$sderr)}
 			if ((max(frame$mean+frame$sderr))>absoluteMax){absoluteMax= max(frame$mean+frame$sderr)}
 			i_mean=frame
@@ -236,7 +225,7 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 #' @description
 #' Creates a density plot (in pdf) for the sample against the reference distribution (density plots) of the compendium values stratified by chromatin marks.
 #'
-#' f_metagenePlotsForComparison
+#' plotReferenceDistribution
 #'
 #' @param chrommark Chromatin mark to be plotted. Has to be on of the following: "H3K36me3","POLR2A","H3K4me3","POLR3G",
 #' "H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
@@ -250,19 +239,21 @@ f_metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, T
 #' @return finalList containing (!!!DESCRIBE BETTER)
 #' @examples
 #'\{dontrun
-#' f_plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
+#' plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
 #'}
 
-f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValue,savePlotPath=NULL)
+plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValue,savePlotPath=NULL)
 {
+	load("Settings.RData")
 	if (chrommark %in% Hlist)
 	{
 		##reading compendium
-		filename=file.path(dataDirectory,"numbersHistone_AllGenes_ENCODE.txt")
-		d1=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
-		filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
-		d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
-		compendium=rbind(d1,d2)
+		#filename=file.path(dataDirectory,"numbersHistone_AllGenes_ENCODE.txt")
+		#d1=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
+		#filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
+		#d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
+		#compendium=rbind(d1,d2)
+		load("Compendium_DB.RData")
 		##select the class for the respective chromatin mark
 	    if (chrommark%in%allSharp)
 	    {
@@ -295,43 +286,54 @@ f_plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentVa
 }
 
 
-f_plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
+plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 {
 	library(caret)
-	
+	print("load profile classes...")
+	load("Settings.RData")
+	load("RFmodels.RData")
 	if (chrommark%in%allSharp)
-	{
-	    model=1
-	}
+	{model=load("sharpEncode.Rdata")}
+	#class="sharpEncode"
 	if (chrommark%in%allBroad)
-	{
-		model=1
-	}
+	{model=load("broadEncode.Rdata")}
 	if (chrommark%in%RNAPol2)
-	{
-		model=1
-	
-	}
+	{model=load("RNAPol2Encode.Rdata")}
 	if (chrommark=="H3K9me3")
-	{model=load(file.path(mlModelPath, "H3K9Encode.Rdata"))}
+	{model=load("H3K9Encode.Rdata")}
 	if (chrommark=="H3K27me3")
-	{model=load(file.path(mlModelPath, "H3K27Encode.Rdata"))}
+	{model=load("H3K27Encode.Rdata")}
 	if (chrommark=="H3K36me3")
-	{model=load(file.path(mlModelPath, "H3K36Encode.Rdata"))}
+	{model=load("H3K36Encode.Rdata")}
+	
+	#model= RFmodels[[class]]
 
 	if (chrommark%in%Hlist){
-		features=c(colnames(HfinalModel$trainingData))
-		features=features[-(which(features==".outcome"))]
+		selectedFeatures=c(colnames(HfinalModel$trainingData))
+		selectedFeatures=selectedFeatures[-(which(selectedFeatures==".outcome"))]
 	}
 
 
-	dataToPredict=
-	features[features%in%rownames(featureVector)]
+	a=lapply(as.list(rownames(featureVector)),function(element){
+		word=strsplit(element,"-")[[1]]
+		if (length(word)>1)
+		{		
+			new=paste(word[1],word[2],sep=".")
+			word=new
+		}
+				
+		if (length(grep("%",word))>0)
+		{
+			word=strsplit(word,"%")[[1]]
+			new=paste(word,".",sep="")			
+			word=new
+		}
+		return(word)
+	})
 
+	rownames(featureVector)=c(unlist(a))
+
+	selectedFeatures[selectedFeatures %in% rownames(featureVector)]
 	prediction=predict(model, newdata=dataToPredict,type="prob")
-	
-
-
-
 
 }

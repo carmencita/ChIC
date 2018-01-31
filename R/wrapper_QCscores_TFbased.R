@@ -14,15 +14,13 @@
 #' evalue of 10 (Kharchenko et al., 2008). And count the number of peaks called when using the sharp- and broad-binding option. 
 # 'Finally 22 features are given back.
 #'
-#' f_CrossCorrelation
+#' crossCorrelation
 #'
 #' @param chipName String, filename (without extension) of the input file for ChIP
 #' @param inputName String, filename (without extension) of the input file for ChIP
 #' @param read_length Integer, length of the reads
-#' @param reads.aligner.type String, indicating the aligner type. Can be "bam" or "tagAlign" (Default="bam")
 #' @param dataPath Path were to find the input files chipName and inputName, default is working directory
 #' @param debug Boolean value to enter in debugging mode (default= FALSE)
-#' @param cluster Integer indicating the number of CPUs to parallelize a few functions (default=NULL)
 #' @param chrominfo_file Path to the chromatin information file
 #'
 #' @return returnList, containing (!!!DESCRIBE BETTER)
@@ -34,65 +32,65 @@
 #'
 #' @examples
 #'\{dontrun
-#' CC_Result=f_CrossCorrelation(chipName, inputName, read_length=36, reads.aligner.type="bam", dataPath=dataPath, debug=debug,cluster=cluster,chrominfo_file=chrominfo_file)
+#' CC_Result=crossCorrelation(chipName, inputName, read_length=36,  dataPath=dataPath, debug=debug,chrominfo_file=chrominfo_file)
 #'}
 
 
-f_CrossCorrelation=function(chipName, inputName, read_length, reads.aligner.type="bam", dataPath=getwd(),savePlotPath=NULL,debug=FALSE,cluster=NULL,mc=1,chrominfo_file=pwd())
+crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), annotationID="hg19", savePlotPath=NULL, debug=FALSE, mc=1)
 {
-	source("Functions.R")
+	##load rngl
+	filename=paste(annotationID,".chromInfo.RData",sep="")
+	print(paste("load ",filename))
+	load(filename)
 
-	chrominfo<-read.table(chrominfo_file, header=TRUE, quote="", sep="\t", stringsAsFactors=FALSE)
-	rownames(chrominfo)<-chrominfo$chrom
-	rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(as.integer(c(1,x)))})
+	#chrominfo<-read.table(chrominfo_file, header=TRUE, quote="", sep="\t", stringsAsFactors=FALSE)
+	#rownames(chrominfo)<-chrominfo$chrom
+	#rngl<-lapply(split(x=chrominfo$size, f=chrominfo$chrom), FUN=function(x) {return(as.integer(c(1,x)))})
 
 	###read files
-	print(paste("reading",reads.aligner.type,"files",sep=" "))
+	print(paste("reading bam files",sep=" "))
 	chip.data=f_readFile(chipName,f_path=dataPath)
 	input.data=f_readFile(inputName,f_path=dataPath)
 
-	ORDERED_data<-chip.data
-	for (chr in names(chip.data$tags)) {
-  		orderingVector<-order(abs(chip.data$tags[[chr]]))
-  		ORDERED_data$tags[[chr]]<-chip.data$tags[[chr]][orderingVector]
-  		ORDERED_data$quality[[chr]]<-chip.data$quality[[chr]][orderingVector]
-	}
-	chip.data=ORDERED_data
+	# ORDERED_data<-chip.data
+	# for (chr in names(chip.data$tags)) {
+ #  		orderingVector<-order(abs(chip.data$tags[[chr]]))
+ #  		ORDERED_data$tags[[chr]]<-chip.data$tags[[chr]][orderingVector]
+ #  		ORDERED_data$quality[[chr]]<-chip.data$quality[[chr]][orderingVector]
+	# }
+	# chip.data=ORDERED_data
 
-	ORDERED_data<-input.data
-	for (chr in names(input.data$tags)) {
-  		orderingVector<-order(abs(input.data$tags[[chr]]))
-  		ORDERED_data$tags[[chr]]<-input.data$tags[[chr]][orderingVector]
-  		ORDERED_data$quality[[chr]]<-input.data$quality[[chr]][orderingVector]
-	}
-	input.data=ORDERED_data
+	# ORDERED_data<-input.data
+	# for (chr in names(input.data$tags)) {
+ #  		orderingVector<-order(abs(input.data$tags[[chr]]))
+ #  		ORDERED_data$tags[[chr]]<-input.data$tags[[chr]][orderingVector]
+ #  		ORDERED_data$quality[[chr]]<-input.data$quality[[chr]][orderingVector]
+	# }
+	# input.data=ORDERED_data
 
 
-	if (!is.null(cluster))
-	{
-		print("using clusterApplyLB function...")
-		cluster=makeCluster(mc)
-	}
 
 	#plot and calculate cross correlation and phantom characteristics for the ChIP
 	print("calculate binding characteristics ChIP")
+	## cross_correlation parameters
+	estimating_fragment_length_range<-c(0,500)
+	estimating_fragment_length_bin<-5
 
+	#chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
 
-	#chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
-
-	chip_binding.characteristics<-get.binding.characteristicsMy(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
+	chip_binding.characteristics<-get.binding.characteristicsMy(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Chip")
-	crossvalues_Chip=f_calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP",cluster=cluster)
+	crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
 	##save the tag.shift
-	final.tag.shift= crossvalues_Chip$tag.shift
+	final.tag.shift<-crossvalues_Chip$tag.shift
 
 
 	#plot and calculate cross correlation and phantom characteristics for the input
 	print("calculate binding characteristics Input")
 	
-	input_binding.characteristics<-get.binding.characteristicsMy(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, cluster=cluster,accept.all.tags=T)
+	input_binding.characteristics<-get.binding.characteristicsMy(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Input")
-	crossvalues_Input=f_calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input",cluster=cluster)
+	crossvalues_Input=calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input")
 
 
 	
@@ -111,17 +109,12 @@ f_CrossCorrelation=function(chipName, inputName, read_length, reads.aligner.type
 	chip.dataSelected=selectInformativeTags$chip.dataSelected
 
 	#get QC-values from peak calling
-	bindingScores=f_getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift,cluster=cluster)#,custom_chrorder)
-	print("switch cluster off")
+	bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)
 	
-	if (!is.null(cluster))
-	{
-		stopCluster(cluster)
-	}
-
+	
 	##objects of smoothed tag density for ChIP and Input
-	smoothed.densityChip=f_tagDensity(chip.dataSelected,final.tag.shift,rngl=rngl)
-	smoothed.densityInput=f_tagDensity(input.dataSelected,final.tag.shift,rngl=rngl)
+	smoothed.densityChip=f_tagDensity(chip.dataSelected,final.tag.shift,rngl=rngl,mc=mc)
+	smoothed.densityInput=f_tagDensity(input.dataSelected,final.tag.shift,rngl=rngl,mc=mc)
 	
 
 	returnList=list("QCscores_ChIP"=crossvalues_Chip,
@@ -143,77 +136,3 @@ f_CrossCorrelation=function(chipName, inputName, read_length, reads.aligner.type
 
 }
 
-
-
-
-
-
-################RESULTsS save for different purposes
-
-	# if (debug) {
-	# 	save(smoothed.densityChip,file=file.path(path, paste(chipName, inputName, "TagDensityChip.RData", sep="_")))
-	# 	save(smoothed.densityInput,file=file.path(path, paste( chipName, inputName, "TagDensityInput.RData", sep="_")))
-
-	# 	write.table(crossvalues_Chip,file=file.path(path, paste(chipName, inputName, "chip.results", sep="_")))
-	# 	write.table(crossvalues_Input,file=file.path(path, paste(chipName, inputName, "Input.results", sep="_")))
-	# 	write.table(bindingScores,file=file.path(path, paste(chipName, inputName, "BindingScores.results", sep="_")))
-
-
-	# 	print("write results in file")
-	# 	################RESULTS
-	# 	outname=file.path(path,paste(chipName,"TF.results",sep="_"))
-	# 	file.remove(outname)
-	# 	#sampleIndex datafilename
-	# 	#readCount read_length
-		
-	# 	write(paste("Input: ",chipName,sep=" "),file=outname,append=T)
-	# 	write(paste("Input: ",chipName ,sep=" "),file=outname,append=T)
-
-	# 	write(paste("ReadCount",readCount,sep=" "),file=outname,append=T)
-	# 	write(paste("Read_length",read_length,sep=" "),file=outname,append=T)
-	# 	#strandShift<-binding.characteristics$peak$x
-	# 	write(paste("StrandShift",strandShift,sep=" "),file=outname,append=T)
-	# 	write(paste("Substitution of StrandShift from ",oldShift," to ",strandShift,sep=" "),file=outname,append=T)
-
-	# 	#binding.characteristics$peak$whs
-	# 	write(paste("bindingCharacteristicsPeak (x,y,whs)",binding.characteristics$peak$x,binding.characteristics$peak$y,binding.characteristics$whs,sep=" "),file=outname,append=T)
-
-	# 	#phantom.characteristics$peak$x 
-	# 	#phantom.characteristics$peak$y
-	# 	#phantom.characteristics$peak$whs
-
-	# 	write(paste("phantomCharacteristicsPeak (x,y,whs)",phantom.characteristics$peak$x,phantom.characteristics$peak$y,phantom.characteristics$whs,sep=" "),file=outname,append=T)
-	# 	#phantomScores
-
-	# 	write(paste("ALL_TAGS",ALL_TAGS,sep=" "),file=outname,append=T)
-	# 	write(paste("NSC",round(NSC, 2),sep=" "),file=outname,append=T)
-	# 	write(paste("RSC",round(RSC, 2),sep=" "),file=outname,append=T)
-	# 	write(paste("Quality flag: ", qflag,sep=" "),file=outname,append=T)
-	# 	write(paste("shift: ", round(as.double(phantomScores["shift"]),2),sep=" "),file=outname,append=T)
-
-	# 	write(paste("read length",round(as.double(phantomScores["read_length"]),2),sep=" "),file=outname,append=T)
-	# 	write(paste("A: ", round(as.double(phantomScores["A"]),2),sep=" "),file=outname,append=T)
-	# 	write(paste("B: ", round(as.double(phantomScores["B"]),2),sep=" "),file=outname,append=T)
-	# 	write(paste("C: ", round(as.double(phantomScores["C"]),2),sep=" "),file=outname,append=T)
-
-	# 	write(paste("FDR detected",sum(unlist(lapply(bp_FDR$npl,function(d) length(d$x)))),"peaks",sep=" "),file=outname,append=T)
-	# 	write(paste("eval detected",sum(unlist(lapply(bp_eval$npl,function(d) length(d$x)))),"peaks",sep=" "),file=outname,append=T)
-
-	# 	#STATS_NRF
-
-	# 	write(paste("UNIQUE_TAGS_LibSizeadjusted",UNIQUE_TAGS_LibSizeadjusted,sep=" "),file=outname,append=T)
-	# 	write(paste("NRF_LibSizeadjusted",NRF_LibSizeadjusted,sep=" "),file=outname,append=T)
-	# 	write(paste("ALL_TAGS",ALL_TAGS,sep=" "),file=outname,append=T)
-	# 	write(paste("UNIQUE_TAGS",UNIQUE_TAGS,sep=" "),file=outname,append=T)
-	# 	write(paste("UNIQUE_TAGS_nostrand",UNIQUE_TAGS_nostrand,sep=" "),file=outname,append=T)
-	# 	write(paste("NRF",NRF,sep=" "),file=outname,append=T)
-	# 	write(paste("NRF_LibSizeadjusted",NRF_LibSizeadjusted,sep=" "),file=outname,append=T)
-	# 	write(paste("NRF_nostrand",NRF_nostrand,sep=" "),file=outname,append=T)
-	# 	write(paste("PBC",PBC,sep=" "),file=outname,append=T)
-	# 	write(paste("N1",N1,sep=" "),file=outname,append=T)
-	# 	write(paste("Nd",Nd,sep=" "),file=outname,append=T)
-	# 	#Frip
-	# 	write(paste("Total_reads",TOTAL_reads,"FRiP_broadPeak",round(FRiP_broadPeak, 2),"outcountsBroadPeak", outcountsBroadPeak, "FRiP_sharpPeak", FRiP_sharpPeak, "outcountsSharpPeak", outcountsSharpPeak, sep=" "),file=outname,append=T)
-
-
-	# }

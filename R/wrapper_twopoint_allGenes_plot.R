@@ -6,7 +6,7 @@
 #' From the profile, we take enrichment values at different coordinates: at -2KB, at the TSS, inner margin (0.5KB), 
 #' gene body (2KB + 2 * inner margin), gene body+1KB. We collect in total 42 QC-metrics from the ChIP and normalized profile. 
 #'
-#' f_plotMetageneProfile
+#' scaledMetageneProfile
 #'
 #' @param binnedChip DESCRIBE!!
 #' @param binnedInput DESCRiBE!!
@@ -18,13 +18,14 @@
 #' @examples
 #'\{dontrun
 #' source("wrapper_twopoint_allGenes_plot.R")
-#' geneBody_Plot=f_plotMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
+#' geneBody_Plot=scaledMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
 #' completeListOfValues=append(completeListOfValues,geneBody_Plot)
 #'}
 
-f_plotMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FALSE)
+scaledMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FALSE)
 {
-	source("FunctionsLocal.R")
+	print("load metagene setting")
+	load("Settings.RData")
 	psc <- 1; # pseudocount # required to avoid log2 of 0
 
 	chip <- log2(do.call(rbind,binnedChip)+psc)

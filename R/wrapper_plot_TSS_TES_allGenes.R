@@ -6,8 +6,8 @@
 #' the local maxima (x, y coordinates), the variance, the standard deviation and the quantiles at 0%, 25%, 50% and 75%. 
 #' In total the function returns 43 QC-metrics
 #'
-#' f_plotMetageneProfile_onePoint
-#''
+#' nonScaledMetageneProfile
+#'
 #' @param binnedChip DESCRIBE!!
 #' @param binnedInput DESCRiBE!!
 #' @param tag String, can be "TSS" or "TES". Indicates if the TSS or the TES should be calcualted (Default="TSS")
@@ -19,16 +19,17 @@
 #' @examples
 #'\{dontrun
 #'source("wrapper_plot_TSS_TES_allGenes.R")
-#'TSS_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",path=getwd(),debug=TRUE)
+#'TSS_Plot=nonScaledMetageneProfile(Meta_Result$TSS$chip,Meta_Result$TSS$input,tag="TSS",path=getwd(),debug=TRUE)
 #'completeListOfValues=append(completeListOfValues,TSS_Plot)
 #'
-#'TES_Plot=f_plotMetageneProfile_onePoint(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",path=getwd(),debug=TRUE)
+#'TES_Plot=nonScaledMetageneProfile(Meta_Result$TES$chip,Meta_Result$TES$input,tag="TES",path=getwd(),debug=TRUE)
 #'completeListOfValues=append(completeListOfValues,TES_Plot)
 #'}
 
-f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlotPath=NULL,debug=FALSE)
-{
-	source("FunctionsLocal.R")
+nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=NULL,debug=FALSE)
+{	
+	print("load metagene setting")
+	load("Settings.RData")
 	psc <- 1; # pseudocount # required to avoid log2 of 0
 	chip <- log2(do.call(rbind,binnedChip)+psc)
 	input<-log2(do.call(rbind,binnedInput)+psc)
@@ -168,98 +169,3 @@ f_plotMetageneProfile_onePoint=function(binnedChip,binnedInput,tag="TSS",savePlo
 	return(result)
 
 }
-
-
-# chip_auc_TES_1 
-# chip_auc_TES_2 
-# chip_auc_TES_3 
-# chip_auc_TES_4 
-# chip_auc_TES_5 
-# chip_auc_TES_6 
-# chip_auc_TSS_1 
-# chip_auc_TSS_2 
-# chip_auc_TSS_3 
-# chip_auc_TSS_4 
-# chip_auc_TSS_5 
-# chip_auc_TSS_6 
-# chip_dispersion_TES_-1000_0% 
-# chip_dispersion_TES_-1000_25% 
-# chip_dispersion_TES_-1000_50% 
-# chip_dispersion_TES_-1000_75% 
-# chip_dispersion_TES_-1000_sd 
-# chip_dispersion_TES_-1000_variance 
-# chip_dispersion_TES_-2000_0% 
-# chip_dispersion_TES_-2000_25% 
-# chip_dispersion_TES_-2000_50% 
-# chip_dispersion_TES_-2000_75% 
-# chip_dispersion_TES_-2000_sd 
-# chip_dispersion_TES_-2000_variance 
-# chip_dispersion_TES_-500_0% 
-# chip_dispersion_TES_-500_25% 
-# chip_dispersion_TES_-500_50% 
-# chip_dispersion_TES_-500_75% 
-# chip_dispersion_TES_-500_sd 
-# chip_dispersion_TES_-500_variance 
-# chip_dispersion_TSS_-1000_0% 
-# chip_dispersion_TSS_-1000_25% 
-# chip_dispersion_TSS_-1000_50% 
-# chip_dispersion_TSS_-1000_75% 
-# chip_dispersion_TSS_-1000_sd 
-# chip_dispersion_TSS_-1000_variance 
-# chip_dispersion_TSS_-2000_0% chip_dispersion_TSS_-2000_25% chip_dispersion_TSS_-2000_50% 
-# chip_dispersion_TSS_-2000_75% chip_dispersion_TSS_-2000_sd chip_dispersion_TSS_-2000_variance 
-# chip_dispersion_TSS_-500_0% chip_dispersion_TSS_-500_25% chip_dispersion_TSS_-500_50% chip_dispersion_TSS_-500_75% 
-# chip_dispersion_TSS_-500_sd chip_dispersion_TSS_-500_variance 
-# chip_hotSpots_TES_-1000 
-# chip_hotSpots_TES_-2000 
-# chip_hotSpots_TES_-500 
-# chip_hotSpots_TES_0 
-# chip_hotSpots_TES_1000 
-# chip_hotSpots_TES_2000 
-# chip_hotSpots_TES_500 
-# chip_hotSpots_TSS_-1000 
-# chip_hotSpots_TSS_-2000 
-# chip_hotSpots_TSS_-500 
-# chip_hotSpots_TSS_0 
-# chip_hotSpots_TSS_1000 
-# chip_hotSpots_TSS_2000 
-# chip_hotSpots_TSS_500 
-# chip_localMax_TES_1_x 
-# chip_localMax_TES_1_y 
-# chip_localMax_TES_2_x 
-# chip_localMax_TES_2_y chip_localMax_TES_3_x chip_localMax_TES_3_y chip_localMax_TES_4_x chip_localMax_TES_4_y chip_localMax_TES_5_x 
-# chip_localMax_TES_5_y chip_localMax_TES_6_x chip_localMax_TES_6_y chip_localMax_TSS_1_x chip_localMax_TSS_1_y chip_localMax_TSS_2_x 
-# chip_localMax_TSS_2_y chip_localMax_TSS_3_x chip_localMax_TSS_3_y chip_localMax_TSS_4_x chip_localMax_TSS_4_y chip_localMax_TSS_5_x 
-# chip_localMax_TSS_5_y chip_localMax_TSS_6_x chip_localMax_TSS_6_y 
-# input_auc_TES_1 input_auc_TES_2 input_auc_TES_3 input_auc_TES_4 input_auc_TES_5 input_auc_TES_6 input_auc_TSS_1 
-# input_auc_TSS_2 input_auc_TSS_3 input_auc_TSS_4 input_auc_TSS_5 input_auc_TSS_6 
-# input_dispersion_TES_-1000_0% input_dispersion_TES_-1000_25% input_dispersion_TES_-1000_50% input_dispersion_TES_-1000_75% 
-# input_dispersion_TES_-1000_sd input_dispersion_TES_-1000_variance input_dispersion_TES_-2000_0% input_dispersion_TES_-2000_25% input_dispersion_TES_-2000_50% 
-# input_dispersion_TES_-2000_75% input_dispersion_TES_-2000_sd input_dispersion_TES_-2000_variance input_dispersion_TES_-500_0% input_dispersion_TES_-500_25% 
-# input_dispersion_TES_-500_50% input_dispersion_TES_-500_75% input_dispersion_TES_-500_sd input_dispersion_TES_-500_variance input_dispersion_TSS_-1000_0% 
-# input_dispersion_TSS_-1000_25% input_dispersion_TSS_-1000_50% input_dispersion_TSS_-1000_75% input_dispersion_TSS_-1000_sd input_dispersion_TSS_-1000_variance 
-# input_dispersion_TSS_-2000_0% input_dispersion_TSS_-2000_25% input_dispersion_TSS_-2000_50% input_dispersion_TSS_-2000_75% input_dispersion_TSS_-2000_sd 
-# input_dispersion_TSS_-2000_variance input_dispersion_TSS_-500_0% input_dispersion_TSS_-500_25% input_dispersion_TSS_-500_50% input_dispersion_TSS_-500_75% 
-# input_dispersion_TSS_-500_sd input_dispersion_TSS_-500_variance input_hotSpots_TES_-1000 input_hotSpots_TES_-2000 input_hotSpots_TES_-500 input_hotSpots_TES_0 
-# input_hotSpots_TES_1000 input_hotSpots_TES_2000 input_hotSpots_TES_500 input_hotSpots_TSS_-1000 input_hotSpots_TSS_-2000 input_hotSpots_TSS_-500 
-# input_hotSpots_TSS_0 input_hotSpots_TSS_1000 input_hotSpots_TSS_2000 input_hotSpots_TSS_500 
-# input_localMax_TES_1_x input_localMax_TES_1_y input_localMax_TES_2_x input_localMax_TES_2_y input_localMax_TES_3_x input_localMax_TES_3_y 
-# input_localMax_TES_4_x input_localMax_TES_4_y input_localMax_TES_5_x input_localMax_TES_5_y input_localMax_TES_6_x input_localMax_TES_6_y 
-# input_localMax_TSS_1_x input_localMax_TSS_1_y input_localMax_TSS_2_x input_localMax_TSS_2_y input_localMax_TSS_3_x input_localMax_TSS_3_y 
-# input_localMax_TSS_4_x input_localMax_TSS_4_y input_localMax_TSS_5_x input_localMax_TSS_5_y input_localMax_TSS_6_x input_localMax_TSS_6_y 
-# norm_auc_TES_1 norm_auc_TES_2 norm_auc_TES_3 norm_auc_TES_4 norm_auc_TES_5 norm_auc_TES_6 norm_auc_TSS_1 norm_auc_TSS_2 norm_auc_TSS_3 
-# norm_auc_TSS_4 norm_auc_TSS_5 norm_auc_TSS_6 
-# norm_dispersion_TES_-1000_0% norm_dispersion_TES_-1000_25% norm_dispersion_TES_-1000_50% norm_dispersion_TES_-1000_75% norm_dispersion_TES_-1000_sd 
-# norm_dispersion_TES_-1000_variance norm_dispersion_TES_-2000_0% norm_dispersion_TES_-2000_25% norm_dispersion_TES_-2000_50% norm_dispersion_TES_-2000_75% 
-# norm_dispersion_TES_-2000_sd norm_dispersion_TES_-2000_variance norm_dispersion_TES_-500_0% norm_dispersion_TES_-500_25% norm_dispersion_TES_-500_50% 
-# norm_dispersion_TES_-500_75% norm_dispersion_TES_-500_sd norm_dispersion_TES_-500_variance norm_dispersion_TSS_-1000_0% norm_dispersion_TSS_-1000_25% 
-# norm_dispersion_TSS_-1000_50% norm_dispersion_TSS_-1000_75% norm_dispersion_TSS_-1000_sd norm_dispersion_TSS_-1000_variance norm_dispersion_TSS_-2000_0% 
-# norm_dispersion_TSS_-2000_25% norm_dispersion_TSS_-2000_50% norm_dispersion_TSS_-2000_75% norm_dispersion_TSS_-2000_sd norm_dispersion_TSS_-2000_variance 
-# norm_dispersion_TSS_-500_0% norm_dispersion_TSS_-500_25% norm_dispersion_TSS_-500_50% norm_dispersion_TSS_-500_75% norm_dispersion_TSS_-500_sd 
-# norm_dispersion_TSS_-500_variance norm_hotSpots_TES_-1000 norm_hotSpots_TES_-2000 norm_hotSpots_TES_-500 norm_hotSpots_TES_0 norm_hotSpots_TES_1000 
-# norm_hotSpots_TES_2000 norm_hotSpots_TES_500 norm_hotSpots_TSS_-1000 norm_hotSpots_TSS_-2000 norm_hotSpots_TSS_-500 norm_hotSpots_TSS_0 norm_hotSpots_TSS_1000 
-# norm_hotSpots_TSS_2000 norm_hotSpots_TSS_500 
-# norm_localMax_TES_1_x norm_localMax_TES_1_y norm_localMax_TES_2_x norm_localMax_TES_2_y norm_localMax_TES_3_x norm_localMax_TES_3_y 
-# norm_localMax_TES_4_x norm_localMax_TES_4_y norm_localMax_TES_5_x norm_localMax_TES_5_y norm_localMax_TES_6_x norm_localMax_TES_6_y 
-# norm_localMax_TSS_1_x norm_localMax_TSS_1_y norm_localMax_TSS_2_x norm_localMax_TSS_2_y norm_localMax_TSS_3_x norm_localMax_TSS_3_y 
-# norm_localMax_TSS_4_x norm_localMax_TSS_4_y norm_localMax_TSS_5_x norm_localMax_TSS_5_y norm_localMax_TSS_6_x norm_localMax_TSS_6_y n
