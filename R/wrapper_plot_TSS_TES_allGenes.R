@@ -30,6 +30,8 @@ nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=
 {	
 	print("load metagene setting")
 	load("Settings.RData")
+	break_points=f_metaGeneDefinition("break_points")
+
 	psc <- 1; # pseudocount # required to avoid log2 of 0
 	chip <- log2(do.call(rbind,binnedChip)+psc)
 	input<-log2(do.call(rbind,binnedInput)+psc)
@@ -84,7 +86,6 @@ nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=
 	colnames(variabilityValues)=c("Feature","Value")
 
 	##make plots
-
 	colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
 	if (!is.null(savePlotPath))
 	{
@@ -94,11 +95,17 @@ nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=
 	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
 	col=colori,xlab="metagene coordinates",ylab="mean of log2 tag density",main=tag,xaxt='n')
-	abline(v=0,lty=2,col="darkgrey", lwd=2) ##plot TSS	    
-	plotPoints=c(-2000,-1000,-500,500,1000,2000) ##plot remaining be
-	abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
-	axis(side = 1, at = sort(c(plotPoints,0)), labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
+
+
+	newbreak_points=break_points[-c(4)]# c(-2000,-1000,-500,500,1000,2000)
+	abline(v=0,lty=2,col="darkgrey", lwd=2)
+	abline(v=newbreak_points,lty=3,col="darkgrey", lwd=2)
+	#abline(v=0,lty=2,col="darkgrey", lwd=2) ##plot TSS	    
+	#plotPoints=c(-2000,-1000,-500,500,1000,2000) ##plot remaining be
+	#abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
+	axis(side = 1, at = break_points, labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
 	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
+
 	if (!is.null(savePlotPath))
 	{
 		dev.off()
@@ -143,10 +150,15 @@ nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=
 	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	plot(x=as.numeric(names(all.Norm)),y=all.Norm, type="l", lwd=2, lty=1, col="orange",xlab="metagene coordinates",ylab="mean log2 enrichment (signal/input)",
 		main=paste("normalized",tag,sep=" "), xaxt='n')#,cex.axis=1.3,cex.lab=1.3)
-	abline(v=0,lty=2,col="darkgrey", lwd=2) ##plot TSS
-	abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
-	axis(side = 1, at = sort(c(plotPoints,0)), labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
+	
+	abline(v=0,lty=2,col="darkgrey", lwd=2)
+	abline(v=newbreak_points,lty=3,col="darkgrey", lwd=2)
+	axis(side = 1, at = break_points, labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
 	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
+	#abline(v=0,lty=2,col="darkgrey", lwd=2) ##plot TSS
+	#abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
+	#axis(side = 1, at = sort(c(plotPoints,0)), labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
+	#legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
 	if (!is.null(savePlotPath))
 	{
 		dev.off()

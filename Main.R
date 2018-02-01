@@ -7,6 +7,7 @@ require("spp")
 require(girafe)
 require(snow)
 require(parallel)
+requre(caret)
 path=getwd()
 
 dataDirectory<-"/lustre/data/FF/Carmen/BitBucket/chic/data/"
@@ -40,6 +41,7 @@ source("wrapper_QCscores_TFbased.R")
 source("wrapper_plot_TSS_TES_allGenes.R")
 source("wrapper_twopoint_allGenes_plot.R")
 
+source("createMetaGeneProfilePlots_ForComparison.R")
 
 CC_Result=crossCorrelation(chipName=chipName,inputName=inputName, read_length=36, dataPath=dataDirectory, debug=debug,mc=mc,annotationID="hg19",savePlotPath=getwd())
 
@@ -86,8 +88,12 @@ rownames(helper)=geneBody_Plot$Feature
 completeListOfValues=rbind(completeListOfValues,helper)
 
 ##additional plots
-source("createMetaGeneProfilePlots_ForComparison.R")
+
+load("ENCFF000BLL_ENCFF000BKA_OnePointTES.RData")
+load("ENCFF000BLL_ENCFF000BKA_OnePointTSS.RData")
+load("ENCFF000BLL_ENCFF000BKA_Twopoint.RData")
+
 metagenePlotsForComparison(chrommark="H3K36me3",Meta_Result$twopoint, Meta_Result$TSS, Meta_Result$TES,savePlotPath=getwd())
 plotReferenceDistribution(chrommark="H3K36me3",metricToBePlotted="RSC",currentValue=CC_Result$QCscores_ChIP$CC_RSC,savePlotPath=getwd())
 
-#plotPredictionScore(chrommark="H3K36me3",featureVector=completeListOfValues,savePlotPath=getwd())
+plotPredictionScore(chrommark="H3K36me3",featureVector=completeListOfValues,savePlotPath=getwd())

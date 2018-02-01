@@ -27,10 +27,11 @@ scaledMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 	print("load metagene setting")
 	load("Settings.RData")
 	psc <- 1; # pseudocount # required to avoid log2 of 0
+	break_points_2P=f_metaGeneDefinition("break_points_2P")
+
 
 	chip <- log2(do.call(rbind,binnedChip)+psc)
-	input<-log2(do.call(rbind,binnedInput)+psc)
-	
+	input<-log2(do.call(rbind,binnedInput)+psc)	
 
 	input.noNorm<-colMeans(input,na.rm=T)
 	chip.noNorm <- colMeans(chip,na.rm=T)
@@ -53,10 +54,17 @@ scaledMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 	par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", lwd=2, lty=1,
 	col=colori,xlab="metagene coordinates",ylab="mean of log2 tag density",main="metagene",xaxt='n')
-	plotpoints=c(-2000,-1000,500,2500,4000)
-	abline(v=c(0,totalGeneLength),lty=2,col="darkgrey", lwd=3)
-	abline(v=plotpoints,lty=3,col="darkgrey", lwd=2)
-	axis(side = 1, at =sort(c(plotpoints,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))    
+
+	currBreak_points=break_points_2P[c(-2,-5)] #c(-2000,500,2500,4000)
+	abline(v=c( break_points_2P[c(2,5)]),lty=2,col="darkgrey", lwd=3)
+	abline(v=currBreak_points,lty=3,col="darkgrey", lwd=2)
+	axis(side = 1, at = break_points_2P, labels = c("-2KB","TSS","TSS+500","TES-500","TES","+1KB"))
+
+
+	#plotpoints=c(-2000,-1000,500,2500,4000)
+	#abline(v=c(0,totalGeneLength),lty=2,col="darkgrey", lwd=3)
+	#abline(v=plotpoints,lty=3,col="darkgrey", lwd=2)
+	#axis(side = 1, at =sort(c(plotpoints,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))    
 	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
 	if (!is.null(savePlotPath))
 	{
@@ -84,9 +92,16 @@ scaledMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
     par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
 	plot(x=as.numeric(names(frameNormalized)),y=frameNormalized, type="l", lwd=2, lty=1, col="orange",xlab="metagene coordinates",ylab="mean log2 enrichment (signal/input)",
 		main="normalized metagene", xaxt='n')#,cex.axis=1.3,cex.lab=1.3)
-	abline(v=c(0,totalGeneLength),lty=2,col="darkgrey", lwd=3)
-	abline(v=plotpoints,lty=3,col="darkgrey", lwd=2)
-	   axis(side = 1, at =sort(c(plotpoints,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))    
+	
+	currBreak_points=break_points_2P[c(-2,-5)] #c(-2000,500,2500,4000)
+	abline(v=c( break_points_2P[c(2,5)]),lty=2,col="darkgrey", lwd=3)
+	abline(v=currBreak_points,lty=3,col="darkgrey", lwd=2)
+	axis(side = 1, at = break_points_2P, labels = c("-2KB","TSS","TSS+500","TES-500","TES","+1KB"))
+
+#	abline(v=c(0,totalGeneLength),lty=2,col="darkgrey", lwd=3)
+#	abline(v=plotpoints,lty=3,col="darkgrey", lwd=2)
+ #   axis(side = 1, at =sort(c(plotpoints,0,3000)), labels = c("-2KB","-1KB","TSS","500","500","TES","+1KB"))    
+
 	legend(x="topleft", fill=colori, legend=colnames(all.noNorm),bg="white",cex=0.8)
 	if (!is.null(savePlotPath))
 	{

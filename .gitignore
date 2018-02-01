@@ -7,4 +7,5 @@
 .Ruserdata
 inst/doc
 Results
+*.result
 data/*
