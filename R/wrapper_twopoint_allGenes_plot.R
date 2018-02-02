@@ -80,9 +80,9 @@ scaledMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FA
 	#frameNormalized<-colMeans(t(t(input[common_genes,])-t(chip[common_genes,])),na.rm=T)
 	frameNormalized<-colMeans(t(t(chip[common_genes,])-t(input[common_genes,])),na.rm=T)
 
-	hotSpotsValuesNorm=f_spotfunctionNorm(frameNormalized, break_points_2P, estimated_bin_size_2P, tag="norm")
+	hotSpotsValuesNorm=f_spotfunctionNorm(frameNormalized, break_points_2P, estimated_bin_size_2P, tag="twopoints")
 
-	maxAucValuesNorm=f_maximaAucfunctionNorm(frameNormalized, break_points_2P, estimated_bin_size_2P, tag="norm")
+	maxAucValuesNorm=f_maximaAucfunctionNorm(frameNormalized, break_points_2P, estimated_bin_size_2P, tag="twopoints")
 
 	if (!is.null(savePlotPath))
 	{

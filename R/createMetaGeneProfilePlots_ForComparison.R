@@ -200,14 +200,14 @@ plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValu
 
 plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 {
-	library(caret)
+	library(randomForest)
 	print("load profile classes...")
 	
 	allChrom=f_chromatinMarkClasses(TRUE)
 	load("RFmodels.RData")
 
 	Hlist=f_Hlist(TRUE)
-
+	model=NULL
 	if (chrommark%in%Hlist){
 
 		if (chrommark%in%allChrom$allSharp)
@@ -225,9 +225,11 @@ plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 		{model=RFmodels[["H3K27Encode"]]}
 		if (chrommark=="H3K36me3")
 		{model=RFmodels[["H3K36Encode"]]}
+
 	}else{
 		model=RFmodels$TFmodel
 	}
+
 	selectedFeatures=c(colnames(model$trainingData))
 	selectedFeatures=selectedFeatures[-(which(selectedFeatures==".outcome"))]
 
@@ -251,7 +253,13 @@ plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 
 	rownames(featureVector)=c(unlist(a))
 
-	selectedFeatures[selectedFeatures %in% rownames(featureVector)]
-	prediction=predict(model, newdata=dataToPredict,type="prob")
-
+	
+    if (length(selectedFeatures[!(selectedFeatures %in% rownames(featureVector))])!=0)
+    {
+    	print ("ERROR in features")
+    }else{
+    	
+    	inn=as.data.frame(t(featureVector))[selectedFeatures]
+    	prediction=predict(model, newdata=inn,type="prob")
+    }    
 }

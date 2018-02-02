@@ -78,7 +78,7 @@ crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), an
 
 	#chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
 
-	chip_binding.characteristics<-get.binding.characteristicsMy(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
+	chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Chip")
 	crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
 	##save the tag.shift
@@ -88,7 +88,7 @@ crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), an
 	#plot and calculate cross correlation and phantom characteristics for the input
 	print("calculate binding characteristics Input")
 	
-	input_binding.characteristics<-get.binding.characteristicsMy(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
+	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Input")
 	crossvalues_Input=calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input")
 
