@@ -22,7 +22,7 @@
 #' @param dataPath Path, points to the directory were the bam files are stored (default is working directory)
 #' @param debug Boolean, to enter debugging mode (default= FALSE)
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
-#' @param annotationID String, genome assembly (default="hg19")
+#' @param annotationID String, indicating the genome assembly (Default="hg19")
 #'
 #' @return returnList, contains
 #' QCscores_ChIP List of Crosscorrelation values for the ChIP
@@ -85,14 +85,16 @@ crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), an
 	input.data$quality=input.data$quality[chrl_final]
 
 
-	##select informative tags
-	selectInformativeTags=f_selectInformativeTag(chip.data,input.data,chip_binding.characteristics,input_binding.characteristics)
+	##remove sigular positions with extremely high tag counts with respect to the neighbourhood
+	selectedTags=f_removeLocalTagAnomalies(chip.data,input.data,chip_binding.characteristics,input_binding.characteristics,remove.local.tag.anomalies=TRUE)
+	
 
-	input.dataSelected=selectInformativeTags$input.dataSelected
-	chip.dataSelected=selectInformativeTags$chip.dataSelected
+
+	input.dataSelected=selectedTags$input.dataSelected
+	chip.dataSelected=selectedTags$chip.dataSelected
 
 	#get QC-values from peak calling
-	bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)
+	bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)#chrorder=chrl_final)
 	
 	
 	##objects of smoothed tag density for ChIP and Input

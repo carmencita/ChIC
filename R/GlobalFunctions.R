@@ -20,25 +20,18 @@
 #'
 #' calculateCrossCorrelation
 #'
-#' @param data Spp-package based object with tag information from bam file(!!!DESCRIBE BETTER)
-#' @param binding.characteristics (!!!DESCRIBE BETTER)
+#' @param data spp data structure, structure with tag information from bam file
+#' @param binding.characteristics spp data structure, containing binding information for binding preak separation and cross-correlation profile.
 #' @param read_length Integer, read length of "data" (Defaul="36")
-#' @param savePlotPath
+#' @param savePlotPath, set if Cross-correlation plot should be saved under "savePlotPath". Default=NULL and plot will be shown on screen.
 #' @param plotname Name and path were the CrossCorrelation plot (pdf) should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working directory)
 #'
-#' @return finalList containing (!!!DESCRIBE BETTER)
-#' strandShift Integer strand shift value from the cross correlation profile
-#' tag.shift Integer rounded halfsize of strandShift
-#' N1 
-#' Nd 
-#' PBC
-#' UNIQUE_TAGS_LibSizeadjusted
-#' phantomScores
-#' STATS_NRF
+#' @return finalList, list with different QC-metrics
+#' @export
 #'
 #' @examples
 #'\dontrun{
-#'CC_Result=CrossCorrelation(chipName, inputName, read_length=36,path=path, dataPath=dataPath, debug=debug,chrominfo_file=chrominfo_file)
+#'	crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
 #'}
 
 calculateCrossCorrelation=function(data,binding.characteristics,read_length=70,savePlotPath=NULL,plotname="name")
@@ -247,30 +240,28 @@ calculateCrossCorrelation=function(data,binding.characteristics,read_length=70,s
 #' evalue of 10 (Kharchenko et al., 2008). And count the number of peaks called when using the sharp- and broad-binding option. 
 #' getBindingRegionsScores
 #'
-#' @param chip (!!!DESCRIBE BETTER)
-#' @param input (!!!DESCRIBE BETTER)
-#' @param chip.dataSelected (!!!DESCRIBE BETTER)
-#' @param input.dataSelected (!!!DESCRIBE BETTER)
-#' @param tag.shift=75 (!!!DESCRIBE BETTER)
+#' @param chip spp data structure, structure with tag information from ChIP file
+#' @param input spp data structure, structure with tag information from Input file
+#' @param chip.dataSelected,
+#' @param input.dataSelected,
+#' @param tag.shift integer, value from calculateCrossCorrelation list
+#' @param chrorder, chromosome order (default=NULL) 
+#' @return QCscoreList, containing 6 QC-values
 #'
-#' @return QCscoreList, containing (!!!DESCRIBE BETTER)
-#' FDR_detected"=round(FDR_detect,3),
-#'		"eval_detected"=round(eval_detect,3),
-#'		"FRiP_broadPeak"=round(FRiP_broadPeak,3),  
-#'		"FRiP_sharpPeak"=round(FRiP_sharpPeak,3), 
-#'		"outcountsBroadPeak"=outcountsBroadPeak,
-#'		"outcountsSharpPeak"= outcountsSharpPeak)
+#' @export
 #'
 #' @examples
 #'\{dontrun
-#' DESCRIBE HERE
+#'	bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)
 #'}
-#	bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)#,custom_chrorder)
 
-getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75)#,chrorder=NULL)
+
+
+getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected,tag.shift=75,chrorder=NULL)
 {
 
 	#load("Settings.RData")
+	##for simplicity we use currently a shorter chromosome frame to avoid problems with M
 	chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
 	#custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
 	#custom_chrorder<-paste("chr", c(1:22, "X","Y"), sep="")
@@ -399,24 +390,25 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 #'
 #' QCscores_global
 #'
-#' @param densityChip A smoothed tag density object for the ChIP (returned by f_CrossCorrelation)
-#' @param densityInput smoothed tag density object for the Inpt (returned by f_CrossCorrelation)
-#' @param plotname Name of the FingerPring plot (default is "chancePlot.pdf" and saved in the working directory )
-#' @param debug Only for debugging
+#' @param densityChip Smoothed tag density object for the ChIP (returned by f_CrossCorrelation). 
+#' @param densityInput Smoothed tag density object for the Inpt (returned by f_CrossCorrelation)
+#' @param savePlotPath Path, path set forces the fingerprint plot to be saved under the respective directory. Default=NULL, plot not saved but shown on screen
+#' @param debug Boolean, to enter debugging mode (default= FALSE)
 #'
-#' @return List with the following values: 
-#' X-axis, Y-Input,Y-Chip (the point of the maximum distance between the ChIP and the input (x-axis, y-axis for immunoprecipitation and input) ,
-#' Ch_sign_chipVSinput (the sign of the maximum distance) 
-#' FractionReadsTopbins_chip, FractionReadsTopbins_input, Fractions_without_reads_chip, Fractions_without_reads_input
+#' @return finalList, list containing 9 QC-values
 #'
+#' @export
 #'
 #' @examples
 #'\dontrun{
-#'CC_Result=CrossCorrelation(chipName, inputName, read_length=36,  path=path, dataPath=dataPath, debug=debug,chrominfo_file=chrominfo_file,plotname=file.path(getwd(),paste(chipName,"CrossCorelationPlot.pdf",sep="_")))
-#'smoothedDensityInput=CC_Result$TagDensityInput
-#'smoothedDensityChip=CC_Result$TagDensityChip
-#'plotname=file.path(getwd(),paste(chipName,"FingerPrintPlot.pdf",sep="_"))
-#'Ch_Results=QCscores_global(densityChip=smoothedDensityChip,densityInput=smoothedDensityInput,plotname=plotname,debug=FALSE)
+#' CC_Result=crossCorrelation(chipName=chipName,
+#' inputName=inputName, read_length=36, 
+#' dataPath=dataDirectory, annotationID="hg19",savePlotPath=getwd())
+#' tag.shift=CC_Result$QCscores_ChIP$tag.shift
+#' smoothedDensityInput=CC_Result$TagDensityInput
+#' smoothedDensityChip=CC_Result$TagDensityChip
+#' Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
+#' densityInput=smoothedDensityInput)
 #' }
 
 QCscores_global=function(densityChip,densityInput,savePlotPath=NULL,debug=FALSE)
@@ -498,8 +490,8 @@ QCscores_global=function(densityChip,densityInput,savePlotPath=NULL,debug=FALSE)
 #' 
 #' CreateMetageneProfile
 #'
-#' @param smoothed.densityChip DESCRIBE
-#' @param smoothed.densityInput DESCRIBE
+#' @param smoothed.densityChip Smoothed tag density object for the ChIP (returned by f_CrossCorrelation)
+#' @param smoothed.densityInput, Smoothed tag density object for the input(returned by f_CrossCorrelation)
 #' @param tag.shift Integer, tag shift returned by f_CrossCorrelation()
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
@@ -507,17 +499,15 @@ QCscores_global=function(densityChip,densityInput,savePlotPath=NULL,debug=FALSE)
 #' @return list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS (TSS) and TES (TES). Each object is made of a list containing 
 #' the chip and the input profile
 #'
+#' @export
+#'
 #' @examples
 #'\{dontrun
-#' Meta_Result=CreateMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,annotationID="hg19",debug=FALSE)
+#' Meta_Result=createMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,annotationID="hg19")
 #'}
 
-
-#Meta_Result=createMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,annotationID="hg19",debug=debug,mc=mc)
-createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,mc=1,annotationID="hg19",debug=FALSE)
+createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,annotationID="hg19",debug=FALSE,mc=1)
 {
-
-
   annotation=paste(annotationID,"RefSeqAllGenesFiltered.RData",sep=".")
   geneAnnotations_file<-annotation
   print("Load geneannotation")

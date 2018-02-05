@@ -234,21 +234,21 @@ f_qflag=function(RSC)
 # }
 
 ##selet informative tags
-f_selectInformativeTag=function(chip,input,chip_b.characteristics,input_b.characteristics,select.informative.tags=FALSE,remove.local.tag.anomalies=TRUE)
+f_removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.characteristics,remove.local.tag.anomalies=TRUE,select.informative.tags=FALSE)
 {
 	print("Filter tags")
 
 	if (select.informative.tags) {
-	      print("select.informative.tags filter")
-	     #load(paste("sppdata", "binding", chip.data.samplename, "RData", sep="."))
-	      chip.dataSelected <- select.informative.tags(chip, chip_b.characteristics)
-	      #load(paste("sppdata", "binding", input.data.samplename, "RData", sep="."))
-	      input.dataSelected <- select.informative.tags(input.data, input_b.characteristics)
-	} else {
-	      print("SKIP select.informative.tags filter")
-	      chip.dataSelected<-chip$tags
-	      input.dataSelected<-input$tags
-	}
+	       print("select.informative.tags filter")
+	      #load(paste("sppdata", "binding", chip.data.samplename, "RData", sep="."))
+	       chip.dataSelected <- select.informative.tags(chip, chip_b.characteristics)
+	       #load(paste("sppdata", "binding", input.data.samplename, "RData", sep="."))
+	       input.dataSelected <- select.informative.tags(input.data, input_b.characteristics)
+	 } else {
+	       print("SKIP select.informative.tags filter")
+	       chip.dataSelected<-chip$tags
+	       input.dataSelected<-input$tags
+	 }
 	if (remove.local.tag.anomalies) {
 		print("remove.local.tag.anomalies filter")
 	      # restrict or remove singular positions with very high tag counts
@@ -271,18 +271,20 @@ f_tagDensity=function(data,tag.shift,rngl,mc=1)
 	##Smoothing parameters
 	smoothingStep<-20	##is size of sw ##before it was 10
 	smoothingBandwidth<-50
+	##remove chromosome M in case it is there, as it is not defined in rngl
+	data$chrM=NULL
 	## density distribution for data
 	print("Smooth tag density")
 	ts <- sum(unlist(lapply(data,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
 	##parallelisation
 	chromosomes_list<-names(data)
 	##creates a list of lists
-	data<-lapply(chromosomes_list, FUN=function(x) {
+	dataSet<-lapply(chromosomes_list, FUN=function(x) {
 		return(data[x])
 	})
 	if (mc>1)
 	{
-		smoothed.density<-mclapply(data, FUN=function(current_chr_list)
+		smoothed.density<-mclapply(dataSet, FUN=function(current_chr_list)
 		{
 		    current_chr<-names(current_chr_list)
 		    str(current_chr_list)
@@ -293,7 +295,7 @@ f_tagDensity=function(data,tag.shift,rngl,mc=1)
 		    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
 		}, mc.preschedule = FALSE,mc.cores=mc)
 	}else{
-		smoothed.density<-lapply(data, FUN=function(current_chr_list)
+		smoothed.density<-lapply(dataSet, FUN=function(current_chr_list)
 		{
 		    current_chr<-names(current_chr_list)
 		    str(current_chr_list)
