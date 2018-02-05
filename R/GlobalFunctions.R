@@ -348,7 +348,7 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 		chrl<-names(regions_data_list)
 		names(chrl)<-chrl
 		outcountsBroadPeak<-sum(sapply(chrl, FUN=function(chr) {
-			sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
+			sum(spp:::points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
 	    }))
 		FRiP_broadPeak<-outcountsBroadPeak/TOTAL_reads
 
@@ -358,7 +358,7 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 		chrl<-names(regions_data_list)
 		names(chrl)<-chrl
 		outcountsSharpPeak<-sum(sapply(chrl, FUN=function(chr) {
-			sum(points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
+			sum(spp:::points.within(x=abs(chip.test[[chr]]), fs=((regions_data_list[[chr]])[,1]), fe=((regions_data_list[[chr]])[,2]), return.point.counts = TRUE))
 		}))
 		FRiP_sharpPeak<-outcountsSharpPeak/TOTAL_reads
 	}else{

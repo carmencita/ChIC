@@ -1,4 +1,4 @@
-#'@title Wrapper function for calculating cross-correlation analysis and metrics designed for TFs
+#'@title Wrapper function for calculating cross-correlation analysis, metrics designed for TFs and from peak-calls
 #'
 #' @description
 #' We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 
@@ -16,23 +16,24 @@
 #'
 #' crossCorrelation
 #'
-#' @param chipName String, filename (without extension) of the input file for ChIP
-#' @param inputName String, filename (without extension) of the input file for ChIP
+#' @param chipName String, filename (without extension) of the ChIP file
+#' @param inputName String, filename (without extension) of the Input file
 #' @param read_length Integer, length of the reads
-#' @param dataPath Path were to find the input files chipName and inputName, default is working directory
-#' @param debug Boolean value to enter in debugging mode (default= FALSE)
-#' @param chrominfo_file Path to the chromatin information file
+#' @param dataPath Path, points to the directory were the bam files are stored (default is working directory)
+#' @param debug Boolean, to enter debugging mode (default= FALSE)
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @param annotationID String, genome assembly (default="hg19")
 #'
-#' @return returnList, containing (!!!DESCRIBE BETTER)
-#' QCscores_ChIP List with Crosscorrelation values of the ChIP
-#' QCscores_Input List with Crosscorrelation values of the Input
-#' QCscores_binding List with QCscores from called peaks
-#' TagDensityChip (!!!DESCRIBE BETTER)
-#' TagDensityInput (!!!DESCRIBE BETTER)
+#' @return returnList, contains
+#' QCscores_ChIP List of Crosscorrelation values for the ChIP
+#' QCscores_Input List of Crosscorrelation values for the Input
+#' QCscores_binding List of QCscores from peak calls
+#' TagDensityChip Tag density profile, smoothed by the Gaussian kernel (for further details see "spp" package)
+#' TagDensityInput Tag density profile, smoothed by the Gaussian kernel (for further details see "spp" package)
 #'
 #' @examples
 #'\{dontrun
-#' CC_Result=crossCorrelation(chipName, inputName, read_length=36,  dataPath=dataPath, debug=debug,chrominfo_file=chrominfo_file)
+#' CC_Result=crossCorrelation(chipName=chipName,inputName=inputName, read_length=36, dataPath=dataDirectory, debug=debug,mc=mc,annotationID="hg19",savePlotPath=getwd())
 #'}
 
 
@@ -51,24 +52,6 @@ crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), an
 	print(paste("reading bam files",sep=" "))
 	chip.data=f_readFile(chipName,f_path=dataPath)
 	input.data=f_readFile(inputName,f_path=dataPath)
-
-	# ORDERED_data<-chip.data
-	# for (chr in names(chip.data$tags)) {
- #  		orderingVector<-order(abs(chip.data$tags[[chr]]))
- #  		ORDERED_data$tags[[chr]]<-chip.data$tags[[chr]][orderingVector]
- #  		ORDERED_data$quality[[chr]]<-chip.data$quality[[chr]][orderingVector]
-	# }
-	# chip.data=ORDERED_data
-
-	# ORDERED_data<-input.data
-	# for (chr in names(input.data$tags)) {
- #  		orderingVector<-order(abs(input.data$tags[[chr]]))
- #  		ORDERED_data$tags[[chr]]<-input.data$tags[[chr]][orderingVector]
- #  		ORDERED_data$quality[[chr]]<-input.data$quality[[chr]][orderingVector]
-	# }
-	# input.data=ORDERED_data
-
-
 
 	#plot and calculate cross correlation and phantom characteristics for the ChIP
 	print("calculate binding characteristics ChIP")

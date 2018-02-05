@@ -13,4 +13,5 @@ Imports:
 	genomeIntervals,
 	caret
 Depends: spp
+Suggests: BiocStyle
 RoxygenNote: 6.0.1

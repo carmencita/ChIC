@@ -1,0 +1,142 @@
+\documentclass[a4paper,10pt]{article}
+
+%\VignetteIndexEntry{PREDA tutorial}
+
+\usepackage[latin1]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fontenc}
+\usepackage{graphicx}
+
+\title{A short introduction to \textbf{ChIC} package}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The \textbf{ChIC}  
+The functions and data structures to compute our proposed QC metrics is implemented as a novel R/Bioconductor package named "ChIC". 
+User-friendly functions allow performing the whole analysis with a single command, whereas step by step functions are also available 
+for more experienced users. The package comes with a large reference compendium of QC-metrics from public ChIP-seq samples, as described in this 
+article (Figure 5). Key features of the package are functions for visualization and for creating summary plots of QC-metrics, 
+including the profiles for metagene metrics against the reference compendium values. 
+Finally, the classifier models are also provided, to compute the single value quality score based on our random forest models.
+\end{abstract} 
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{QC-metrics designed for sharp-peak profiles}
+\textit{crossCorrelation} is a wrapper function that calculates QC-metrics from cross-correlation analysis and peak-calling. 
+
+<<eval=FALSE, echo=TRUE >>=
+CC_Result=crossCorrelation(chipName=chipName,
+inputName=inputName, 
+read_length=36, 
+dataPath=dataDirectory, 
+debug=debug,
+mc=mc,
+annotationID="hg19",
+savePlotPath=getwd())
+@
+
+The wrapper is using the following functions:
+\subsection{Loading BAM files}
+The first step is the reading of ChIP-seq bam files. ChIC expects exactly two bam files:the immunoprecipitation (ChIP) and the input. The "dataPath" should 
+contain the bam files.
+
+<<eval=FALSE, echo=TRUE >>=
+chip.data=f_readFile(chipName,f_path=dataPath)
+input.data=f_readFile(inputName,f_path=dataPath)
+@
+
+
+\subsection{Calculate QC-metrics from CrossCorrelation analysis}
+<<eval=FALSE, echo=TRUE >>=
+chip_binding.characteristics<-get.binding.characteristics(chip.data, 
+srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,
+accept.all.tags=T)
+
+#calculate cross correlation QC-metrics for ChIP data
+crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
+#save the tag.shift
+final.tag.shift<-crossvalues_Chip$tag.shift
+@
+
+
+
+
+\subsection{Calculate QC-metrics from peak calls}
+<<eval=FALSE, echo=TRUE >>=
+#select informative tags
+selectInformativeTags=f_selectInformativeTag(chip.data,
+input.data,
+chip_binding.characteristics,
+input_binding.characteristics)
+
+chip.dataSelected=selectInformativeTags$chip.dataSelected
+
+#get QC-values from peak calling
+bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)
+@
+
+\subsection{Profile smoothing}
+<<eval=FALSE, echo=TRUE >>=
+options(width=60)
+smoothed.densityChip=f_tagDensity(chip.dataSelected,final.tag.shift,rngl=rngl,mc=mc)
+smoothed.densityInput=f_tagDensity(input.dataSelected,final.tag.shift,rngl=rngl,mc=mc)
+@	
+
+
+The tag density profile is the tag profile, smoothed by the Gaussian kernel (for more details see \cite{spp}). The smoothed profile is used in 
+
+
+
+%<<eval=FALSE >>=
+%require("PREDAsampledata")
+%require("PREDA")
+%@
+
+
+
+%<<eval=TRUE, echo=TRUE >>=
+%# sample info file for the gene expression dataset
+%infofile <- system.file("sampledata", "GeneExpression", "sampleinfoGE_PREDA.txt", package = "PREDAsampledata")
+%sampleinfo<-read.table(infofile, sep="\t", header=TRUE)
+%head(sampleinfo)
+%@
+
+
+%\subsection{Plot the results}
+
+%The most interesting visualization of significant genomic regions (in this example differentially expressed regions) can be obtained with the \texttt{genomePlot} function. See fig \ref{fig:genomePlot1onlyGE} for the output results.
+
+%% genome plot con genomic regions selected
+%<<eval=FALSE, label=genomePlot1, include=FALSE, echo=TRUE>>=
+%checkplot<-genomePlot(GEanalysisResults, genomicRegions=c(genomic_regions_UP, genomic_regions_DOWN), grouping=c(1, 1), scale.positions="Mb", region.colors=c("red","blue"))
+%legend(x=140000000, y=22, legend=c("UP", "DOWN"), fill=c("red","blue"))
+%@
+
+
+%\begin{figure}[htbp]
+% \centering
+%<<label=genomePlot1, fig=TRUE, echo=FALSE>>=
+%<<genomePlot1>>
+%@
+% \caption{Genome plot: differentially expresssed genomic regions. Blue boxes represent down-regulated regions and red boxes are up-regulated genomic regions.}
+% \label{fig:genomePlot1onlyGE}
+%\end{figure}
+
+
+
+%\newpage
+%\addcontentsline{toc}{section}{References}
+%\bibliographystyle{unsrt}
+%\bibliography{PREDA}
+
+
+\end{document}
+

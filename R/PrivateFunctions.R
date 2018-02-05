@@ -505,7 +505,7 @@ f_two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=i
     sg3 <- seg$e;
     sstrand <- rep(1,length(sg5));
   }
-  spi <- points.within(x,seg$s-ml,seg$e+mr,return.list=T);
+  spi <- spp:::points.within(x,seg$s-ml,seg$e+mr,return.list=T);
   lspi <- unlist(lapply(spi,length))
   df <- data.frame(i=rep(1:length(x),lspi),si=unlist(spi),nu=rep(lspi,lspi))
   df$r5x <- (x[df$i]-sg5[df$si])*sstrand[df$si];
@@ -552,11 +552,12 @@ f_one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=
     nsi <- which(strand=="-");
     ml[nsi] <- rm;
     mr[nsi] <- lm;
-    sstrand <- ifelse(strand=="-",-1,1); sstrand[is.na(sstrand)] <- 1;
+    sstrand <- ifelse(strand=="-",-1,1); 
+    sstrand[is.na(sstrand)] <- 1;
   } else {
     sstrand <- rep(1,length(pos));
   }
-  spi <- points.within(x,pos-ml,pos+mr,return.list=T);
+  spi <- spp:::points.within(x,pos-ml,pos+mr,return.list=T);
   lspi <- unlist(lapply(spi,length))
   df <- data.frame(i=rep(1:length(x),lspi),si=unlist(spi),nu=rep(lspi,lspi))
   df$rx <- (x[df$i]-pos[df$si])*sstrand[df$si];
