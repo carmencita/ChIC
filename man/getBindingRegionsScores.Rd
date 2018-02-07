@@ -12,6 +12,10 @@ getBindingRegionsScores(chip, input, chip.dataSelected, input.dataSelected,
 
 \item{input}{spp data structure, structure with tag information from Input file}
 
+\item{chip.dataSelected, }{selected ChIP tags after running removeLocalTagAnomalies() which removes local tag anomalies}
+
+\item{input.dataSelected, }{selected Input tags after running removeLocalTagAnomalies() which removes local tag anomalies}
+
 \item{tag.shift}{integer, value from calculateCrossCorrelation list}
 
 \item{chrorder, }{chromosome order (default=NULL)}

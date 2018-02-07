@@ -8,9 +8,9 @@ QCscores_global(densityChip, densityInput, savePlotPath = NULL,
   debug = FALSE)
 }
 \arguments{
-\item{densityChip}{Smoothed tag density object for the ChIP (returned by f_CrossCorrelation).}
+\item{densityChip}{Smoothed tag density object for ChIP (returned by f_CrossCorrelation).}
 
-\item{densityInput}{Smoothed tag density object for the Inpt (returned by f_CrossCorrelation)}
+\item{densityInput}{Smoothed tag density object for Inpt (returned by f_CrossCorrelation)}
 
 \item{savePlotPath}{Path, path set forces the fingerprint plot to be saved under the respective directory. Default=NULL, plot not saved but shown on screen}
 
@@ -34,9 +34,11 @@ QCscores_global
 CC_Result=crossCorrelation(chipName=chipName,
 inputName=inputName, read_length=36, 
 dataPath=dataDirectory, annotationID="hg19",savePlotPath=getwd())
+
 tag.shift=CC_Result$QCscores_ChIP$tag.shift
 smoothedDensityInput=CC_Result$TagDensityInput
 smoothedDensityChip=CC_Result$TagDensityChip
+
 Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
 densityInput=smoothedDensityInput)
 }

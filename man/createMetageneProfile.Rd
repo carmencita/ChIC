@@ -10,7 +10,7 @@ createMetageneProfile(smoothed.densityChip, smoothed.densityInput, tag.shift,
 \arguments{
 \item{smoothed.densityChip}{Smoothed tag density object for the ChIP (returned by f_CrossCorrelation)}
 
-\item{smoothed.densityInput, }{Smoothed tag density object for the input(returned by f_CrossCorrelation)}
+\item{smoothed.densityInput}{Smoothed tag density object for the input(returned by f_CrossCorrelation)}
 
 \item{tag.shift}{Integer, tag shift returned by f_CrossCorrelation()}
 

@@ -75,9 +75,9 @@ crossvalues_Chip<-calculateCrossCorrelation(chip.data,
 savePlotPath sets the path in which the cross-correlation plot should be saved. If not given the plot will be printed on the screen. 
 An example of a cross-correlation profile is shown in Figure \ref{fig:ccPlot}.
 
-\begin{figure}[htbp]
+\begin{figure}
  \centering
-.\includegraphics[scale=0.5]{./img/ChIP_CrossCorrelation.pdf}
+.\includegraphics[scale=0.3]{./img/ChIP_CrossCorrelation.pdf}
  \caption{Cross-correlation plot for sample "ENCFF000BLL" }
  \label{fig:ccPlot}
 \end{figure}
@@ -138,7 +138,7 @@ A needed step is the smoothing (using a Gaussian kernel) of the tag profile to o
 
 \section{QC-metrics on global read distribution and "fingerprint" plot}
 This set of values is based on the global read distribution along the genome for ChIP and Input data \cite{Diaz2012}. 
-The  function \textit{QCscores\_global} reproduces the so-called "fingerprint" plot \ref{fig:ChancePlot} and returns a list of 9 QC-metrics that can be sampled 
+The  function \textit{QCscores\_global} reproduces the so-called "fingerprint" plot (Figure \ref{fig:ChancePlot}) and returns a list of 9 QC-metrics that can be sampled 
 from the cumulative distribution of the plot. Examples of these metrics are the (a) fraction of bins without reads for ChIP and input, (b) the point of maximum distance between 
 the ChIP and input (x-coordinate, y-coordinate for ChIP and input, the distance calculated as absolute difference between the two y-coordinates, 
 the sign of the difference), (c) the fraction of reads in the top 1 percent of bins with highest coverage for ChIP and input. 
@@ -157,69 +157,79 @@ load(file = "./img/Ch.Rdata")
 str(Ch_Results)
 @
 
-\begin{figure}[htbp]
+\begin{figure}
  \centering
-.\includegraphics[scale=0.5]{./img/FingerPrintPlot.pdf}
+.\includegraphics[scale=0.3]{./img/FingerPrintPlot.pdf}
  \caption{Fingerprint plot of sample ENCFF000BLL and its input ENCFF000BKA.}
  \label{fig:ChancePlot}
 \end{figure}
 
 \section{Metagene profiles and QC-metrics based on local enrichment}
-\textit{createMetageneProfile} creates the metagene profiles for scaled and non-scaled profiles. The function returns a list with three items: "twopoints", "TSS" and 
-"TES". Each item is again a list with the profile values for ChIP and input.
+Metagene plots show the signal enrichment around a region of interest like the transcription start site (TSS) or over a predefined set of genes. 
+The tag density of the immunoprecipitation is taken over all RefSeg annotated human genes, averaged and log2 transformed. 
+The same is done for the input. The normalized profile (Figure \ref{fig:TSS}) is calculated as the signal enrichment (immunoprecipitation over the input) 
+and plotted on the y-axis, whereas the genomic coordinates of the genes like the TSS or regions up- and downstream 
+are shown on the x-axis. 
+ChIC creates two types of metagene profiles: a non-scaled profile for the TSS and transcription end site, 
+and a scaled profile for the entire gene, including the gene body like in Figure \ref{fig:GeneBody}. 
+
+\textit{createMetageneProfile} creates the metagene profiles for scaled and non-scaled profiles and returns a list 
+with three items: "twopoints", "TSS" and "TES". Each item is again a list with the 
+metagene-profiles for ChIP and input.
 
 <<eval=FALSE, echo=TRUE >>=
 Meta_Result=createMetageneProfile(smoothedDensityChip,
 	smoothedDensityInput,
 	tag.shift,
 	annotationID="hg19")
-	Meta_Result$twopoint  
-	Meta_Result$TSS       
-	Meta_Result$TES   
 @
 
-The objects can be used as input to plot the metagene profiles and to get the respective QC-values for the non-scaled metagene profiles at the TSS \ref{TSS} or the TES.
+The objects can be used to create the final metagene plots and to get the respective QC-values for the non-scaled profiles (Figure \ref{fig:TSS}).
+
 <<eval=FALSE, echo=TRUE >>=
+#create non-scaled metagene profile around the TSS
 TSS_Plot=nonScaledMetageneProfile(Meta_Result$TSS$chip, 
 	Meta_Result$TSS$input, 
 	tag="TSS")
+#create non-scaled metagene profile around the TES
 TES_Plot=nonScaledMetageneProfile(Meta_Result$TES$chip,
 	Meta_Result$TES$input,
 	tag="TES")
 @
 
 
-\begin{figure}[htbp]
+\begin{figure}
  \centering
 .\includegraphics[scale=0.5]{./img/Normalized_TSS.pdf}
- \caption{Non-scaled metagene profile for the signal enrichment around the TSS }
+ \caption{Normalized non-scaled metagene profile for the signal enrichment around the TSS }
  \label{fig:TSS}
 \end{figure}
 
-
-
-The "twopoint" object can be used as input to plot the metagene profiles and to get the respective QC-values for the scaled metagene profile:
+The "twopoint" object can be used to plot the scaled metagene profile and to get the respective QC-values:
 <<eval=FALSE, echo=TRUE >>=
+#create scaled metagene profile
 geneBody_Plot=scaledMetageneProfile(Meta_Result$twopoint$chip, 
 	Meta_Result$twopoint$input)
 @
 
 
-\begin{figure}[htbp]
+\begin{figure}
  \centering
-.\includegraphics[scale=0.5]{./img/ScaledMetaGene_ChIP_Input.pdf}
- \caption{Scaled metagene profile for the tag density across annotated genes. }
- \label{fig:TSS}
+.\includegraphics[scale=0.3]{./img/ScaledMetaGene_ChIP_Input.pdf}
+ \caption{Scaled metagene profile for the tag density across annotated genes for ChIP (ENCFF000BLL) and Input (ENCFF000BKA) }
+ \label{fig:GeneBody}
 \end{figure}
 
 \section{Quality assessment using the compendium of QC-metrics as reference}
-write somehting
+The comprehensive set of QC-metrics, computed over a large set of ChIP-seq samples, constitute in itself a valuable compendium 
+that can be used as a reference for comparison to new samples. 
+ChIC provides two functions for that: \textit{metagenePlotsForComparison} to compare the metagene plots with the compendium and \textit{plotReferenceDistribution} 
+to compare a QC-metric with the compendium values.
 
 \subsection{Comparing local enrichment profiles}
-
-The comprehensive set of QC-metrics, computed over a large set of ChIP-seq samples is used as a reference for comparison to new samples. 
 The \textit{metagenePlotsForComparison} function is used to compare the local enrichment profile to the reference compendium by plotting the metagene profile 
-against the expected metagene for the same type of chromatin mark \ref{MetaProfileComparison}.
+against the expected metagene for the same type of chromatin mark \ref{MetaProfileComparison}. The expected metagene is provided by the compendium mean (black line) 
+and standard error (blue shadow) shown in Figure \ref{fig:MetaProfileComparison}.
 
 <<eval=FALSE, echo=TRUE >>=
 metagenePlotsForComparison(chrommark="H3K36me3", 
@@ -228,17 +238,17 @@ metagenePlotsForComparison(chrommark="H3K36me3",
 	Meta_Result$TES)
 @
 
-\begin{figure}[htbp]
+\begin{figure}
  \centering
-.\includegraphics[scale=0.5]{./img/H3K36me3_TWO_Chip.pdf}
- \caption{The comparison against the compendium can highlight potential problems in the signal distribution for a specific mark, in case of experiment failure.}
+.\includegraphics[scale=0.5]{./img/H3K36me3_TWO_norm.pdf}
+ \caption{The comparison against the compendium (mean and standard error) can highlight potential problems in the signal distribution for a specific mark, in case of experiment failure.}
  \label{fig:MetaProfileComparison}
 \end{figure}
 
 \subsection{Comparing QC-metrics with reference values of the compendium}
-The plots against the reference compendium of metrics add an extra level of information that can be easily used by less experienced users. Indeed, this 
-approach should be especially helpful for non-expert data curators, to visually compare the characteristics of their datasets with a large number of already published ChIP-seq data \ref{valueDistributionRSC}.
- 
+The plot against the reference compendium of metrics add an extra level of information that can be easily used by less experienced users. Indeed, the function 
+\textit{plotReferenceDistribution} is helpful to visually compare the characteristics of an analysed sample with a large number of already 
+published data (Figure \ref{valueDistributionRSC}).
  
 <<eval=FALSE, echo=TRUE >>=
 currentRSCforSample=CC_Result_Chip$QCscores_ChIP$CC_RSC
@@ -248,10 +258,10 @@ plotReferenceDistribution(chrommark="H3K36me3",
 @
 
 
-\begin{figure}[htbp]
+\begin{figure}
  \centering
 .\includegraphics[scale=0.5]{./img/PlotValueDistribution.pdf}
- \caption{something something}
+ \caption{Density plot showing the QC-metric RSC (red dashed line) of ENCFF000BLLs against the reference distribution of the compendium values stratified by chromatin classes. }
  \label{fig:valueDistributionRSC}
 \end{figure}
 

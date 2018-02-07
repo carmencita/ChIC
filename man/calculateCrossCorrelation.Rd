@@ -10,7 +10,7 @@ calculateCrossCorrelation(data, binding.characteristics, read_length = 70,
 \arguments{
 \item{data}{spp data structure, structure with tag information from bam file}
 
-\item{binding.characteristics}{spp data structure, containing binding information for binding preak separation and cross-correlation profile.}
+\item{binding.characteristics}{spp data structure, containing binding information for binding preak separation distance and cross-correlation profile.}
 
 \item{read_length}{Integer, read length of "data" (Defaul="36")}
 

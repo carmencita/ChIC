@@ -704,14 +704,14 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
 #'@title Read bam file
 #'
 #' @description
-#' REading bam file format
+#' Reading bam file format
 #' 
 #' readBamFile
 #'
-#' @param filename, name of the file to be read (without extension)
-#' @param path, path to the directory were the bam file can be found (default= workingdirectory)
+#' @param filename, name of the bam file to be read (without extension)
+#' @param path, path showing the directory in which the bam file is stored (default= workingdirectory)
 #'
-#' @returns list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+#' @return list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
 #'
 #' @export
 #'
@@ -730,21 +730,37 @@ readBamFile=function(filename,path=getwd())
 #'@title Removes loval anomalies
 #'
 #' @description
-#' REading bam file format
-#' 
-#' readBamFile
+#' The removeLocalTagAnomalies function removes tags from regions with extremely high tag counts compared to the
+#' neighbourhood.
+#''
+#' removeLocalTagAnomalies
 #'
-#' @param filename, name of the file to be read (without extension)
-#' @param path, path to the directory were the bam file can be found (default= workingdirectory)
+#' @param chip, data structure with tag information from ChIP file
+#' @param input, data structure with tag information from Input file
+#' @param chip_b.characteristics, binding-characteristic of the ChiP (previously calculated using get.binding.characteristics)
+#' @param input_b.characteristics,  binding-characteristic of the Input (previously calculated using get.binding.characteristics)
 #'
-#' @returns list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+#' @return list, containing filtered data structure for ChIP and Input
 #'
 #' @export
 #'
 #' @examples
 #'\{dontrun
-#' chipName="ENCFF000BLL"
-#' chip.data=readBamFile(chipName,path=getwd())
+#' chip.data=readBamFile(chipName,path=dataPath)
+#' input.data=readBamFile(inputName,path=dataPath)
+#' print("calculate binding characteristics ChIP")
+#' ## cross_correlation parameters
+#' estimating_fragment_length_range<-c(0,500)
+#' estimating_fragment_length_bin<-5
+#' chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
+#' print("calculate cross correlation QC-metrics for the Chip")
+#' crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
+#' print("calculate binding characteristics Input")
+#' input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
+#' print("calculate cross correlation QC-metrics for the Input")
+#' crossvalues_Input=calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input")
+#'
+#' selectedTags=removeLocalTagAnomalies(chip.data,input.data,chip_binding.characteristics,input_binding.characteristics)
 #'}
 removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.characteristics)
 {
@@ -753,6 +769,26 @@ removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.chara
 	return(result)
 }
 
+
+#'@title Smoothed tag density
+#'
+#' @description
+#' calcualtes the smoothed tag density using spp::get.smoothed.tag.density
+#' 
+#' tagDensity
+#'
+#' @param data, data structure with tag distribution
+#' @param tag.shift, Integer of the tag shift value returned by calculateCrossCorrelation()
+#' @param annotationID String, indicating the genome assembly (Default="hg19")
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @return list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+#'
+#' @export
+#'
+#' @examples
+#'\{dontrun
+#' 	smoothed.densityChip=tagDensity(chip.dataSelected,final.tag.shift,annotationID="hg19",mc=5)
+#'}
 tagDensity=function(data,tag.shift,annotationID="hg19",mc=1)
 {
 
