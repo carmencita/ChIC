@@ -2,10 +2,12 @@
 *.pdf
 .Rproj.user
 .Rhistory
-.RData
+*.RData
+*.Rdata
 .txt
 .Ruserdata
 inst/doc
 Results
 *.result
-/data/
+*.results
+/data/*

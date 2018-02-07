@@ -5,6 +5,135 @@
 #######################################################################################
 
 
+#'@title Wrapper function for calculating cross-correlation analysis, metrics designed for TFs and from peak-calls
+#'
+#' @description
+#' We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 
+#' After calculating the strand cross-correlation coefficient (Kharchenko et al., 2008), we take the following values from the profile: the coordinates of the 
+#' ChIP-peak (fragment length, height A), the coordinates at the phantom-peak (read length, height B) and the baseline (C), the strand-shift, the number of uniquely mapped 
+#' reads (unique_tags), uniquely mapped reads corrected by the library size, the number of reads and the read lengths. We  calculate different values using the relative and 
+#' absolute height of the cross-correlation peaks: the relative and normalized strand coefficient RSC and NSC  (Landt et al., 2012), and the quality control tag (Fig. 1B) 
+#'(Marinov et al., 2013). Other values regarding the library complexity (Landt et al., 2012) like the fraction of non-redundant mapped reads 
+#'(NRF; ratio between the number of uniquely mapped reads divided by the total number of reads), the NRF adjusted by library size and ignoring the strand direction 
+#' (NRF_nostrand), and the PCR bottleneck coefficient PBC (number of genomic locations to which exactly one unique mapping read maps, divided by the number of unique 
+#' mapping reads). Other measures we include in our analysis are the fraction of usable reads in the peak regions (FRiP) (Landt et al., 2012), for which the function calls sharp- and 
+#' broad-binding peaks to obtain two types: the FRiP_sharpsPeak and the FRiP_broadPeak. The function takes the number of called of peaks using an FDR of 0.01 and an 
+#' evalue of 10 (Kharchenko et al., 2008). And count the number of peaks called when using the sharp- and broad-binding option. 
+# 'Finally 22 features are given back.
+#'
+#' crossCorrelation
+#'
+#' @param chipName String, filename (without extension) of the ChIP file
+#' @param inputName String, filename (without extension) of the Input file
+#' @param read_length Integer, length of the reads
+#' @param dataPath Path, points to the directory were the bam files are stored (default is working directory)
+#' @param debug Boolean, to enter debugging mode (default= FALSE)
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @param annotationID String, indicating the genome assembly (Default="hg19")
+#'
+#' @return returnList, contains
+#' QCscores_ChIP List of Crosscorrelation values for the ChIP
+#' QCscores_Input List of Crosscorrelation values for the Input
+#' QCscores_binding List of QCscores from peak calls
+#' TagDensityChip Tag density profile, smoothed by the Gaussian kernel (for further details see "spp" package)
+#' TagDensityInput Tag density profile, smoothed by the Gaussian kernel (for further details see "spp" package)
+#'
+#' @examples
+#'\{dontrun
+#' CC_Result=crossCorrelation(chipName=chipName,inputName=inputName, read_length=36, dataPath=dataDirectory, debug=debug,mc=mc,annotationID="hg19",savePlotPath=getwd())
+#'}
+
+
+crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), annotationID="hg19", savePlotPath=NULL, debug=FALSE, mc=1)
+{
+	print(paste("reading bam files",sep=" "))
+	chip.data=readBamFile(chipName,path=dataPath)
+	input.data=readBamFile(inputName,path=dataPath)
+
+	#plot and calculate cross correlation and phantom characteristics for the ChIP
+	print("calculate binding characteristics ChIP")
+	## cross_correlation parameters
+	estimating_fragment_length_range<-c(0,500)
+	estimating_fragment_length_bin<-5
+
+	#chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
+
+	chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
+	print("calculate cross correlation QC-metrics for the Chip")
+	crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
+	##save the tag.shift
+	final.tag.shift<-crossvalues_Chip$tag.shift
+
+
+	#plot and calculate cross correlation and phantom characteristics for the input
+	print("calculate binding characteristics Input")
+	
+	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
+	print("calculate cross correlation QC-metrics for the Input")
+	crossvalues_Input=calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input")
+
+	if (debug)
+	{
+		save(chip_binding.characteristics,input_binding.characteristics,file="bindingCharacteristics.RData")
+	}
+
+
+	##get chromosome information and order chip and input by it
+	chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+	chip.data$tags=chip.data$tags[chrl_final]
+	chip.data$quality=chip.data$quality[chrl_final]
+	input.data$tags=input.data$tags[chrl_final]
+	input.data$quality=input.data$quality[chrl_final]
+
+
+	##remove sigular positions with extremely high tag counts with respect to the neighbourhood
+	selectedTags=removeLocalTagAnomalies(chip.data,input.data,chip_binding.characteristics,input_binding.characteristics)
+	
+
+
+	input.dataSelected=selectedTags$input.dataSelected
+	chip.dataSelected=selectedTags$chip.dataSelected
+
+	if (debug)
+	{
+		save(chip.dataSelected,input.dataSelected,file="dataSelected.RData")
+	}
+
+	#get QC-values from peak calling
+	bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)#chrorder=chrl_final)
+	
+	
+	##objects of smoothed tag density for ChIP and Input
+	smoothed.densityChip=tagDensity(chip.dataSelected,final.tag.shift,annotationID="hg19",mc=mc)
+	smoothed.densityInput=tagDensity(input.dataSelected,final.tag.shift,annotationID="hg19",mc=mc)
+	
+
+
+	returnList=list("QCscores_ChIP"=crossvalues_Chip,
+		"QCscores_Input"=crossvalues_Input,
+		"QCscores_binding"=bindingScores,
+		"TagDensityChip"=smoothed.densityChip,
+		"TagDensityInput"=smoothed.densityInput)
+
+
+	if (debug)
+	{
+		writeout=list("QCscores_ChIP"=crossvalues_Chip,
+		"QCscores_Input"=crossvalues_Input,
+		"QCscores_binding"=bindingScores)
+		write.table(writeout,file=file.path(getwd(),"CC.results"))
+		save(smoothed.densityChip,smoothed.densityInput,file="smoothed.RData")
+	}
+
+	return(returnList)
+
+}
+
+
+
+
+
+
 #'@title Creating cross-correlation profile, phantom peak and calcualting derived QC-metrics
 #'
 #' @description 
@@ -21,7 +150,7 @@
 #' calculateCrossCorrelation
 #'
 #' @param data spp data structure, structure with tag information from bam file
-#' @param binding.characteristics spp data structure, containing binding information for binding preak separation and cross-correlation profile.
+#' @param binding.characteristics spp data structure, containing binding information for binding preak separation distance and cross-correlation profile.
 #' @param read_length Integer, read length of "data" (Defaul="36")
 #' @param savePlotPath, set if Cross-correlation plot should be saved under "savePlotPath". Default=NULL and plot will be shown on screen.
 #' @param plotname Name and path were the CrossCorrelation plot (pdf) should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working directory)
@@ -242,8 +371,8 @@ calculateCrossCorrelation=function(data,binding.characteristics,read_length=70,s
 #'
 #' @param chip spp data structure, structure with tag information from ChIP file
 #' @param input spp data structure, structure with tag information from Input file
-#' @param chip.dataSelected,
-#' @param input.dataSelected,
+#' @param chip.dataSelected, selected ChIP tags after running removeLocalTagAnomalies() which removes local tag anomalies
+#' @param input.dataSelected, selected Input tags after running removeLocalTagAnomalies() which removes local tag anomalies
 #' @param tag.shift integer, value from calculateCrossCorrelation list
 #' @param chrorder, chromosome order (default=NULL) 
 #' @return QCscoreList, containing 6 QC-values
@@ -390,8 +519,8 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 #'
 #' QCscores_global
 #'
-#' @param densityChip Smoothed tag density object for the ChIP (returned by f_CrossCorrelation). 
-#' @param densityInput Smoothed tag density object for the Inpt (returned by f_CrossCorrelation)
+#' @param densityChip Smoothed tag density object for ChIP (returned by f_CrossCorrelation). 
+#' @param densityInput Smoothed tag density object for Inpt (returned by f_CrossCorrelation)
 #' @param savePlotPath Path, path set forces the fingerprint plot to be saved under the respective directory. Default=NULL, plot not saved but shown on screen
 #' @param debug Boolean, to enter debugging mode (default= FALSE)
 #'
@@ -404,9 +533,11 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 #' CC_Result=crossCorrelation(chipName=chipName,
 #' inputName=inputName, read_length=36, 
 #' dataPath=dataDirectory, annotationID="hg19",savePlotPath=getwd())
+#'
 #' tag.shift=CC_Result$QCscores_ChIP$tag.shift
 #' smoothedDensityInput=CC_Result$TagDensityInput
 #' smoothedDensityChip=CC_Result$TagDensityChip
+#'
 #' Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
 #' densityInput=smoothedDensityInput)
 #' }
@@ -491,7 +622,7 @@ QCscores_global=function(densityChip,densityInput,savePlotPath=NULL,debug=FALSE)
 #' CreateMetageneProfile
 #'
 #' @param smoothed.densityChip Smoothed tag density object for the ChIP (returned by f_CrossCorrelation)
-#' @param smoothed.densityInput, Smoothed tag density object for the input(returned by f_CrossCorrelation)
+#' @param smoothed.densityInput Smoothed tag density object for the input(returned by f_CrossCorrelation)
 #' @param tag.shift Integer, tag shift returned by f_CrossCorrelation()
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
@@ -566,5 +697,71 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
   }
 
   return(list("twopoint"=twopoint,"TSS"=onepointTSS,"TES"=onepointTES))
+}
+
+
+
+#'@title Read bam file
+#'
+#' @description
+#' REading bam file format
+#' 
+#' readBamFile
+#'
+#' @param filename, name of the file to be read (without extension)
+#' @param path, path to the directory were the bam file can be found (default= workingdirectory)
+#'
+#' @returns list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+#'
+#' @export
+#'
+#' @examples
+#'\{dontrun
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName,path=getwd())
+#'}
+readBamFile=function(filename,path=getwd())
+{
+	result=f_readFile(filename=filename,path=path,reads.aligner.type="bam")
+	return(result)
+}
+
+
+#'@title Removes loval anomalies
+#'
+#' @description
+#' REading bam file format
+#' 
+#' readBamFile
+#'
+#' @param filename, name of the file to be read (without extension)
+#' @param path, path to the directory were the bam file can be found (default= workingdirectory)
+#'
+#' @returns list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+#'
+#' @export
+#'
+#' @examples
+#'\{dontrun
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName,path=getwd())
+#'}
+removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.characteristics)
+{
+
+	result=f_removeLocalTagAnomalies(chip,input,chip_b.characteristics,input_b.characteristics,remove.local.tag.anomalies=TRUE,select.informative.tags=FALSE)
+	return(result)
+}
+
+tagDensity=function(data,tag.shift,annotationID="hg19",mc=1)
+{
+
+	##load rngl
+	filename=paste(annotationID,"_chrom_info.rda",sep="")
+	print(paste("load ",filename))
+	load(paste("/lustre/data/FF/Carmen/BitBucket/chic.data/data/",filename,sep=""))
+	print(str(rngl))
+	smoothed.density=f_tagDensity(data=data,tag.shift=tag.shift,rngl=rngl,mc=mc)
+	return(smoothed.density)
 }
 

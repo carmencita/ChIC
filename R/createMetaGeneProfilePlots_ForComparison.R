@@ -25,7 +25,8 @@
 
 metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=NULL)
 {
-	load("CompendiumProfiles.RData")
+	#load("CompendiumProfiles.RData")
+	load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/compendium_profiles.rda")
 	Hlist=f_Hlist(TRUE)
 	psc <- 1; # pseudocount, required to avoid log2 of 0
 	if (chrommark %in% Hlist)
@@ -51,7 +52,7 @@ metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TES
 			#load average dataframe normalized
 			name=paste(chrommark,"_",endung,"norm", sep="")
 			#a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
-			frame=compendiumProfiles[[name]]
+			frame=compendium_profiles[[name]]
 			normMin=min(frame$mean-frame$sderr)
 			normMax= max(frame$mean+frame$sderr)
 			n_mean=frame
@@ -60,7 +61,7 @@ metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TES
 			#load average dataframe chip
 			name=paste(chrommark,"_",endung,"chip", sep="")
 			#a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
-			frame=compendiumProfiles[[name]]
+			frame=compendium_profiles[[name]]
 			absoluteMin=min(frame$mean-frame$sderr)
 			absoluteMax= max(frame$mean+frame$sderr)
 			c_mean=frame
@@ -69,7 +70,7 @@ metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TES
 			#load average dataframe input
 			name= paste(chrommark,"_",endung,"input", sep="")
 			#a= tryCatch({load(file.path(profilePath,name))},warning=function(z){print("error")})
-			frame=compendiumProfiles[[name]]
+			frame=compendium_profiles[[name]]
 			if ((min(frame$mean-frame$sderr))<absoluteMin){absoluteMin=min(frame$mean-frame$sderr)}
 			if ((max(frame$mean+frame$sderr))>absoluteMax){absoluteMax= max(frame$mean+frame$sderr)}
 			i_mean=frame
@@ -113,7 +114,10 @@ metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TES
 			f_plotProfiles(i_mean, iframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Input",sep="_"),savePlotPath=savePlotPath)
 			f_plotProfiles(c_mean, cframe, endung, c(newMin-0.001,newMax+0.001),maintitel=paste(chrommark,endung,"Chip",sep="_"),savePlotPath=savePlotPath)
 			f_plotProfiles(n_mean, nframe, endung, c(normMin-0.001,normMax+0.001),maintitel=paste(chrommark,endung,"norm",sep="_"),ylab="mean log2 enrichment (signal/input)",savePlotPath=savePlotPath)
-			print(paste("pdf saved under",savePlotPath,sep=" "))
+			if(!is.null(savePlotPath))
+			{ 
+				print(paste("pdf saved under",savePlotPath,sep=" "))
+			}
 		}
 	}else{
 		print("Chromatin marks has to be one of the following:")
@@ -156,7 +160,9 @@ plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValu
 		#filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
 		#d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
 		#compendium=rbind(d1,d2)
-		load("Compendium_DB.RData")
+		#load("Compendium_DB.RData")
+		load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/compendium_db.rda")
+
 		##select the class for the respective chromatin mark
 	    if (chrommark%in%allChrom$allSharp)
 	    {
@@ -177,16 +183,16 @@ plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValu
 	   	
 	   	#get values for chrommark
 		#alias=paste("CC",metricToBePlotted,sep="_")
-		if (paste("CC",metricToBePlotted,sep="_")%in% colnames(compendium))
+		if (paste("CC",metricToBePlotted,sep="_")%in% colnames(compendium_db))
 		{
 			alias=paste("CC",metricToBePlotted,sep="_")
-		}else if (paste("Ch",metricToBePlotted,sep="_")%in% colnames(compendium))
+		}else if (paste("Ch",metricToBePlotted,sep="_")%in% colnames(compendium_db))
 		{	
 			alias=paste("Ch",metricToBePlotted,sep="_")
 		}		
 		
 		##load values of respective set
-	    subset= compendium[which(compendium$CC_TF%in%profileSet),alias]
+	    subset= compendium_db[which(compendium_db$CC_TF%in%profileSet),alias]
   
 	
 		##plot distribution
@@ -204,7 +210,8 @@ plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 	print("load profile classes...")
 	
 	allChrom=f_chromatinMarkClasses(TRUE)
-	load("RFmodels.RData")
+	#load("RFmodels.RData")
+	load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/rf_models.rda")
 
 	Hlist=f_Hlist(TRUE)
 	model=NULL

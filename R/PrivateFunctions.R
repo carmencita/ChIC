@@ -87,22 +87,20 @@ f_getCustomStrandShift= function(x,y){
 	return(newShift)
 }
 
-##read bam file of tagalign file 
-f_readFile=function(f_filename,f_path=getwd())
+##reads bam file or tagalign file 
+f_readFile=function(filename, path=getwd(),reads.aligner.type)
 {
-	reads.aligner.type="bam"
 	read_tags_current_function<-get(paste("read", reads.aligner.type , "tags", sep="."))
-	#if (f_reads.aligner.type=="bam")
-	#{
-	    data<-read_tags_current_function(file.path(f_path,paste(f_filename,".bam",sep="")))
-	#}
-	#if (f_reads.aligner.type=="tagalign")
-	#{
-	#    data<-read_tags_current_function(file.path(f_path,paste(f_filename,".tagAlign",sep="")))
-	#}
+	if (reads.aligner.type=="bam")
+	{
+	    data<-read_tags_current_function(file.path(path,paste(filename,".bam",sep="")))
+	}
+	if (reads.aligner.type=="tagalign")
+	{
+	    data<-read_tags_current_function(file.path(path,paste(filename,".tagAlign",sep="")))
+	}
 	readCount=sum(sapply(data$tags, length))
 	print(readCount)
-
 
 	return(data)
 }
@@ -234,7 +232,7 @@ f_qflag=function(RSC)
 # }
 
 ##selet informative tags
-f_removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.characteristics,remove.local.tag.anomalies=TRUE,select.informative.tags=FALSE)
+f_removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.characteristics,remove.local.tag.anomalies,select.informative.tags)
 {
 	print("Filter tags")
 
@@ -272,40 +270,40 @@ f_tagDensity=function(data,tag.shift,rngl,mc=1)
 	smoothingStep<-20	##is size of sw ##before it was 10
 	smoothingBandwidth<-50
 	##remove chromosome M in case it is there, as it is not defined in rngl
-	data$chrM=NULL
+	#if (!Mchrom){data$chrM=NULL}
 	## density distribution for data
 	print("Smooth tag density")
 	ts <- sum(unlist(lapply(data,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
 	##parallelisation
 	chromosomes_list<-names(data)
 	##creates a list of lists
-	dataSet<-lapply(chromosomes_list, FUN=function(x) {
+	data<-lapply(chromosomes_list, FUN=function(x) {
 		return(data[x])
 	})
-	if (mc>1)
+	# if (mc>1)
+	# {
+	smoothed.density<-mclapply(data, FUN=function(current_chr_list)
 	{
-		smoothed.density<-mclapply(dataSet, FUN=function(current_chr_list)
-		{
-		    current_chr<-names(current_chr_list)
-		    str(current_chr_list)
-		    if (length(current_chr) != 1) 
-		    {
-		        stop("unexpected dataSelected structure")
-		    }
-		    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
-		}, mc.preschedule = FALSE,mc.cores=mc)
-	}else{
-		smoothed.density<-lapply(dataSet, FUN=function(current_chr_list)
-		{
-		    current_chr<-names(current_chr_list)
-		    str(current_chr_list)
-		    if (length(current_chr) != 1) 
-		    {
-		        stop("unexpected dataSelected structure")
-		    }
-		    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
-		})
-	}
+	    current_chr<-names(current_chr_list)
+	    str(current_chr_list)
+	    if (length(current_chr) != 1) 
+	    {
+	        stop("unexpected dataSelected structure")
+	    }
+	    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+	}, mc.preschedule = FALSE,mc.cores=mc)
+	# }else{
+	# 	smoothed.density<-lapply(data, FUN=function(current_chr_list)
+	# 	{
+	# 	    current_chr<-names(current_chr_list)
+	# 	    str(current_chr_list)
+	# 	    if (length(current_chr) != 1) 
+	# 	    {
+	# 	        stop("unexpected dataSelected structure")
+	# 	    }
+	# 	    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+	# 	})
+	# }
 	smoothed.density=(unlist(smoothed.density,recursive=FALSE))
 	#normalizing smoothed tag density by library size
 	smoothed.density<-lapply(smoothed.density,function(d) { d$y <- d$y/ts; return(d); })

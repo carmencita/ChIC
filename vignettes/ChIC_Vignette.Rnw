@@ -1,0 +1,267 @@
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[latin1]{inputenc}
+\usepackage[english]{babel}
+\usepackage{fontenc}
+\usepackage{graphicx}
+
+\title{The ChIP-seq quality Control package \textbf{ChIC}: a short introduction}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The \textbf{ChI}P-seq quality \textbf{C}ontrol package (ChIC) provides functions and data structures to assess the data quality for ChIP-seq data. 
+The tool computes three different categories of QC metrics: QC-metrics designed for narrow-peak profiles, QC-metrics based on global read distribution and 
+QC-metrics from local signal enrichments around annotated genes. 
+User-friendly functions allow to perform the analysis with a single command, whereas step by step functions are also available 
+for more experienced users. The package comes with a large reference compendium of precomputed QC-metrics from public ChIP-seq samples. 
+Key features of the package are functions for calculating, visualising and creating summary plots of QC-metrics, 
+including the comparison of metagene profiles against reference profiles, and the comparison of single QC-metrics with the compendium values. 
+% the classifier models are also provided, to compute the single value quality score based on our random forest models.
+\end{abstract} 
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{QC-metrics based on sharp-peak profiles and cross-correlation analysis}
+The tutorial shows example outputs and usage of several functions using an example dataset from ENCODE for H3K36me3 (https://www.encodeproject.org/). 
+The sample has been flagged by ENCODE with a red audit because of low read depth.
+
+
+\textit{crossCorrelation} is a wrapper function that calculates a number of QC-metrics from cross-correlation analysis and from peak-calling. 
+
+<<eval=FALSE, echo=TRUE >>=
+CC_Result=crossCorrelation(chipName=chipName,
+	inputName=inputName, 
+	read_length=36, 
+	dataPath=dataDirectory, 
+	annotationID="hg19",
+	savePlotPath=getwd())
+@
+
+The wrapper is based on the following functions:
+\subsection{Reading BAM files}
+The first step reads ChIP-seq data in .bam file-format. ChIC expects exactly two bam files: the immunoprecipitation (ChIP) and the control (Input). 
+The "dataPath" should contain the path to the directory in which the bam files can be found.
+
+<<eval=FALSE, echo=TRUE >>=
+chipName="ENCFF000BLL"
+inputName="ENCFF000BKA"
+
+chip.data=readBamFile(chipName, dataPath)
+input.data=readBamsFile(inputName,dataPath)
+@
+
+
+\subsection{Calculate QC-metrics from CrossCorrelation analysis}
+An important parameter that has to be passed to \textit{calculateCrossCorrelation} is the binding-characteristics, previously calculated 
+using \textit{get.binding.characteristics} function. The binding.characteristics structure provides information about the peak separation distance and the 
+cross-correlation profile (for more details see \cite{Kharchenko2008}). 
+
+<<eval=FALSE, echo=TRUE >>=
+#calculate cross correlation QC-metrics for ChIP data
+crossvalues_Chip<-calculateCrossCorrelation(chip.data,
+	chip_binding.characteristics,
+	read_length=read_length,
+	savePlotPath=savePlotPath,
+	plotname="ChIP")
+@
+
+savePlotPath sets the path in which the cross-correlation plot should be saved. If not given the plot will be printed on the screen. 
+An example of a cross-correlation profile is shown in Figure \ref{fig:ccPlot}.
+
+\begin{figure}[htbp]
+ \centering
+.\includegraphics[scale=0.5]{./img/ChIP_CrossCorrelation.pdf}
+ \caption{Cross-correlation plot for sample "ENCFF000BLL" }
+ \label{fig:ccPlot}
+\end{figure}
+
+\textit{calculateCrossCorrelation} has to be used on both, ChIP and Input. The function returns a number of QC-metrics 
+\cite{chicpapero}, inclusive the "tag.shift" value which represents an input parameter for following steps (peak-calling and metagene calculation). 
+
+<<eval=TRUE, echo=FALSE >>=
+load(file = "./img/CC_ScoresChIP.Rdata")
+@
+
+<<eval=TRUE, echo=TRUE >>=
+str(CC_Result_Chip)
+final.tag.shift<-CC_Result_Chip$tag.shift
+@
+
+\subsection{Calculate QC-metrics from peak calls}
+The last step is the calculation of QC-metrics from the called peaks. The \textit{removeLocalTagAnomalies} function performs two steps: 
+it selects only tags with acceptable alignment quality (disabled in the current version) and removes local tag anomalies like regions with extremely high tag 
+counts compared to the neighbourhood (for more details see \cite{Kharchenko2008}). 
+
+<<eval=FALSE, echo=TRUE >>=
+selectedTags=removeLovalTagAnomalies(chip.data,
+	input.data,
+	chip_binding.characteristics,
+	input_binding.characteristics)
+
+chip.dataSelected=selectedTags$chip.dataSelected
+
+#get QC-values from peak calling
+bindingScores=getBindingRegionsScores(chip.data,
+	input.data, 
+	chip.dataSelected,
+	input.dataSelected,
+	final.tag.shift)
+@
+
+The function \textit{getBindingRegionsScores} returns a number of QC-metrics \cite{Chicpaper}.
+
+<<eval=TRUE, echo=FALSE >>=
+load(file = "./img/CC_bindingScores.Rdata")
+@
+
+<<eval=TRUE, echo=TRUE >>=
+str(CC_Result_Chip)
+@
+
+
+\subsection{Profile smoothing}
+<<eval=FALSE, echo=TRUE >>=
+smoothed.densityChip=tagDensity(chip.dataSelected,
+	final.tag.shift,
+	srngl=rngl)
+@	
+A needed step is the smoothing (using a Gaussian kernel) of the tag profile to obtain the "tag density profile" 
+(for more details see \cite{Kharchenko2008}). The tag density profile will be needed to calculate the next categories of QC-metrics.
+
+
+\section{QC-metrics on global read distribution and "fingerprint" plot}
+This set of values is based on the global read distribution along the genome for ChIP and Input data \cite{Diaz2012}. 
+The  function \textit{QCscores\_global} reproduces the so-called "fingerprint" plot \ref{fig:ChancePlot} and returns a list of 9 QC-metrics that can be sampled 
+from the cumulative distribution of the plot. Examples of these metrics are the (a) fraction of bins without reads for ChIP and input, (b) the point of maximum distance between 
+the ChIP and input (x-coordinate, y-coordinate for ChIP and input, the distance calculated as absolute difference between the two y-coordinates, 
+the sign of the difference), (c) the fraction of reads in the top 1 percent of bins with highest coverage for ChIP and input. 
+
+<<eval=FALSE, echo=TRUE >>=
+Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
+	densityInput=smoothedDensityInput,
+	savePlotPath=getwd())
+@
+
+<<eval=TRUE, echo=FALSE >>=
+load(file = "./img/Ch.Rdata")
+@
+
+<<eval=TRUE, echo=TRUE >>=
+str(Ch_Results)
+@
+
+\begin{figure}[htbp]
+ \centering
+.\includegraphics[scale=0.5]{./img/FingerPrintPlot.pdf}
+ \caption{Fingerprint plot of sample ENCFF000BLL and its input ENCFF000BKA.}
+ \label{fig:ChancePlot}
+\end{figure}
+
+\section{Metagene profiles and QC-metrics based on local enrichment}
+\textit{createMetageneProfile} creates the metagene profiles for scaled and non-scaled profiles. The function returns a list with three items: "twopoints", "TSS" and 
+"TES". Each item is again a list with the profile values for ChIP and input.
+
+<<eval=FALSE, echo=TRUE >>=
+Meta_Result=createMetageneProfile(smoothedDensityChip,
+	smoothedDensityInput,
+	tag.shift,
+	annotationID="hg19")
+	Meta_Result$twopoint  
+	Meta_Result$TSS       
+	Meta_Result$TES   
+@
+
+The objects can be used as input to plot the metagene profiles and to get the respective QC-values for the non-scaled metagene profiles at the TSS \ref{TSS} or the TES.
+<<eval=FALSE, echo=TRUE >>=
+TSS_Plot=nonScaledMetageneProfile(Meta_Result$TSS$chip, 
+	Meta_Result$TSS$input, 
+	tag="TSS")
+TES_Plot=nonScaledMetageneProfile(Meta_Result$TES$chip,
+	Meta_Result$TES$input,
+	tag="TES")
+@
+
+
+\begin{figure}[htbp]
+ \centering
+.\includegraphics[scale=0.5]{./img/Normalized_TSS.pdf}
+ \caption{Non-scaled metagene profile for the signal enrichment around the TSS }
+ \label{fig:TSS}
+\end{figure}
+
+
+
+The "twopoint" object can be used as input to plot the metagene profiles and to get the respective QC-values for the scaled metagene profile:
+<<eval=FALSE, echo=TRUE >>=
+geneBody_Plot=scaledMetageneProfile(Meta_Result$twopoint$chip, 
+	Meta_Result$twopoint$input)
+@
+
+
+\begin{figure}[htbp]
+ \centering
+.\includegraphics[scale=0.5]{./img/ScaledMetaGene_ChIP_Input.pdf}
+ \caption{Scaled metagene profile for the tag density across annotated genes. }
+ \label{fig:TSS}
+\end{figure}
+
+\section{Quality assessment using the compendium of QC-metrics as reference}
+write somehting
+
+\subsection{Comparing local enrichment profiles}
+
+The comprehensive set of QC-metrics, computed over a large set of ChIP-seq samples is used as a reference for comparison to new samples. 
+The \textit{metagenePlotsForComparison} function is used to compare the local enrichment profile to the reference compendium by plotting the metagene profile 
+against the expected metagene for the same type of chromatin mark \ref{MetaProfileComparison}.
+
+<<eval=FALSE, echo=TRUE >>=
+metagenePlotsForComparison(chrommark="H3K36me3", 
+	Meta_Result$twopoint, 
+	Meta_Result$TSS, 
+	Meta_Result$TES)
+@
+
+\begin{figure}[htbp]
+ \centering
+.\includegraphics[scale=0.5]{./img/H3K36me3_TWO_Chip.pdf}
+ \caption{The comparison against the compendium can highlight potential problems in the signal distribution for a specific mark, in case of experiment failure.}
+ \label{fig:MetaProfileComparison}
+\end{figure}
+
+\subsection{Comparing QC-metrics with reference values of the compendium}
+The plots against the reference compendium of metrics add an extra level of information that can be easily used by less experienced users. Indeed, this 
+approach should be especially helpful for non-expert data curators, to visually compare the characteristics of their datasets with a large number of already published ChIP-seq data \ref{valueDistributionRSC}.
+ 
+ 
+<<eval=FALSE, echo=TRUE >>=
+currentRSCforSample=CC_Result_Chip$QCscores_ChIP$CC_RSC
+plotReferenceDistribution(chrommark="H3K36me3",
+	metricToBePlotted="RSC", 
+	currentValue=currentRSCforSample)
+@
+
+
+\begin{figure}[htbp]
+ \centering
+.\includegraphics[scale=0.5]{./img/PlotValueDistribution.pdf}
+ \caption{something something}
+ \label{fig:valueDistributionRSC}
+\end{figure}
+
+
+
+\newpage
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{unsrt}
+\bibliography{ChicLib}
+
+
+\end{document}
+
