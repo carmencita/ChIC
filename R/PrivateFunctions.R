@@ -583,7 +583,7 @@ f_one.point.scaling <- function(x, pos, strand=NULL,m=4020/2, lm=m, rm=m, nbins=
 
 
 ##helper function for global settings
-f_metaGeneDefinition=function(selection="break_points")
+f_metaGeneDefinition=function(selection="Settings")
 {
 	predefnum_bins=301   # 151
 
@@ -611,35 +611,55 @@ f_metaGeneDefinition=function(selection="break_points")
 	estimated_bin_size_1P<-up_downStream/predefnum_bins_1P
 		
 	print(paste("Selection",selection,sep=""))
-	if (selection=="break_points")
+	if (selection=="Settings")
 	{
 		settings=NULL
 		settings$break_points_2P=break_points_2P
 		settings$estimated_bin_size_2P=estimated_bin_size_2P
 		settings$break_points=break_points
 		settings$estimated_bin_size_1P=estimated_bin_size_1P
+		settings$predefnum_bins=predefnum_bins
+		settings$inner_margin=inner_margin
+		settings$right_outer_margin=right_outer_margin
+		settings$left_outer_margin=left_outer_margin
+		settings$gene_body=gene_body
+		settings$up_downStream=up_downStream
+		settings$predefnum_bins_1P=predefnum_bins_1P
 		return(settings)
 	}
-	if (selection=="geneAvDensity")
-	{		
-		geneAvDensity=NULL
-		geneAvDensity$predefnum_bins=predefnum_bins
-		geneAvDensity$inner_margin=inner_margin
-		geneAvDensity$right_outer_margin=right_outer_margin
-		geneAvDensity$left_outer_margin=left_outer_margin
-		geneAvDensity$gene_body=gene_body
-		geneAvDensity$up_downStream=up_downStream
-		geneAvDensity$predefnum_bins_1P=predefnum_bins_1P
-		return(geneAvDensity)
-	}
 
+	if (selection=="Hlist")
+		{
+		##GLOBAL VARIABLES
+		Hlist<-c("H3K36me3","POLR2A","H3K4me3","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
+		"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac",
+		"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph")
+		#"POLR3G"
+		return(Hlist)
+		}
+
+	if (selection=="Classes")
+	{
+		#helper functions to define chromating
+		allSharp<-c("H3K27ac","H3K9ac","H3K14ac","H2BK5ac","H4K91ac","H3K18ac","H3K23ac","H2AK9ac","H3K4me3","H3K4me2","H3K79me1","H2AFZ","H2A.Z","H4K12ac"
+		,"H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
+		allBroad<-c("H3K23me2","H3K9me2","H3K9me3","H3K27me3","H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
+		##USE ONLY POLR2A for Pol2 class
+		RNAPol2<-"POLR2A"
+		final=list("allSharp"=allSharp,
+		"allBroad"=allBroad,
+		"RNAPol2"=RNAPol2)
+		return(final)
+	}
 }
+
+
 
 #masked_t.get.gene.av.density(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
 masked_t.get.gene.av.density <- function(chipTags_current,gdl,mc=1) 
 {
 	settings=NULL
-	settings=f_metaGeneDefinition(selection="geneAvDensity")
+	settings=f_metaGeneDefinition(selection="Settings")
 	print("loading metaGene settings")
 	#print(str(settings))
 	result=f_t.get.gene.av.density (chipTags_current,gdl=gdl, im=settings$inner_margin, 
@@ -653,7 +673,7 @@ masked_t.get.gene.av.density <- function(chipTags_current,gdl,mc=1)
 masked_t.get.gene.av.density_TSS_TES<-function(smoothed.density,gdl,tag="TSS",mc=1)
 {
 	settings=NULL
-	settings=f_metaGeneDefinition(selection="geneAvDensity")
+	settings=f_metaGeneDefinition(selection="Settings")
 	print("loading metaGene settings")
 	#print(str(settings))
 	if (tag=="TSS")
@@ -826,7 +846,7 @@ f_spotfunctionNorm=function(dframe,breaks, estimatedBinSize,tag="norm")
 f_maximaAucfunction=function(dframe,breaks, estimatedBinSize,tag="twopoint")
 {
   ##local maxima and area in all the predefined regions
-  settings=f_metaGeneDefinition(selection="break_points")
+  settings=f_metaGeneDefinition(selection="Settings")
   estimated_bin_size_2P=settings$estimated_bin_size_2P
   
   localMaxima_auc=NULL
@@ -911,42 +931,20 @@ f_maximaAucfunctionNorm=function(dframe,breaks, estimatedBinSize,tag="norm")
 #######														###########################
 #######################################################################################
 
-#helper functions to incorporate profile chromatins
-f_Hlist=function(giveBack=TRUE)
-{
-
-	##GLOBAL VARIABLES
-	Hlist<-c("H3K36me3","POLR2A","H3K4me3","H3K79me2","H4K20me1","H2AFZ","H3K27me3","H3K9me3","H3K27ac","POLR2AphosphoS5","H3K9ac","H3K4me2",
-	"H3K9me1","H3K4me1","POLR2AphosphoS2","H3K79me1","H3K4ac","H3K14ac","H2BK5ac","H2BK120ac","H2BK15ac","H4K91ac","H4K8ac","H3K18ac","H2BK12ac","H3K56ac",
-	"H3K23ac","H2AK5ac","H2BK20ac","H4K5ac","H4K12ac","H2A.Z","H3K23me2","H2AK9ac","H3T11ph")
-	#"POLR3G"
-	return(Hlist)
-}
-
-#helper functions to define chromating
-f_chromatinMarkClasses=function(giveBack=TRUE)
-{
-	allSharp<-c("H3K27ac","H3K9ac","H3K14ac","H2BK5ac","H4K91ac","H3K18ac","H3K23ac","H2AK9ac","H3K4me3","H3K4me2","H3K79me1","H2AFZ","H2A.Z","H4K12ac"
-		,"H4K8ac","H3K4ac","H2BK12ac","H4K5ac","H2BK20ac","H2BK120ac","H2AK5ac","H2BK15ac")
-	allBroad<-c("H3K23me2","H3K9me2","H3K9me3","H3K27me3","H4K20me1","H3K36me3","H3K56ac","H3K9me1","H3K79me2","H3K4me1","H3T11ph")
-	##USE ONLY POLR2A for Pol2 class
-	RNAPol2<-"POLR2A"
-	final=list("allSharp"=allSharp,
-		"allBroad"=allBroad,
-		"RNAPol2"=RNAPol2)
-	return(final)
-}
 
 ##plot profiles compendium versus current dataset
 f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", absoluteMinMax, maintitel="title",ylab="mean of log2 tag density",savePlotPath=NULL)#, color="green") 
 {
+	print("Load settings")
+	settings=f_metaGeneDefinition(selection="Settings")
+
 	if (!is.null(savePlotPath))
     {
 		filename=paste(maintitel,".pdf", sep="")
 		pdf(file=file.path(savePlotPath,filename),width=10, height=7)
 	}
-	break_points_2P=f_metaGeneDefinition("break_points_2P")
-	break_points=f_metaGeneDefinition("break_points")
+	break_points_2P=settings$break_points_2P
+	break_points=settings$break_points
 	#The standard error of the mean (SEM) is the standard deviation of the sample-mean's estimate of a population mean. 
 	#(It can also be viewed as the standard deviation of the error in the sample mean with respect to the true mean, 
 	#since the sample mean is an unbiased estimator.) SEM is usually estimated by the sample estimate of the population 

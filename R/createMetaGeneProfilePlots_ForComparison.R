@@ -27,7 +27,8 @@ metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TES
 {
 	#load("CompendiumProfiles.RData")
 	load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/compendium_profiles.rda")
-	Hlist=f_Hlist(TRUE)
+	Hlist=f_metaGeneDefinition("Hlist")
+	
 	psc <- 1; # pseudocount, required to avoid log2 of 0
 	if (chrommark %in% Hlist)
 	{
@@ -150,8 +151,8 @@ metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TES
 
 plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValue,savePlotPath=NULL)
 {
-	Hlist=f_Hlist(TRUE)
-	allChrom=f_chromatinMarkClasses(TRUE)
+	Hlist=f_metaGeneDefinition("Hlist")
+	allChrom=f_metaGeneDefinition("Classes")
 	if (chrommark %in% Hlist)
 	{
 		##reading compendium
@@ -209,7 +210,7 @@ plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 	library(randomForest)
 	print("load profile classes...")
 	
-	allChrom=f_chromatinMarkClasses(TRUE)
+	allChrom=f_metaGeneDefinition("Classes")
 	#load("RFmodels.RData")
 	load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/rf_models.rda")
 

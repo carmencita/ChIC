@@ -30,7 +30,7 @@ nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=
 {	
 	print("load metagene setting")
 	#load("Settings.RData")
-	settings=f_metaGeneDefinition("break_points")
+	settings=f_metaGeneDefinition(selection="Settings")
 	break_points=settings$break_points
 	estimated_bin_size_1P=settings$estimated_bin_size_1P
 
