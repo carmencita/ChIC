@@ -25,10 +25,10 @@
 scaledMetageneProfile=function(binnedChip,binnedInput,savePlotPath=NULL,debug=FALSE)
 {
 	print("load metagene setting")
-	load("Settings.RData")
+	settings=f_metaGeneDefinition("break_points")
 	psc <- 1; # pseudocount # required to avoid log2 of 0
-	break_points_2P=f_metaGeneDefinition("break_points_2P")
-
+	break_points_2P=settings$break_points_2P
+	estimated_bin_size_2P=settings$estimated_bin_size_2P
 
 	chip <- log2(do.call(rbind,binnedChip)+psc)
 	input<-log2(do.call(rbind,binnedInput)+psc)	

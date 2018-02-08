@@ -4,7 +4,7 @@
 #######														###########################
 #######################################################################################
 
-load("Settings.RData")
+#load("Settings.RData")
 ##format conversion
 f_convertFormatBroadPeak <- function(given.clusters)
 {
@@ -539,9 +539,12 @@ f_two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=i
 
 # much simpler, one-point scaling that returns relative positions in the format similar to the two-point scaling ($i/$rx/$nu/$si)
 #one.point.scaling <- function(x, pos, strand=NULL, m=1e3, lm=m, rm=m, nbins=predefnum_bins/2) {  m=2010
-f_one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=m, nbins=predefnum_bins/2) {
+
+#f_one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=m, nbins=predefnum_bins/2) {
+f_one.point.scaling <- function(x, pos, strand=NULL,m=4020/2, lm=m, rm=m, nbins=predefnum_bins/2) {
  # print(nbins)
  # print (up_downStream)
+ 
 #  print(m)
   if(is.null(pos)) { return(NULL) }
   nseg <- length(pos);
@@ -578,11 +581,101 @@ f_one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=
 #### END OF PETER K.'s FUNCTIONS FOR BIN AVERAGES + SCALING OF METAGENES
 ###############################################################
 
+
+##helper function for global settings
+f_metaGeneDefinition=function(selection="break_points")
+{
+	predefnum_bins=301   # 151
+
+	##TWO point scaling
+	inner_margin=500   # 500
+	right_outer_margin=1010   # 1020
+	left_outer_margin=2010    # 2020
+	gene_body=2000   # 2000
+
+
+	totalGeneLength=gene_body+2*inner_margin
+	inner_margin2=totalGeneLength-inner_margin
+
+	break_points_2P=c(-2000,0,inner_margin,gene_body+inner_margin,totalGeneLength,totalGeneLength+1000)
+
+	total_output_gene_length<-left_outer_margin+inner_margin+gene_body+inner_margin+right_outer_margin
+	estimated_bin_size_2P<-total_output_gene_length/predefnum_bins
+
+
+	##ONE point scaling
+	up_downStream=4020
+	predefnum_bins_1P=201 ##binsize=20
+	break_points=c(-2000,-1000,-500,0,500,1000,2000)
+	### %%% need to use this for one point scaling estimated bin size....
+	estimated_bin_size_1P<-up_downStream/predefnum_bins_1P
+		
+	print(paste("Selection",selection,sep=""))
+	if (selection=="break_points")
+	{
+		settings=NULL
+		settings$break_points_2P=break_points_2P
+		settings$estimated_bin_size_2P=estimated_bin_size_2P
+		settings$break_points=break_points
+		settings$estimated_bin_size_1P=estimated_bin_size_1P
+		return(settings)
+	}
+	if (selection=="geneAvDensity")
+	{		
+		geneAvDensity=NULL
+		geneAvDensity$predefnum_bins=predefnum_bins
+		geneAvDensity$inner_margin=inner_margin
+		geneAvDensity$right_outer_margin=right_outer_margin
+		geneAvDensity$left_outer_margin=left_outer_margin
+		geneAvDensity$gene_body=gene_body
+		geneAvDensity$up_downStream=up_downStream
+		geneAvDensity$predefnum_bins_1P=predefnum_bins_1P
+		return(geneAvDensity)
+	}
+
+}
+
+#masked_t.get.gene.av.density(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
+masked_t.get.gene.av.density <- function(chipTags_current,gdl,mc=1) 
+{
+	settings=NULL
+	settings=f_metaGeneDefinition(selection="geneAvDensity")
+	print("loading metaGene settings")
+	#print(str(settings))
+	result=f_t.get.gene.av.density (chipTags_current,gdl=gdl, im=settings$inner_margin, 
+		lom=settings$left_outer_margin, rom=settings$right_outer_margin, bs=settings$gene_body, 
+		nbins=settings$predefnum_bins,mc=mc)
+	return(result)	
+}
+
+#binnedInput_TSS <- masked_t.get.gene.av.density_TSS_TES(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc,tag="TSS")
+
+masked_t.get.gene.av.density_TSS_TES<-function(smoothed.density,gdl,tag="TSS",mc=1)
+{
+	settings=NULL
+	settings=f_metaGeneDefinition(selection="geneAvDensity")
+	print("loading metaGene settings")
+	#print(str(settings))
+	if (tag=="TSS")
+	{
+		result=f_t.get.gene.av.density_TSS(tl_current=smoothed.density,gdl=gdl,m=settings$up_downStream, nbins=settings$predefnum_bins_1P,separate.strands=F,mc=mc)
+		print("TSS")
+	}else{
+		result=f_t.get.gene.av.density_TES(tl_current=smoothed.density,gdl=gdl,m=settings$up_downStream, nbins=settings$predefnum_bins_1P,separate.strands=F,mc=mc)
+		print("TES")
+	}
+	return(result)
+}
+
+
+
 ##MODIFIED VERSION OF t.get.gene.av.density for TWO.POINT
 # a function for getting bin-averaged profiles for individual genes TWO.POINT
 #t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=500,lom=5e3, rom=1e3, bs=2e3, nbins=400,separate.strands=F) {
 	#min.feature.size=min.feature.sizeMy=3000
-f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=inner_margin,lom=left_outer_margin, rom=right_outer_margin, bs=gene_body, nbins=predefnum_bins,separate.strands=F, min.feature.size=3000,mc=1) {
+f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr, im=inner_margin, lom=left_outer_margin, 	rom=right_outer_margin, 
+	bs=gene_body, nbins=predefnum_bins,separate.strands=F, min.feature.size=3000,mc=1) {
+  
   chrl <- names(gdl);
   names(chrl) <- chrl;
   #lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
@@ -688,41 +781,6 @@ f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up
   }
 
 
-##helper function for global settings
-f_metaGeneDefinition=function(selection="break_points_2P")
-{
-	predefnum_bins=301   # 151
-
-	##TWO point scaling
-	inner_margin=500   # 500
-	right_outer_margin=1010   # 1020
-	left_outer_margin=2010    # 2020
-	gene_body=2000   # 2000
-
-
-	totalGeneLength=gene_body+2*inner_margin
-	inner_margin2=totalGeneLength-inner_margin
-
-	break_points_2P=c(-2000,0,inner_margin,gene_body+inner_margin,totalGeneLength,totalGeneLength+1000)
-
-	total_output_gene_length<-left_outer_margin+inner_margin+gene_body+inner_margin+right_outer_margin
-	estimated_bin_size_2P<-total_output_gene_length/predefnum_bins
-
-
-	##ONE point scaling
-	up_downStream=4020
-	predefnum_bins_1P=201 ##binsize=20
-	break_points=c(-2000,-1000,-500,0,500,1000,2000)
-	### %%% need to use this for one point scaling estimated bin size....
-	estimated_bin_size_1P<-up_downStream/predefnum_bins_1P
-
-	if (selection=="break_points_2P")
-	{return(break_points_2P)}
-	if (selection=="break_points")
-	{return(break_points)}
-
-}
-
 
 f_spotfunction=function(dframe,breaks, estimatedBinSize,tag="twopoints")
 {
@@ -768,6 +826,9 @@ f_spotfunctionNorm=function(dframe,breaks, estimatedBinSize,tag="norm")
 f_maximaAucfunction=function(dframe,breaks, estimatedBinSize,tag="twopoint")
 {
   ##local maxima and area in all the predefined regions
+  settings=f_metaGeneDefinition(selection="break_points")
+  estimated_bin_size_2P=settings$estimated_bin_size_2P
+  
   localMaxima_auc=NULL
   for (i in seq(length(breaks)-1))
   {

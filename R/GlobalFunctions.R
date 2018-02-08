@@ -663,11 +663,13 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
   print("process input")
 	
 
-  binned_Input = f_t.get.gene.av.density(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
+  #binned_Input = f_t.get.gene.av.density(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
+  binned_Input = masked_t.get.gene.av.density(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
   #Chip
   smoothed.densityChip=list(td=smoothed.densityChip)
   print("process ChIP")
-  binned_Chip= f_t.get.gene.av.density(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc)
+  #binned_Chip= f_t.get.gene.av.density(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc)
+  binned_Chip= masked_t.get.gene.av.density(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc)
 
   twopoint=list(chip=binned_Chip,input= binned_Input)
 
@@ -676,16 +678,22 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
   print("Creating non-scaled metageneprofiles...")
 
   print("...TSS")
-  binnedInput_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
-  binnedChip_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc)
+
+  #binnedInput_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
+  #binnedChip_TSS <- f_t.get.gene.av.density_TSS(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc)
+  binnedInput_TSS <- masked_t.get.gene.av.density_TSS_TES(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc,tag="TSS")
+  binnedChip_TSS <- masked_t.get.gene.av.density_TSS_TES(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc,tag="TSS")
 
   onepointTSS=list(chip=binnedChip_TSS,input= binnedInput_TSS)
   
   ##one.point.scaling
   #create non-scaled metageneprofile for TES
   print("...TES")
-  binnedInput_TES <- f_t.get.gene.av.density_TES(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
-  binnedChip_TES <- f_t.get.gene.av.density_TES(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc)
+  #binnedInput_TES <- f_t.get.gene.av.density_TES(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc)
+  #binnedChip_TES <- f_t.get.gene.av.density_TES(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc)
+  binnedInput_TES <- masked_t.get.gene.av.density_TSS_TES(smoothed.densityInput,gdl=annotatedGenesPerChr,mc=mc,tag="TES")
+  binnedChip_TES <- masked_t.get.gene.av.density_TSS_TES(smoothed.densityChip,gdl=annotatedGenesPerChr,mc=mc,tag="TES")
+
 
   onepointTES=list(chip=binnedChip_TES,input= binnedInput_TES)
   

@@ -29,8 +29,10 @@
 nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=NULL,debug=FALSE)
 {	
 	print("load metagene setting")
-	load("Settings.RData")
-	break_points=f_metaGeneDefinition("break_points")
+	#load("Settings.RData")
+	settings=f_metaGeneDefinition("break_points")
+	break_points=settings$break_points
+	estimated_bin_size_1P=settings$estimated_bin_size_1P
 
 	psc <- 1; # pseudocount # required to avoid log2 of 0
 	chip <- log2(do.call(rbind,binnedChip)+psc)
@@ -118,9 +120,9 @@ nonScaledMetageneProfile=function(binnedChip,binnedInput,tag="TSS",savePlotPath=
 	#all.Norm<-colMeans(t(t(input[common_genes,])-t(chip[common_genes,])),na.rm=T)
 	all.Norm<-colMeans(t(t(chip[common_genes,])-t(input[common_genes,])),na.rm=T)
 
-	hotSpotsValuesNorm=f_spotfunctionNorm(all.Norm,  break_points, estimated_bin_size_1P, tag=tag)
+	hotSpotsValuesNorm=f_spotfunctionNorm(all.Norm,  break_points,  estimated_bin_size_1P, tag=tag)
 
-	maxAucValuesNorm=f_maximaAucfunctionNorm(all.Norm,  break_points, estimated_bin_size_1P, tag=tag)
+	maxAucValuesNorm=f_maximaAucfunctionNorm(all.Norm,  break_points,  estimated_bin_size_1P, tag=tag)
 
 	variabilityValuesNorm=NULL
 	midpoint=as.integer(length(break_points)/2)+1
