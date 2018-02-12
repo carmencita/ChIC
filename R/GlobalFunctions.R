@@ -730,21 +730,23 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
 
 
 
-  annotation=paste(annotationID,"RefSeqAllGenesFiltered.RData",sep=".")
+
+
+  annotation=paste(annotationID,"_refseq_genes_filtered_granges.rda",sep="")
   geneAnnotations_file<-annotation
   print("Load geneannotation")
   load(geneAnnotations_file) #RefSeqGenesAll_object
 
   #data(paste(annotationID,"RefSeqAllGenesFiltered",sep="."))
 
-  current_annotations_type<-gsub(pattern=".RData", replacement="", fixed=TRUE, x=basename(geneAnnotations_file))
-  current_annotations_object=RefSeqGenes_annotated_filteredByOverlap_geneLength
+  current_annotations_object=refseq_genes_filtered_granges
   # format annotations as chromosome lists
   current_annotations_object<-data.frame(current_annotations_object@.Data, annotation(current_annotations_object), stringsAsFactors=FALSE)
   current_annotations_object$interval_starts<-as.integer(current_annotations_object$interval_starts)
   current_annotations_object$interval_ends<-as.integer(current_annotations_object$interval_ends)
   current_annotations_object$seq_name<-as.character(current_annotations_object$seq_name)
   annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
+
 
   ##two.point.scaling
   #create scaled metageneprofile
