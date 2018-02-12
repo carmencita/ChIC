@@ -9,10 +9,12 @@ readBamFile(filename, path = getwd())
 \arguments{
 \item{filename, }{name of the bam file to be read (without extension)}
 
-\item{path, }{path showing the directory in which the bam file is stored (default= workingdirectory)}
+\item{path, }{path showing the directory in which the bam file is stored 
+(default= workingdirectory)}
 }
 \value{
-list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+list of lists, list corresponds to a chromosome and contains a vecotr of 
+coordinates of the 5' ends of the aligned tags
 }
 \description{
 Reading bam file format
@@ -20,7 +22,7 @@ Reading bam file format
 readBamFile
 }
 \examples{
-\\{dontrun
+\dontrun{
 chipName="ENCFF000BLL"
 chip.data=readBamFile(chipName,path=getwd())
 }

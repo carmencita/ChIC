@@ -1,3 +1,12 @@
+#' @importFrom graphics abline axis legend lines matplot par
+#'	plot polygon text
+#' @importFrom grDevices dev.off pdf rainbow
+#' @importFrom methods new
+#' @importFrom stats density na.omit predict quantile sd var
+#' @importFrom utils str write.table
+
+
+
 #######################################################################################
 #######													 	###########################
 ####### FUNCTIONS QC-metrics for narrow binding PROFILES 	###########################
@@ -5,42 +14,59 @@
 #######################################################################################
 
 
-#'@title Wrapper function for calculating cross-correlation analysis, metrics designed for TFs and from peak-calls
+#'@title Wrapper function for calculating cross-correlation analysis, 
+#'metrics designed for TFs and from peak-calls
 #'
-#' @description
-#' We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 
-#' After calculating the strand cross-correlation coefficient (Kharchenko et al., 2008), we take the following values from the profile: the coordinates of the 
-#' ChIP-peak (fragment length, height A), the coordinates at the phantom-peak (read length, height B) and the baseline (C), the strand-shift, the number of uniquely mapped 
-#' reads (unique_tags), uniquely mapped reads corrected by the library size, the number of reads and the read lengths. We  calculate different values using the relative and 
-#' absolute height of the cross-correlation peaks: the relative and normalized strand coefficient RSC and NSC  (Landt et al., 2012), and the quality control tag (Fig. 1B) 
-#'(Marinov et al., 2013). Other values regarding the library complexity (Landt et al., 2012) like the fraction of non-redundant mapped reads 
-#'(NRF; ratio between the number of uniquely mapped reads divided by the total number of reads), the NRF adjusted by library size and ignoring the strand direction 
-#' (NRF_nostrand), and the PCR bottleneck coefficient PBC (number of genomic locations to which exactly one unique mapping read maps, divided by the number of unique 
-#' mapping reads). Other measures we include in our analysis are the fraction of usable reads in the peak regions (FRiP) (Landt et al., 2012), for which the function calls sharp- and 
-#' broad-binding peaks to obtain two types: the FRiP_sharpsPeak and the FRiP_broadPeak. The function takes the number of called of peaks using an FDR of 0.01 and an 
-#' evalue of 10 (Kharchenko et al., 2008). And count the number of peaks called when using the sharp- and broad-binding option. 
-# 'Finally 22 features are given back.
+#'@description
+#'We use cross-correlation analysis to obtain QC-metrics proposed for 
+#'narrow-binding patterns. After calculating the strand cross-correlation coefficient
+#' (Kharchenko et al., 2008), we take the following values from the profile: the 
+#'coordinates of the ChIP-peak (fragment length, height A), the coordinates at 
+#'the phantom-peak (read length, height B) and the baseline (C), the strand-shift, 
+#'the number of uniquely mapped reads (unique_tags), uniquely mapped reads 
+#'corrected by the library size, the number of reads and the read lengths. 
+#'We  calculate different values using the relative and absolute height of the 
+#'cross-correlation peaks: the relative and normalized strand coefficient RSC and NSC 
+#' (Landt et al., 2012), and the quality control tag (Marinov et al., 2013). 
+#'Other values regarding the library complexity (Landt et al., 2012) like the 
+#'fraction of non-redundant mapped reads (NRF; ratio between the number of uniquely 
+#'mapped reads divided by the total number of reads), the NRF adjusted by library 
+#'size and ignoring the strand direction (NRF_nostrand), and the PCR bottleneck 
+#'coefficient PBC (number of genomic locations to which exactly one unique mapping 
+#'read maps, divided by the number of unique mapping reads). Other measures we 
+#'include in our analysis are the fraction of usable reads in the peak regions (FRiP)
+#' (Landt et al., 2012), for which the function calls sharp- and broad-binding peaks to 
+#'obtain two types: the FRiP_sharpsPeak and the FRiP_broadPeak. The function takes 
+#'the number of called of peaks using an FDR of 0.01 and an evalue of 10 
+#'(Kharchenko et al., 2008). And count the number of peaks called when using 
+#'the sharp- and broad-binding option. Finally 22 features are given back.
 #'
 #' crossCorrelation
 #'
 #' @param chipName String, filename (without extension) of the ChIP file
 #' @param inputName String, filename (without extension) of the Input file
 #' @param read_length Integer, length of the reads
-#' @param dataPath Path, points to the directory were the bam files are stored (default is working directory)
+#' @param dataPath Path, points to the directory were the bam files are 
+#' stored (default is working directory)
 #' @param debug Boolean, to enter debugging mode (default= FALSE)
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
+#' @param savePlotPath, set if Cross-correlation plot should be saved under 
+#' "savePlotPath". Default=NULL and plot will be shown on screen.
 #'
 #' @return returnList, contains
 #' QCscores_ChIP List of Crosscorrelation values for the ChIP
 #' QCscores_Input List of Crosscorrelation values for the Input
 #' QCscores_binding List of QCscores from peak calls
-#' TagDensityChip Tag density profile, smoothed by the Gaussian kernel (for further details see "spp" package)
-#' TagDensityInput Tag density profile, smoothed by the Gaussian kernel (for further details see "spp" package)
+#' TagDensityChip Tag density profile, smoothed by the Gaussian kernel 
+#'(for further details see "spp" package)
+#' TagDensityInput Tag density profile, smoothed by the Gaussian kernel 
+#'(for further details see "spp" package)
 #'
-#' @examples
-#'\{dontrun
-#' CC_Result=crossCorrelation(chipName=chipName,inputName=inputName, read_length=36, dataPath=dataDirectory, debug=debug,mc=mc,annotationID="hg19",savePlotPath=getwd())
+#'@examples
+#'\dontrun{
+#' CC_Result=crossCorrelation(chipName=chipName,inputName=inputName, read_length=36,
+#' dataPath=dataDirectory, debug=debug,mc=mc,annotationID="hg19",savePlotPath=getwd())
 #'}
 
 
@@ -58,7 +84,7 @@ crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), an
 
 	#chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
 
-	chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
+	chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Chip")
 	crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
 	##save the tag.shift
@@ -68,7 +94,7 @@ crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), an
 	#plot and calculate cross correlation and phantom characteristics for the input
 	print("calculate binding characteristics Input")
 	
-	input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
+	input_binding.characteristics<-spp::get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
 	print("calculate cross correlation QC-metrics for the Input")
 	crossvalues_Input=calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input")
 
@@ -134,33 +160,49 @@ crossCorrelation=function(chipName, inputName, read_length, dataPath=getwd(), an
 
 
 
-#'@title Creating cross-correlation profile, phantom peak and calcualting derived QC-metrics
+#'@title Creating cross-correlation profile, phantom peak and calcualting 
+#' derived QC-metrics
 #'
 #' @description 
-#' We use cross-correlation analysis to obtain QC-metrics proposed for narrow-binding patterns. 
-#' After calculating the strand cross-correlation coefficient (Kharchenko et al., 2008), we take the following values from the profile: the coordinates of the 
-#' ChIP-peak (fragment length, height A), the coordinates at the phantom-peak (read length, height B) and the baseline (C), the strand-shift, the number of uniquely mapped 
-#' reads (unique_tags), uniquely mapped reads corrected by the library size, the number of reads and the read lengths. We  calculate different values using the relative and 
-#' absolute height of the cross-correlation peaks: the relative and normalized strand coefficient RSC and NSC  (Landt et al., 2012), and the quality control tag (Fig. 1B) 
-#' (Marinov et al., 2013). Other values regarding the library complexity (Landt et al., 2012) like the fraction of non-redundant mapped reads 
-#' (NRF; ratio between the number of uniquely mapped reads divided by the total number of reads), the NRF adjusted by library size and ignoring the strand direction 
-#' (NRF_nostrand), and the PCR bottleneck coefficient PBC (number of genomic locations to which exactly one unique mapping read maps, divided by the number of unique 
-#' mapping reads). 
+#' We use cross-correlation analysis to obtain QC-metrics proposed for 
+#' narrow-binding patterns. After calculating the strand cross-correlation coefficient 
+#' (Kharchenko et al., 2008), we take the following values from the profile: the 
+#' coordinates of the ChIP-peak (fragment length, height A), the coordinates at the 
+#' phantom-peak (read length, height B) and the baseline (C), the strand-shift, the 
+#' number of uniquely mapped reads (unique_tags), uniquely mapped reads corrected by 
+#' the library size, the number of reads and the read lengths. We  calculate different 
+#' values using the relative and absolute height of the cross-correlation peaks: 
+#' the relative and normalized strand coefficient RSC and NSC  (Landt et al., 2012), 
+#' and the quality control tag (Marinov et al., 2013). Other values regarding 
+#' the library complexity (Landt et al., 2012) like the fraction of non-redundant 
+#' mapped reads (NRF; ratio between the number of uniquely mapped reads divided by 
+#' the total number of reads), the NRF adjusted by library size and ignoring the 
+#' strand direction (NRF_nostrand), and the PCR bottleneck coefficient PBC 
+#' (number of genomic locations to which exactly one unique mapping read maps, divided 
+#' by the number of unique mapping reads). 
 #'
 #' calculateCrossCorrelation
 #'
 #' @param data spp data structure, structure with tag information from bam file
-#' @param binding.characteristics spp data structure, containing binding information for binding preak separation distance and cross-correlation profile.
+#' @param binding.characteristics spp data structure, containing binding information 
+#' for binding preak separation distance and cross-correlation profile.
 #' @param read_length Integer, read length of "data" (Defaul="36")
-#' @param savePlotPath, set if Cross-correlation plot should be saved under "savePlotPath". Default=NULL and plot will be shown on screen.
-#' @param plotname Name and path were the CrossCorrelation plot (pdf) should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working directory)
+#' @param savePlotPath, set if Cross-correlation plot should be saved under 
+#' "savePlotPath". Default=NULL and plot will be shown on screen.
+#' @param plotname Name and path were the CrossCorrelation plot (pdf) should be 
+#' stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working 
+#' directory)
 #'
 #' @return finalList, list with different QC-metrics
 #' @export
 #'
-#' @examples
+#'@examples
 #'\dontrun{
-#'	crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
+#'	crossvalues_Chip<-calculateCrossCorrelation(chip.data,
+#'	chip_binding.characteristics,
+#'	read_length=read_length,
+#'	savePlotPath=savePlotPath,
+#'	plotname="ChIP")
 #'}
 
 calculateCrossCorrelation=function(data,binding.characteristics,read_length=70,savePlotPath=NULL,plotname="name")
@@ -175,7 +217,7 @@ calculateCrossCorrelation=function(data,binding.characteristics,read_length=70,s
 
 	###step 1.2: Phantom peak and cross-correlation
 	print("Phantom peak and cross-correlation")
-	phantom.characteristics<-get.binding.characteristics(data, srange=PhantomPeak_range, bin=PhantomPeak_bin, accept.all.tags=T)
+	phantom.characteristics<-spp::get.binding.characteristics(data, srange=PhantomPeak_range, bin=PhantomPeak_bin, accept.all.tags=T)
 	
 	
 	ph_peakidx <- which( ( phantom.characteristics$cross.correlation$x >= ( read_length - round(2*PhantomPeak_bin) ) ) & ( phantom.characteristics$cross.correlation$x <= ( read_length + round(1.5*PhantomPeak_bin) ) ) )
@@ -364,24 +406,34 @@ calculateCrossCorrelation=function(data,binding.characteristics,read_length=70,s
 #'@title Calculating QC-values from peak calling procedure
 #'
 #' @description
-#' Other measures we include in our analysis are the fraction of usable reads in the peak regions (FRiP) (Landt et al., 2012), for which the function calls sharp- and 
-#' broad-binding peaks to obtain two types: the FRiP_sharpsPeak and the FRiP_broadPeak. The function takes the number of called of peaks using an FDR of 0.01 and an 
-#' evalue of 10 (Kharchenko et al., 2008). And count the number of peaks called when using the sharp- and broad-binding option. 
+#' Other measures we include in our analysis are the fraction of usable reads in 
+#' the peak regions (FRiP) (Landt et al., 2012), for which the function calls 
+#' sharp- and broad-binding peaks to obtain two types: the FRiP_sharpsPeak and 
+#' the FRiP_broadPeak. The function takes the number of called of peaks using an 
+#' FDR of 0.01 and an evalue of 10 (Kharchenko et al., 2008). And count the number 
+#' of peaks called when using the sharp- and broad-binding option. 
+#'
 #' getBindingRegionsScores
 #'
 #' @param chip spp data structure, structure with tag information from ChIP file
 #' @param input spp data structure, structure with tag information from Input file
-#' @param chip.dataSelected, selected ChIP tags after running removeLocalTagAnomalies() which removes local tag anomalies
-#' @param input.dataSelected, selected Input tags after running removeLocalTagAnomalies() which removes local tag anomalies
+#' @param chip.dataSelected, selected ChIP tags after running removeLocalTagAnomalies()
+#' which removes local tag anomalies
+#' @param input.dataSelected, selected Input tags after running 
+#' removeLocalTagAnomalies() which removes local tag anomalies
 #' @param tag.shift integer, value from calculateCrossCorrelation list
 #' @param chrorder, chromosome order (default=NULL) 
 #' @return QCscoreList, containing 6 QC-values
 #'
 #' @export
 #'
-#' @examples
-#'\{dontrun
-#'	bindingScores=getBindingRegionsScores(chip.data,input.data, chip.dataSelected,input.dataSelected,final.tag.shift)
+#'@examples
+#'\dontrun{
+#'	bindingScores=getBindingRegionsScores(chip.data,
+#'	input.data, 
+#'	chip.dataSelected,
+#'	input.dataSelected,
+#'	final.tag.shift)
 #'}
 
 
@@ -406,7 +458,7 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 	#for (current_zthresh in zthresh_list) 
 	#{
 	current_zthresh=4
-	broad.clusters <- get.broad.enrichment.clusters(chip.dataSelected, input.dataSelected, window.size=current_window_size, z.thr=current_zthresh, tag.shift=tag.shift) ##start end logEnrichment
+	broad.clusters <- spp::get.broad.enrichment.clusters(chip.dataSelected, input.dataSelected, window.size=current_window_size, z.thr=current_zthresh, tag.shift=tag.shift) ##start end logEnrichment
 	#write.broadpeak.info(broad.clusters, paste("broadRegions", chip.data.samplename,"input",input.data.samplename, "window", current_window_size, "zthresh", current_zthresh,"broadPeak", sep="."))
 	md=f_convertFormatBroadPeak(broad.clusters)
 	broadPeak_selected_genes_genomeIntervals_object<-new("Genome_intervals",
@@ -444,7 +496,7 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 	if (length(bp_eval$npl)>1)
 	{
 		###14 get precise binding position using escore LARGE PEAKS
-		bp_broadpeak <- add.broad.peak.regions(chip.data12,input.data12,bp_eval, window.size=1000, z.thr=3)
+		bp_broadpeak <- spp::add.broad.peak.regions(chip.data12,input.data12,bp_eval, window.size=1000, z.thr=3)
 		md=f_converNarrowPeakFormat(bp_broadpeak)
 		sharpPeak_selected_genes_genomeIntervals_object<-new("Genome_intervals",
 			.Data=(cbind(
@@ -510,18 +562,26 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 #'@title Metrics taken from global read distribution
 #'
 #' @description
-#' This set of values is based on the global read distribution along the genome for immunoprecipitation and input data (Diaz et al., 2012). 
-#' The genome is binned and the read coverage counted for each bin. Then the function computes the cumulative distribution of reads density per genomic bin and plots the 
-#' fraction of the coverage on the y-axis and the fraction of bins on the x-axis. Then different values can be sampled from the cumulative distribution: 
-#' like the fraction of bins without reads for in immunoprecipitation and input,the point of the maximum distance between the ChIP and the input (x-axis, y-axis for 
-#' immunoprecipitation and input, distance (as absolute difference), the sign of the differences), the fraction of reads in the top 1%bin for immunoprecipitation and input. 
-#' Finally, the funciton returns 9 QC-measures
+#' This set of values is based on the global read distribution along the genome for 
+#' immunoprecipitation and input data (Diaz et al., 2012). The genome is binned and 
+#' the read coverage counted for each bin. Then the function computes the cumulative 
+#' distribution of reads density per genomic bin and plots the fraction of the coverage 
+#' on the y-axis and the fraction of bins on the x-axis. Then different values can be 
+#' sampled from the cumulative distribution: like the fraction of bins without 
+#' reads for in immunoprecipitation and input,the point of the maximum distance 
+#' between the ChIP and the input (x-axis, y-axis for immunoprecipitation and input, 
+#' distance (as absolute difference), the sign of the differences), the fraction of 
+#' reads in the top 1%bin for immunoprecipitation and input. Finally, the funciton 
+#' returns 9 QC-measures
 #'
 #' QCscores_global
 #'
-#' @param densityChip Smoothed tag density object for ChIP (returned by f_CrossCorrelation). 
-#' @param densityInput Smoothed tag density object for Inpt (returned by f_CrossCorrelation)
-#' @param savePlotPath Path, path set forces the fingerprint plot to be saved under the respective directory. Default=NULL, plot not saved but shown on screen
+#' @param densityChip Smoothed tag density object for ChIP (returned 
+#' by f_CrossCorrelation). 
+#' @param densityInput Smoothed tag density object for Inpt (returned 
+#' by f_CrossCorrelation)
+#' @param savePlotPath Path, path set forces the fingerprint plot to be saved under 
+#' the respective directory. Default=NULL, plot not saved but shown on screen
 #' @param debug Boolean, to enter debugging mode (default= FALSE)
 #'
 #' @return finalList, list containing 9 QC-values
@@ -531,8 +591,11 @@ getBindingRegionsScores=function(chip,input,chip.dataSelected,input.dataSelected
 #' @examples
 #'\dontrun{
 #' CC_Result=crossCorrelation(chipName=chipName,
-#' inputName=inputName, read_length=36, 
-#' dataPath=dataDirectory, annotationID="hg19",savePlotPath=getwd())
+#' inputName=inputName, 
+#' read_length=36, 
+#' dataPath=dataDirectory, 
+#' annotationID="hg19",
+#' savePlotPath=getwd())
 #'
 #' tag.shift=CC_Result$QCscores_ChIP$tag.shift
 #' smoothedDensityInput=CC_Result$TagDensityInput
@@ -612,33 +675,61 @@ QCscores_global=function(densityChip,densityInput,savePlotPath=NULL,debug=FALSE)
 #'@title Wrapper function to create scaled and non-scaled metageneprofiles 
 #'
 #' @description
-#' Metagene plots show the signal enrichment around a region of interest like the TSS or over a predefined set of genes.
-#' The tag density of the immunoprecipitation is taken over all RefSeg annotated human genes, averaged and log2 transformed. The same is done for the 
-#' input. The normalized profile is calculated as the signal enrichment (immunoprecipitation over the input). 
-#' We created two types of metagene profiles: a non-scaled profile for the TSS  and TES, and a scaled profile 
-#' for the entire gene, including the gene body. 
-#' The non-scaled profile is constructed around the TSS/TES, with 2KB up- and downstream regions respectively. 
+#' Metagene plots show the signal enrichment around a region of interest like the 
+#' TSS or over a predefined set of genes. The tag density of the immunoprecipitation 
+#' is taken over all RefSeg annotated human genes, averaged and log2 transformed. 
+#' The same is done for the input. The normalized profile is calculated as the 
+#' signal enrichment (immunoprecipitation over the input). We created two types 
+#' of metagene profiles: a non-scaled profile for the TSS  and TES, and a scaled 
+#' profile for the entire gene, including the gene body. The non-scaled profile 
+#' is constructed around the TSS/TES, with 2KB up- and downstream regions respectively. 
 #' 
 #' CreateMetageneProfile
 #'
-#' @param smoothed.densityChip Smoothed tag density object for the ChIP (returned by f_CrossCorrelation)
-#' @param smoothed.densityInput Smoothed tag density object for the input(returned by f_CrossCorrelation)
+#' @param smoothed.densityChip Smoothed tag density object for the ChIP 
+#' (returned by f_CrossCorrelation)
+#' @param smoothed.densityInput Smoothed tag density object for the input
+#' (returned by f_CrossCorrelation)
 #' @param tag.shift Integer, tag shift returned by f_CrossCorrelation()
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
-#'
-#' @return list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS (TSS) and TES (TES). Each object is made of a list containing 
-#' the chip and the input profile
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @return list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS 
+#' (TSS) and TES (TES). Each object is made of a list containing the chip and the 
+#' input profile
 #'
 #' @export
 #'
 #' @examples
-#'\{dontrun
-#' Meta_Result=createMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,annotationID="hg19")
+#'\dontrun{
+#'  Meta_Result=createMetageneProfile(smoothedDensityChip,smoothedDensityInput,
+#' tag.shift,annotationID="hg19",debug=debug,mc=mc)
 #'}
 
 createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.shift,annotationID="hg19",debug=FALSE,mc=1)
 {
+
+##NEW PART
+##TO INSERT AFTER PUSH
+
+  # annotation=paste(annotationID,"_refseq_genes_filtered_granges.rda",sep="")
+  # geneAnnotations_file<-annotation
+  # print("Load geneannotation")
+  # load(geneAnnotations_file) #RefSeqGenesAll_object
+
+  # #data(paste(annotationID,"RefSeqAllGenesFiltered",sep="."))
+
+  # current_annotations_object=refseq_genes_filtered_granges
+  # # format annotations as chromosome lists
+  # current_annotations_object<-data.frame(current_annotations_object@.Data, annotation(current_annotations_object), stringsAsFactors=FALSE)
+  # current_annotations_object$interval_starts<-as.integer(current_annotations_object$interval_starts)
+  # current_annotations_object$interval_ends<-as.integer(current_annotations_object$interval_ends)
+  # current_annotations_object$seq_name<-as.character(current_annotations_object$seq_name)
+  # annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
+#####
+
+
+
   annotation=paste(annotationID,"RefSeqAllGenesFiltered.RData",sep=".")
   geneAnnotations_file<-annotation
   print("Load geneannotation")
@@ -717,14 +808,16 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
 #' readBamFile
 #'
 #' @param filename, name of the bam file to be read (without extension)
-#' @param path, path showing the directory in which the bam file is stored (default= workingdirectory)
+#' @param path, path showing the directory in which the bam file is stored 
+#' (default= workingdirectory)
 #'
-#' @return list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+#' @return list of lists, list corresponds to a chromosome and contains a vecotr of 
+#' coordinates of the 5' ends of the aligned tags
 #'
 #' @export
 #'
-#' @examples
-#'\{dontrun
+#'@examples
+#'\dontrun{
 #' chipName="ENCFF000BLL"
 #' chip.data=readBamFile(chipName,path=getwd())
 #'}
@@ -738,37 +831,49 @@ readBamFile=function(filename,path=getwd())
 #'@title Removes loval anomalies
 #'
 #' @description
-#' The removeLocalTagAnomalies function removes tags from regions with extremely high tag counts compared to the
+#' The removeLocalTagAnomalies function removes tags from regions with extremely high 
+#' tag counts compared to the
 #' neighbourhood.
 #''
 #' removeLocalTagAnomalies
 #'
 #' @param chip, data structure with tag information from ChIP file
 #' @param input, data structure with tag information from Input file
-#' @param chip_b.characteristics, binding-characteristic of the ChiP (previously calculated using get.binding.characteristics)
-#' @param input_b.characteristics,  binding-characteristic of the Input (previously calculated using get.binding.characteristics)
+#' @param chip_b.characteristics, binding-characteristic of the ChiP (previously
+#' calculated using get.binding.characteristics)
+#' @param input_b.characteristics,  binding-characteristic of the Input 
+#' (previously calculated using get.binding.characteristics)
 #'
 #' @return list, containing filtered data structure for ChIP and Input
 #'
 #' @export
 #'
-#' @examples
-#'\{dontrun
+#'@examples
+#'\dontrun{
 #' chip.data=readBamFile(chipName,path=dataPath)
 #' input.data=readBamFile(inputName,path=dataPath)
 #' print("calculate binding characteristics ChIP")
 #' ## cross_correlation parameters
 #' estimating_fragment_length_range<-c(0,500)
 #' estimating_fragment_length_bin<-5
-#' chip_binding.characteristics<-get.binding.characteristics(chip.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,accept.all.tags=T)
+#' chip_binding.characteristics<-get.binding.characteristics(chip.data, 
+#' srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin,
+#' accept.all.tags=T)
 #' print("calculate cross correlation QC-metrics for the Chip")
-#' crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="ChIP")
+#' crossvalues_Chip<-calculateCrossCorrelation(chip.data,chip_binding.characteristics,
+#' read_length=read_length,
+#' savePlotPath=savePlotPath,plotname="ChIP")
 #' print("calculate binding characteristics Input")
-#' input_binding.characteristics<-get.binding.characteristics(input.data, srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, accept.all.tags=T)
+#' input_binding.characteristics<-get.binding.characteristics(input.data, 
+#' srange=estimating_fragment_length_range, bin=estimating_fragment_length_bin, 
+#' accept.all.tags=T)
 #' print("calculate cross correlation QC-metrics for the Input")
-#' crossvalues_Input=calculateCrossCorrelation(input.data,input_binding.characteristics,read_length=read_length,savePlotPath=savePlotPath,plotname="Input")
+#' crossvalues_Input=calculateCrossCorrelation(input.data,input_binding.characteristics,
+#' read_length=read_length,savePlotPath=savePlotPath,plotname="Input")
 #'
-#' selectedTags=removeLocalTagAnomalies(chip.data,input.data,chip_binding.characteristics,input_binding.characteristics)
+#' selectedTags=removeLocalTagAnomalies(chip.data,input.data,
+#' chip_binding.characteristics,
+#' input_binding.characteristics)
 #'}
 removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.characteristics)
 {
@@ -786,16 +891,19 @@ removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.chara
 #' tagDensity
 #'
 #' @param data, data structure with tag distribution
-#' @param tag.shift, Integer of the tag shift value returned by calculateCrossCorrelation()
+#' @param tag.shift, Integer of the tag shift value returned by 
+#' calculateCrossCorrelation()
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
-#' @return list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+#' @return list of lists, list corresponds to a chromosome and contains a vector of 
+#' coordinates of the 5' ends of the aligned tags
 #'
 #' @export
 #'
-#' @examples
-#'\{dontrun
-#' 	smoothed.densityChip=tagDensity(chip.dataSelected,final.tag.shift,annotationID="hg19",mc=5)
+#'@examples
+#'\dontrun{
+#' smoothed.densityChip=tagDensity(chip.dataSelected,final.tag.shift,
+#' annotationID="hg19",mc=5)
 #'}
 tagDensity=function(data,tag.shift,annotationID="hg19",mc=1)
 {

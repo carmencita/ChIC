@@ -488,7 +488,8 @@ f_feature.bin.averages <- function(dat,feat,nu.feat.omit=F,nu.point.omit=T, scal
 # $r5x/$r3x give distances relative to the 5' and 3' ends, $si gives segment index
 # $bin index factor is added if nbins is supplied
 #two.point.scaling <- function(x,seg,m=1e3,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=im,lim=im,nbins=predefnum_bins/2) {
-f_two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=im,lim=im,nbins=predefnum_bins) {
+#f_two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=im,lim=im,nbins=predefnum_bins) {
+f_two.point.scaling <- function(x,seg,bs=2000,om=m,im=m,rom=om,lom=om,rim=500,lim=500,nbins=301) {
   # map points to the segments defined by outer margins
   nseg <- length(seg$s);
   if(!is.null(seg$strand)) {
@@ -541,7 +542,7 @@ f_two.point.scaling <- function(x,seg,bs=gene_body,om=m,im=m,rom=om,lom=om,rim=i
 #one.point.scaling <- function(x, pos, strand=NULL, m=1e3, lm=m, rm=m, nbins=predefnum_bins/2) {  m=2010
 
 #f_one.point.scaling <- function(x, pos, strand=NULL,m=up_downStream/2, lm=m, rm=m, nbins=predefnum_bins/2) {
-f_one.point.scaling <- function(x, pos, strand=NULL,m=4020/2, lm=m, rm=m, nbins=predefnum_bins/2) {
+f_one.point.scaling <- function(x, pos, strand=NULL,m=4020/2, lm=m, rm=m, nbins=301/2) {
  # print(nbins)
  # print (up_downStream)
  
@@ -693,9 +694,11 @@ masked_t.get.gene.av.density_TSS_TES<-function(smoothed.density,gdl,tag="TSS",mc
 # a function for getting bin-averaged profiles for individual genes TWO.POINT
 #t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr,im=500,lom=5e3, rom=1e3, bs=2e3, nbins=400,separate.strands=F) {
 	#min.feature.size=min.feature.sizeMy=3000
-f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr, im=inner_margin, lom=left_outer_margin, 	rom=right_outer_margin, 
-	bs=gene_body, nbins=predefnum_bins,separate.strands=F, min.feature.size=3000,mc=1) {
-  
+#f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr, im=inner_margin, lom=left_outer_margin, 	rom=right_outer_margin, 
+#	bs=gene_body, nbins=predefnum_bins,separate.strands=F, min.feature.size=3000,mc=1) {
+f_t.get.gene.av.density <- function(chipTags_current,gdl, im=500, lom=2010, 	rom=1010, 
+	bs=2000, nbins=301,separate.strands=F, min.feature.size=3000,mc=1) {
+ 
   chrl <- names(gdl);
   names(chrl) <- chrl;
   #lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
@@ -731,7 +734,8 @@ f_t.get.gene.av.density <- function(chipTags_current,gdl=annotatedGenesPerChr, i
 
 ##MODIFIED VERSION OF t.get.gene.av.density FOR TSS
 # a function for getting bin-averaged profiles for individual genes TSS ONE.POINT
-f_t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) { ##binning of the frame
+#f_t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) { ##binning of the frame
+f_t.get.gene.av.density_TSS <- function(tl_current,gdl,m=4020, nbins=201,separate.strands=F,mc=1) { ##binning of the frame
     chrl <- names(gdl);
     names(chrl) <- chrl;
     #lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
@@ -767,7 +771,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current,gdl=annotatedGenesPerChr,m=up
 
 ##MODIFIED VERSION OF t.get.gene.av.density FOR TES
 # a function for getting bin-averaged profiles for individual genes TES ONE.POINT 
-f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) {
+#f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) {
+f_t.get.gene.av.density_TES <- function(tl_current,gdl,m=4020, nbins=201,separate.strands=F,mc=1) {
     chrl <- names(gdl);
     names(chrl) <- chrl;
     #lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {

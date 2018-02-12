@@ -9,14 +9,16 @@ tagDensity(data, tag.shift, annotationID = "hg19", mc = 1)
 \arguments{
 \item{data, }{data structure with tag distribution}
 
-\item{tag.shift, }{Integer of the tag shift value returned by calculateCrossCorrelation()}
+\item{tag.shift, }{Integer of the tag shift value returned by 
+calculateCrossCorrelation()}
 
 \item{annotationID}{String, indicating the genome assembly (Default="hg19")}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
 \value{
-list of lists, list corresponds to a chromosome and contains a vecotr of coordinates of the 5' ends of the aligned tags
+list of lists, list corresponds to a chromosome and contains a vector of 
+coordinates of the 5' ends of the aligned tags
 }
 \description{
 calcualtes the smoothed tag density using spp::get.smoothed.tag.density
@@ -24,7 +26,8 @@ calcualtes the smoothed tag density using spp::get.smoothed.tag.density
 tagDensity
 }
 \examples{
-\\{dontrun
-	smoothed.densityChip=tagDensity(chip.dataSelected,final.tag.shift,annotationID="hg19",mc=5)
+\dontrun{
+smoothed.densityChip=tagDensity(chip.dataSelected,final.tag.shift,
+annotationID="hg19",mc=5)
 }
 }

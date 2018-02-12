@@ -8,32 +8,40 @@ createMetageneProfile(smoothed.densityChip, smoothed.densityInput, tag.shift,
   annotationID = "hg19", debug = FALSE, mc = 1)
 }
 \arguments{
-\item{smoothed.densityChip}{Smoothed tag density object for the ChIP (returned by f_CrossCorrelation)}
+\item{smoothed.densityChip}{Smoothed tag density object for the ChIP 
+(returned by f_CrossCorrelation)}
 
-\item{smoothed.densityInput}{Smoothed tag density object for the input(returned by f_CrossCorrelation)}
+\item{smoothed.densityInput}{Smoothed tag density object for the input
+(returned by f_CrossCorrelation)}
 
 \item{tag.shift}{Integer, tag shift returned by f_CrossCorrelation()}
 
 \item{annotationID}{String, indicating the genome assembly (Default="hg19")}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
+
+\item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
 \value{
-list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS (TSS) and TES (TES). Each object is made of a list containing 
-the chip and the input profile
+list with 3 objects: scaled profile ("twopoint"), non-scaled profile for TSS 
+(TSS) and TES (TES). Each object is made of a list containing the chip and the 
+input profile
 }
 \description{
-Metagene plots show the signal enrichment around a region of interest like the TSS or over a predefined set of genes.
-The tag density of the immunoprecipitation is taken over all RefSeg annotated human genes, averaged and log2 transformed. The same is done for the 
-input. The normalized profile is calculated as the signal enrichment (immunoprecipitation over the input). 
-We created two types of metagene profiles: a non-scaled profile for the TSS  and TES, and a scaled profile 
-for the entire gene, including the gene body. 
-The non-scaled profile is constructed around the TSS/TES, with 2KB up- and downstream regions respectively. 
+Metagene plots show the signal enrichment around a region of interest like the 
+TSS or over a predefined set of genes. The tag density of the immunoprecipitation 
+is taken over all RefSeg annotated human genes, averaged and log2 transformed. 
+The same is done for the input. The normalized profile is calculated as the 
+signal enrichment (immunoprecipitation over the input). We created two types 
+of metagene profiles: a non-scaled profile for the TSS  and TES, and a scaled 
+profile for the entire gene, including the gene body. The non-scaled profile 
+is constructed around the TSS/TES, with 2KB up- and downstream regions respectively. 
 
 CreateMetageneProfile
 }
 \examples{
-\\{dontrun
-Meta_Result=createMetageneProfile(smoothedDensityChip,smoothedDensityInput,tag.shift,annotationID="hg19")
+\dontrun{
+ Meta_Result=createMetageneProfile(smoothedDensityChip,smoothedDensityInput,
+tag.shift,annotationID="hg19",debug=debug,mc=mc)
 }
 }

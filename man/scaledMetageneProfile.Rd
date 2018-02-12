@@ -12,7 +12,8 @@ scaledMetageneProfile(binnedChip, binnedInput, savePlotPath = NULL,
 
 \item{binnedInput}{DESCRiBE!!}
 
-\item{savePlotPath}{Path in which plots (pdf format) should be saved. If NULL on screen (default=NULL)}
+\item{savePlotPath}{Path in which plots (pdf format) should be saved. 
+If NULL on screen (default=NULL)}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
@@ -20,19 +21,24 @@ scaledMetageneProfile(binnedChip, binnedInput, savePlotPath = NULL,
 returnList
 }
 \description{
-The scaled metagene profile that includes the gene body, the signal is captured on a real scale from the TSS and 
-an upstream region of 2KB. From the TSS, the gene body is constructed with 0.5KB in real scale at the gene start (TSS + 0.5KB) 
-and the gene end (TES - 0.5KB), whereas the remaining gene body is scaled to a virtual length of 2000. 
-Considering the length of these regions, the minimum gene length required is 3KB and shorter genes are filtered out. 
-From the profile, we take enrichment values at different coordinates: at -2KB, at the TSS, inner margin (0.5KB), 
-gene body (2KB + 2 * inner margin), gene body+1KB. We collect in total 42 QC-metrics from the ChIP and normalized profile. 
+The scaled metagene profile that includes the gene body, the signal is 
+captured on a real scale from the TSS and an upstream region of 2KB. From the TSS, 
+the gene body is constructed with 0.5KB in real scale at the gene start 
+(TSS + 0.5KB) and the gene end (TES - 0.5KB), whereas the remaining gene body is 
+scaled to a virtual length of 2000. Considering the length of these regions, 
+the minimum gene length required is 3KB and shorter genes are filtered out. 
+From the profile, we take enrichment values at different coordinates: at 
+-2KB, at the TSS, inner margin (0.5KB), gene body (2KB + 2 * inner margin), 
+gene body+1KB. We collect in total 42 QC-metrics from the ChIP and 
+normalized profile. 
 
 scaledMetageneProfile
 }
 \examples{
-\\{dontrun
+\dontrun{
 source("wrapper_twopoint_allGenes_plot.R")
-geneBody_Plot=scaledMetageneProfile(Meta_Result$twopoint$chip,Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
+geneBody_Plot=scaledMetageneProfile(Meta_Result$twopoint$chip,
+Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
 completeListOfValues=append(completeListOfValues,geneBody_Plot)
 }
 }
