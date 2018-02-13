@@ -35,8 +35,8 @@
 
 metagenePlotsForComparison=function(chrommark,twopointElements, TSSElements, TESElements, savePlotPath=NULL)
 {
-	#load("CompendiumProfiles.RData")
-	load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/compendium_profiles.rda")
+	data("compendium_profiles")
+	#load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/compendium_profiles.rda")
 	Hlist=f_metaGeneDefinition("Hlist")
 	
 	psc <- 1; # pseudocount, required to avoid log2 of 0
@@ -177,8 +177,8 @@ plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValu
 		#filename=file.path(dataDirectory,"numbersHistone_AllGenes_unconsolidated.txt")
 		#d2=read.table(filename,stringsAsFactors=TRUE,header=TRUE)
 		#compendium=rbind(d1,d2)
-		#load("Compendium_DB.RData")
-		load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/compendium_db.rda")
+		data("compendium_db")
+		#load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/compendium_db.rda")
 
 		##select the class for the respective chromatin mark
 	    if (chrommark%in%allChrom$allSharp)
@@ -208,7 +208,7 @@ plotReferenceDistribution=function(chrommark,metricToBePlotted="RSC",currentValu
 			alias=paste("Ch",metricToBePlotted,sep="_")
 		}		
 		
-		##load values of respective set
+		##get the values of respective set
 	    subset= compendium_db[which(compendium_db$CC_TF%in%profileSet),alias]
   
 	
@@ -250,8 +250,8 @@ plotPredictionScore=function(chrommark,featureVector,savePlotPath=NULL)
 	print("load profile classes...")
 	
 	allChrom=f_metaGeneDefinition("Classes")
-	#load("RFmodels.RData")
-	load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/rf_models.rda")
+	data("rf_models")
+	#load("/lustre/data/FF/Carmen/BitBucket/chic.data/data/rf_models.rda")
 
 	Hlist=f_Hlist(TRUE)
 	model=NULL

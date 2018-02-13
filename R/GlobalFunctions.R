@@ -727,15 +727,12 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
   # current_annotations_object$seq_name<-as.character(current_annotations_object$seq_name)
   # annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
 #####
-
-  annotation=paste(annotationID,"_refseq_genes_filtered_granges.rda",sep="")
+  require(chic.data)
+  annotation=paste(annotationID,"_refseq_genes_filtered_granges",sep="")
   geneAnnotations_file<-annotation
   print("Load geneannotation")
-  load(geneAnnotations_file) #RefSeqGenesAll_object
-
-  #data(paste(annotationID,"RefSeqAllGenesFiltered",sep="."))
-
-  current_annotations_object=refseq_genes_filtered_granges
+  current_annotations_object=get(geneAnnotations_file)
+  #current_annotations_object=refseq_genes_filtered_granges
   # format annotations as chromosome lists
   current_annotations_object<-data.frame(current_annotations_object@.Data, annotation(current_annotations_object), stringsAsFactors=FALSE)
   current_annotations_object$interval_starts<-as.integer(current_annotations_object$interval_starts)
