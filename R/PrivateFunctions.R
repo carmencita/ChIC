@@ -264,13 +264,12 @@ f_removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.cha
 }
 
 ##takes dataSelected as input, parallel is the number of CPUs used for parallelization
-f_tagDensity=function(data,tag.shift,rngl,mc=1)
+f_tagDensity=function(data,tag.shift,chromDef,mc=1)
 {
 	##Smoothing parameters
 	smoothingStep<-20	##is size of sw ##before it was 10
 	smoothingBandwidth<-50
-	##remove chromosome M in case it is there, as it is not defined in rngl
-	#if (!Mchrom){data$chrM=NULL}
+	
 	## density distribution for data
 	print("Smooth tag density")
 	ts <- sum(unlist(lapply(data,length)))/1e6 ##tag smoothing, (sum of tags in all chr)/1e6
@@ -290,7 +289,7 @@ f_tagDensity=function(data,tag.shift,rngl,mc=1)
 	    {
 	        stop("unexpected dataSelected structure")
 	    }
-	    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=rngl[current_chr])
+	    get.smoothed.tag.density(current_chr_list, bandwidth=smoothingBandwidth, step=smoothingStep,tag.shift=tag.shift, rngl=chromDef[current_chr])
 	}, mc.preschedule = FALSE,mc.cores=mc)
 	# }else{
 	# 	smoothed.density<-lapply(data, FUN=function(current_chr_list)

@@ -728,10 +728,6 @@ createMetageneProfile = function(smoothed.densityChip,smoothed.densityInput,tag.
   # annotatedGenesPerChr <-split(current_annotations_object, f=current_annotations_object$seq_name)
 #####
 
-
-
-
-
   annotation=paste(annotationID,"_refseq_genes_filtered_granges.rda",sep="")
   geneAnnotations_file<-annotation
   print("Load geneannotation")
@@ -910,12 +906,12 @@ removeLocalTagAnomalies=function(chip,input,chip_b.characteristics,input_b.chara
 tagDensity=function(data,tag.shift,annotationID="hg19",mc=1)
 {
 
-	##load rngl
+	##load hg19_chrom_info
 	filename=paste(annotationID,"_chrom_info.rda",sep="")
 	print(paste("load ",filename))
 	load(paste("/lustre/data/FF/Carmen/BitBucket/chic.data/data/",filename,sep=""))
-	print(str(rngl))
-	smoothed.density=f_tagDensity(data=data,tag.shift=tag.shift,rngl=rngl,mc=mc)
+	#print(str(hg19_chrom_info))
+	smoothed.density=f_tagDensity(data=data,tag.shift=tag.shift,chromDef=hg19_chrom_info,mc=mc)
 	return(smoothed.density)
 }
 
