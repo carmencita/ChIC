@@ -1,17 +1,26 @@
 Package: CHIC
-Title: Quality control pipeline for ChIP-seq data
-Version: 0.1.0
-Author: Carmen Maria Livi, Francesco Ferrari
+Title: Quality Control Pipeline for ChIP-Seq Data
+Version: 0.99.0
+Author: Carmen Maria Livi
 Maintainer: Carmen Maria Livi <carmen.livi@ifom.eu>
 Description: Quality control pipeline for ChIP-seq data.
 License: GPL-2
 Encoding: UTF-8
-LazyData: true
+LazyData: TRUE
 Imports:
+	chic.data (>= 0.1),
 	girafe,
 	caTools,
+	methods,
 	genomeIntervals,
-	caret
-Depends: spp
-Suggests: BiocStyle
+	intervals,
+	caret,
+	grDevices, 
+	graphics, 
+	parallel, 
+	stats, 
+	utils
+Depends: spp	
+biocViews: ChIPSeq, QualityControl
 RoxygenNote: 6.0.1
+

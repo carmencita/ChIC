@@ -8,12 +8,15 @@ metagenePlotsForComparison(chrommark, twopointElements, TSSElements,
   TESElements, savePlotPath = NULL)
 }
 \arguments{
-\item{chrommark}{String, chromatin mark to be analysed. Has to be one of the 
-following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3,H3K27ac,
-POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, H3K4ac, 
-H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
-H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, H3K23me2,
-H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: POLR2A 
+\item{chrommark}{String, chromatin mark to be analysed. 
+Has to be one of the following: H3K36me3, H3K4me3, 
+H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3,H3K27ac,
+POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1,
+H3K79me1, H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac,
+H4K91ac, H4K8ac, H3K18ac, H2BK12ac, H3K56ac, 
+H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, 
+H2A.Z, H3K23me2, H2AK9ac, H3T11ph. 
+For RNAPOL2 different variants are available: POLR2A 
 (for RNAPol2), POLR3G and POLR2AphosphoS2}
 
 \item{twopointElements}{DESCRIBE!!!}
@@ -22,29 +25,33 @@ H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: POLR2A
 
 \item{TESElements}{DESCRIBE!!!}
 
-\item{savePlotPath}{Path in which the profiles (in pdf) should be saved 
-(Default=working directory)}
+\item{savePlotPath}{Path in which the profiles (in pdf) 
+should be saved (Default=working directory)}
 }
 \value{
 returnList
 }
 \description{
-QC-metrics of newly analysed ChIP-seq samples can be compared with the reference 
-values of the compendium and enrichment profiles can be 
-plotted against pre-computed profiles of published datasets.  
-The metagene profiles show the problematic samples signal (red line) for the ChIP, 
-for the input and their relative enrichment when compared to the 
-compendium’s mean signal (black line) and its 2 x standard error (blue shadow). 
+QC-metrics of newly analysed ChIP-seq samples can be compared with 
+the reference values of the compendium and enrichment profiles 
+can be plotted against pre-computed profiles of published 
+datasets. The metagene profiles show the problematic samples signal 
+(red line) for the ChIP, for the input and their relative 
+enrichment when compared to the compendium’s mean signal 
+(black line) and its 2 x standard error (blue shadow). 
 Additionally the function plots the desired QC-metric
-as a red dashed line for the sample plotted against the reference distribution 
-(density plots) of the compendium values stratified by chromatin marks.
+as a red dashed line for the sample plotted against the 
+reference distribution (density plots) of the 
+compendium values stratified by chromatin marks.
 
 metagenePlotsForComparison
 }
 \examples{
-\dontrun{
-metagenePlotsForComparison(chrommark="H3K4me1",Meta_Result$twopoint, Meta_Result$TSS, 
-Result_Meta$TES,plotName=chipName,
-profilePath="/lustre/data/FF/Carmen/BitBucket/chic/data/Profiles")
-}
+print("possible usage: ")
+# metagenePlotsForComparison(chrommark="H3K4me1", 
+# Meta_Result$twopoint, 
+# Meta_Result$TSS, 
+# Result_Meta$TES,plotName=chipName,
+# savePlotPath=getwd())
+
 }

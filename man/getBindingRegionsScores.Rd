@@ -8,11 +8,14 @@ getBindingRegionsScores(chip, input, chip.dataSelected, input.dataSelected,
   tag.shift = 75, chrorder = NULL)
 }
 \arguments{
-\item{chip}{spp data structure, structure with tag information from ChIP file}
+\item{chip}{spp data structure, structure with tag information
+from ChIP file}
 
-\item{input}{spp data structure, structure with tag information from Input file}
+\item{input}{spp data structure, structure with tag information
+from Input file}
 
-\item{chip.dataSelected, }{selected ChIP tags after running removeLocalTagAnomalies()
+\item{chip.dataSelected, }{selected ChIP tags after running 
+removeLocalTagAnomalies()
 which removes local tag anomalies}
 
 \item{input.dataSelected, }{selected Input tags after running 
@@ -26,21 +29,22 @@ removeLocalTagAnomalies() which removes local tag anomalies}
 QCscoreList, containing 6 QC-values
 }
 \description{
-Other measures we include in our analysis are the fraction of usable reads in 
-the peak regions (FRiP) (Landt et al., 2012), for which the function calls 
-sharp- and broad-binding peaks to obtain two types: the FRiP_sharpsPeak and 
-the FRiP_broadPeak. The function takes the number of called of peaks using an 
-FDR of 0.01 and an evalue of 10 (Kharchenko et al., 2008). And count the number 
-of peaks called when using the sharp- and broad-binding option. 
+Other measures we include in our analysis are the fraction of usable 
+reads in the peak regions (FRiP) (Landt et al., 2012), for 
+which the function calls sharp- and broad-binding peaks to 
+obtain two types: the FRiP_sharpsPeak and 
+the FRiP_broadPeak. The function takes the number of called 
+of peaks using an 
+FDR of 0.01 and an evalue of 10 (Kharchenko et al., 2008). And 
+count the number of peaks called when using the 
+sharp- and broad-binding option. 
 
 getBindingRegionsScores
 }
 \examples{
-\dontrun{
-bindingScores=getBindingRegionsScores(chip.data,
-input.data, 
-chip.dataSelected,
-input.dataSelected,
-final.tag.shift)
-}
+command="bindingScores=getBindingRegionsScores(chip.data, 
+input.data, chip.dataSelected, input.dataSelected, 
+final.tag.shift)"
+print(command)
+
 }

@@ -13,8 +13,8 @@ readBamFile(filename, path = getwd())
 (default= workingdirectory)}
 }
 \value{
-list of lists, list corresponds to a chromosome and contains a vecotr of 
-coordinates of the 5' ends of the aligned tags
+list of lists, list corresponds to a chromosome and contains 
+a vecotr of coordinates of the 5' ends of the aligned tags
 }
 \description{
 Reading bam file format
@@ -22,8 +22,10 @@ Reading bam file format
 readBamFile
 }
 \examples{
-\dontrun{
+
 chipName="ENCFF000BLL"
-chip.data=readBamFile(chipName,path=getwd())
-}
+##chip.data=readBamFile(chipName,path=getwd())'
+command="chip.data=readBamFile(chipName,path=getwd())"
+print(command)
+
 }

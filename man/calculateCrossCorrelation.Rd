@@ -5,53 +5,59 @@
 \title{Creating cross-correlation profile, phantom peak and calcualting 
 derived QC-metrics}
 \usage{
-calculateCrossCorrelation(data, binding.characteristics, read_length = 70,
+calculateCrossCorrelation(data, bchar, read_length = 70,
   savePlotPath = NULL, plotname = "name")
 }
 \arguments{
-\item{data}{spp data structure, structure with tag information from bam file}
+\item{data}{spp data structure, structure with tag information from 
+bam file}
 
-\item{binding.characteristics}{spp data structure, containing binding information 
-for binding preak separation distance and cross-correlation profile.}
+\item{bchar}{binding.characteristics spp data structure, containing binding 
+information for binding preak separation distance and 
+cross-correlation profile.}
 
 \item{read_length}{Integer, read length of "data" (Defaul="36")}
 
 \item{savePlotPath, }{set if Cross-correlation plot should be saved under 
-"savePlotPath". Default=NULL and plot will be shown on screen.}
+savePlotPath. Default=NULL and plot will be shown on screen.}
 
-\item{plotname}{Name and path were the CrossCorrelation plot (pdf) should be 
-stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" under the working 
-directory)}
+\item{plotname}{Name and path were the CrossCorrelation plot (pdf) 
+should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" 
+under the working directory)}
 }
 \value{
 finalList, list with different QC-metrics
 }
 \description{
 We use cross-correlation analysis to obtain QC-metrics proposed for 
-narrow-binding patterns. After calculating the strand cross-correlation coefficient 
-(Kharchenko et al., 2008), we take the following values from the profile: the 
-coordinates of the ChIP-peak (fragment length, height A), the coordinates at the 
-phantom-peak (read length, height B) and the baseline (C), the strand-shift, the 
-number of uniquely mapped reads (unique_tags), uniquely mapped reads corrected by 
-the library size, the number of reads and the read lengths. We  calculate different 
-values using the relative and absolute height of the cross-correlation peaks: 
-the relative and normalized strand coefficient RSC and NSC  (Landt et al., 2012), 
-and the quality control tag (Marinov et al., 2013). Other values regarding 
-the library complexity (Landt et al., 2012) like the fraction of non-redundant 
-mapped reads (NRF; ratio between the number of uniquely mapped reads divided by 
-the total number of reads), the NRF adjusted by library size and ignoring the 
-strand direction (NRF_nostrand), and the PCR bottleneck coefficient PBC 
-(number of genomic locations to which exactly one unique mapping read maps, divided 
-by the number of unique mapping reads). 
+narrow-binding patterns. After calculating the strand 
+cross-correlation coefficient (Kharchenko et al., 2008), 
+we take the following values from the profile: 
+coordinates of the ChIP-peak (fragment length, height A), 
+coordinates at the phantom-peak (read length, height B) and 
+the baseline (C), the strand-shift, the 
+number of uniquely mapped reads (unique_tags), uniquely 
+mapped reads corrected by 
+the library size, the number of reads and the read lengths. 
+We calculate different 
+values using the relative and absolute height of the cross-correlation 
+peaks: the relative and normalized strand coefficient RSC and 
+NSC  (Landt et al., 2012), and the quality control tag 
+(Marinov et al., 2013). Other values regarding the library complexity 
+(Landt et al., 2012) like the fraction of non-redundant 
+mapped reads (NRF; ratio between the number of uniquely mapped 
+reads divided by the total number of reads), the NRF adjusted by 
+library size and ignoring the 
+strand direction (NRF_nostrand), and the PCR bottleneck coefficient PBCb 
+(number of genomic locations to which exactly one unique mapping read 
+maps, divided by the number of unique mapping reads).
 
 calculateCrossCorrelation
 }
 \examples{
-\dontrun{
-crossvalues_Chip<-calculateCrossCorrelation(chip.data,
-chip_binding.characteristics,
-read_length=read_length,
-savePlotPath=savePlotPath,
-plotname="ChIP")
-}
+print("Usage")
+#crossvalues_Chip<-calculateCrossCorrelation(chip.data, 
+#chip_binding.characteristics, read_length=read_length, 
+#savePlotPath=savePlotPath, plotname="ChIP")
+
 }

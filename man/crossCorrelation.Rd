@@ -39,33 +39,43 @@ TagDensityInput Tag density profile, smoothed by the Gaussian kernel
 }
 \description{
 We use cross-correlation analysis to obtain QC-metrics proposed for 
-narrow-binding patterns. After calculating the strand cross-correlation coefficient
-(Kharchenko et al., 2008), we take the following values from the profile: the 
-coordinates of the ChIP-peak (fragment length, height A), the coordinates at 
-the phantom-peak (read length, height B) and the baseline (C), the strand-shift, 
-the number of uniquely mapped reads (unique_tags), uniquely mapped reads 
-corrected by the library size, the number of reads and the read lengths. 
-We  calculate different values using the relative and absolute height of the 
-cross-correlation peaks: the relative and normalized strand coefficient RSC and NSC 
-(Landt et al., 2012), and the quality control tag (Marinov et al., 2013). 
-Other values regarding the library complexity (Landt et al., 2012) like the 
-fraction of non-redundant mapped reads (NRF; ratio between the number of uniquely 
-mapped reads divided by the total number of reads), the NRF adjusted by library 
-size and ignoring the strand direction (NRF_nostrand), and the PCR bottleneck 
-coefficient PBC (number of genomic locations to which exactly one unique mapping 
-read maps, divided by the number of unique mapping reads). Other measures we 
-include in our analysis are the fraction of usable reads in the peak regions (FRiP)
-(Landt et al., 2012), for which the function calls sharp- and broad-binding peaks to 
-obtain two types: the FRiP_sharpsPeak and the FRiP_broadPeak. The function takes 
+narrow-binding patterns. After calculating the strand cross-correlation 
+coefficient
+(Kharchenko et al., 2008), we take the following values from the 
+profile: the coordinates of the ChIP-peak (fragment length, height A),
+the coordinates at 
+the phantom-peak (read length, height B) and the baseline (C), 
+the strand-shift, the number of uniquely mapped reads (unique_tags), 
+uniquely mapped 
+reads corrected by the library size, the number of reads and the read 
+lengths. We calculate different values using the relative and absolute 
+height of the cross-correlation peaks: the relative and normalized 
+strand coefficient RSC and NSC (Landt et al., 2012), and the quality 
+control tag (Marinov et al., 2013). 
+Other values regarding the library complexity (Landt et al., 2012) 
+like the fraction of non-redundant mapped reads (NRF; ratio between 
+the number of uniquely  mapped reads divided by the total number of reads),
+the NRF adjusted by library size and ignoring the strand 
+direction (NRF_nostrand), and the PCR bottleneck 
+coefficient PBC (number of genomic locations to which exactly 
+one unique mapping  read maps, divided by the number of unique 
+mapping reads). Other measures we 
+include in our analysis are the fraction of usable reads in the 
+peak regions (FRiP) (Landt et al., 2012), for which the function 
+calls sharp- and broad-binding peaks to 
+obtain two types: the FRiP_sharpsPeak and the FRiP_broadPeak. 
+The function takes 
 the number of called of peaks using an FDR of 0.01 and an evalue of 10 
-(Kharchenko et al., 2008). And count the number of peaks called when using 
+(Kharchenko et al., 2008). And count the number of peaks 
+called when using 
 the sharp- and broad-binding option. Finally 22 features are given back.
 
 crossCorrelation
 }
 \examples{
 \dontrun{
-CC_Result=crossCorrelation(chipName=chipName,inputName=inputName, read_length=36,
-dataPath=dataDirectory, debug=debug,mc=mc,annotationID="hg19",savePlotPath=getwd())
+CC_Result=crossCorrelation(chipName=chipName,
+inputName=inputName, read_length=36, dataPath=dataDirectory, 
+debug=debug, mc=mc, annotationID="hg19", savePlotPath=getwd())
 }
 }
