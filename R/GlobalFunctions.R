@@ -652,13 +652,13 @@ input.dataSelected, tag.shift=75, chrorder=NULL)
 
         ##Frip sharp peaks 14
         sharpPeak_selected_genes_genomeIntervals_object<-close_intervals(
-             interval_union(sharpPeak_selected_genes_genomeIntervals_object))
+            interval_union(sharpPeak_selected_genes_genomeIntervals_object))
 
         regions_data_list<-split(as.data.frame(
-             sharpPeak_selected_genes_genomeIntervals_object), 
-             f=seqnames(sharpPeak_selected_genes_genomeIntervals_object))
-         chrl<-names(regions_data_list)
-         names(chrl)<-chrl
+            sharpPeak_selected_genes_genomeIntervals_object), 
+            f=seqnames(sharpPeak_selected_genes_genomeIntervals_object))
+        chrl<-names(regions_data_list)
+        names(chrl)<-chrl
 
         outcountsSharpPeak<-sum(unlist(
             lapply(chrl, FUN=function(chr) {

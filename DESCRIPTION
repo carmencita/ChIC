@@ -8,17 +8,9 @@ License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
 Imports:
-	chic.data (>= 0.99),
-	caTools,
-	methods,
-	genomeIntervals,
-	intervals,
-	caret,
-	grDevices, 
-	parallel, 
-	stats, 
-	utils
-Depends: spp	
+	chic.data (>= 0.99), caTools, methods, genomeIntervals,
+	intervals, caret, grDevices, parallel, stats, utils, graphics
+Depends: spp, R (>= 3.5)
 biocViews: ChIPSeq, QualityControl
 RoxygenNote: 6.0.1
 
