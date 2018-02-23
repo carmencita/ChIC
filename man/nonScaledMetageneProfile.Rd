@@ -41,6 +41,7 @@ the function returns 43 QC-metrics
 nonScaledMetageneProfile
 }
 \examples{
+print ("Example")
 \dontrun{
 TSS_Plot=nonScaledMetageneProfile(Meta_Result$TSS$chip,
 Meta_Result$TSS$input,

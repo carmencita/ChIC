@@ -42,9 +42,11 @@ sharp- and broad-binding option.
 getBindingRegionsScores
 }
 \examples{
-command="bindingScores=getBindingRegionsScores(chip.data, 
+print("Example")
+\dontrun{
+bindingScores=getBindingRegionsScores(chip.data, 
 input.data, chip.dataSelected, input.dataSelected, 
-final.tag.shift)"
-print(command)
+final.tag.shift)
+}
 
 }

@@ -48,10 +48,11 @@ metagenePlotsForComparison
 }
 \examples{
 print("possible usage: ")
-# metagenePlotsForComparison(chrommark="H3K4me1", 
-# Meta_Result$twopoint, 
-# Meta_Result$TSS, 
-# Result_Meta$TES,plotName=chipName,
-# savePlotPath=getwd())
-
+\dontrun{
+metagenePlotsForComparison(chrommark="H3K4me1", 
+Meta_Result$twopoint, 
+Meta_Result$TSS, 
+Result_Meta$TES,plotName=chipName,
+savePlotPath=getwd())
+}
 }

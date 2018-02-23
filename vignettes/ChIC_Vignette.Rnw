@@ -49,14 +49,14 @@ low read depth.
 \textit{crossCorrelation} is a wrapper function that calculates a number of 
 QC-metrics from cross-correlation analysis and from peak-calling. 
 
-<<eval=FALSE, echo=TRUE >>=
+\begin{verbatim}
 CC_Result=crossCorrelation(chipName=chipName,
     inputName=inputName, 
     read_length=36, 
     dataPath=dataDirectory, 
     annotationID="hg19",
     savePlotPath=getwd())
-@
+\end{verbatim}
 
 The wrapper is based on the following functions:
 \subsection{Reading BAM files}
@@ -65,13 +65,13 @@ two bam files: the immunoprecipitation (ChIP) and the control (Input).
 The "dataPath" should contain the path to the directory in which the bam 
 files can be found.
 
-<<eval=FALSE, echo=TRUE >>=
+\begin{verbatim}
 chipName="ENCFF000BLL"
 inputName="ENCFF000BKA"
 
 chip.data=readBamFile(chipName, dataPath)
 input.data=readBamsFile(inputName,dataPath)
-@
+\end{verbatim}
 
 
 \subsection{Calculate QC-metrics from CrossCorrelation analysis}
@@ -82,14 +82,14 @@ The binding.characteristics structure provides information about the
 peak separation distance and the cross-correlation profile (for more details 
 see \cite{Kharchenko2008}). 
 
-<<eval=FALSE, echo=TRUE >>=
+\begin{verbatim}
 #calculate cross correlation QC-metrics for ChIP data
 crossvalues_Chip<-calculateCrossCorrelation(chip.data,
     chip_binding.characteristics,
     read_length=read_length,
     savePlotPath=savePlotPath,
     plotname="ChIP")
-@
+\end{verbatim}
 
 savePlotPath sets the path in which the cross-correlation plot should be 
 saved. If not given the plot will be printed on the screen. 
@@ -130,7 +130,7 @@ current version) and removes local tag anomalies like regions
 with extremely high tag counts compared to the neighbourhood 
 (for more details see \cite{Kharchenko2008}). 
 
-<<eval=FALSE, echo=TRUE >>=
+\begin{verbatim}
 selectedTags=removeLovalTagAnomalies(chip.data,
     input.data,
     chip_binding.characteristics,
@@ -144,7 +144,7 @@ bindingScores=getBindingRegionsScores(chip.data,
     chip.dataSelected,
     input.dataSelected,
     final.tag.shift)
-@
+\end{verbatim}
 
 The function \textit{getBindingRegionsScores} returns a number 
 of QC-metrics \cite{Chicpaper}.
@@ -159,11 +159,12 @@ str(CC_Result_Chip)
 
 
 \subsection{Profile smoothing}
-<<eval=FALSE, echo=TRUE >>=
+
+\begin{verbatim}
 smoothed.densityChip=tagDensity(chip.dataSelected,
     final.tag.shift,
     srngl=rngl)
-@    
+\end{verbatim}
 A needed step is the smoothing (using a Gaussian kernel) of the tag 
 profile to obtain the "tag density profile" (for more details see 
 \cite{Kharchenko2008}). The tag density profile will be needed to 
@@ -183,11 +184,11 @@ the distance calculated as absolute difference between the two y-coordinates,
 the sign of the difference), (c) the fraction of reads in the top 1 
 percent of bins with highest coverage for ChIP and input. 
 
-<<eval=FALSE, echo=TRUE >>=
+\begin{verbatim}
 Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
     densityInput=smoothedDensityInput,
     savePlotPath=getwd())
-@
+\end{verbatim}
 
 <<eval=TRUE, echo=FALSE >>=
 load(file = "./img/Ch.Rdata")
@@ -245,12 +246,12 @@ and non-scaled profiles and returns a list with three items:
 "twopoints", "TSS" and "TES". Each item is again a list with the 
 metagene-profiles for ChIP and input.
 
-<<eval=FALSE, echo=TRUE >>=
+\begin{verbatim}
 Meta_Result=createMetageneProfile(smoothedDensityChip,
     smoothedDensityInput,
     tag.shift,
     annotationID="hg19")
-@
+\end{verbatim}
 
 The objects can be used to create the final metagene plots and to get 
 the respective QC-values for the non-scaled profiles (Figure \ref{fig:TSS}).

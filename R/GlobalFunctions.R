@@ -10,7 +10,6 @@
 #' @importFrom genomeIntervals seqnames interval_union
 #' @importFrom intervals close_intervals
 #' @import chic.data
-#' @import girafe
 #' @import caret
 
 #####################################################################
@@ -78,6 +77,7 @@
 #' TagDensityInput Tag density profile, smoothed by the Gaussian kernel 
 #' (for further details see "spp" package)
 #'
+#' @export
 #'@examples
 #' print("Example")
 #'\dontrun{
@@ -950,12 +950,13 @@ tag.shift, annotationID="hg19", debug=FALSE, mc=1)
 #' @export
 #'
 #' @examples
-#'
 #' chipName="ENCFF000BLL"
+#' print(chipName)
 #'\dontrun{
-#' chip.data=readBamFile(chipName,path=getwd())'
-#' 
-#'}
+#' chip.data=readBamFile(chipName,path=getwd())
+#' }
+
+
 readBamFile<-function(filename, path=getwd())
 {
     result=f_readFile(filename=filename, path=path, reads.aligner.type="bam")

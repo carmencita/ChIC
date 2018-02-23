@@ -43,18 +43,19 @@ QCscores_global
 }
 \examples{
 print("Example of usage")
-#CC_Result=crossCorrelation(chipName=chipName,
-#inputName=inputName, 
-#read_length=36, 
-#dataPath=dataDirectory, 
-#annotationID="hg19",
-#savePlotPath=getwd())
+\dontrun{
+CC_Result=crossCorrelation(chipName=chipName,
+inputName=inputName, 
+read_length=36, 
+dataPath=dataDirectory, 
+annotationID="hg19",
+savePlotPath=getwd())
 
-#tag.shift=CC_Result$QCscores_ChIP$tag.shift
-#smoothedDensityInput=CC_Result$TagDensityInput
-#smoothedDensityChip=CC_Result$TagDensityChip
+tag.shift=CC_Result$QCscores_ChIP$tag.shift
+smoothedDensityInput=CC_Result$TagDensityInput
+smoothedDensityChip=CC_Result$TagDensityChip
 
-#Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
-#densityInput=smoothedDensityInput)
-
+Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
+densityInput=smoothedDensityInput)
+}
 }

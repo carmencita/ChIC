@@ -56,8 +56,9 @@ calculateCrossCorrelation
 }
 \examples{
 print("Usage")
-#crossvalues_Chip<-calculateCrossCorrelation(chip.data, 
-#chip_binding.characteristics, read_length=read_length, 
-#savePlotPath=savePlotPath, plotname="ChIP")
-
+\dontrun{
+crossvalues_Chip<-calculateCrossCorrelation(chip.data, 
+chip_binding.characteristics, read_length=read_length, 
+savePlotPath=savePlotPath, plotname="ChIP")
+}
 }

@@ -28,8 +28,9 @@ tagDensity
 }
 \examples{
 print("Example")
-# smoothed.densityChip=tagDensity(chip.dataSelected,
-# final.tag.shift,
-# annotationID="hg19", mc=5)
-
+\dontrun{
+smoothed.densityChip=tagDensity(chip.dataSelected,
+final.tag.shift,
+annotationID="hg19", mc=5)
+}
 }

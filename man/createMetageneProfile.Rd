@@ -44,9 +44,10 @@ CreateMetageneProfile
 }
 \examples{
 print("Example usage")
-# Meta_Result=createMetageneProfile(smoothedDensityChip, 
-# smoothedDensityInput, 
-# tag.shift, annotationID="hg19", 
-# debug=debug, mc=mc)
-
+\dontrun{
+Meta_Result=createMetageneProfile(smoothedDensityChip, 
+smoothedDensityInput, 
+tag.shift, annotationID="hg19", 
+debug=debug, mc=mc)
+}
 }

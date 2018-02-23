@@ -22,10 +22,9 @@ Reading bam file format
 readBamFile
 }
 \examples{
-
 chipName="ENCFF000BLL"
-##chip.data=readBamFile(chipName,path=getwd())'
-command="chip.data=readBamFile(chipName,path=getwd())"
-print(command)
-
+print(chipName)
+\dontrun{
+chip.data=readBamFile(chipName,path=getwd())
+}
 }

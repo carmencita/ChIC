@@ -73,6 +73,7 @@ the sharp- and broad-binding option. Finally 22 features are given back.
 crossCorrelation
 }
 \examples{
+print("Example")
 \dontrun{
 CC_Result=crossCorrelation(chipName=chipName,
 inputName=inputName, read_length=36, dataPath=dataDirectory, 
