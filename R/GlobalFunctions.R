@@ -11,6 +11,7 @@
 #' @importFrom intervals close_intervals
 #' @import chic.data
 #' @import caret
+#' @import girafe
 
 #####################################################################
 ####                                                  ###############
