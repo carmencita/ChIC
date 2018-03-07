@@ -4,6 +4,7 @@
 \usepackage[english]{babel}
 \usepackage{fontenc}
 \usepackage{graphicx}
+\usepackage{hyperref}
 
 %\VignetteIndexEntry{ChIC}
 
@@ -47,9 +48,15 @@ install.packages("spp",dependencies=TRUE)
 
 The tutorial shows example outputs and usage of several functions using an 
 example dataset from ENCODE for H3K36me3 (ID: ENCFF000BLL) and its input 
-(ID: ENCFF000BKA) (https://www.encodeproject.org/). 
+(ID: ENCFF000BKA).
 The sample has been flagged by ENCODE with a red audit because of 
-low read depth.
+low read depth. The bam files can be downloaded from the following links:
+
+%%[link](https://www.encodeproject.org/search/?type=File&file_format=bam "Title")
+%%\href{https://www.encodeproject.org/search/?type=File&file_format=bam}{https://www.encodeproject.org/search/?type=File&file_format=bam}
+\hyperref[ENCFF000BLL]{https://www.encodeproject.org/files/ENCFF000BLL/}
+
+\hyperref[ENCFF000BKA]{https://www.encodeproject.org/files/ENCFF000BKA/}
 
 \section{QC-metrics based on sharp-peak profiles and 
 cross-correlation analysis}
@@ -58,16 +65,31 @@ cross-correlation analysis}
 and calculates a number of QC-metrics from cross-correlation analysis 
 and from peak-calling. 
 
-\begin{verbatim}
+<<eval=TRUE, echo=TRUE >>=
+require(CHIC)
 chipName="ENCFF000BLL"
 inputName="ENCFF000BKA"
 
+## dataDirectory: path to the directory where the bam files are 
+## stored (default is working directory)
+dataDirectory=getwd()
+
+## mc is number of CPUs for parallelization 
+mc=5
+## annotationID is the genome assembly used
+
+## savePlotPath: path to the directory where the final plot 
+#should be stored
+@
+
+\begin{verbatim}
 CC_Result=QCscoresCC_PC(chipName=chipName,
-    inputName=inputName, 
-    read_length=36, 
-    dataPath=getwd(), 
-    annotationID="hg19",
-    savePlotPath=getwd())
+                    inputName=inputName, 
+                    read_length=36, 
+                    dataPath=dataDirectory, 
+                    mc=5,
+                    annotationID="hg19",
+                    savePlotPath=getwd())
 \end{verbatim}
 
 The wrapper is based on the following functions:
@@ -80,7 +102,7 @@ files are stored.
 
 \begin{verbatim}
 chip.data=readBamFile(chipName, dataPath)
-input.data=readBamsFile(inputName,dataPath)
+input.data=readBamFile(inputName,dataPath)
 \end{verbatim}
 
 
@@ -89,15 +111,16 @@ The next function called by QC\_scoresCC\_PC is
 \textit{calculateCrossCorrelation} to calculate QC-metrics from 
 crosscorrelation analysis and other general metrics, e.g. the 
 non-redundant fractions of mapped reads. 
-An important parameter that has to be passed to 
-\textit{calculateCrossCorrelation} is the binding-characteristics, 
-previously calculated using \textit{spp::get.binding.characteristics} function. 
-binding.characteristics provides information about the 
+An important parameter required by \textit{calculateCrossCorrelation} 
+is the binding-characteristics, calculated by 
+\textit{spp::get.binding.characteristics} function. 
+The binding-characteristics structure provides information about the 
 peak separation distance and the cross-correlation profile (for more details 
-see \cite{Kharchenko2008}). 
+see \cite{Kharchenko2008}) and is used in the 
+\textit{QC\_scoresCC\_PC} wrapper function.
 
 \begin{verbatim}
-#calculate cross correlation QC-metrics for ChIP data
+## calculate cross correlation QC-metrics for ChIP data
 crossvalues_Chip<-calculateCrossCorrelation(chip.data,
     chip_binding.characteristics,
     read_length=36,
@@ -106,8 +129,8 @@ crossvalues_Chip<-calculateCrossCorrelation(chip.data,
 \end{verbatim}
 
 savePlotPath sets the path in which the cross-correlation plot (as pdf) 
-should be saved. If not given the plot will be forwarded to stdout. 
-An example of a cross-correlation profile is shown 
+should be saved. If not provided the plot will be forwarded to default 
+DISPLAY. An example of a cross-correlation profile is shown 
 in Figure \ref{fig:ccPlot}.
 
 \begin{figure}
@@ -117,7 +140,7 @@ in Figure \ref{fig:ccPlot}.
 \label{fig:ccPlot}
 \end{figure}
 
-\textit{calculateCrossCorrelation} has to be used on both, 
+\textit{calculateCrossCorrelation} must be used on both, 
 ChIP and Input. The function returns a number of QC-metrics 
 \cite{chicpapero}, amongst others the "tag.shift" value which 
 represents an input parameter for further steps (i.e. peak-calling 
@@ -127,15 +150,22 @@ and metagene calculation).
 load(file = "CC_ScoresChIP.Rdata")
 @
 
-<<eval=TRUE, echo=TRUE >>=
+
+<<eval=FALSE, echo=TRUE >>=
+str(CC_Result)
+final.tag.shift<-CC_Result$tag.shift
+@
+
+<<eval=TRUE, echo=FALSE >>=
 str(CC_Result_Chip)
 final.tag.shift<-CC_Result_Chip$tag.shift
 @
 
 \subsection{Calculate QC-metrics from peak calls}
 The last set of QC-metrics come from the called peaks using 
-\textit{getBindingRegionsScores}. 
-The \textit{removeLocalTagAnomalies} function performs two steps: 
+\textit{getBindingRegionsScores}. Within the function 
+\textit{removeLocalTagAnomalies} is called 
+to perform two steps: 
 it selects only tags with acceptable alignment quality (disabled in the 
 current version) and removes local tag anomalies like regions 
 with extremely high tag counts compared to the neighborhood 
@@ -149,7 +179,7 @@ selectedTags=removeLovalTagAnomalies(chip.data,
 
 chip.dataSelected=selectedTags$chip.dataSelected
 
-#get QC-values from peak calling
+## get QC-values from peak calling
 bindingScores=getBindingRegionsScores(chip.data,
     input.data, 
     chip.dataSelected,
@@ -181,11 +211,11 @@ profile to obtain the "tag density profile" (for more details see
 \cite{Kharchenko2008}). The tag density profile is needed to 
 calculate the next categories of QC-metrics.
 
-\section{QC-metrics on global read distribution and "fingerprint" plot}
+\section{QC-metrics on global read distribution and Fingerprint-plot}
 This set of values is based on the global read distribution along the 
 genome for ChIP and Input data \cite{Diaz2012}. 
 The  function \textit{QCscores\_global} reproduces the so-called 
-"fingerprint" plot (Figure \ref{fig:ChancePlot}) and returns a list 
+Fingerprint plot (Figure \ref{fig:ChancePlot}) and returns a list 
 of 9 QC-metrics that can be sampled from the cumulative distribution of 
 the plot. Examples of these metrics are the (a) fraction of bins without 
 reads for ChIP and input, (b) the point of maximum distance between 
@@ -195,6 +225,10 @@ the sign of the difference), (c) the fraction of reads in the top 1
 percent of bins with highest coverage for ChIP and input. 
 
 \begin{verbatim}
+## get smoothed tagdensities from QCscoresCC_PC()
+smoothedDensityInput=CC_Result$TagDensityInput
+smoothedDensityChip=CC_Result$TagDensityChip
+
 Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
     densityInput=smoothedDensityInput,
     savePlotPath=getwd())
@@ -267,11 +301,11 @@ The objects can be used to create the final metagene plots and to get
 the respective QC-values for the non-scaled profiles (Figure \ref{fig:TSS}).
 
 <<eval=FALSE, echo=TRUE >>=
-#create non-scaled metagene profile around the TSS
+## create non-scaled metagene profile around the TSS
 TSS_Plot=nonScaledMetageneProfile(Meta_Result$TSS$chip, 
     Meta_Result$TSS$input, 
     tag="TSS")
-#create non-scaled metagene profile around the TES
+## create non-scaled metagene profile around the TES
 TES_Plot=nonScaledMetageneProfile(Meta_Result$TES$chip,
     Meta_Result$TES$input,
     tag="TES")

@@ -16,7 +16,7 @@ QCscoresCC_PC(chipName, inputName, read_length, dataPath = getwd(),
 
 \item{read_length}{Integer, length of the reads}
 
-\item{dataPath}{Path, points to the directory were the bam files are 
+\item{dataPath}{Path, points to the directory where the bam files are 
 stored (default is working directory)}
 
 \item{annotationID}{String, indicating the genome assembly (Default="hg19")}
