@@ -2,27 +2,29 @@
 % Please edit documentation in R/wrapper_plot_TSS_TES_allGenes.R
 \name{nonScaledMetageneProfile}
 \alias{nonScaledMetageneProfile}
-\title{Wrapper to plot non-scaled profiles for TSS or TES and to collect 
-feature values}
+\title{Wrapper function that plots non-scaled profiles for 
+TSS or TES and to collects the QC-metrics}
 \usage{
 nonScaledMetageneProfile(binnedChip, binnedInput, tag = "TSS",
   savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{binnedChip}{DESCRIBE!!}
+\item{binnedChip}{metagene-object of TSS or TES returned 
+by createMetageneProfile() for the ChIP}
 
-\item{binnedInput}{DESCRiBE!!}
+\item{binnedInput}{metagene-object of TSS or TES returned 
+by createMetageneProfile() for the Input}
 
-\item{tag}{String, can be "TSS" or "TES". Indicates if the TSS or 
+\item{tag}{String that can be "TSS" or "TES",indicating if the TSS or 
 the TES should be calcualted (Default="TSS")}
 
-\item{savePlotPath}{Path in which plots (pdf format) should be saved.
-If NULL on screen (default=NULL)}
+\item{savePlotPath}{if set the plot will be saved under 
+"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
 \value{
-returnList
+returnList Dataframe with QC-values
 }
 \description{
 The non-scaled profile is constructed around the TSS/TES,
@@ -35,8 +37,7 @@ Additionally, we calculated for all of the intervals between
 the predefined positions the area under the profile, 
 the local maxima (x, y coordinates), the variance, 
 the standard deviation and the quantiles at 0%, 25%, 
-50% and 75%. In total 
-the function returns 43 QC-metrics
+50% and 75%. In total the function returns 43 QC-metrics.
 
 nonScaledMetageneProfile
 }

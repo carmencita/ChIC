@@ -19,17 +19,20 @@ H2A.Z, H3K23me2, H2AK9ac, H3T11ph.
 For RNAPOL2 different variants are available: POLR2A 
 (for RNAPol2), POLR3G and POLR2AphosphoS2}
 
-\item{twopointElements}{DESCRIBE!!!}
+\item{twopointElements}{metagene-object for the scaled 
+metagene profile by createMetageneProfile()}
 
-\item{TSSElements}{DESCRIBE!!!}
+\item{TSSElements}{metagene-object for the non-scaled 
+metagene profile (TSS) by createMetageneProfile()}
 
-\item{TESElements}{DESCRIBE!!!}
+\item{TESElements}{metagene-object for the non-scaled 
+metagene profile (TES) by createMetageneProfile()}
 
-\item{savePlotPath}{Path in which the profiles (in pdf) 
-should be saved (Default=working directory)}
+\item{savePlotPath}{if set the plot will be saved under 
+"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
 }
 \value{
-returnList
+nothing, creates a figure under 'savePlotPath'
 }
 \description{
 QC-metrics of newly analysed ChIP-seq samples can be compared with 

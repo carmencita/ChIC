@@ -8,28 +8,28 @@ getBindingRegionsScores(chip, input, chip.dataSelected, input.dataSelected,
   tag.shift = 75, chrorder = NULL)
 }
 \arguments{
-\item{chip}{spp data structure, structure with tag information
-from ChIP file}
+\item{chip}{data-structure with tag information for the 
+ChIP (see readBamFile())}
 
-\item{input}{spp data structure, structure with tag information
-from Input file}
+\item{input}{data-structure with tag information for the
+Input (see readBamFile())}
 
-\item{chip.dataSelected, }{selected ChIP tags after running 
-removeLocalTagAnomalies()
-which removes local tag anomalies}
-
-\item{input.dataSelected, }{selected Input tags after running 
+\item{chip.dataSelected}{selected ChIP tags after running 
 removeLocalTagAnomalies() which removes local tag anomalies}
 
-\item{tag.shift}{integer, value from calculateCrossCorrelation list}
+\item{input.dataSelected}{selected Input tags after running 
+removeLocalTagAnomalies() which removes local tag anomalies}
 
-\item{chrorder, }{chromosome order (default=NULL)}
+\item{tag.shift}{Integer containing the value of the tag shif, 
+calculated by calculateCrossCorrelation()}
+
+\item{chrorder}{chromosome order (default=NULL)}
 }
 \value{
-QCscoreList, containing 6 QC-values
+QCscoreList List with 6 QC-values
 }
 \description{
-Other measures we include in our analysis are the fraction of usable 
+QC-metrics based on the peak calling are the fraction of usable 
 reads in the peak regions (FRiP) (Landt et al., 2012), for 
 which the function calls sharp- and broad-binding peaks to 
 obtain two types: the FRiP_sharpsPeak and 

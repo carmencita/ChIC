@@ -20,7 +20,7 @@ H2AK9ac, H3T11ph. For RNAPOL2 different variants are available:
 POLR2A (for RNAPol2), POLR3G and POLR2AphosphoS2}
 
 \item{features_cc}{list, with QC-metrics returned from 
-crossCorrelation()}
+QCscoresCC_PC()}
 
 \item{features_global}{list, list with QC-metrics returned from 
 QCscores_global()}

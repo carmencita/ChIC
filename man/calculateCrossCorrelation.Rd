@@ -2,31 +2,30 @@
 % Please edit documentation in R/GlobalFunctions.R
 \name{calculateCrossCorrelation}
 \alias{calculateCrossCorrelation}
-\title{Creating cross-correlation profile, phantom peak and calcualting 
-derived QC-metrics}
+\title{QC-metrics from cross-correlation profile, phantom peak and 
+general QC-metrics}
 \usage{
 calculateCrossCorrelation(data, bchar, read_length = 70,
-  savePlotPath = NULL, plotname = "name")
+  savePlotPath = NULL, plotname = "phantom")
 }
 \arguments{
-\item{data}{spp data structure, structure with tag information from 
-bam file}
+\item{data}{data-structure with tag information read from 
+bam file (see readBamFile())}
 
-\item{bchar}{binding.characteristics spp data structure, containing binding 
+\item{bchar}{binding.characteristics is a data-structure containing binding 
 information for binding preak separation distance and 
-cross-correlation profile.}
+cross-correlation profile (see spp::get.binding.characteristics).}
 
 \item{read_length}{Integer, read length of "data" (Defaul="36")}
 
-\item{savePlotPath, }{set if Cross-correlation plot should be saved under 
-savePlotPath. Default=NULL and plot will be shown on screen.}
+\item{savePlotPath}{if set the plot will be saved under 
+"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
 
-\item{plotname}{Name and path were the CrossCorrelation plot (pdf) 
-should be stored (by DEFAULT stored as "phantomCrossCorrelation.pdf" 
-under the working directory)}
+\item{plotname}{Name of the crossCorrelation plot (pdf). 
+DEFAULT ="phantomCrossCorrelation". Available only if savePlotPath is set}
 }
 \value{
-finalList, list with different QC-metrics
+finalList List with different QC-metrics
 }
 \description{
 We use cross-correlation analysis to obtain QC-metrics proposed for 
@@ -58,7 +57,7 @@ calculateCrossCorrelation
 print("Usage")
 \dontrun{
 crossvalues_Chip<-calculateCrossCorrelation(chip.data, 
-chip_binding.characteristics, read_length=read_length, 
-savePlotPath=savePlotPath, plotname="ChIP")
+chip_binding.characteristics, read_length=70, 
+savePlotPath=getwd(), plotname="ChIP")
 }
 }

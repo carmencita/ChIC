@@ -8,18 +8,24 @@ removeLocalTagAnomalies(chip, input, chip_b.characteristics,
   input_b.characteristics)
 }
 \arguments{
-\item{chip, }{data structure with tag information from ChIP file}
+\item{chip, }{data-structure with tag information for the 
+ChIP (see readBamFile())}
 
-\item{input, }{data structure with tag information from Input file}
+\item{input, }{data-structure with tag information for the 
+Input (see readBamFile())}
 
-\item{chip_b.characteristics, }{binding-characteristic of the ChiP 
-(previously calculated using get.binding.characteristics)}
+\item{chip_b.characteristics}{binding.characteristics of the ChIP. 
+Is a data-structure containing binding information for binding preak
+separation distance and cross-correlation profile 
+(see spp::get.binding.characteristics)}
 
-\item{input_b.characteristics, }{binding-characteristic of the Input 
-(previously calculated using get.binding.characteristics)}
+\item{input_b.characteristics, }{binding.characteristics of the Input. 
+Is a data-structure containing binding information for binding preak
+separation distance and cross-correlation profile 
+(see spp::get.binding.characteristics)}
 }
 \value{
-list, containing filtered data structure for ChIP and Input
+result A list containing filtered data structure for ChIP and Input
 }
 \description{
 The removeLocalTagAnomalies function removes tags from regions 

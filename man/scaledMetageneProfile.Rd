@@ -2,18 +2,21 @@
 % Please edit documentation in R/wrapper_twopoint_allGenes_plot.R
 \name{scaledMetageneProfile}
 \alias{scaledMetageneProfile}
-\title{Wrapper to plot scaled profile and to collect feature values}
+\title{Wrapper function to plot the scaled metagene- profile  
+and to collect the QC-metrics}
 \usage{
 scaledMetageneProfile(binnedChip, binnedInput, savePlotPath = NULL,
   debug = FALSE)
 }
 \arguments{
-\item{binnedChip}{DESCRIBE!!}
+\item{binnedChip}{metagene-object of TSS or TES returned 
+by createMetageneProfile() for the ChIP}
 
-\item{binnedInput}{DESCRiBE!!}
+\item{binnedInput}{metagene-object of TSS or TES returned 
+by createMetageneProfile() for the Input}
 
-\item{savePlotPath}{Path in which plots (pdf format) should be saved. 
-If NULL on screen (default=NULL)}
+\item{savePlotPath}{if set the plot will be saved under 
+"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }

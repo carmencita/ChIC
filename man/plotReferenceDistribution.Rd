@@ -22,8 +22,8 @@ H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: POLR2A
 
 \item{currentValue}{The value of the current sample}
 
-\item{savePlotPath}{Default=NULL, when set saves the density plot 
-(pdf format) under the given path.}
+\item{savePlotPath}{if set the plot will be saved under 
+"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
 }
 \value{
 nothing, creates a figure under 'savePlotPath'

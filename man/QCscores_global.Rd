@@ -8,20 +8,19 @@ QCscores_global(densityChip, densityInput, savePlotPath = NULL,
   debug = FALSE)
 }
 \arguments{
-\item{densityChip}{Smoothed tag density object for ChIP (returned 
-by f_CrossCorrelation).}
+\item{densityChip}{Smoothed tag-density object for ChIP (returned 
+by QCscoresCC_PC).}
 
-\item{densityInput}{Smoothed tag density object for Inpt (returned 
-by f_CrossCorrelation)}
+\item{densityInput}{Smoothed tag density object for Input (returned 
+by QCscoresCC_PC)}
 
-\item{savePlotPath}{Path, path set forces the fingerprint plot to 
-be saved under the respective directory. Default=NULL, plot not 
-saved but shown on screen}
+\item{savePlotPath}{if set the plot will be saved under 
+"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
 
-\item{debug}{Boolean, to enter debugging mode (default= FALSE)}
+\item{debug}{Boolean to enter debugging mode (default= FALSE)}
 }
 \value{
-finalList, list containing 9 QC-values
+finalList List with 9 QC-values
 }
 \description{
 This set of values is based on the global read distribution along 
@@ -44,7 +43,7 @@ QCscores_global
 \examples{
 print("Example of usage")
 \dontrun{
-CC_Result=crossCorrelation(chipName=chipName,
+CC_Result=QCscoresCC_PC(chipName=chipName,
 inputName=inputName, 
 read_length=36, 
 dataPath=dataDirectory, 
