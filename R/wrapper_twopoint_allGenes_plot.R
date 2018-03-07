@@ -1,4 +1,6 @@
-#'@title Wrapper to plot scaled profile and to collect feature values
+#'@title Wrapper function to plot the scaled metagene- profile  
+#' and to collect the QC-metrics
+#'
 #'@description The scaled metagene profile that includes the gene body, 
 #' the signal is captured on a real scale from the TSS and an upstream 
 #' region of 2KB. From the TSS, the gene body is constructed with 0.5KB 
@@ -15,11 +17,15 @@
 #'
 #' scaledMetageneProfile
 #'
-#' @param binnedChip DESCRIBE!!
-#' @param binnedInput DESCRiBE!!
-#' @param savePlotPath Path in which plots (pdf format) should be saved. 
-#' If NULL on screen (default=NULL) 
+#' @param binnedChip metagene-object of TSS or TES returned 
+#' by createMetageneProfile() for the ChIP 
+#' @param binnedInput metagene-object of TSS or TES returned 
+#' by createMetageneProfile() for the Input
+#' @param savePlotPath if set the plot will be saved under 
+#' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
+#'
+#' @export
 #'
 #' @return returnList
 #'

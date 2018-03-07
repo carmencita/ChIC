@@ -1,6 +1,8 @@
-#'@title Wrapper to plot non-scaled profiles for TSS or TES and to collect 
-#' feature values
-#'@description The non-scaled profile is constructed around the TSS/TES,
+#'@title Wrapper function that plots non-scaled profiles for 
+#' TSS or TES and to collects the QC-metrics
+#'
+#'@description 
+#' The non-scaled profile is constructed around the TSS/TES,
 #' with 2KB up- and downstream regions respectively. Different values 
 #' are taken at the TSS/TES and surroundings with +/-2KB, +/-1KB 
 #' and +/-500 sizes. For all the genomic 
@@ -10,20 +12,23 @@
 #' the predefined positions the area under the profile, 
 #' the local maxima (x, y coordinates), the variance, 
 #' the standard deviation and the quantiles at 0%, 25%, 
-#' 50% and 75%. In total 
-#' the function returns 43 QC-metrics
+#' 50% and 75%. In total the function returns 43 QC-metrics.
 #'
 #' nonScaledMetageneProfile
 #'
-#' @param binnedChip DESCRIBE!!
-#' @param binnedInput DESCRiBE!!
-#' @param tag String, can be "TSS" or "TES". Indicates if the TSS or 
+#' @param binnedChip metagene-object of TSS or TES returned 
+#' by createMetageneProfile() for the ChIP 
+#' @param binnedInput metagene-object of TSS or TES returned 
+#' by createMetageneProfile() for the Input
+#' @param tag String that can be "TSS" or "TES",indicating if the TSS or 
 #' the TES should be calcualted (Default="TSS")
-#' @param savePlotPath Path in which plots (pdf format) should be saved.
-#' If NULL on screen (default=NULL) 
+#' @param savePlotPath if set the plot will be saved under 
+#' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
-#' @return returnList
+#' @export
+#'
+#' @return returnList Dataframe with QC-values
 #'
 #'@examples
 #' print ("Example")

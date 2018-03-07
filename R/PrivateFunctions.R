@@ -399,7 +399,7 @@ f_two.point.scaling <- function(x,seg,bs=2000,im,rom,lom,nbins=301) {
         sg3 <- seg$e;
         sstrand <- rep(1,length(sg5));
     }
-    spi <- spp:::points.within(x,seg$s-ml,seg$e+mr,return.list=TRUE);
+    spi <- spp::points_withinFunction(x,seg$s-ml,seg$e+mr,return.list=TRUE);
     lspi <- unlist(lapply(spi,length))
     df <- data.frame(i=rep(1:length(x),lspi),si=unlist(spi),nu=rep(lspi,lspi))
     df$r5x <- (x[df$i]-sg5[df$si])*sstrand[df$si];
@@ -459,7 +459,7 @@ f_one.point.scaling <- function(x, pos, strand=NULL,m=4020/2, nbins=301/2) {
     } else {
         sstrand <- rep(1,length(pos));
     }
-    spi <- spp:::points.within(x,pos-ml,pos+mr,return.list=TRUE);
+    spi <- spp::points_withinFunction(x,pos-ml,pos+mr,return.list=TRUE);
     lspi <- unlist(lapply(spi,length))
     df <- data.frame(i=rep(1:length(x),lspi),si=unlist(spi),nu=rep(lspi,lspi))
     df$rx <- (x[df$i]-pos[df$si])*sstrand[df$si];

@@ -24,13 +24,19 @@
 #' H2A.Z, H3K23me2, H2AK9ac, H3T11ph. 
 #' For RNAPOL2 different variants are available: POLR2A 
 #' (for RNAPol2), POLR3G and POLR2AphosphoS2
-#' @param twopointElements  DESCRIBE!!!
-#' @param TSSElements DESCRIBE!!!
-#' @param TESElements DESCRIBE!!!
-#' @param savePlotPath Path in which the profiles (in pdf) 
-#' should be saved (Default=working directory)
+#' @param twopointElements metagene-object for the scaled 
+#' metagene profile by createMetageneProfile()
+#' @param TSSElements metagene-object for the non-scaled 
+#' metagene profile (TSS) by createMetageneProfile()
+#' @param TESElements metagene-object for the non-scaled 
+#' metagene profile (TES) by createMetageneProfile()
+#' @param savePlotPath if set the plot will be saved under 
+#' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #'
-#' @return returnList
+#' @return nothing, creates a figure under 'savePlotPath'
+#'
+#' @export
+#'
 #'@examples
 #' print("possible usage: ")
 #'\dontrun{
@@ -181,9 +187,10 @@ TESElements, savePlotPath=NULL)
 #' (for RNAPol2), POLR3G and POLR2AphosphoS2
 #' @param metricToBePlotted The metric to be plotted (Default="RSC")
 #' @param currentValue The value of the current sample
-#' @param savePlotPath Default=NULL, when set saves the density plot 
-#' (pdf format) under the given path.
+#' @param savePlotPath if set the plot will be saved under 
+#' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #'
+#' @export
 #'
 #' @return nothing, creates a figure under 'savePlotPath'
 #'@examples
@@ -265,7 +272,7 @@ currentValue,savePlotPath=NULL)
 #' H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: 
 #' POLR2A (for RNAPol2), POLR3G and POLR2AphosphoS2
 #' @param features_cc list, with QC-metrics returned from 
-#' crossCorrelation()
+#' QCscoresCC_PC()
 #' @param features_global list, list with QC-metrics returned from 
 #' QCscores_global()
 #' @param features_local_TSS list, list with QC-metrics returned from 
@@ -276,6 +283,8 @@ currentValue,savePlotPath=NULL)
 #' scaledMetageneProfile()
 #' @param savePlotPath Default=NULL, when set saves the density plot 
 #' (pdf format) under the given path.
+#'
+#' @export
 #'
 #' @return something something
 #'@examples
