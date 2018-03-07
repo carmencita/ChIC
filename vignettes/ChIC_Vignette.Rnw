@@ -8,22 +8,23 @@
 %\VignetteIndexEntry{ChIC}
 
 \title{The ChIP-seq quality Control package \textbf{ChIC}: 
-a short introduction}
+A short introduction}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
 The \textbf{ChI}P-seq quality \textbf{C}ontrol package (ChIC) provides 
-functions and data structures to assess the data quality for ChIP-seq data. 
+functions and data structures to assess the quality of ChIP-seq data. 
 The tool computes three different categories of QC metrics: QC-metrics 
-designed for narrow-peak profiles, QC-metrics based on global read distribution 
+designed for narrow-peak profiles and general metrics, 
+QC-metrics based on global read distribution 
 and QC-metrics from local signal enrichments around annotated genes. 
 User-friendly functions allow to perform the analysis with a single command, 
 whereas step by step functions are also available 
 for more experienced users. The package comes with a large reference 
 compendium of precomputed QC-metrics from public ChIP-seq samples. 
-Key features of the package are functions for calculating, visualising and 
+Key features of the package are functions for calculating, visualizing and 
 creating summary plots of QC-metrics, 
 including the comparison of metagene profiles against reference profiles, 
 and the comparison of single QC-metrics with the compendium values. 
@@ -36,49 +37,62 @@ and the comparison of single QC-metrics with the compendium values.
 \tableofcontents
 
 \newpage
+\section{Installation}
+Prerequisites of CHIC are the installation of the data package 
+\textit{chic.data} via Bioconductor and spp
+
+<<eval=FALSE, echo=TRUE >>=
+install.packages("spp",dependencies=TRUE)
+@
+
+The tutorial shows example outputs and usage of several functions using an 
+example dataset from ENCODE for H3K36me3 (ID: ENCFF000BLL) and its input 
+(ID: ENCFF000BKA) (https://www.encodeproject.org/). 
+The sample has been flagged by ENCODE with a red audit because of 
+low read depth.
 
 \section{QC-metrics based on sharp-peak profiles and 
 cross-correlation analysis}
 
-The tutorial shows example outputs and usage of several functions using an 
-example dataset from ENCODE for H3K36me3 (https://www.encodeproject.org/). 
-The sample has been flagged by ENCODE with a red audit because of 
-low read depth.
-
-
-\textit{crossCorrelation} is a wrapper function that calculates a number of 
-QC-metrics from cross-correlation analysis and from peak-calling. 
+\textit{QC\_scoresCC\_PC} is a wrapper function that reads the bam files 
+and calculates a number of QC-metrics from cross-correlation analysis 
+and from peak-calling. 
 
 \begin{verbatim}
-CC_Result=crossCorrelation(chipName=chipName,
+chipName="ENCFF000BLL"
+inputName="ENCFF000BKA"
+
+CC_Result=QCscoresCC_PC(chipName=chipName,
     inputName=inputName, 
     read_length=36, 
-    dataPath=dataDirectory, 
+    dataPath=getwd(), 
     annotationID="hg19",
     savePlotPath=getwd())
 \end{verbatim}
 
 The wrapper is based on the following functions:
 \subsection{Reading BAM files}
-The first step reads ChIP-seq data in .bam file-format. ChIC expects exactly 
-two bam files: the immunoprecipitation (ChIP) and the control (Input). 
+The first step reads ChIP-seq data in .bam file-format. The function 
+expects exactly two bam files: 
+one for the immunoprecipitation (ChIP) and one for the control (Input). 
 The "dataPath" should contain the path to the directory in which the bam 
-files can be found.
+files are stored.
 
 \begin{verbatim}
-chipName="ENCFF000BLL"
-inputName="ENCFF000BKA"
-
 chip.data=readBamFile(chipName, dataPath)
 input.data=readBamsFile(inputName,dataPath)
 \end{verbatim}
 
 
 \subsection{Calculate QC-metrics from CrossCorrelation analysis}
+The next function called by QC\_scoresCC\_PC is 
+\textit{calculateCrossCorrelation} to calculate QC-metrics from 
+crosscorrelation analysis and other general metrics, e.g. the 
+non-redundant fractions of mapped reads. 
 An important parameter that has to be passed to 
 \textit{calculateCrossCorrelation} is the binding-characteristics, 
-previously calculated using \textit{get.binding.characteristics} function. 
-The binding.characteristics structure provides information about the 
+previously calculated using \textit{spp::get.binding.characteristics} function. 
+binding.characteristics provides information about the 
 peak separation distance and the cross-correlation profile (for more details 
 see \cite{Kharchenko2008}). 
 
@@ -86,35 +100,31 @@ see \cite{Kharchenko2008}).
 #calculate cross correlation QC-metrics for ChIP data
 crossvalues_Chip<-calculateCrossCorrelation(chip.data,
     chip_binding.characteristics,
-    read_length=read_length,
-    savePlotPath=savePlotPath,
+    read_length=36,
+    savePlotPath=getwd(),
     plotname="ChIP")
 \end{verbatim}
 
-savePlotPath sets the path in which the cross-correlation plot should be 
-saved. If not given the plot will be printed on the screen. 
+savePlotPath sets the path in which the cross-correlation plot (as pdf) 
+should be saved. If not given the plot will be forwarded to stdout. 
 An example of a cross-correlation profile is shown 
 in Figure \ref{fig:ccPlot}.
 
-
-
-
-
 \begin{figure}
 \centering
-.\includegraphics[scale=0.3]{./img/ChIP_CrossCorrelation.pdf}
+.\includegraphics[scale=0.3]{ChIP_CrossCorrelation.pdf}
 \caption{Cross-correlation plot for sample "ENCFF000BLL" }
 \label{fig:ccPlot}
 \end{figure}
 
 \textit{calculateCrossCorrelation} has to be used on both, 
 ChIP and Input. The function returns a number of QC-metrics 
-\cite{chicpapero}, inclusive the "tag.shift" value which 
-represents an input parameter for following steps (peak-calling 
+\cite{chicpapero}, amongst others the "tag.shift" value which 
+represents an input parameter for further steps (i.e. peak-calling 
 and metagene calculation). 
 
 <<eval=TRUE, echo=FALSE >>=
-load(file = "./img/CC_ScoresChIP.Rdata")
+load(file = "CC_ScoresChIP.Rdata")
 @
 
 <<eval=TRUE, echo=TRUE >>=
@@ -123,11 +133,12 @@ final.tag.shift<-CC_Result_Chip$tag.shift
 @
 
 \subsection{Calculate QC-metrics from peak calls}
-The last step is the calculation of QC-metrics from the called peaks. 
+The last set of QC-metrics come from the called peaks using 
+\textit{getBindingRegionsScores}. 
 The \textit{removeLocalTagAnomalies} function performs two steps: 
 it selects only tags with acceptable alignment quality (disabled in the 
 current version) and removes local tag anomalies like regions 
-with extremely high tag counts compared to the neighbourhood 
+with extremely high tag counts compared to the neighborhood 
 (for more details see \cite{Kharchenko2008}). 
 
 \begin{verbatim}
@@ -150,7 +161,7 @@ The function \textit{getBindingRegionsScores} returns a number
 of QC-metrics \cite{Chicpaper}.
 
 <<eval=TRUE, echo=FALSE >>=
-load(file = "./img/CC_bindingScores.Rdata")
+load(file = "CC_bindingScores.Rdata")
 @
 
 <<eval=TRUE, echo=TRUE >>=
@@ -165,11 +176,10 @@ smoothed.densityChip=tagDensity(chip.dataSelected,
     final.tag.shift,
     srngl=rngl)
 \end{verbatim}
-A needed step is the smoothing (using a Gaussian kernel) of the tag 
+A necessary step is the smoothing (using a Gaussian kernel) of the tag 
 profile to obtain the "tag density profile" (for more details see 
-\cite{Kharchenko2008}). The tag density profile will be needed to 
+\cite{Kharchenko2008}). The tag density profile is needed to 
 calculate the next categories of QC-metrics.
-
 
 \section{QC-metrics on global read distribution and "fingerprint" plot}
 This set of values is based on the global read distribution along the 
@@ -191,7 +201,7 @@ Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
 \end{verbatim}
 
 <<eval=TRUE, echo=FALSE >>=
-load(file = "./img/Ch.Rdata")
+load(file = "Ch.Rdata")
 @
 
 <<eval=TRUE, echo=TRUE >>=
@@ -199,7 +209,7 @@ str(Ch_Results)
 @
 
 <<eval=TRUE, echo=FALSE >>=
-load(file = "./img/FingerPrintPlot.RData")
+load(file = "FingerPrintPlot.RData")
 f_fingerPrintPlot=function(cumChip,cumInput,savePlotPath=NULL)
 {    
     plot(cumChip,type="l",col="blue",lwd=2,xlab="Percentage of bins",
@@ -270,7 +280,7 @@ TES_Plot=nonScaledMetageneProfile(Meta_Result$TES$chip,
 
 \begin{figure}
 \centering
-.\includegraphics[scale=0.5]{./img/Normalized_TSS.pdf}
+.\includegraphics[scale=0.5]{Normalized_TSS.pdf}
 \caption{Normalized non-scaled metagene profile for the signal enrichment 
 around the TSS }
 \label{fig:TSS}
@@ -287,7 +297,7 @@ geneBody_Plot=scaledMetageneProfile(Meta_Result$twopoint$chip,
 
 \begin{figure}
 \centering
-.\includegraphics[scale=0.3]{./img/ScaledMetaGene_ChIP_Input.pdf}
+.\includegraphics[scale=0.3]{ScaledMetaGene_ChIP_Input.pdf}
 \caption{Scaled metagene profile for the tag density across annotated 
 genes for ChIP (ENCFF000BLL) and Input (ENCFF000BKA) }
 \label{fig:GeneBody}
@@ -295,7 +305,7 @@ genes for ChIP (ENCFF000BLL) and Input (ENCFF000BKA) }
 
 \section{Quality assessment using the compendium of QC-metrics as reference}
 The comprehensive set of QC-metrics, computed over a large set of ChIP-seq 
-samples, constitute in itself a valuable compendium that can be used as a 
+samples, constitutes in itself a valuable compendium that can be used as a 
 reference for comparison to new samples. ChIC provides two functions for 
 that: \textit{metagenePlotsForComparison} to compare the metagene plots with 
 the compendium and \textit{plotReferenceDistribution} to compare a 
@@ -318,7 +328,7 @@ metagenePlotsForComparison(chrommark="H3K36me3",
 
 \begin{figure}
 \centering
-.\includegraphics[scale=0.5]{./img/H3K36me3_TWO_norm.pdf}
+.\includegraphics[scale=0.5]{H3K36me3_TWO_norm.pdf}
 \caption{The comparison against the compendium (mean and standard error) 
 can highlight potential problems in the signal distribution for a specific 
 mark, in case of experiment failure.}
@@ -342,7 +352,7 @@ plotReferenceDistribution(chrommark="H3K36me3",
 
 \begin{figure}
 \centering
-.\includegraphics[scale=0.5]{./img/PlotValueDistribution.pdf}
+.\includegraphics[scale=0.5]{PlotValueDistribution.pdf}
 \caption{Density plot showing the QC-metric RSC (red dashed line) of 
 ENCFF000BLLs against the reference distribution of the compendium 
 values stratified by chromatin classes. }
