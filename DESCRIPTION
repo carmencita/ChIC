@@ -10,7 +10,7 @@ LazyData: TRUE
 Imports:
 	chic.data (>= 0.99), caTools, methods, genomeIntervals, girafe,
 	intervals, caret, grDevices, parallel, stats, utils, graphics
-Depends: spp, R (>= 3.5)
+Depends: spp, R (>= 3.4)
 biocViews: ChIPSeq, QualityControl
 RoxygenNote: 6.0.1
 
