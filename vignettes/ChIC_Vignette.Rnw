@@ -68,10 +68,6 @@ require(CHIC)
 chipName="ENCFF000BLL"
 inputName="ENCFF000BKA"
 
-## dataDirectory: path to the directory where the bam files are 
-## stored (default is working directory)
-dataDirectory=getwd()
-
 ## mc is number of CPUs for parallelization 
 mc=5
 ## annotationID is the genome assembly used
@@ -84,7 +80,6 @@ mc=5
 CC_Result=QCscoresCC_PC(chipName=chipName,
                     inputName=inputName, 
                     read_length=36, 
-                    dataPath=dataDirectory, 
                     mc=5,
                     annotationID="hg19",
                     savePlotPath=getwd())
@@ -99,8 +94,8 @@ The "dataPath" should contain the path to the directory in which the bam
 files are stored.
 
 \begin{verbatim}
-chip.data=readBamFile(chipName, dataPath)
-input.data=readBamFile(inputName,dataPath)
+chip.data=readBamFile(chipName)
+input.data=readBamFile(inputName)
 \end{verbatim}
 
 
@@ -373,7 +368,7 @@ information that can be easily used by less experienced users.
 Indeed, the function \textit{plotReferenceDistribution} is helpful to 
 visually compare the characteristics of an analysed sample with a 
 large number of already published data (Figure \ref{valueDistributionRSC}).
- 
+
 <<eval=FALSE, echo=TRUE >>=
 currentRSCforSample=CC_Result_Chip$QCscores_ChIP$CC_RSC
 plotReferenceDistribution(chrommark="H3K36me3",
