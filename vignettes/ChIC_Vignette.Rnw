@@ -52,8 +52,6 @@ example dataset from ENCODE for H3K36me3 (ID: ENCFF000BLL) and its input
 The sample has been flagged by ENCODE with a red audit because of 
 low read depth. The bam files can be downloaded from the following links:
 
-%%[link](https://www.encodeproject.org/search/?type=File&file_format=bam "Title")
-%%\href{https://www.encodeproject.org/search/?type=File&file_format=bam}{https://www.encodeproject.org/search/?type=File&file_format=bam}
 \hyperref[ENCFF000BLL]{https://www.encodeproject.org/files/ENCFF000BLL/}
 
 \hyperref[ENCFF000BKA]{https://www.encodeproject.org/files/ENCFF000BKA/}

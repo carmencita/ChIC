@@ -5,8 +5,8 @@
 \title{Predict score}
 \usage{
 plotPredictionScore(chrommark = "H3K36me3", features_cc, features_global,
-  features_local_TSS, features_local_TES, features_local_scaled,
-  savePlotPath = NULL)
+    features_local_TSS, features_local_TES, features_local_scaled,
+    savePlotPath = NULL)
 }
 \arguments{
 \item{chrommark}{String, chromatin mark to be analysed. Has to be 
@@ -20,19 +20,19 @@ H2AK9ac, H3T11ph. For RNAPOL2 different variants are available:
 POLR2A (for RNAPol2), POLR3G and POLR2AphosphoS2}
 
 \item{features_cc}{list, with QC-metrics returned from 
-QCscoresCC_PC()}
+qualityScores_EM()}
 
 \item{features_global}{list, list with QC-metrics returned from 
-QCscores_global()}
+qualityScores_GM()}
 
 \item{features_local_TSS}{list, list with QC-metrics returned from 
-nonScaledMetageneProfile() with option TSS}
+qualityScores_LM() with option TSS}
 
 \item{features_local_TES}{list,  list with QC-metrics returned from 
-nonScaledMetageneProfile() with option TES}
+qualityScores_LM() with option TES}
 
 \item{features_local_scaled}{list, list with QC-metrics returned from 
-scaledMetageneProfile()}
+qualityScores_LMgenebody()}
 
 \item{savePlotPath}{Default=NULL, when set saves the density plot 
 (pdf format) under the given path.}
@@ -45,6 +45,7 @@ BLABLA
 plotPredictionScore
 }
 \examples{
+print("Prediction")
 \dontrun{
 something somethign
 }

@@ -5,7 +5,7 @@
 \title{Removes loval anomalies}
 \usage{
 removeLocalTagAnomalies(chip, input, chip_b.characteristics,
-  input_b.characteristics)
+    input_b.characteristics)
 }
 \arguments{
 \item{chip, }{data-structure with tag information for the 
@@ -48,7 +48,7 @@ srange=estimating_fragment_length_range,
 bin=estimating_fragment_length_bin,
 accept.all.tags=TRUE)
 print("calculate cross correlation QC-metrics for the Chip")
-crossvalues_Chip<-calculateCrossCorrelation(chip.data,
+crossvalues_Chip<-getCrossCorrelationScores(chip.data,
 chip_binding.characteristics,
 read_length=read_length,
 savePlotPath=savePlotPath,plotname="ChIP")
@@ -58,7 +58,7 @@ srange=estimating_fragment_length_range,
 bin=estimating_fragment_length_bin, 
 accept.all.tags=TRUE)
 print("calculate cross correlation QC-metrics for the Input")
-crossvalues_Input=calculateCrossCorrelation
+crossvalues_Input=getCrossCorrelationScores
 (input.data,input_binding.characteristics,
 read_length=read_length, savePlotPath=savePlotPath, plotname="Input")
 

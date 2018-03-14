@@ -4,13 +4,10 @@
 \alias{readBamFile}
 \title{Read bam file}
 \usage{
-readBamFile(filename, path = getwd())
+readBamFile(filename)
 }
 \arguments{
-\item{filename, }{name of the bam file to be read (without extension)}
-
-\item{path, }{path in which the bam file is stored 
-(default= workingdirectory)}
+\item{filename, }{name/path of the bam file to be read (without extension)}
 }
 \value{
 result list of lists, every list corresponds to a chromosome 
@@ -26,6 +23,6 @@ readBamFile
 chipName="ENCFF000BLL"
 print(chipName)
 \dontrun{
-chip.data=readBamFile(chipName,path=getwd())
+chip.data=readBamFile(chipName)
 }
 }

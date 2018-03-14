@@ -10,7 +10,7 @@ tagDensity(data, tag.shift, annotationID = "hg19", mc = 1)
 \item{data, }{data-structure with tag information (see readBamFile())}
 
 \item{tag.shift, }{Integer containing the value of the tag shif, 
-calculated by calculateCrossCorrelation()}
+calculated by getCrossCorrelationScores()}
 
 \item{annotationID}{String, indicating the genome assembly 
 (Default="hg19")}

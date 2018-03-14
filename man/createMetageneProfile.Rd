@@ -5,17 +5,17 @@
 \title{Wrapper function to create scaled and non-scaled metageneprofiles}
 \usage{
 createMetageneProfile(smoothed.densityChip, smoothed.densityInput, tag.shift,
-  annotationID = "hg19", debug = FALSE, mc = 1)
+    annotationID = "hg19", debug = FALSE, mc = 1)
 }
 \arguments{
 \item{smoothed.densityChip}{Smoothed tag-density object for ChIP 
-(returned by QCscoresCC_PC)}
+(returned by qualityScores_EM)}
 
 \item{smoothed.densityInput}{Smoothed tag-density object for Input 
-(returned by QCscoresCC_PC)}
+(returned by qualityScores_EM)}
 
 \item{tag.shift}{Integer containing the value of the tag shif, 
-calculated by calculateCrossCorrelation()}
+calculated by getCrossCorrelationScores()}
 
 \item{annotationID}{String indicating the genome assembly 
 (Default="hg19")}

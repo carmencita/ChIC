@@ -5,7 +5,7 @@
 \title{Function to create reference distribution plot for comparison}
 \usage{
 plotReferenceDistribution(chrommark, metricToBePlotted = "RSC", currentValue,
-  savePlotPath = NULL)
+    savePlotPath = NULL)
 }
 \arguments{
 \item{chrommark}{String, chromatin mark to be analysed. Has to be one 
@@ -36,8 +36,8 @@ chromatin marks.
 plotReferenceDistribution
 }
 \examples{
-\dontrun{
+print ("Plot distribution of RSC")
 plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",
-currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
-}
+currentValue=0.8)
+
 }
