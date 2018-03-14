@@ -15,7 +15,7 @@
 #' gene body+1KB. We collect in total 42 QC-metrics from the ChIP and 
 #' normalized profile. 
 #'
-#' scaledMetageneProfile
+#' qualityScores_LMgenebody
 #'
 #' @param binnedChip metagene-object of TSS or TES returned 
 #' by createMetageneProfile() for the ChIP 
@@ -31,13 +31,13 @@
 #'
 #'@examples
 #' print("Example")
-#' #geneBody_Plot=scaledMetageneProfile(Meta_Result$twopoint$chip,
+#' #geneBody_Plot=qualityScores_LMgenebody(Meta_Result$twopoint$chip,
 #' #Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
 #' #completeListOfValues=append(completeListOfValues,geneBody_Plot)
 #'
 
-scaledMetageneProfile<-function(binnedChip, binnedInput, savePlotPath=NULL, 
-debug=FALSE)
+qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL, 
+    debug=FALSE)
 {
     print("load metagene setting")
     settings=f_metaGeneDefinition(selection="Settings")

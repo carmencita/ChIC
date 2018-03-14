@@ -14,7 +14,7 @@
 #' the standard deviation and the quantiles at 0%, 25%, 
 #' 50% and 75%. In total the function returns 43 QC-metrics.
 #'
-#' nonScaledMetageneProfile
+#' qualityScores_LM
 #'
 #' @param binnedChip metagene-object of TSS or TES returned 
 #' by createMetageneProfile() for the ChIP 
@@ -33,20 +33,20 @@
 #'@examples
 #' print ("Example")
 #'\dontrun{
-#' TSS_Plot=nonScaledMetageneProfile(Meta_Result$TSS$chip,
+#' TSS_Plot=qualityScores_LM(Meta_Result$TSS$chip,
 #' Meta_Result$TSS$input,
 #' tag="TSS",path=getwd(),debug=TRUE)
 #' completeListOfValues=append(completeListOfValues,TSS_Plot)
 #'
-#' TES_Plot=nonScaledMetageneProfile(Meta_Result$TES$chip,
+#' TES_Plot=qualityScores_LM(Meta_Result$TES$chip,
 #' Meta_Result$TES$input,
 #' tag="TES",path=getwd(),debug=TRUE)
 #' completeListOfValues=append(completeListOfValues,TES_Plot)
 #'}
 
 
-nonScaledMetageneProfile<-function(binnedChip, binnedInput, tag="TSS", 
-savePlotPath=NULL, debug=FALSE)
+qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS", 
+    savePlotPath=NULL, debug=FALSE)
 {    
     print("load metagene setting")
     #load("Settings.RData")

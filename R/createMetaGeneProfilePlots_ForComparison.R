@@ -48,7 +48,7 @@
 #' }
 
 metagenePlotsForComparison<-function(chrommark, twopointElements, TSSElements, 
-TESElements, savePlotPath=NULL)
+    TESElements, savePlotPath=NULL)
 {
     compendium_profiles=NULL
     data(compendium_profiles, package="chic.data", envir=environment())
@@ -194,13 +194,13 @@ TESElements, savePlotPath=NULL)
 #'
 #' @return nothing, creates a figure under 'savePlotPath'
 #'@examples
-#'\dontrun{
+#' print ("Plot distribution of RSC")
 #' plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",
-#' currentValue=crossvalues_Chip$RSC,savePlotPath=getwd())
-#'}
+#' currentValue=0.8)
+#'
 
 plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
-currentValue,savePlotPath=NULL)
+    currentValue,savePlotPath=NULL)
 {
     Hlist=f_metaGeneDefinition("Hlist")
     allChrom=f_metaGeneDefinition("Classes")
@@ -272,15 +272,15 @@ currentValue,savePlotPath=NULL)
 #' H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: 
 #' POLR2A (for RNAPol2), POLR3G and POLR2AphosphoS2
 #' @param features_cc list, with QC-metrics returned from 
-#' QCscoresCC_PC()
+#' qualityScores_EM()
 #' @param features_global list, list with QC-metrics returned from 
-#' QCscores_global()
+#' qualityScores_GM()
 #' @param features_local_TSS list, list with QC-metrics returned from 
-#' nonScaledMetageneProfile() with option TSS
+#' qualityScores_LM() with option TSS
 #' @param features_local_TES list,  list with QC-metrics returned from 
-#' nonScaledMetageneProfile() with option TES
+#' qualityScores_LM() with option TES
 #' @param features_local_scaled list, list with QC-metrics returned from 
-#' scaledMetageneProfile()
+#' qualityScores_LMgenebody()
 #' @param savePlotPath Default=NULL, when set saves the density plot 
 #' (pdf format) under the given path.
 #'
@@ -288,12 +288,13 @@ currentValue,savePlotPath=NULL)
 #'
 #' @return something something
 #'@examples
+#' print("Prediction")
 #'\dontrun{
 #' something somethign
 #'}
 plotPredictionScore<-function(chrommark="H3K36me3", features_cc,
-features_global,features_local_TSS, features_local_TES, 
-features_local_scaled, savePlotPath=NULL)
+    features_global,features_local_TSS, features_local_TES, 
+    features_local_scaled, savePlotPath=NULL)
 {
     #library(randomForest)
     print("load profile classes...")

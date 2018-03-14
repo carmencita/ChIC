@@ -1,17 +1,18 @@
+#' @import chic.data
+#' @import caret
+# @import girafe
+#' @rawNamespace import(girafe, except = plot)
+#' @import spp 
 #' @importFrom graphics abline axis legend lines matplot par
 #' plot polygon text
 #' @importFrom grDevices dev.off pdf rainbow
 #' @importFrom stats density na.omit predict quantile sd var
-#' @importFrom utils str write.table
-#' @importFrom utils data
+#' @importFrom utils str write.table data
 #' @importFrom parallel mclapply
 #' @importFrom methods new
-#' @import spp 
 #' @importFrom genomeIntervals seqnames interval_union
 #' @importFrom intervals close_intervals
-#' @import chic.data
-#' @import caret
-#' @import girafe
+
 
 #####################################################################
 ####                                                  ###############
@@ -30,13 +31,13 @@
 #' analysis, from peak calling and general metrics like read-length or 
 #' NRF. In total 22 features calculated.
 #'
-#' QCscoresCC_PC
+#' qualityScores_EM
 #'
-#' @param chipName String, filename (without extension) of the ChIP file
-#' @param inputName String, filename (without extension) of the Input file
+#' @param chipName String, filename and path to the ChIP 
+#' file (without extension)
+#' @param inputName String, filename and path to the Input 
+#' file (without extension)
 #' @param read_length Integer, length of the reads
-#' @param dataPath Path, points to the directory were the bam files are 
-#' stored (default is working directory)
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param savePlotPath, set if Cross-correlation plot should be saved under 
@@ -57,18 +58,18 @@
 #'@examples
 #' print("Example")
 #'\dontrun{
-#' CC_Result=QCscoresCC_PC(chipName=chipName,
-#' inputName=inputName, read_length=36, dataPath=dataDirectory, 
+#' CC_Result=qualityScores_EM(chipName=chipName,
+#' inputName=inputName, read_length=36, 
 #' debug=FALSE, mc=1, annotationID="hg19", savePlotPath=getwd())
 #'}
 
 
-QCscoresCC_PC<-function(chipName, inputName, read_length, dataPath=getwd(), 
-annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
+qualityScores_EM<-function(chipName, inputName, read_length, dataPath=getwd(), 
+    annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
 {
     print(paste("reading bam files",sep=" "))
-    chip.data=readBamFile(chipName,path=dataPath)
-    input.data=readBamFile(inputName,path=dataPath)
+    chip.data=readBamFile(chipName)
+    input.data=readBamFile(inputName)
 
     ##plot and calculate cross correlation and phantom characteristics
     ##for the ChIP
@@ -86,7 +87,7 @@ annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
         bin=estimating_fragment_length_bin,accept.all.tags=TRUE)
 
     print("calculate cross correlation QC-metrics for the Chip")
-    crossvalues_Chip<- calculateCrossCorrelation(chip.data, 
+    crossvalues_Chip<- getCrossCorrelationScores(chip.data, 
         chip_binding.characteristics, 
         read_length=read_length, 
         savePlotPath=savePlotPath, plotname="ChIP")
@@ -102,7 +103,7 @@ annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
         bin=estimating_fragment_length_bin, accept.all.tags=TRUE)
 
     print("calculate cross correlation QC-metrics for the Input")
-    crossvalues_Input=calculateCrossCorrelation(input.data, 
+    crossvalues_Input=getCrossCorrelationScores(input.data, 
         input_binding.characteristics, read_length=read_length, 
         savePlotPath=savePlotPath,plotname="Input")
 
@@ -133,7 +134,7 @@ annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
     }
 
     ##get QC-values from peak calling
-    bindingScores=getBindingRegionsScores(chip.data, input.data, 
+    bindingScores=getPeakCallingScores(chip.data, input.data, 
         chip.dataSelected, input.dataSelected, final.tag.shift)
     
     ##objects of smoothed tag density for ChIP and Input
@@ -190,7 +191,7 @@ annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
 #' (number of genomic locations to which exactly one unique mapping read 
 #' maps, divided by the number of unique mapping reads).
 #'
-#' calculateCrossCorrelation
+#' getCrossCorrelationScores
 #'
 #' @param data data-structure with tag information read from 
 #' bam file (see readBamFile())
@@ -210,13 +211,13 @@ annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
 #'@examples
 #' print("Usage")
 #'\dontrun{
-#' crossvalues_Chip<-calculateCrossCorrelation(chip.data, 
+#' crossvalues_Chip<-getCrossCorrelationScores(chip.data, 
 #' chip_binding.characteristics, read_length=70, 
 #' savePlotPath=getwd(), plotname="ChIP")
 #'}
 
-calculateCrossCorrelation<-function(data, bchar, read_length=70, 
-savePlotPath=NULL, plotname="phantom")
+getCrossCorrelationScores<-function(data, bchar, read_length=70, 
+    savePlotPath=NULL, plotname="phantom")
 {
 
     ## cross_correlation_customShift_withSmoothing parameters
@@ -480,7 +481,7 @@ savePlotPath=NULL, plotname="phantom")
 #' count the number of peaks called when using the 
 #' sharp- and broad-binding option. 
 #'
-#' getBindingRegionsScores
+#' getPeakCallingScores
 #'
 #' @param chip data-structure with tag information for the 
 #' ChIP (see readBamFile())
@@ -491,7 +492,7 @@ savePlotPath=NULL, plotname="phantom")
 #' @param input.dataSelected selected Input tags after running 
 #' removeLocalTagAnomalies() which removes local tag anomalies
 #' @param tag.shift Integer containing the value of the tag shif, 
-#' calculated by calculateCrossCorrelation()
+#' calculated by getCrossCorrelationScores()
 #' @param chrorder chromosome order (default=NULL) 
 #'
 #' @return QCscoreList List with 6 QC-values
@@ -501,14 +502,14 @@ savePlotPath=NULL, plotname="phantom")
 #'@examples
 #' print("Example")
 #'\dontrun{
-#' bindingScores=getBindingRegionsScores(chip.data, 
+#' bindingScores=getPeakCallingScores(chip.data, 
 #' input.data, chip.dataSelected, input.dataSelected, 
 #' final.tag.shift)
 #' }
 #'
 
-getBindingRegionsScores<-function(chip, input, chip.dataSelected, 
-input.dataSelected, tag.shift=75, chrorder=NULL)
+getPeakCallingScores<-function(chip, input, chip.dataSelected, 
+    input.dataSelected, tag.shift=75, chrorder=NULL)
 {
 
     # print(paste("reading bam files",sep=" "))
@@ -695,12 +696,12 @@ input.dataSelected, tag.shift=75, chrorder=NULL)
 #' input. Finally, the funciton returns 9 QC-measures
 #'
 
-#' QCscores_global
+#' qualityScores_GM
 #'
 #' @param densityChip Smoothed tag-density object for ChIP (returned 
-#' by QCscoresCC_PC). 
+#' by qualityScores_EM). 
 #' @param densityInput Smoothed tag density object for Input (returned 
-#' by QCscoresCC_PC)
+#' by qualityScores_EM)
 #' @param savePlotPath if set the plot will be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout.
 #' @param debug Boolean to enter debugging mode (default= FALSE)
@@ -712,7 +713,7 @@ input.dataSelected, tag.shift=75, chrorder=NULL)
 #' @examples
 #' print("Example of usage")
 #'\dontrun{
-#' CC_Result=QCscoresCC_PC(chipName=chipName,
+#' CC_Result=qualityScores_EM(chipName=chipName,
 #' inputName=inputName, 
 #' read_length=36, 
 #' dataPath=dataDirectory, 
@@ -723,12 +724,12 @@ input.dataSelected, tag.shift=75, chrorder=NULL)
 #' smoothedDensityInput=CC_Result$TagDensityInput
 #' smoothedDensityChip=CC_Result$TagDensityChip
 #'
-#' Ch_Results=QCscores_global(densityChip=smoothedDensityChip,
+#' Ch_Results=qualityScores_GM(densityChip=smoothedDensityChip,
 #' densityInput=smoothedDensityInput)
 #' }
 
-QCscores_global<-function(densityChip, densityInput, 
-savePlotPath=NULL, debug=FALSE)
+qualityScores_GM<-function(densityChip, densityInput, 
+    savePlotPath=NULL, debug=FALSE)
 {
 
     ##shorten frame and reduce resolution
@@ -816,11 +817,11 @@ savePlotPath=NULL, debug=FALSE)
 #' CreateMetageneProfile
 #'
 #' @param smoothed.densityChip Smoothed tag-density object for ChIP 
-#' (returned by QCscoresCC_PC)
+#' (returned by qualityScores_EM)
 #' @param smoothed.densityInput Smoothed tag-density object for Input 
-#' (returned by QCscoresCC_PC)
+#' (returned by qualityScores_EM)
 #' @param tag.shift Integer containing the value of the tag shif, 
-#' calculated by calculateCrossCorrelation()
+#' calculated by getCrossCorrelationScores()
 #' @param annotationID String indicating the genome assembly 
 #' (Default="hg19")
 #' @param debug Boolean to enter debugging mode (default= FALSE)
@@ -843,7 +844,7 @@ savePlotPath=NULL, debug=FALSE)
 
 
 createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput, 
-tag.shift, annotationID="hg19", debug=FALSE, mc=1)
+    tag.shift, annotationID="hg19", debug=FALSE, mc=1)
 {
     print("Load gene annotation")
     ##require(chic.data)
@@ -929,9 +930,7 @@ tag.shift, annotationID="hg19", debug=FALSE, mc=1)
 #' 
 #' readBamFile
 #'
-#' @param filename, name of the bam file to be read (without extension)
-#' @param path, path in which the bam file is stored 
-#' (default= workingdirectory)
+#' @param filename, name/path of the bam file to be read (without extension)
 #'
 #' @return result list of lists, every list corresponds to a chromosome 
 #' and contains 
@@ -943,13 +942,13 @@ tag.shift, annotationID="hg19", debug=FALSE, mc=1)
 #' chipName="ENCFF000BLL"
 #' print(chipName)
 #'\dontrun{
-#' chip.data=readBamFile(chipName,path=getwd())
+#' chip.data=readBamFile(chipName)
 #' }
 
 
-readBamFile<-function(filename, path=getwd())
+readBamFile<-function(filename)
 {
-    result=f_readFile(filename=filename, path=path, reads.aligner.type="bam")
+    result=f_readFile(filename=filename,reads.aligner.type="bam")
     return(result)
 }
 
@@ -994,7 +993,7 @@ readBamFile<-function(filename, path=getwd())
 #' bin=estimating_fragment_length_bin,
 #' accept.all.tags=TRUE)
 #' print("calculate cross correlation QC-metrics for the Chip")
-#' crossvalues_Chip<-calculateCrossCorrelation(chip.data,
+#' crossvalues_Chip<-getCrossCorrelationScores(chip.data,
 #' chip_binding.characteristics,
 #' read_length=read_length,
 #' savePlotPath=savePlotPath,plotname="ChIP")
@@ -1004,7 +1003,7 @@ readBamFile<-function(filename, path=getwd())
 #' bin=estimating_fragment_length_bin, 
 #' accept.all.tags=TRUE)
 #' print("calculate cross correlation QC-metrics for the Input")
-#' crossvalues_Input=calculateCrossCorrelation
+#' crossvalues_Input=getCrossCorrelationScores
 #' (input.data,input_binding.characteristics,
 #' read_length=read_length, savePlotPath=savePlotPath, plotname="Input")
 #'
@@ -1031,7 +1030,7 @@ input_b.characteristics)
 #'
 #' @param data, data-structure with tag information (see readBamFile())
 #' @param tag.shift, Integer containing the value of the tag shif, 
-#' calculated by calculateCrossCorrelation()
+#' calculated by getCrossCorrelationScores()
 #' @param annotationID String, indicating the genome assembly 
 #' (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)

@@ -96,16 +96,16 @@ f_getCustomStrandShift= function(x,y){
 
 #' @keywords internal 
 ##reads bam file or tagalign file 
-f_readFile=function(filename, path=getwd(), reads.aligner.type)
+f_readFile=function(filename, reads.aligner.type)
 {
     currentFormat<-get(paste("read", reads.aligner.type , "tags", sep="."))
     if (reads.aligner.type=="bam")
     {
-        data<-currentFormat(file.path(path,paste(filename,".bam",sep="")))
+        data<-currentFormat(file.path(paste(filename,".bam",sep="")))
     }
     if (reads.aligner.type=="tagalign")
     {
-        data<-currentFormat(file.path(path,paste(filename,".tagAlign",sep="")))
+        data<-currentFormat(file.path(paste(filename,".tagAlign",sep="")))
     }
     
     ##readCount=sum(sapply(data$tags, length))
