@@ -1,6 +1,6 @@
 Package: CHIC
 Title: Quality Control Pipeline for ChIP-Seq Data
-Version: 0.99.4
+Version: 0.99.5
 Author: Carmen Maria Livi
 Maintainer: Carmen Maria Livi <carmen.livi@ifom.eu>
 Description: Quality control pipeline for ChIP-seq data.
