@@ -45,8 +45,7 @@ print("Example of usage")
 \dontrun{
 CC_Result=qualityScores_EM(chipName=chipName,
 inputName=inputName, 
-read_length=36, 
-dataPath=dataDirectory, 
+read_length=36,  
 annotationID="hg19",
 savePlotPath=getwd())
 

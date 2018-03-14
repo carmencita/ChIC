@@ -64,7 +64,7 @@
 #'}
 
 
-qualityScores_EM<-function(chipName, inputName, read_length, dataPath=getwd(), 
+qualityScores_EM<-function(chipName, inputName, read_length, 
     annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
 {
     print(paste("reading bam files",sep=" "))
@@ -512,11 +512,6 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
     input.dataSelected, tag.shift=75, chrorder=NULL)
 {
 
-    # print(paste("reading bam files",sep=" "))
-    # chip.data=readBamFile(chipName,path=dataPath)
-    # input.data=readBamFile(inputName,path=dataPath)
-
-
     ##load("Settings.RData")
     ##for simplicity we use currently a shorter chromosome frame 
     ##to avoid problems 
@@ -715,8 +710,7 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
 #'\dontrun{
 #' CC_Result=qualityScores_EM(chipName=chipName,
 #' inputName=inputName, 
-#' read_length=36, 
-#' dataPath=dataDirectory, 
+#' read_length=36,  
 #' annotationID="hg19",
 #' savePlotPath=getwd())
 #'
@@ -982,8 +976,8 @@ readBamFile<-function(filename)
 #'@examples
 #' print("Usage example")
 #'\dontrun{
-#' chip.data=readBamFile(chipName,path=dataPath)
-#' input.data=readBamFile(inputName,path=dataPath)
+#' chip.data=readBamFile(chipName)
+#' input.data=readBamFile(inputName)
 #' print("calculate binding characteristics ChIP")
 #' ### cross_correlation parameters
 #' estimating_fragment_length_range<-c(0,500)

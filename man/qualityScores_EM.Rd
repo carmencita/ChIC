@@ -6,8 +6,8 @@
 cross-correlation analysis, QC-metrics designed for TFs and 
 QC-metrics from peak-calls}
 \usage{
-qualityScores_EM(chipName, inputName, read_length, dataPath = getwd(),
-    annotationID = "hg19", mc = 1, savePlotPath = NULL, debug = FALSE)
+qualityScores_EM(chipName, inputName, read_length, annotationID = "hg19",
+    mc = 1, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
 \item{chipName}{String, filename and path to the ChIP 

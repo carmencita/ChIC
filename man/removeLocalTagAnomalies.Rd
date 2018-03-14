@@ -37,8 +37,8 @@ removeLocalTagAnomalies
 \examples{
 print("Usage example")
 \dontrun{
-chip.data=readBamFile(chipName,path=dataPath)
-input.data=readBamFile(inputName,path=dataPath)
+chip.data=readBamFile(chipName)
+input.data=readBamFile(inputName)
 print("calculate binding characteristics ChIP")
 ### cross_correlation parameters
 estimating_fragment_length_range<-c(0,500)
