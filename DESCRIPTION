@@ -3,7 +3,10 @@ Title: Quality Control Pipeline for ChIP-Seq Data
 Version: 0.99.5
 Author: Carmen Maria Livi
 Maintainer: Carmen Maria Livi <carmen.livi@ifom.eu>
-Description: Quality control pipeline for ChIP-seq data.
+Description: Quality control pipeline for ChIP-seq data using a comprehensive set of quality control metrics, including previously proposed metrics 
+as well as novel ones, based on local characteristics of the enrichment profile. The framework allows assessing quality of samples with 
+sharp or broad enrichment profiles, whereas previously proposed metrics were not taking this into account. 
+CHIC provides a reference compendium of quality control metrics and trained machine learning models for scoring samples.
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
