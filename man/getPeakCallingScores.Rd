@@ -5,7 +5,7 @@
 \title{Calculating QC-values from peak calling procedure}
 \usage{
 getPeakCallingScores(chip, input, chip.dataSelected, input.dataSelected,
-    tag.shift = 75, chrorder = NULL)
+  tag.shift = 75, chrorder = NULL)
 }
 \arguments{
 \item{chip}{data-structure with tag information for the 

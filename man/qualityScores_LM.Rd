@@ -6,7 +6,7 @@
 TSS or TES and to collects the QC-metrics}
 \usage{
 qualityScores_LM(binnedChip, binnedInput, tag = "TSS", savePlotPath = NULL,
-    debug = FALSE)
+  debug = FALSE)
 }
 \arguments{
 \item{binnedChip}{metagene-object of TSS or TES returned 

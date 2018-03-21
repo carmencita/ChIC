@@ -8,7 +8,7 @@
 #' @importFrom grDevices dev.off pdf rainbow
 #' @importFrom stats density na.omit predict quantile sd var
 #' @importFrom utils str write.table data
-#' @importFrom parallel mclapply
+#' @importFrom  BiocParallel bplapply
 #' @importFrom methods new
 #' @importFrom genomeIntervals seqnames interval_union
 #' @importFrom intervals close_intervals
@@ -139,9 +139,9 @@ qualityScores_EM<-function(chipName, inputName, read_length,
     
     ##objects of smoothed tag density for ChIP and Input
     smoothed.densityChip=tagDensity(chip.dataSelected, 
-        final.tag.shift, annotationID="hg19", mc=mc)
+        final.tag.shift, annotationID=annotationID, mc=mc)
     smoothed.densityInput=tagDensity(input.dataSelected, 
-        final.tag.shift, annotationID="hg19", mc=mc)
+        final.tag.shift, annotationID=annotationID, mc=mc)
     
     returnList=list("QCscores_ChIP"=crossvalues_Chip,
         "QCscores_Input"=crossvalues_Input,
@@ -1042,6 +1042,7 @@ input_b.characteristics)
 #' final.tag.shift,
 #' annotationID="hg19", mc=5)
 #'}
+
 
 tagDensity<-function(data, tag.shift, annotationID="hg19", mc=1)
 {

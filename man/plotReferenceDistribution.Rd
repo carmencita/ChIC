@@ -5,7 +5,7 @@
 \title{Function to create reference distribution plot for comparison}
 \usage{
 plotReferenceDistribution(chrommark, metricToBePlotted = "RSC", currentValue,
-    savePlotPath = NULL)
+  savePlotPath = NULL)
 }
 \arguments{
 \item{chrommark}{String, chromatin mark to be analysed. Has to be one 

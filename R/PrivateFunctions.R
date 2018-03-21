@@ -189,7 +189,10 @@ f_tagDensity=function(data,tag.shift,chromDef,mc=1)
         return(data[x])
     })
 
-    smoothed.density<-mclapply(data, FUN=function(current_chr_list)
+    #smoothed.density<-mclapply(data, FUN=function(current_chr_list)
+    smoothed.density<-BiocParallel::bplapply(data, 
+        BPPARAM = BiocParallel::MulticoreParam(workers=mc), 
+        FUN=function(current_chr_list)
     {
         current_chr<-names(current_chr_list)
         str(current_chr_list)
@@ -201,8 +204,8 @@ f_tagDensity=function(data,tag.shift,chromDef,mc=1)
             bandwidth=smoothingBandwidth, 
             step=smoothingStep,tag.shift=tag.shift, 
             rngl=chromDef[current_chr])
-
-    }, mc.preschedule = FALSE,mc.cores=mc)
+    })
+    #}, mc.preschedule = FALSE,mc.cores=mc)
     smoothed.density=(unlist(smoothed.density,recursive=FALSE))
     ##normalizing smoothed tag density by library size
     smoothed.density<-lapply(smoothed.density,function(d) 
@@ -636,49 +639,52 @@ bs, nbins,separate.strands=FALSE, min.feature.size=3000,mc=1)
     chrl <- names(gdl);
     names(chrl) <- chrl;
     ##lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
-    mclapply(chrl[chrl %in% names(chipTags_current$td)],  
-        mc.preschedule = FALSE,mc.cores=mc, FUN=function(chr) 
-    {
-        print(chr)
-        nsi <- gdl[[chr]]$strand=="-";
-        print(length(nsi))
-        current_gene_names<-gdl[[chr]]$geneSymbol
-        if ((sum(!nsi)>0)) 
+    #mclapply(chrl[chrl %in% names(chipTags_current$td)],  
+    #    mc.preschedule = FALSE,mc.cores=mc, FUN=function(chr) 
+    BiocParallel::bplapply(chrl[chrl %in% names(chipTags_current$td)],
+        BPPARAM = BiocParallel::MulticoreParam(workers=mc),
+        FUN=function(chr) 
         {
-            ##if ((sum(!nsi)>1)) {
-            px <- f_feature.bin.averages(chipTags_current$td[[chr]],
-                data.frame(s=gdl[[chr]]$txStart[!nsi], 
-                    e=gdl[[chr]]$txEnd[!nsi]),
-                lom=lom,rom=rom,im=im,
-                bs=bs, nbins=nbins, min.feature.size=min.feature.size, 
+            print(chr)
+            nsi <- gdl[[chr]]$strand=="-";
+            print(length(nsi))
+            current_gene_names<-gdl[[chr]]$geneSymbol
+            if ((sum(!nsi)>0)) 
+            {
+                ##if ((sum(!nsi)>1)) {
+                px <- f_feature.bin.averages(chipTags_current$td[[chr]],
+                    data.frame(s=gdl[[chr]]$txStart[!nsi], 
+                        e=gdl[[chr]]$txEnd[!nsi]),
+                    lom=lom,rom=rom,im=im,
+                    bs=bs, nbins=nbins, min.feature.size=min.feature.size, 
+                    nu.point.omit=FALSE)
+                rownames(px)<-current_gene_names[!nsi]
+            } else { 
+                px<-NULL
+            }
+            if ((sum(nsi)>0)) 
+            {
+                ##if ((sum(nsi)>1)) {
+                nd <- chipTags_current$td[[chr]]; 
+                nd$x <- -1*nd$x;
+                nx <- f_feature.bin.averages(nd,
+                    data.frame(s=-1*gdl[[chr]]$txEnd[nsi],
+                    e=-1*gdl[[chr]]$txStart[nsi]), 
+                lom=lom, rom=rom,im=im,bs=bs, nbins=nbins, 
+                min.feature.size=min.feature.size, 
                 nu.point.omit=FALSE)
-            rownames(px)<-current_gene_names[!nsi]
-        } else { 
-            px<-NULL
-        }
-        if ((sum(nsi)>0)) 
-        {
-            ##if ((sum(nsi)>1)) {
-            nd <- chipTags_current$td[[chr]]; 
-            nd$x <- -1*nd$x;
-            nx <- f_feature.bin.averages(nd,
-                data.frame(s=-1*gdl[[chr]]$txEnd[nsi],
-                e=-1*gdl[[chr]]$txStart[nsi]), 
-            lom=lom, rom=rom,im=im,bs=bs, nbins=nbins, 
-            min.feature.size=min.feature.size, 
-            nu.point.omit=FALSE)
-            rownames(nx)<-current_gene_names[nsi]
-        } else { 
-            nx<-NULL
-        }
+                rownames(nx)<-current_gene_names[nsi]
+            } else { 
+                nx<-NULL
+            }
 
-        if(separate.strands) 
-        {
-            return(p=px,n=nx);
-        } else {
-            return(rbind(px,nx));
-        }
-    })
+            if(separate.strands) 
+            {
+                return(p=px,n=nx);
+            } else {
+                return(rbind(px,nx));
+            }
+        })
 }
 
 #' @keywords internal 
@@ -694,47 +700,50 @@ f_t.get.gene.av.density_TSS <- function(tl_current,gdl,m=4020, nbins=201,
     chrl <- names(gdl);
     names(chrl) <- chrl;
     ##lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
-    mclapply(chrl[chrl %in% names(tl_current$td)],
-        mc.preschedule=FALSE,mc.cores=mc, FUN=function(chr)
-    {
-        nsi <- gdl[[chr]]$strand=="-";
-        current_gene_names<-gdl[[chr]]$geneSymbol
-
-        ## if ((sum(!nsi)>0)) {
-        if ((sum(!nsi)>0)) 
+    # mclapply(chrl[chrl %in% names(tl_current$td)],
+    #     mc.preschedule=FALSE,mc.cores=mc, FUN=function(chr)
+    BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)],
+        BPPARAM = BiocParallel::MulticoreParam(workers=mc),
+        FUN=function(chr)
         {
-            ##px <- f_feature.bin.averages(tl_current$td[[chr]],
-            ##data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m,
-            ##nbins=nbins,nu.point.omit=FALSE)
-            px <- f_feature.bin.averages(tl_current$td[[chr]],
-                data.frame(x=gdl[[chr]]$txStart[!nsi]),
-                m=m,nbins=nbins,nu.point.omit=FALSE)
-            rownames(px)<-current_gene_names[!nsi]
-        } else { 
-            px<-NULL
-        }
+            nsi <- gdl[[chr]]$strand=="-";
+            current_gene_names<-gdl[[chr]]$geneSymbol
 
-        if ((sum(nsi)>0)) 
-        {
-            ##if ((sum(nsi)>0)) {
-            nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
-            ##nx <- f_feature.bin.averages(nd,data.frame
-            ##(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
-            nx <- f_feature.bin.averages(nd,
-                data.frame(x=-1*gdl[[chr]]$txEnd[nsi]),
-                m=m,nbins=nbins,nu.point.omit=FALSE)
-            rownames(nx)<-current_gene_names[nsi]
-        } else { 
-            nx<-NULL
-        }
+            ## if ((sum(!nsi)>0)) {
+            if ((sum(!nsi)>0)) 
+            {
+                ##px <- f_feature.bin.averages(tl_current$td[[chr]],
+                ##data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m,
+                ##nbins=nbins,nu.point.omit=FALSE)
+                px <- f_feature.bin.averages(tl_current$td[[chr]],
+                    data.frame(x=gdl[[chr]]$txStart[!nsi]),
+                    m=m,nbins=nbins,nu.point.omit=FALSE)
+                rownames(px)<-current_gene_names[!nsi]
+            } else { 
+                px<-NULL
+            }
 
-        if(separate.strands) 
-        { 
-            return(p=px,n=nx);
-        } else {
-            return(rbind(px,nx));
-        }
-    })
+            if ((sum(nsi)>0)) 
+            {
+                ##if ((sum(nsi)>0)) {
+                nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
+                ##nx <- f_feature.bin.averages(nd,data.frame
+                ##(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+                nx <- f_feature.bin.averages(nd,
+                    data.frame(x=-1*gdl[[chr]]$txEnd[nsi]),
+                    m=m,nbins=nbins,nu.point.omit=FALSE)
+                rownames(nx)<-current_gene_names[nsi]
+            } else { 
+                nx<-NULL
+            }
+
+            if(separate.strands) 
+            { 
+                return(p=px,n=nx);
+            } else {
+                return(rbind(px,nx));
+            }
+        })
 }
 
 #' @keywords internal 
@@ -749,44 +758,47 @@ f_t.get.gene.av.density_TES <- function(tl_current,gdl,m=4020, nbins=201,
     chrl <- names(gdl);
     names(chrl) <- chrl;
     ##lapply(chrl[chrl %in% names(tl_current$td)],function(chr) {
-    mclapply(chrl[chrl %in% names(tl_current$td)],  mc.preschedule = FALSE,
-        mc.cores=mc, FUN=function(chr) 
-    {
-        nsi <- gdl[[chr]]$strand=="-";
-        current_gene_names<-gdl[[chr]]$geneSymbol
+    # mclapply(chrl[chrl %in% names(tl_current$td)],  mc.preschedule = FALSE,
+    #     mc.cores=mc, FUN=function(chr) 
+    BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)],
+        BPPARAM = BiocParallel::MulticoreParam(workers=mc),
+        FUN=function(chr) 
+        {
+            nsi <- gdl[[chr]]$strand=="-";
+            current_gene_names<-gdl[[chr]]$geneSymbol
 
-        ##if ((sum(!nsi)>0)) {
-        if ((sum(!nsi)>0)) 
-        {
-            ##f_feature.bin.averages <- function(dat,feat,nu.feat.omit=F,
-            ##nu.point.omit=T, scaling=NULL, return.scaling=F, trim=0, 
-            ##min.feature.size=NULL, ... ) {
-            px <- f_feature.bin.averages(tl_current$td[[chr]],
-                data.frame(x=gdl[[chr]]$txEnd[!nsi]),
-                m=m,nbins=nbins,nu.point.omit=FALSE)
-            rownames(px)<-current_gene_names[!nsi]
-        } else { 
-            px<-NULL
-        }
-        ##if ((sum(nsi)>1)) {
-        if ((sum(nsi)>0)) 
-        {
-            nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
-            nx <- f_feature.bin.averages(nd,
-                data.frame(x=-1*gdl[[chr]]$txStart[nsi]),
-                m=m,nbins=nbins,nu.point.omit=FALSE)
-            rownames(nx)<-current_gene_names[nsi]
-        } else { 
-            nx<-NULL
-        }
+            ##if ((sum(!nsi)>0)) {
+            if ((sum(!nsi)>0)) 
+            {
+                ##f_feature.bin.averages <- function(dat,feat,nu.feat.omit=F,
+                ##nu.point.omit=T, scaling=NULL, return.scaling=F, trim=0, 
+                ##min.feature.size=NULL, ... ) {
+                px <- f_feature.bin.averages(tl_current$td[[chr]],
+                    data.frame(x=gdl[[chr]]$txEnd[!nsi]),
+                    m=m,nbins=nbins,nu.point.omit=FALSE)
+                rownames(px)<-current_gene_names[!nsi]
+            } else { 
+                px<-NULL
+            }
+            ##if ((sum(nsi)>1)) {
+            if ((sum(nsi)>0)) 
+            {
+                nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
+                nx <- f_feature.bin.averages(nd,
+                    data.frame(x=-1*gdl[[chr]]$txStart[nsi]),
+                    m=m,nbins=nbins,nu.point.omit=FALSE)
+                rownames(nx)<-current_gene_names[nsi]
+            } else { 
+                nx<-NULL
+            }
 
-        if(separate.strands) 
-        {
-            return(p=px,n=nx);
-        } else {
-        return(rbind(px,nx));
-        }
-    })
+            if(separate.strands) 
+            {
+                return(p=px,n=nx);
+            } else {
+            return(rbind(px,nx));
+            }
+        })
 }
 
 

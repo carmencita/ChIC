@@ -6,7 +6,7 @@
 general QC-metrics}
 \usage{
 getCrossCorrelationScores(data, bchar, read_length = 70,
-    savePlotPath = NULL, plotname = "phantom")
+  savePlotPath = NULL, plotname = "phantom")
 }
 \arguments{
 \item{data}{data-structure with tag information read from 

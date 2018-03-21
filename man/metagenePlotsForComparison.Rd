@@ -5,7 +5,7 @@
 \title{Function to create metage plots for comparison}
 \usage{
 metagenePlotsForComparison(chrommark, twopointElements, TSSElements,
-    TESElements, savePlotPath = NULL)
+  TESElements, savePlotPath = NULL)
 }
 \arguments{
 \item{chrommark}{String, chromatin mark to be analysed. 

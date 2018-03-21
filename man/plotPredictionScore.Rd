@@ -5,8 +5,8 @@
 \title{Predict score}
 \usage{
 plotPredictionScore(chrommark = "H3K36me3", features_cc, features_global,
-    features_local_TSS, features_local_TES, features_local_scaled,
-    savePlotPath = NULL)
+  features_local_TSS, features_local_TES, features_local_scaled,
+  savePlotPath = NULL)
 }
 \arguments{
 \item{chrommark}{String, chromatin mark to be analysed. Has to be 
