@@ -55,19 +55,20 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
     estimated_bin_size_1P=settings$estimated_bin_size_1P
 
     psc <- 1;## pseudocount## required to avoid log2 of 0
-    chip <- log2(do.call(rbind,binnedChip)+psc)
+    chip <-log2(do.call(rbind,binnedChip)+psc)
     input<-log2(do.call(rbind,binnedInput)+psc)
 
 
     input.noNorm<-colMeans(input,na.rm=TRUE)
     chip.noNorm <- colMeans(chip,na.rm=TRUE)
+    all.noNorm=NULL
     all.noNorm<-cbind(chip.noNorm, input.noNorm)
-    colnames(all.noNorm)<-c("ChIP","Input")
+    colnames(all.noNorm)<-c("Chip","Input")
     
 
     ##values at specific predefined points
     hotSpotsValues=f_spotfunction(all.noNorm, break_points, 
-        estimated_bin_size_1P, tag=tag)
+        tag=tag)
     ##local maxima and area in all the predefined regions
     maxAucValues=f_maximaAucfunction(all.noNorm, break_points, 
         estimated_bin_size_1P, tag=tag)
@@ -80,46 +81,8 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
     ## chip_dispersion_TES_-1000_variance 
 
     
-    variabilityValues=NULL
-    midpoint=as.integer(length(break_points)/2)+1
-    for (i in seq(as.integer(length(break_points)/2)))
-    {
-        start=which(
-            as.integer(row.names(all.noNorm)) == break_points[midpoint-i])
-        end=which(
-            as.integer(row.names(all.noNorm)) == break_points[midpoint+i])
-        interval=all.noNorm[start:end,]    
-
-        sdChip=cbind(
-            paste("chip","dispersion",tag, break_points[midpoint-i], 
-            "variance",sep="_"), var(interval[,1]))
-        varChip=cbind(
-            paste("chip","dispersion",tag, break_points[midpoint-i], 
-            "sd",sep="_"), sd(interval[,1]))
-        valueFrame=quantile(interval[,1])[1:4]
-        quantilesChip=cbind(
-            paste("chip", "dispersion", tag, break_points[midpoint-i], 
-            colnames(t(valueFrame)), sep="_"), (valueFrame))
-        rownames(quantilesChip)=NULL
-
-        sdInput=cbind(
-            paste("input","dispersion", tag, break_points[midpoint-i], 
-                "variance",sep="_"), var(interval[,1]))
-
-        varInput=cbind(
-            paste("input","dispersion", tag, break_points[midpoint-i],
-                "sd",sep="_"), sd(interval[,1]))
-        
-        valueFrame=quantile(interval[,2])[1:4]
-        quantilesInput=cbind(paste("input","dispersion", tag, 
-            break_points[midpoint-i], colnames(t(valueFrame)),sep="_"),
-            (valueFrame))
-        rownames(quantilesInput)=NULL
-
-        variabilityValues=rbind(variabilityValues, 
-            sdChip, varChip, quantilesChip, sdInput, varInput, quantilesInput)
-    }
-    colnames(variabilityValues)=c("Feature","Value")
+    variabilityValues=f_variabilityValues(all.noNorm, break_points, 
+        tag=tag)
 
     ##make plots
     colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
@@ -160,33 +123,14 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
         (t(chip[common_genes,])-t(input[common_genes,])),na.rm=TRUE)
 
     hotSpotsValuesNorm=f_spotfunctionNorm(all.Norm, break_points, 
-        estimated_bin_size_1P, tag=tag)
+         tag=tag)
 
     maxAucValuesNorm=f_maximaAucfunctionNorm(all.Norm, break_points, 
         estimated_bin_size_1P, tag=tag)
 
-    variabilityValuesNorm=NULL
-    midpoint=as.integer(length(break_points)/2)+1
-    for (i in seq(as.integer(length(break_points)/2)))
-    {
-        start=which(as.integer(names(all.Norm))==break_points[midpoint-i])
-        end=which(as.integer(names(all.Norm))==break_points[midpoint+i])
-        interval=all.Norm[start:end]    
-        sdNorm=cbind(paste("norm","dispersion",tag,break_points[midpoint-i],
-            "variance",sep="_"), var(interval))
-        varNorm=cbind(paste("norm","dispersion",tag,break_points[midpoint-i],
-            "sd",sep="_"), sd(interval))
-        valueFrame=quantile(interval)[1:4]
-        quantilesNorm=cbind(paste("norm","dispersion",tag, 
-            break_points[midpoint-i], 
-            colnames(t(valueFrame)),sep="_"), (valueFrame))
-        rownames(quantilesNorm)=NULL
+    variabilityValuesNorm=f_variabilityValuesNorm(all.noNorm, break_points, 
+         tag=tag)
 
-        variabilityValuesNorm=rbind(variabilityValuesNorm, 
-            sdNorm, varNorm, quantilesNorm)
-
-    }
-    colnames(variabilityValuesNorm)=c("Feature","Value")
 
     if (!is.null(savePlotPath))
     {
@@ -212,10 +156,14 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
         message("pdf saved under ",filename)
     }
 
-    result=NULL
-    result=rbind(hotSpotsValues,maxAucValues,variabilityValues, 
-        hotSpotsValuesNorm, maxAucValuesNorm, variabilityValuesNorm)
-
+    #convert values and features to one frame
+   
+    
+    p1=rbind(hotSpotsValues,maxAucValues)
+    p2=rbind(variabilityValues[[1]], variabilityValues[[2]],variabilityValues[[3]])
+    p3=rbind(hotSpotsValuesNorm, maxAucValuesNorm)
+    p4=rbind(variabilityValuesNorm[[1]], variabilityValuesNorm[[2]],variabilityValuesNorm[[3]])
+    result=data.frame(cbind(rbind(p1,p2),rbind(p3,p4)))
 
     if (debug)
     {
@@ -228,5 +176,4 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
 
 
     return(result)
-
 }

@@ -702,7 +702,8 @@ bs, nbins,separate.strands=FALSE, min.feature.size=3000,mc=1)
 ##gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,
 ##separate.strands=F,mc=1) {###binning of the frame
 f_t.get.gene.av.density_TSS <- function(tl_current,gdl,m=4020, nbins=201, 
-    separate.strands=FALSE,mc=1) {
+    separate.strands=FALSE,mc=1) 
+{
     ##binning of the frame
     chrl <- names(gdl);
     names(chrl) <- chrl;
@@ -760,7 +761,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current,gdl,m=4020, nbins=201,
 ##f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,
 ##m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) {
 f_t.get.gene.av.density_TES <- function(tl_current,gdl,m=4020, nbins=201, 
-    separate.strands=FALSE,mc=1) {
+    separate.strands=FALSE,mc=1) 
+{
 
     chrl <- names(gdl);
     names(chrl) <- chrl;
@@ -810,171 +812,199 @@ f_t.get.gene.av.density_TES <- function(tl_current,gdl,m=4020, nbins=201,
 
 
 #' @keywords internal 
-f_spotfunction=function(dframe,breaks, estimatedBinSize,tag="twopoints")
+f_spotfunction=function(dframe,breaks,tag)
 {
-    hotSpots=NULL###takes values at different predefined points
-    for (i  in breaks)
-    {
-        message(i)
-        if (length(which(as.integer(row.names(dframe))==i))<1)
-        {
-            x_bin= which(as.integer(row.names(dframe))==i+estimatedBinSize/2)
-        }else{
-            x_bin= which(as.integer(row.names(dframe))==i)
-        }
-    hotSpots=rbind(hotSpots,c(i, dframe[x_bin,][1], dframe[x_bin,][2]))
-    }
-    ##save hotSpots values  ChiP and input
-    nname=paste("chip","hotSpots",tag,hotSpots[,1],sep="_")
-    hotSpotsChip=cbind(nname,round(hotSpots[,2],3))
-    ## chip_hotSpots_twopoints_-2000 chip_hotSpots_twopoints_0 
-    nname=paste("input","hotSpots",tag,hotSpots[,1],sep="_")
-    hotSpotsInput=cbind(nname,round(hotSpots[,3],3))
-    ##input_hotSpots_twopoints_-2000  input_hotSpots_twopoints_0 
-    result=data.frame(rbind(hotSpotsChip,hotSpotsInput))
-    colnames(result)=c("Feature","Value")
-    return(result)
+    #hotSpots=NULL###takes values at different predefined points
+    fframe=dframe[rownames(dframe) %in% breaks,]
+    rownames(fframe)=c(paste("hotSpots",tag,breaks,sep="_"))    
+    return(fframe)
+}
+   
+#' @keywords internal 
+f_spotfunctionNorm=function(dframe,breaks,tag)
+{
+    newframe= data.frame(dframe)
+    Norm=newframe[rownames(newframe) %in% breaks,]
+    fframe=data.frame(breaks,Norm)
+    rownames(fframe)=c(paste("hotSpots",tag,breaks,sep="_"))
+    fframe$breaks=NULL
+    
+    return(fframe)
 }
 
-#' @keywords internal 
-f_spotfunctionNorm=function(dframe,breaks, estBinSize,tag="norm")
-{
-
-    hotSpotsNorm=NULL###takes values at different predefined points
-    for (i  in breaks)
-    {
-        if (length(which(as.integer(names(dframe))==i))<1)
-        {
-            x_bin= which(as.integer(names(dframe))==i+estBinSize/2)
-        }else{
-            x_bin= which(as.integer(names(dframe))==i)
-        }
-    hotSpotsNorm=rbind(hotSpotsNorm,c(i, dframe[x_bin][1]))
-    }
-    ##save hotSpots values for normalized profile
-    nameHot=paste("norm","hotSpots",tag,hotSpotsNorm[,1],sep="_")
-    hotSpotsN=data.frame(cbind(nameHot,round(hotSpotsNorm[,2],3)))
-    ##norm_hotSpots_twopoints_-2000 
-    colnames(hotSpotsN)=c("Feature","Value")
-    return(hotSpotsN)
-}
 
 #' @keywords internal 
-f_maximaAucfunction=function(dframe,breaks, estBinSize,tag="twopoint")
+f_maximaAucfunction=function(dframe,breaks, estBinSize,tag)
 {
     ##local maxima and area in all the predefined regions
-    settings=f_metaGeneDefinition(selection="Settings")
-    estimated_bin_size_2P=settings$estimated_bin_size_2P
+    #settings=f_metaGeneDefinition(selection="Settings")
+    #estimated_bin_size_2P=settings$estimated_bin_size_2P
+    dframe=as.data.frame(dframe)
+    
+    localMaxima_auc=lapply(seq(length(breaks)-1), FUN=function(i){
+        xi=breaks[i]
+        xj=breaks[i+1]
+        sub_set=dframe [which((as.numeric(rownames(dframe))<=xj)&(as.numeric(rownames(dframe))>=xi)),]
+        l1=max(sub_set$Chip)
+        l2=max(sub_set$Input)
+        chip_frame=cbind(i,"chip",rownames(sub_set[which(sub_set$Chip==l1),]), 
+            l1, sum((sub_set$Chip)*estBinSize))
+        input_frame=cbind("input",rownames(sub_set[which(sub_set$Input==l2),]),
+            l2, sum((sub_set$Input)*estBinSize))
+        tt=(cbind(chip_frame,input_frame))
+        
+        return(tt)
+    })
 
-    localMaxima_auc=NULL
-    for (i in seq(length(breaks)-1))
-    {
-        if (length(which(as.integer(row.names(dframe))==breaks[i]))<1)
-        {
-            xi= which(as.integer(row.names(dframe))==breaks[i]+estBinSize/2)
-        }else{
-            xi=which(as.integer(row.names(dframe))==breaks[i])
-        }
-        if (length(which(as.integer(row.names(dframe))==breaks[i+1]))<1){
-            xj=which(as.integer(row.names(dframe))==breaks[i+1]+estBinSize/2)
-        }else{
-            xj=which(as.integer(row.names(dframe))==breaks[i+1])
-        }
 
-        sub_set=dframe[xi:xj,]
-        l1=max(sub_set[,1])
-        l2=max(sub_set[,2])
-        message(breaks[i])
-        localMaxima_auc=rbind(localMaxima_auc,
-            c(rownames(sub_set)[which(sub_set[,1]==l1)], 
-            l1, sum((sub_set[,1])*estBinSize),
-            rownames(sub_set)[which(sub_set[,2]==l2)],
-            l2,sum((sub_set[,2])*estimated_bin_size_2P)))
-    }
+    if (tag=="twopoint")
+    {fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=5, byrow=T))}else{
+    fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=6, byrow=T))}
+    colnames(fframe)=c("i","chip","chipX","chipY","chipAUC","input","inputX","inputY","inputAUC")
 
-    ##save x and y coordinate for local Maxima ChiP
-    xvaluesChip=cbind(paste("chip","localMax",tag,
-        rownames(data.frame(localMaxima_auc)),"x",sep="_"),
-        round(as.numeric(localMaxima_auc[,1]),3))
-        ##chip_localMax_twopoint_1_x 
-    yvaluesChip=cbind(paste("chip","localMax",tag,
-        rownames(data.frame(localMaxima_auc)),"y",sep="_"),
-        round(as.numeric(localMaxima_auc[,2]),3))
-        ##chip_localMax_twopoint_1_y 
-    ##save x and y coordinate for local Maxima Input
-    xvaluesInput=cbind(paste("input","localMax",tag,
-        rownames(data.frame(localMaxima_auc)),"x",sep="_"),
-        round(as.numeric(localMaxima_auc[,4]),3))##input_localMax_twopoint_1_x 
-    yvaluesInput=cbind(paste("input","localMax",tag,
-        rownames(data.frame(localMaxima_auc)),"y",sep="_"),
-        round(as.numeric(localMaxima_auc[,5]),3))##input_localMax_twopoint_1_y  
+    ##save x-coordiante for max value for Chip and Input
+    xFrame=data.frame(as.numeric(as.character(fframe$chipX)),as.numeric(as.character(fframe$inputX)))
+    colnames(xFrame)=c("Chip","Input")
+    rownames(xFrame)= paste("localMax",tag,fframe$i,"x",sep="_")
 
+    ##save y-coordiante for max value for Chip and Input
+    yFrame=data.frame(as.numeric(as.character(fframe$chipY)),as.numeric(as.character(fframe$inputY)))
+    colnames(yFrame)=c("Chip","Input")
+    rownames(yFrame)= paste("localMax",tag,fframe$i,"y",sep="_")
+    
     ##save auc for Chip and Input
-    aucChip=cbind(paste("chip","auc",tag,
-        rownames(data.frame(localMaxima_auc)),sep="_"),
-        round(as.numeric(localMaxima_auc[,3]),3))##chip_auc_twopoint_1 
-    aucInput=cbind(paste("input","auc",tag,
-        rownames(data.frame(localMaxima_auc)),sep="_"),
-        round(as.numeric(localMaxima_auc[,6]),3))##ipnut_auc_twopoint_1 
-
-    resultsnoNorm=NULL
-    resultsnoNorm= data.frame(rbind(xvaluesChip, 
-        yvaluesChip, 
-        xvaluesInput, 
-        yvaluesInput,
-        aucChip,
-        aucInput))
-    colnames(resultsnoNorm)=c("Feature","Value")
-    return(resultsnoNorm)
+    aucFrame=data.frame(as.numeric(as.character(fframe$chipAUC)),as.numeric(as.character(fframe$inputAUC)))
+    colnames(aucFrame)=c("Chip","Input")
+    rownames(aucFrame)= paste("auc",tag,fframe$i,"x",sep="_")
+    
+    
+    finalReturn=NULL
+    finalReturn= data.frame(rbind(xFrame,yFrame,aucFrame))
+    
+    return(finalReturn)
 }
+
 
 #' @keywords internal 
-f_maximaAucfunctionNorm=function(dframe,breaks, estimatedBinSize,tag="norm")
+f_maximaAucfunctionNorm=function(dframe,breaks, estBinSize,tag)
 {
-    ##local maxima and area in all the predefined regions
-    localMaxima_aucNorm=NULL
-    for (i in seq(length(breaks)-1))
-    {
-        if (length(which(as.integer(names(dframe))==breaks[i]))<1){
-            xi=which(as.integer(names(dframe))==breaks[i]+estimatedBinSize/2)
-        }else{
-            xi=which(as.integer(names(dframe))==breaks[i])
-        }
-        if (length(which(as.integer(names(dframe))==breaks[i+1]))<1){
-            xj=which(as.integer(names(dframe))==breaks[i+1]+estimatedBinSize/2)
-        }else{
-            xj=which(as.integer(names(dframe))==breaks[i+1])
-        }
 
-        sub_set= data.frame(dframe[xi:xj])
-        l1=max(sub_set)
-        localMaxima_aucNorm=rbind(localMaxima_aucNorm,
-            c(rownames(sub_set)[which(sub_set[,1]==l1)], 
-            l1, sum((sub_set)*estimatedBinSize)))
+    newframe=as.data.frame(dframe)
+    newframe$x=rownames(newframe)
+    colnames(newframe)=c("Norm","break")
+    
+    localMaxima_auc=lapply(seq(length(breaks)-1), FUN=function(i){
+        #print(i)
+        xi=breaks[i]
+        xj=breaks[i+1]
+        sub_set=newframe [which((as.numeric(rownames(newframe))<=xj)&(as.numeric(rownames(newframe))>=xi)),]
+        l1=max(sub_set$Norm)
+        
+        norm_frame=cbind(i,"norm",rownames(sub_set[which(sub_set$Norm==l1),]), 
+            l1, sum((sub_set$Norm)*estBinSize))
+        return(norm_frame)
+    })
+
+    if (tag=="twopoints")
+    {   fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=5, byrow=T))
+    }else{ 
+        fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=6, byrow=T))
     }
-    ##save x and y coordinate for local Maxima Normalized profile
-    xvaluesNorm=cbind(paste("norm","localMax",tag,
-        rownames(data.frame(localMaxima_aucNorm)),"x",sep="_"),
-        round(as.numeric(localMaxima_aucNorm[,1]),3))
-    ##norm_localMax_twopoints_1_x
-    yvaluesNorm=cbind(paste("norm","localMax",tag,
-        rownames(data.frame(localMaxima_aucNorm)),"y",sep="_"),
-        round(as.numeric(localMaxima_aucNorm[,2]),3))
-    ##norm_localMax_twopoints_1_y
-    ##save auc for normalized profile
-    aucNorm=cbind(paste("norm","auc",tag,
-        rownames(data.frame(localMaxima_aucNorm)),sep="_"),
-        round(as.numeric(localMaxima_aucNorm[,3]),3))
-    ##norm_auc_twopoints_1 
+    colnames(fframe)=c("i","norm","X","Y","AUC")
 
-    resultsNorm=NULL
-    resultsNorm= data.frame(rbind(xvaluesNorm,yvaluesNorm,aucNorm))
-    colnames(resultsNorm)=c("Feature","Value")
-    return(resultsNorm)
+    ##save x-coordiante for max value for Chip and Input
+    xFrame=data.frame(as.numeric(as.character(fframe$X)))
+    colnames(xFrame)=c("Norm")
+    rownames(xFrame)= paste("localMax",tag,fframe$i,"x",sep="_")
+
+    ##save y-coordiante for max value for Chip and Input
+    yFrame=data.frame(as.numeric(as.character(fframe$Y)))
+    colnames(yFrame)=c("Norm")
+    rownames(yFrame)= paste("localMax",tag,fframe$i,"y",sep="_")
+    
+    ##save auc for Chip and Input
+    aucFrame=data.frame(as.numeric(as.character(fframe$AUC)))
+    colnames(aucFrame)=c("Norm")
+    rownames(aucFrame)= paste("auc",tag,fframe$i,"x",sep="_")
+    
+    
+    finalReturn=NULL
+    finalReturn= data.frame(rbind(xFrame,yFrame,aucFrame))
+    return(finalReturn)
 }
 
 
 
+
+
+#' @keywords internal 
+#calculating variance, sd and qartiles of the value ditribution in different intervals
+f_variabilityValues<-function(dframe,breaks,tag)
+{
+    variabilityValues=lapply(breaks[1:3], FUN=function(start){
+       
+        print(start)
+        end=abs(start)
+        sub_set=dframe[which((as.numeric(rownames(dframe))<=end)&(as.numeric(rownames(dframe))>=start)),]
+        sub_set=data.frame(sub_set)
+        name= paste("dispersion",tag, start, "variance",sep="_")
+        varI=var(sub_set$Input)
+        varC=var(sub_set$Chip)
+        name= c(name,paste("dispersion",tag, start, "sd",sep="_"))
+        sdI=sd(sub_set$Input)
+        sdC=sd(sub_set$Chip)
+     
+        valueFrameI=data.frame(quantile(sub_set$Input)[1:4])
+        colnames(valueFrameI)=c("value")
+        valueFrameC=data.frame(quantile(sub_set$Chip)[1:4])
+        colnames(valueFrameC)=c("value")
+        
+        name=c(name,paste("dispersion", tag,start, 
+            rownames(valueFrameI), sep="_"))
+       
+        back=data.frame(cbind(c(varI,sdI,valueFrameI$value),
+            c(varC,sdC,valueFrameC$value)))
+
+        colnames(back)=c("Input","Chip")
+        rownames(back)=c(name)
+        return(back)
+    })
+    return(variabilityValues)
+}
+
+
+#' @keywords internal 
+#calculating variance, sd and qartiles of the value ditribution in different intervals
+f_variabilityValuesNorm<-function(dframe,breaks, tag)
+{
+
+    newframe=as.data.frame(dframe)
+    newframe$x=rownames(newframe)
+    colnames(newframe)=c("Norm","break")
+    variabilityValues=lapply(breaks[1:3], FUN=function(start){
+       
+        print(start)
+        end=abs(start)
+        sub_set=newframe[which((as.numeric(rownames(newframe))<=end)&(as.numeric(rownames(newframe))>=start)),]
+        sub_set=data.frame(sub_set)
+        name= paste("dispersion",tag, start, "variance",sep="_")
+        var=var(sub_set$Norm)
+        name= c(name,paste("dispersion",tag, start, "sd",sep="_"))
+        sd=sd(sub_set$Norm)
+    
+        valueFrame=data.frame(quantile(sub_set$Norm)[1:4])
+        colnames(valueFrame)=c("value")
+        name=c(name,paste("dispersion", tag,start, 
+            rownames(valueFrame), sep="_"))
+
+        back=data.frame(cbind(c(var,sd,valueFrame$value)))
+
+        colnames(back)=c("Norm")
+        rownames(back)=c(name)
+        return(back)
+    })
+    return(variabilityValues)
+}
 
 
 #####################################################################

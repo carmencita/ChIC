@@ -50,15 +50,15 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
     input.noNorm<-colMeans(input,na.rm=TRUE)
     chip.noNorm <- colMeans(chip,na.rm=TRUE)
     all.noNorm<-cbind(chip.noNorm, input.noNorm)
-    colnames(all.noNorm)<-c("ChIP","Input")
+    colnames(all.noNorm)<-c("Chip","Input")
 
 
     ##values at specific predefined points
     hotSpotsValues=f_spotfunction(all.noNorm, break_points_2P, 
-        estimated_bin_size_2P, tag="twopoints")
+        tag="twopoints")
     ##local maxima and area in all the predefined regions
-    maxAucValues=f_maximaAucfunction(all.noNorm, break_points_2P, 
-        estimated_bin_size_2P, tag="twopoint")
+    maxAucValues=f_maximaAucfunction(all.noNorm, breaks=break_points_2P, 
+        estBinSize=estimated_bin_size_2P, tag="twopoint")
 
     ##make plots
     colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
@@ -96,10 +96,10 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
         t(t(chip[common_genes,])-t(input[common_genes,])), 
         na.rm=TRUE)
 
-    hotSpotsValuesNorm<-f_spotfunctionNorm(frameNormalized, break_points_2P, 
-        estimated_bin_size_2P, tag="twopoints")
-    maxAucValuesNorm<-f_maximaAucfunctionNorm(frameNormalized, break_points_2P, 
-        estimated_bin_size_2P, tag="twopoints")
+    hotSpotsValuesNorm<-f_spotfunctionNorm(frameNormalized, breaks=break_points_2P, 
+        tag="twopoints")
+    maxAucValuesNorm<-f_maximaAucfunctionNorm(frameNormalized,breaks=break_points_2P, 
+        estBinSize=estimated_bin_size_2P, tag="twopoints")
 
     if (!is.null(savePlotPath))
     {
@@ -127,18 +127,19 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
         message("pdf saved under ",filename)
     }
 
-    finalValues=rbind(hotSpotsValues,
-        maxAucValues, hotSpotsValuesNorm, maxAucValuesNorm)
+    p1=rbind(hotSpotsValues,maxAucValues)
+    p3=rbind(hotSpotsValuesNorm, maxAucValuesNorm)
+    result=data.frame(cbind(p1,p3)) 
 
     if (debug)
     {
         message("Debugging mode ON")
         outname=file.path(getwd(), "twopoints.result")
         file.remove(outname)
-        write.table(finalValues,file=outname,
+        write.table(result,file=outname,
             row.names = FALSE, col.names=FALSE, append=TRUE, quote = FALSE)
     }
 
-    return(finalValues)
+    return(result)
     
 }
