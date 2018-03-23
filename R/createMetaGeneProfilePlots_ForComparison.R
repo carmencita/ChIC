@@ -227,7 +227,7 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
             profileSet=allChrom$RNAPol2
             tag="(RNAPol2 class)"
         }
-        print(tag)
+        message(tag)
         #get values for chrommark
         #alias=paste("CC",metricToBePlotted,sep="_")
         alias=NULL
@@ -249,8 +249,8 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
             title=paste(metricToBePlotted,"\n", chrommark,tag,set=" "),
             currentValue,savePlotPath)
     }else{
-        print("Chromatin marks has to be one of the following:")
-        print(Hlist)
+        warning("Chromatin marks has to be one of the following:")
+        message(paste(Hlist," "))
     }
 }
 
@@ -297,7 +297,7 @@ plotPredictionScore<-function(chrommark="H3K36me3", features_cc,
     features_local_scaled, savePlotPath=NULL)
 {
     #library(randomForest)
-    print("load profile classes...")
+    message("load profile classes...")
     
     allChrom=f_metaGeneDefinition("Classes")
     rf_models=NULL

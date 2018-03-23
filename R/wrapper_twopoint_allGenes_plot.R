@@ -39,7 +39,7 @@
 qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL, 
     debug=FALSE)
 {
-    print("load metagene setting")
+    message("load metagene setting")
     settings=f_metaGeneDefinition(selection="Settings")
     psc <- 1;## pseudocount## required to avoid log2 of 0
     break_points_2P=settings$break_points_2P
@@ -84,7 +84,7 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under ",filename,sep=""))
+        message("pdf saved under ",filename)
     }
 
     ####################
@@ -124,7 +124,7 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under ",filename,sep=""))
+        message("pdf saved under ",filename)
     }
 
     finalValues=rbind(hotSpotsValues,
@@ -132,9 +132,8 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
 
     if (debug)
     {
-        print("Debugging mode ON")
+        message("Debugging mode ON")
         outname=file.path(getwd(), "twopoints.result")
-        print(outname)
         file.remove(outname)
         write.table(finalValues,file=outname,
             row.names = FALSE, col.names=FALSE, append=TRUE, quote = FALSE)

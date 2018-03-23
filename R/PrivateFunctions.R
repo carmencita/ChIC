@@ -110,7 +110,7 @@ f_readFile=function(filename, reads.aligner.type)
     
     ##readCount=sum(sapply(data$tags, length))
     readCount=sum(unlist(lapply(data$tags, length)))
-    print(readCount)
+    message(readCount)
 
     return(data)
 }
@@ -141,25 +141,25 @@ f_removeLocalTagAnomalies=function(chip, input,
     chip_b.characteristics, input_b.characteristics,
     remove.local.tag.anomalies, select.informative.tags)
 {
-    print("Filter tags")
+    message("Filter tags")
     
     if (select.informative.tags) 
     {
-        print("select.informative.tags filter")
+        message("select.informative.tags filter")
         chipSelected<-select.informative.tags(chip,chip_b.characteristics)
         inputSelected<-select.informative.tags(input,input_b.characteristics)
     }else{
-        print("SKIP select.informative.tags filter")
+        message("SKIP select.informative.tags filter")
         chipSelected<-chip$tags
         inputSelected<-input$tags
     }
     if (remove.local.tag.anomalies) {
-        print("remove.local.tag.anomalies filter")
+        message("remove.local.tag.anomalies filter")
         ## restrict or remove singular positions with very high tag counts
         chipSelected <- remove.local.tag.anomalies(chipSelected)
         inputSelected <- remove.local.tag.anomalies(inputSelected)
     }else{
-        print("SKIP remove.local.tag.anomalies filter")
+        message("SKIP remove.local.tag.anomalies filter")
         inputSelected<-input$tags
         chipSelected<-chip$tags
     }
@@ -179,7 +179,7 @@ f_tagDensity=function(data,tag.shift,chromDef,mc=1)
     smoothingBandwidth<-50
     
     ## density distribution for data
-    print("Smooth tag density")
+    message("Smooth tag density")
     ##tag smoothing, (sum of tags in all chr)/1e6
     ts <- sum(unlist(lapply(data,length)))/1e6
     ###parallelisation
@@ -226,15 +226,22 @@ f_tagDensity=function(data,tag.shift,chromDef,mc=1)
 f_shortenFrame=function(smothDens)
 {
     ##shorten frame with cumulative distribution
-    new=NULL
-    chrl=names(smothDens)
-    for (i in chrl)
-    {
-        ##print(i)
-        ###appending tags and quality elements of all inputs to newControl
-        new[[i]]$x=smothDens[[i]]$x[seq.int(1, length(smothDens[[i]]$x), 6)]
-        new[[i]]$y=smothDens[[i]]$y[seq.int(1, length(smothDens[[i]]$y), 6)]
-    }
+    #new=NULL
+    #chrl=names(smothDens)
+    new=lapply(smothDens,function(chromelement){
+        tt=NULL
+        tt$x=chromelement$x[seq.int(1, length(chromelement$x), 6)]
+        tt$y=chromelement$y[seq.int(1, length(chromelement$y), 6)]
+        return(tt)
+    })
+        
+    # for (i in chrl)
+    # {
+    #     ##print(i)
+    #     ###appending tags and quality elements of all inputs to newControl
+    #     new[[i]]$x=smothDens[[i]]$x[seq.int(1, length(smothDens[[i]]$x), 6)]
+    #     new[[i]]$y=smothDens[[i]]$y[seq.int(1, length(smothDens[[i]]$y), 6)]
+    # }
     return(new)
 }
 
@@ -282,7 +289,7 @@ f_fingerPrintPlot=function(cumChip,cumInput,savePlotPath=NULL)
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under",filename,sep=" "))
+        message("pdf saved under ",filename)
 
     }
 }
@@ -524,7 +531,7 @@ f_metaGeneDefinition=function(selection="Settings")
     ### %%% need to use this for one point scaling estimated bin size....
     estimated_bin_size_1P<-up_downStream/predefnum_bins_1P
         
-    print(paste("Selection",selection,sep=""))
+    message("Selection ",selection)
     if (selection=="Settings")
     {
         settings=NULL
@@ -581,7 +588,7 @@ masked_t.get.gene.av.density <- function(chipTags_current,gdl,mc=1)
 {
     settings=NULL
     settings=f_metaGeneDefinition(selection="Settings")
-    print("loading metaGene settings")
+    message("loading metaGene settings")
     ##print(str(settings))
     result=f_t.get.gene.av.density (chipTags_current,gdl=gdl, 
         im=settings$inner_margin, 
@@ -598,7 +605,7 @@ masked_getGeneAvDensity_TES_TSS<-function(smoothed.density,gdl,tag="TSS",mc=1)
 {
     settings=NULL
     settings=f_metaGeneDefinition(selection="Settings")
-    print("loading metaGene settings")
+    message("loading metaGene settings")
     ##print(str(settings))
     if (tag=="TSS")
     {
@@ -606,13 +613,13 @@ masked_getGeneAvDensity_TES_TSS<-function(smoothed.density,gdl,tag="TSS",mc=1)
         gdl=gdl,
         m=settings$up_downStream, 
         nbins=settings$predefnum_bins_1P,separate.strands=FALSE,mc=mc)
-        print("TSS")
+        message("TSS")
     }else{
         result=f_t.get.gene.av.density_TES(tl_current=smoothed.density,
         gdl=gdl,
         m=settings$up_downStream, nbins=settings$predefnum_bins_1P,
         separate.strands=FALSE,mc=mc)
-        print("TES")
+        message("TES")
     }
     return(result)
 }
@@ -645,9 +652,9 @@ bs, nbins,separate.strands=FALSE, min.feature.size=3000,mc=1)
         BPPARAM = BiocParallel::MulticoreParam(workers=mc),
         FUN=function(chr) 
         {
-            print(chr)
+            #print(chr)
             nsi <- gdl[[chr]]$strand=="-";
-            print(length(nsi))
+            #print(length(nsi))
             current_gene_names<-gdl[[chr]]$geneSymbol
             if ((sum(!nsi)>0)) 
             {
@@ -808,7 +815,7 @@ f_spotfunction=function(dframe,breaks, estimatedBinSize,tag="twopoints")
     hotSpots=NULL###takes values at different predefined points
     for (i  in breaks)
     {
-        print(i)
+        message(i)
         if (length(which(as.integer(row.names(dframe))==i))<1)
         {
             x_bin= which(as.integer(row.names(dframe))==i+estimatedBinSize/2)
@@ -877,7 +884,7 @@ f_maximaAucfunction=function(dframe,breaks, estBinSize,tag="twopoint")
         sub_set=dframe[xi:xj,]
         l1=max(sub_set[,1])
         l2=max(sub_set[,2])
-        print(breaks[i])
+        message(breaks[i])
         localMaxima_auc=rbind(localMaxima_auc,
             c(rownames(sub_set)[which(sub_set[,1]==l1)], 
             l1, sum((sub_set[,1])*estBinSize),
@@ -982,7 +989,7 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO",
     absoluteMinMax, maintitel="title",ylab="mean of log2 tag density",
     savePlotPath=NULL)
 {
-    print("Load settings")
+    message("Load settings")
     settings=f_metaGeneDefinition(selection="Settings")
 
     if (!is.null(savePlotPath))
@@ -1039,7 +1046,7 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO",
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under",filename,sep=" "))
+        message("pdf saved under",filename)
     }
 }
 
@@ -1085,6 +1092,6 @@ f_plotValueDistribution = function(compendium, title,
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under",filename,sep=" "))
+        message("pdf saved under ",filename)
     }    
 }

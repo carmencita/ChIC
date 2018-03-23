@@ -67,13 +67,13 @@
 qualityScores_EM<-function(chipName, inputName, read_length, 
     annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
 {
-    print(paste("reading bam files",sep=" "))
+    message("reading bam files")
     chip.data=readBamFile(chipName)
     input.data=readBamFile(inputName)
 
     ##plot and calculate cross correlation and phantom characteristics
     ##for the ChIP
-    print("calculate binding characteristics ChIP")
+    message("calculate binding characteristics ChIP")
     ## cross_correlation parameters
     estimating_fragment_length_range<-c(0,500)
     estimating_fragment_length_bin<-5
@@ -86,7 +86,7 @@ qualityScores_EM<-function(chipName, inputName, read_length,
         srange=estimating_fragment_length_range, 
         bin=estimating_fragment_length_bin,accept.all.tags=TRUE)
 
-    print("calculate cross correlation QC-metrics for the Chip")
+    message("calculate cross correlation QC-metrics for the Chip")
     crossvalues_Chip<- getCrossCorrelationScores(chip.data, 
         chip_binding.characteristics, 
         read_length=read_length, 
@@ -96,13 +96,13 @@ qualityScores_EM<-function(chipName, inputName, read_length,
 
     ##plot and calculate cross correlation and phantom characteristics 
     ##for the input
-    print("calculate binding characteristics Input")
+    message("calculate binding characteristics Input")
     
     input_binding.characteristics<-spp::get.binding.characteristics(input.data,
         srange=estimating_fragment_length_range, 
         bin=estimating_fragment_length_bin, accept.all.tags=TRUE)
 
-    print("calculate cross correlation QC-metrics for the Input")
+    message("calculate cross correlation QC-metrics for the Input")
     crossvalues_Input=getCrossCorrelationScores(input.data, 
         input_binding.characteristics, read_length=read_length, 
         savePlotPath=savePlotPath,plotname="Input")
@@ -229,7 +229,7 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
     PhPeakbin<-5
 
     ##step 1.2: Phantom peak and cross-correlation
-    print("Phantom peak and cross-correlation")
+    message("Phantom peak and cross-correlation")
     phChar<-spp::get.binding.characteristics(data, 
         srange=PhantomPeak_range, bin=PhPeakbin, accept.all.tags=TRUE)
 
@@ -256,7 +256,7 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
         min_cc=min_cc, peak=phChar$peak, 
         read_length=read_length)
     
-    print("smooting...")
+    message("smooting...")
     ##2.0 smoothed cross correlation
     ##ss is subset selection
     ss<- which(bchar$cross.correlation$x %in% ccRangeSubset) 
@@ -273,10 +273,10 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
     ## plot cross correlation curve with smoothing
 
     strandShift<-bchar$peak$x
-    print("Check strandshift...")
+    message("Check strandshift...")
     newShift=f_getCustomStrandShift(x=bchar$cross.correlation$x, 
         y=bindCharCC_Ysmoothed)
-    print(paste("newShift  is ",newShift,sep=""))
+    message("newShift  is ",newShift)
     oldShift=NULL
     if (newShift!="ERROR")
     {
@@ -284,13 +284,13 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
         {
             oldShift=strandShift
             strandShift=newShift
-            print("Strandshift is substituted")
+            message("Strandshift is substituted")
         }
     }else{
-        print(paste("strandshift remains the same...",sep=""))
+        message("strandshift remains the same...")
     }
     ##2.2 phantom peak with smoothing
-    print("Phantom peak with smoothing")
+    message("Phantom peak with smoothing")
     ##phantom.characteristics<-phantom.characteristics
     ##select a subset of cross correlation profile where we expect the peak
     ss_forPeakcheck<- which(phChar$cross.correlation$x %in% ccRangeSubset)
@@ -340,7 +340,7 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
     }
 
     ## plot cross correlation curve with smoothing
-    print("plot cross correlation curve with smoothing")
+    message("plot cross correlation curve with smoothing")
     par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
     plot(phChar$cross.correlation,type='l',xlab="strand shift",
         ylab="cross-correlation",main="CrossCorrelation Profile")
@@ -373,7 +373,7 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under",filename,sep=" "))
+        message("pdf saved under",filename)
     }
 
     phantomScores= list(
@@ -387,7 +387,7 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
         "CC_C."=round(phScores$min_cc$y,3))
     
     ##4 NRF calculation
-    print("NRF calculation")
+    message("NRF calculation")
     ##ALL_TAGS<-sum(sapply(data$tags, length))
     ##UNIQUE_TAGS<-sum(sapply(lapply(data$tags, unique), length))
     ##UNIQUE_TAGS_nostrand<-sum(sapply(lapply(data$tags, FUN=function(x) 
@@ -403,7 +403,7 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
     NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
 
     ## to compensate for lib size differences
-    print("compensate for lib size differences")
+    message("compensate for lib size differences")
     ##nomi<-rep(names(data$tags), sapply(data$tags, length))
     nomi<-rep(names(data$tags), lapply(data$tags, length))
 
@@ -524,7 +524,7 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
     ##6 enrichment broad regions
     ##zthresh_list<-c(3,4)
     current_window_size<-1000
-    print("Broad regions of enrichment")
+    message("Broad regions of enrichment")
     ##for (current_window_size in window_sizes_list) 
     ##{
     ##for (current_zthresh in zthresh_list) 
@@ -556,16 +556,16 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
     chip.data12<-chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
     input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
 
-    print("Binding sites detection fdr")
+    message("Binding sites detection fdr")
     fdr <- 1e-2
     detection.window.halfsize <- tag.shift
-    print("Window Tag Density method - WTD")
+    message("Window Tag Density method - WTD")
     bp_FDR <- spp::find.binding.positions(signal.data=chip.data12, 
         control.data=input.data12, fdr=fdr, whs=detection.window.halfsize*2, 
         tag.count.whs=detection.window.halfsize, cluster=NULL)
     FDR_detect<-sum(unlist(lapply(bp_FDR$npl,function(d) length(d$x))))
         
-    print("Binding sites detection evalue")
+    message("Binding sites detection evalue")
     eval<-10
     bp_eval <- spp::find.binding.positions(signal.data=chip.data12, 
         control.data=input.data12, e.value=eval, 
@@ -727,7 +727,7 @@ qualityScores_GM<-function(densityChip, densityInput,
 {
 
     ##shorten frame and reduce resolution
-    print("shorten frame")
+    message("shorten frame")
     chip.smoothed.density=f_shortenFrame(densityChip)
     input.smoothed.density=f_shortenFrame(densityInput)
     
@@ -741,7 +741,7 @@ qualityScores_GM<-function(densityChip, densityInput,
     }))
 
     ##create cumulative function for chip and input
-    print("Calculate cumsum")
+    message("Calculate cumsum")
     cumSumChip=f_sortAndBinning(chip)
     cumSumInput=f_sortAndBinning(input)
 
@@ -840,7 +840,7 @@ qualityScores_GM<-function(densityChip, densityInput,
 createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput, 
     tag.shift, annotationID="hg19", debug=FALSE, mc=1)
 {
-    print("Load gene annotation")
+    message("Load gene annotation")
     ##require(chic.data)
     if (annotationID=="hg19"){
         hg19_refseq_genes_filtered_granges=NULL
@@ -867,16 +867,16 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     ##two.point.scaling
     ##create scaled metageneprofile
     ##input
-    print("Calculating scaled metageneprofile ...")
+    message("Calculating scaled metageneprofile ...")
     smoothed.densityInput=list(td=smoothed.densityInput)
-    print("process input")
+    message("process input")
     
 
     binned_Input = masked_t.get.gene.av.density(smoothed.densityInput, 
         gdl=annotatedGenesPerChr, mc=mc)
     ##Chip
     smoothed.densityChip=list(td=smoothed.densityChip)
-    print("process ChIP")
+    message("process ChIP")
     binned_Chip= masked_t.get.gene.av.density(smoothed.densityChip,
         gdl=annotatedGenesPerChr,mc=mc)
 
@@ -884,8 +884,8 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 
     ##one.point.scaling
     ##create non-scaled metageneprofile for TSS
-    print("Creating non-scaled metageneprofiles...")
-    print("...TSS")
+    message("Creating non-scaled metageneprofiles...")
+    message("...TSS")
 
     binnedInput_TSS<-masked_getGeneAvDensity_TES_TSS(smoothed.densityInput, 
         gdl=annotatedGenesPerChr,mc=mc,tag="TSS")
@@ -895,7 +895,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 
     ##one.point.scaling
     ##create non-scaled metageneprofile for TES
-    print("...TES")
+    message("...TES")
     binnedInput_TES<-masked_getGeneAvDensity_TES_TSS(smoothed.densityInput,
         gdl=annotatedGenesPerChr,mc=mc,tag="TES")
     binnedChip_TES<-masked_getGeneAvDensity_TES_TSS(smoothed.densityChip,

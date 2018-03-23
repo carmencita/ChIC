@@ -48,7 +48,7 @@
 qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS", 
     savePlotPath=NULL, debug=FALSE)
 {    
-    print("load metagene setting")
+    message("load metagene setting")
     #load("Settings.RData")
     settings=f_metaGeneDefinition(selection="Settings")
     break_points=settings$break_points
@@ -149,7 +149,7 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under ",filename,sep=""))
+        message("pdf saved under ",filename)
     }
 
 
@@ -209,7 +209,7 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
     if (!is.null(savePlotPath))
     {
         dev.off()
-        print(paste("pdf saved under ",filename,sep=""))
+        message("pdf saved under ",filename)
     }
 
     result=NULL
@@ -219,7 +219,7 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
 
     if (debug)
     {
-        print("Debugging mode ON")
+        message("Debugging mode ON")
         outname=file.path(getwd(), paste(tag,"onepoints.result",sep="_"))
         file.remove(outname)
         write.table(result,file=outname,row.names = FALSE, 
