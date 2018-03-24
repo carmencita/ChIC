@@ -17,10 +17,8 @@
 #'
 #' qualityScores_LMgenebody
 #'
-#' @param binnedChip metagene-object of TSS or TES returned 
-#' by createMetageneProfile() for the ChIP 
-#' @param binnedInput metagene-object of TSS or TES returned 
-#' by createMetageneProfile() for the Input
+#' @param data metagene-list for input and chip sample 
+#' of the genebody profile returned by createMetageneProfile()
 #' @param savePlotPath if set the plot will be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
@@ -31,14 +29,16 @@
 #'
 #'@examples
 #' print("Example")
-#' #geneBody_Plot=qualityScores_LMgenebody(Meta_Result$twopoint$chip,
-#' #Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
-#' #completeListOfValues=append(completeListOfValues,geneBody_Plot)
+#' data(geneBodyProfile)
+#' geneBody_Plot=qualityScores_LMgenebody(geneBodyProfile)
 #'
 
-qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL, 
-    debug=FALSE)
+qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
 {
+    stopif(length(TSSProfile) != 2L)
+
+    binnedChip=data$chip
+    binnedInput=data$input
     message("load metagene setting")
     settings=f_metaGeneDefinition(selection="Settings")
     psc <- 1;## pseudocount## required to avoid log2 of 0
@@ -55,10 +55,10 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
 
     ##values at specific predefined points
     hotSpotsValues=f_spotfunction(all.noNorm, break_points_2P, 
-        tag="twopoints")
+        tag="geneBody")
     ##local maxima and area in all the predefined regions
     maxAucValues=f_maximaAucfunction(all.noNorm, breaks=break_points_2P, 
-        estBinSize=estimated_bin_size_2P, tag="twopoint")
+        estBinSize=estimated_bin_size_2P, tag="geneBody")
 
     ##make plots
     colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
@@ -96,11 +96,11 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
         t(t(chip[common_genes,])-t(input[common_genes,])), 
         na.rm=TRUE)
 
-    hotSpotsValuesNorm<-f_spotfunctionNorm(frameNormalized, breaks=break_points_2P, 
-        tag="twopoints")
-    maxAucValuesNorm<-f_maximaAucfunctionNorm(frameNormalized,breaks=break_points_2P, 
-        estBinSize=estimated_bin_size_2P, tag="twopoints")
-
+    hotSpotsValuesNorm<-f_spotfunctionNorm(frameNormalized, 
+        breaks=break_points_2P, tag="geneBody")
+    maxAucValuesNorm<-f_maximaAucfunctionNorm(frameNormalized,
+        breaks=break_points_2P, 
+        estBinSize=estimated_bin_size_2P, tag="geneBody")
     if (!is.null(savePlotPath))
     {
         filename=file.path(savePlotPath,"ScaledMetaGene_normalized.pdf")
@@ -134,12 +134,11 @@ qualityScores_LMgenebody<-function(binnedChip, binnedInput, savePlotPath=NULL,
     if (debug)
     {
         message("Debugging mode ON")
-        outname=file.path(getwd(), "twopoints.result")
+        outname=file.path(getwd(), "geneBody.result")
         file.remove(outname)
         write.table(result,file=outname,
             row.names = FALSE, col.names=FALSE, append=TRUE, quote = FALSE)
     }
 
-    return(result)
-    
+    return(result)   
 }

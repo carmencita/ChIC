@@ -16,38 +16,35 @@
 #'
 #' qualityScores_LM
 #'
-#' @param binnedChip metagene-object of TSS or TES returned 
-#' by createMetageneProfile() for the ChIP 
-#' @param binnedInput metagene-object of TSS or TES returned 
-#' by createMetageneProfile() for the Input
+#' @param data metagene-list for input and chip sample for
+#' TSS or TES returned by createMetageneProfile()
 #' @param tag String that can be "TSS" or "TES",indicating if the TSS or 
-#' the TES should be calcualted (Default="TSS")
+#' the TES profile should be calcualted (Default="TSS")
 #' @param savePlotPath if set the plot will be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
 #' @export
 #'
-#' @return returnList Dataframe with QC-values
+#' @return result Dataframe with QC-values for chip, input and 
+#' normalized metagene profile
 #'
 #'@examples
-#' print ("Example")
-#'\dontrun{
-#' TSS_Plot=qualityScores_LM(Meta_Result$TSS$chip,
-#' Meta_Result$TSS$input,
-#' tag="TSS",path=getwd(),debug=TRUE)
-#' completeListOfValues=append(completeListOfValues,TSS_Plot)
+#' data(TSSProfile)
+#' TSS_Plot=qualityScores_LM(data=TSSProfile, tag="TSS")
 #'
-#' TES_Plot=qualityScores_LM(Meta_Result$TES$chip,
-#' Meta_Result$TES$input,
-#' tag="TES",path=getwd(),debug=TRUE)
-#' completeListOfValues=append(completeListOfValues,TES_Plot)
-#'}
+#' data(TESProfile)
+#' TES_Plot=qualityScores_LM(data=TESProfile, tag="TES")
 
 
-qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS", 
-    savePlotPath=NULL, debug=FALSE)
+qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
 {    
+    stopifnot(tag %in% c("TES","TSS"))
+    stopifnot(length(data) == 2L)
+
+    
+    binnedChip=data$chip
+    binnedInput=data$chip
     message("load metagene setting")
     #load("Settings.RData")
     settings=f_metaGeneDefinition(selection="Settings")
@@ -123,13 +120,13 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
         (t(chip[common_genes,])-t(input[common_genes,])),na.rm=TRUE)
 
     hotSpotsValuesNorm=f_spotfunctionNorm(all.Norm, break_points, 
-         tag=tag)
+        tag=tag)
 
     maxAucValuesNorm=f_maximaAucfunctionNorm(all.Norm, break_points, 
         estimated_bin_size_1P, tag=tag)
 
     variabilityValuesNorm=f_variabilityValuesNorm(all.noNorm, break_points, 
-         tag=tag)
+        tag=tag)
 
 
     if (!is.null(savePlotPath))
@@ -157,12 +154,14 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
     }
 
     #convert values and features to one frame
-   
-    
     p1=rbind(hotSpotsValues,maxAucValues)
-    p2=rbind(variabilityValues[[1]], variabilityValues[[2]],variabilityValues[[3]])
+    p2=rbind(variabilityValues[[1]], 
+        variabilityValues[[2]],
+        variabilityValues[[3]])
     p3=rbind(hotSpotsValuesNorm, maxAucValuesNorm)
-    p4=rbind(variabilityValuesNorm[[1]], variabilityValuesNorm[[2]],variabilityValuesNorm[[3]])
+    p4=rbind(variabilityValuesNorm[[1]], 
+        variabilityValuesNorm[[2]],
+        variabilityValuesNorm[[3]])
     result=data.frame(cbind(rbind(p1,p2),rbind(p3,p4)))
 
     if (debug)
@@ -173,7 +172,5 @@ qualityScores_LM<-function(binnedChip, binnedInput, tag="TSS",
         write.table(result,file=outname,row.names = FALSE, 
             col.names=FALSE,append=TRUE, quote = FALSE)
     }
-
-
     return(result)
 }

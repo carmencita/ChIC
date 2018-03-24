@@ -736,7 +736,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current,gdl,m=4020, nbins=201,
                 ##if ((sum(nsi)>0)) {
                 nd <- tl_current$td[[chr]]; nd$x <- -1*nd$x;
                 ##nx <- f_feature.bin.averages(nd,data.frame
-                ##(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,nu.point.omit=FALSE)
+                ##(x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,
+                ##nu.point.omit=FALSE)
                 nx <- f_feature.bin.averages(nd,
                     data.frame(x=-1*gdl[[chr]]$txEnd[nsi]),
                     m=m,nbins=nbins,nu.point.omit=FALSE)
@@ -819,7 +820,7 @@ f_spotfunction=function(dframe,breaks,tag)
     rownames(fframe)=c(paste("hotSpots",tag,breaks,sep="_"))    
     return(fframe)
 }
-   
+
 #' @keywords internal 
 f_spotfunctionNorm=function(dframe,breaks,tag)
 {
@@ -844,7 +845,8 @@ f_maximaAucfunction=function(dframe,breaks, estBinSize,tag)
     localMaxima_auc=lapply(seq(length(breaks)-1), FUN=function(i){
         xi=breaks[i]
         xj=breaks[i+1]
-        sub_set=dframe [which((as.numeric(rownames(dframe))<=xj)&(as.numeric(rownames(dframe))>=xi)),]
+        sub_set=dframe [which((as.numeric(rownames(dframe))<=xj)
+            &(as.numeric(rownames(dframe))>=xi)),]
         l1=max(sub_set$Chip)
         l2=max(sub_set$Input)
         chip_frame=cbind(i,"chip",rownames(sub_set[which(sub_set$Chip==l1),]), 
@@ -856,24 +858,32 @@ f_maximaAucfunction=function(dframe,breaks, estBinSize,tag)
         return(tt)
     })
 
-
-    if (tag=="twopoint")
-    {fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=5, byrow=T))}else{
-    fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=6, byrow=T))}
-    colnames(fframe)=c("i","chip","chipX","chipY","chipAUC","input","inputX","inputY","inputAUC")
+    if (tag=="geneBody")
+    {
+        fframe <- data.frame(matrix(unlist(localMaxima_auc), 
+            nrow=5, byrow=TRUE))
+        }else{
+        fframe <- data.frame(matrix(unlist(localMaxima_auc), 
+            nrow=6, byrow=TRUE))
+    }
+    colnames(fframe)=c("i","chip","chipX","chipY","chipAUC","input",
+        "inputX","inputY","inputAUC")
 
     ##save x-coordiante for max value for Chip and Input
-    xFrame=data.frame(as.numeric(as.character(fframe$chipX)),as.numeric(as.character(fframe$inputX)))
+    xFrame=data.frame(as.numeric(as.character(fframe$chipX)),
+        as.numeric(as.character(fframe$inputX)))
     colnames(xFrame)=c("Chip","Input")
     rownames(xFrame)= paste("localMax",tag,fframe$i,"x",sep="_")
 
     ##save y-coordiante for max value for Chip and Input
-    yFrame=data.frame(as.numeric(as.character(fframe$chipY)),as.numeric(as.character(fframe$inputY)))
+    yFrame=data.frame(as.numeric(as.character(fframe$chipY)),
+        as.numeric(as.character(fframe$inputY)))
     colnames(yFrame)=c("Chip","Input")
     rownames(yFrame)= paste("localMax",tag,fframe$i,"y",sep="_")
     
     ##save auc for Chip and Input
-    aucFrame=data.frame(as.numeric(as.character(fframe$chipAUC)),as.numeric(as.character(fframe$inputAUC)))
+    aucFrame=data.frame(as.numeric(as.character(fframe$chipAUC)),
+        as.numeric(as.character(fframe$inputAUC)))
     colnames(aucFrame)=c("Chip","Input")
     rownames(aucFrame)= paste("auc",tag,fframe$i,"x",sep="_")
     
@@ -897,18 +907,21 @@ f_maximaAucfunctionNorm=function(dframe,breaks, estBinSize,tag)
         #print(i)
         xi=breaks[i]
         xj=breaks[i+1]
-        sub_set=newframe [which((as.numeric(rownames(newframe))<=xj)&(as.numeric(rownames(newframe))>=xi)),]
+        sub_set=newframe [which((as.numeric(rownames(newframe))<=xj)
+            &(as.numeric(rownames(newframe))>=xi)),]
         l1=max(sub_set$Norm)
         
-        norm_frame=cbind(i,"norm",rownames(sub_set[which(sub_set$Norm==l1),]), 
+        norm_frame=cbind(i,"norm",rownames(sub_set[which(sub_set$Norm==l1),]),
             l1, sum((sub_set$Norm)*estBinSize))
         return(norm_frame)
     })
 
-    if (tag=="twopoints")
-    {   fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=5, byrow=T))
+    if (tag=="geneBody")
+    {   fframe <- data.frame(matrix(unlist(localMaxima_auc), 
+        nrow=5, byrow=TRUE))
     }else{ 
-        fframe <- data.frame(matrix(unlist(localMaxima_auc), nrow=6, byrow=T))
+        fframe <- data.frame(matrix(unlist(localMaxima_auc), 
+            nrow=6, byrow=TRUE))
     }
     colnames(fframe)=c("i","norm","X","Y","AUC")
 
@@ -933,19 +946,17 @@ f_maximaAucfunctionNorm=function(dframe,breaks, estBinSize,tag)
     return(finalReturn)
 }
 
-
-
-
-
-#' @keywords internal 
-#calculating variance, sd and qartiles of the value ditribution in different intervals
+#' @keywords internal
+## calculating variance, sd and qartiles of the value 
+## ditribution in different intervals
 f_variabilityValues<-function(dframe,breaks,tag)
 {
     variabilityValues=lapply(breaks[1:3], FUN=function(start){
-       
+
         print(start)
         end=abs(start)
-        sub_set=dframe[which((as.numeric(rownames(dframe))<=end)&(as.numeric(rownames(dframe))>=start)),]
+        sub_set=dframe[which((as.numeric(rownames(dframe))<=end)
+            &(as.numeric(rownames(dframe))>=start)),]
         sub_set=data.frame(sub_set)
         name= paste("dispersion",tag, start, "variance",sep="_")
         varI=var(sub_set$Input)
@@ -953,15 +964,12 @@ f_variabilityValues<-function(dframe,breaks,tag)
         name= c(name,paste("dispersion",tag, start, "sd",sep="_"))
         sdI=sd(sub_set$Input)
         sdC=sd(sub_set$Chip)
-     
         valueFrameI=data.frame(quantile(sub_set$Input)[1:4])
         colnames(valueFrameI)=c("value")
         valueFrameC=data.frame(quantile(sub_set$Chip)[1:4])
         colnames(valueFrameC)=c("value")
-        
         name=c(name,paste("dispersion", tag,start, 
             rownames(valueFrameI), sep="_"))
-       
         back=data.frame(cbind(c(varI,sdI,valueFrameI$value),
             c(varC,sdC,valueFrameC$value)))
 
@@ -974,7 +982,8 @@ f_variabilityValues<-function(dframe,breaks,tag)
 
 
 #' @keywords internal 
-#calculating variance, sd and qartiles of the value ditribution in different intervals
+#calculating variance, sd and qartiles of the value 
+#ditribution in different intervals
 f_variabilityValuesNorm<-function(dframe,breaks, tag)
 {
 
@@ -982,10 +991,10 @@ f_variabilityValuesNorm<-function(dframe,breaks, tag)
     newframe$x=rownames(newframe)
     colnames(newframe)=c("Norm","break")
     variabilityValues=lapply(breaks[1:3], FUN=function(start){
-       
         print(start)
         end=abs(start)
-        sub_set=newframe[which((as.numeric(rownames(newframe))<=end)&(as.numeric(rownames(newframe))>=start)),]
+        sub_set=newframe[which((as.numeric(rownames(newframe))<=end)
+            &(as.numeric(rownames(newframe))>=start)),]
         sub_set=data.frame(sub_set)
         name= paste("dispersion",tag, start, "variance",sep="_")
         var=var(sub_set$Norm)
@@ -1014,8 +1023,36 @@ f_variabilityValuesNorm<-function(dframe,breaks, tag)
 #####################################################################
 
 #' @keywords internal 
+## helper function to load profiles from chic.data
+f_loadDataCompendium=function(endung,chrommark,tag)
+{
+    #load dataframe
+    #compendium_profiles=NULL
+    #data(compendium_profiles, package="chic.data", envir=environment())
+    compendium_profiles=chic.data::compendium_profiles
+    if (tag=="geneBody")
+    {name=paste(chrommark,"_",endung,"TWO", sep="")
+    }else{name=paste(chrommark,"_",endung,tag, sep="")}
+    frame=compendium_profiles[[name]]
+    return(frame)
+}
+
+#' @keywords internal 
+## helper function to prepare dataframe
+f_prepareData<-function(fmean,frame)
+{
+    finalframe=cbind(fmean$x,frame)
+    rownames(finalframe)=NULL
+    finalframe=as.data.frame(finalframe)    
+    colnames(finalframe)=c("x","mean") 
+    return(finalframe)
+}
+
+
+
+#' @keywords internal 
 ##plot profiles compendium versus current dataset
-f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO", 
+f_plotProfiles <- function(meanFrame, currentFrame , endung="geneBody", 
     absoluteMinMax, maintitel="title",ylab="mean of log2 tag density",
     savePlotPath=NULL)
 {
@@ -1050,7 +1087,7 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO",
         col="lightblue",border=NA)
     lines(x=meanFrame$x,y=meanFrame$mean,col="black",lwd=2)
     lines(x=currentFrame$x,y=currentFrame$mean,col="red",lwd=2)
-    if (endung=="TWO")
+    if (endung=="geneBody")
     {
         currBreak_points=break_points_2P[c(-2,-5)]##c(-2000,500,2500,4000)
         abline(v=c( break_points_2P[c(2,5)]),lty=2,col="darkgrey", lwd=3)
@@ -1079,6 +1116,30 @@ f_plotProfiles <- function(meanFrame, currentFrame , endung="TWO",
         message("pdf saved under",filename)
     }
 }
+
+#' @keywords internal 
+## helper function to get binding class
+f_getBindingClass<-function(chrommark)
+{
+    allChrom=f_metaGeneDefinition("Classes")
+    if (chrommark %in% allChrom$allSharp)
+    {
+        profileSet=allChrom$allSharp
+        tag="(Sharp class)"
+    }
+    if (chrommark %in% allChrom$allBroad)
+    {
+        profileSet=allChrom$allBroad
+        tag="(Broad class)"
+    }
+    if (chrommark %in% allChrom$RNAPol2)
+    {
+        profileSet=allChrom$RNAPol2
+        tag="(RNAPol2 class)"
+    }
+    return(list("profileSet"=profileSet,"tag"=tag))
+}
+
 
 #' @keywords internal 
 ##density plot for QC-value distribution versus a single value

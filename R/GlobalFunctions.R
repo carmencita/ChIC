@@ -158,7 +158,6 @@ qualityScores_EM<-function(chipName, inputName, read_length,
         save(smoothed.densityChip, smoothed.densityInput,
             file="smoothed.RData")
     }
-
     return(returnList)
 
 }
@@ -274,21 +273,27 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
 
     strandShift<-bchar$peak$x
     message("Check strandshift...")
-    newShift=f_getCustomStrandShift(x=bchar$cross.correlation$x, 
-        y=bindCharCC_Ysmoothed)
-    message("newShift  is ",newShift)
-    oldShift=NULL
-    if (newShift!="ERROR")
+    
+    a = tryCatch({
+        newShift=x[which.max(abs((diff(sign(deriv)))))]
+    }, warning = function(w) {
+        newShift=strandShift
+        message("strandshift problems...")
+    })
+
+    # # newShift=f_getCustomStrandShift(x=bchar$cross.correlation$x, 
+    # #     y=bindCharCC_Ysmoothed)
+    # message("newShift  is ",newShift)
+    # oldShift=NULL
+    # if (newShift!="ERROR")
+    # {
+    if (newShift!=strandShift)
     {
-        if (newShift!=strandShift)
-        {
             oldShift=strandShift
             strandShift=newShift
             message("Strandshift is substituted")
-        }
-    }else{
-        message("strandshift remains the same...")
-    }
+    }else{message("strandshift remains the same...") }
+
     ##2.2 phantom peak with smoothing
     message("Phantom peak with smoothing")
     ##phantom.characteristics<-phantom.characteristics
@@ -393,12 +398,12 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
     ##UNIQUE_TAGS_nostrand<-sum(sapply(lapply(data$tags, FUN=function(x) 
     ##   {unique(abs(x))}), length))
 
-    ALL_TAGS<-sum(unlist(lapply(data$tags, length)))
-    UNIQUE_TAGS<-sum(unlist(lapply(lapply(data$tags, unique), length)))
+    ALL_TAGS<- sum(lengths(data$tags))
+    UNIQUE_TAGS<-sum(lengths(lapply(data$tags, unique)))
 
-    UNIQUE_TAGS_nostrand<-sum(unlist(lapply(lapply(data$tags, FUN=function(x) 
-        {unique(abs(x))}), length)))
-    
+    UNIQUE_TAGS_nostrand=sum(lengths(lapply(data$tags, FUN=function(x){
+        unique(abs(x))})))
+
     NRF<-UNIQUE_TAGS/ALL_TAGS
     NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
 
@@ -451,7 +456,11 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
     })))
 
     ##Nd<-sum(sapply(lapply(data$tags, unique), length))
-    Nd<-sum(unlist(lapply(lapply(data$tags, unique), length)))
+    Nd<-sum(unlist(lapply(data$tags, FUN=function(x){
+        length(unique(x))
+    })))    
+
+    
     PBC = N1/Nd
     tag.shift <- round(strandShift/2)
         
@@ -511,14 +520,10 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
 getPeakCallingScores<-function(chip, input, chip.dataSelected, 
     input.dataSelected, tag.shift=75, chrorder=NULL)
 {
-
     ##load("Settings.RData")
     ##for simplicity we use currently a shorter chromosome frame 
     ##to avoid problems 
     chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
-    ##custom_chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
-    ##custom_chrorder<-paste("chr", c(1:22, "X","Y"), sep="")
-
 
     ##5 broadRegions
     ##6 enrichment broad regions
@@ -600,7 +605,8 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
         ##SORTS the tags for each chrom
         #TOTAL_reads<-sum(sapply(chip.test, length))
 
-        TOTAL_reads<-sum(unlist(lapply(chip.test, length)))
+        #TOTAL_reads<-sum(unlist(lapply(chip.test, length)))
+        TOTAL_reads <- sum(lengths(chip.test))
         ##Frip broad binding sites (histones)
         broadPeak_genomeIntervals_object<-intervals::close_intervals(
             genomeIntervals::interval_union(broadPeak_genomeIntervals_object))
@@ -725,7 +731,6 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
 qualityScores_GM<-function(densityChip, densityInput, 
     savePlotPath=NULL, debug=FALSE)
 {
-
     ##shorten frame and reduce resolution
     message("shorten frame")
     chip.smoothed.density=f_shortenFrame(densityChip)
@@ -772,9 +777,6 @@ qualityScores_GM<-function(densityChip, densityInput,
         "Ch_Fractions_without_reads_chip"=round(chipFracOfBinsWithoutReads,3),
         "Ch_Fractions_without_reads_input"=round(inputFracWithoutReads,3),
         "Ch_DistanceInputChip"=dist)
-        ##"CrossPoint_X"=cross_pointX,
-        ##"CrossPoint_Y_chip"=cross_pointY_chip,
-        ##"CrossPoint_Y_input"=cross_pointY_input)
     ##create Fingerprint plot
     f_fingerPrintPlot(cumSumChip,cumSumInput,savePlotPath=savePlotPath)
     
@@ -821,7 +823,7 @@ qualityScores_GM<-function(densityChip, densityInput,
 #' @param debug Boolean to enter debugging mode (default= FALSE)
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #'
-#' @return list with 3 objects: scaled profile ("twopoint"), 
+#' @return list with 3 objects: scaled profile ("geneBody"), 
 #' non-scaled profile for TSS (TSS) and TES (TES). Each object is 
 #' made of a list containing the chip and the input profile
 #'
@@ -843,10 +845,10 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     message("Load gene annotation")
     ##require(chic.data)
     if (annotationID=="hg19"){
-        hg19_refseq_genes_filtered_granges=NULL
-        data(hg19_refseq_genes_filtered_granges, 
-            package="chic.data", envir = environment())
-        annotObject=hg19_refseq_genes_filtered_granges
+        #hg19_refseq_genes_filtered_granges=NULL
+        #data(hg19_refseq_genes_filtered_granges, 
+        #    package="chic.data", envir = environment())
+        annotObject=chic.data::hg19_refseq_genes_filtered_granges
     }
     ##geneAnnotations_file=
     ##paste(annotationID,"_refseq_genes_filtered_granges",sep="")
@@ -880,7 +882,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     binned_Chip= masked_t.get.gene.av.density(smoothed.densityChip,
         gdl=annotatedGenesPerChr,mc=mc)
 
-    twopoint=list(chip=binned_Chip,input= binned_Input)
+    geneBody=list(chip=binned_Chip,input= binned_Input)
 
     ##one.point.scaling
     ##create non-scaled metageneprofile for TSS
@@ -905,14 +907,14 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     if (debug)
     {
         save(binned_Chip, binned_Input,file=file.path(getwd(),
-            paste("Twopoint.RData",sep="_")))
+            paste("geneBody.RData",sep="_")))
         save(binnedChip_TSS, binnedInput_TSS,file=file.path(getwd(), 
             paste("OnePointTSS.RData",sep="_")))
         save(binnedChip_TES, binnedInput_TES,file=file.path(getwd(), 
             paste("OnePointTES.RData",sep="_")))
     }
 
-    return(list("twopoint"=twopoint, "TSS"=onepointTSS, "TES"=onepointTES))
+    return(list("geneBody"=geneBody, "TSS"=onepointTSS, "TES"=onepointTES))
 }
 
 
@@ -1052,9 +1054,9 @@ tagDensity<-function(data, tag.shift, annotationID="hg19", mc=1)
     ##print(paste("load ",filename))
     ##load(paste("/data/",filename,sep=""))
     if (annotationID=="hg19"){
-        hg19_chrom_info=NULL
-        data(hg19_chrom_info, package="chic.data", envir = environment())
-        chromInfo=hg19_chrom_info
+        #hg19_chrom_info=NULL
+        #data(hg19_chrom_info, package="chic.data", envir = environment())
+        chromInfo=chic.data::hg19_chrom_info
     }
     ##hg19_chrom_info=get(filename)
     ##print(str(hg19_chrom_info))
