@@ -47,10 +47,15 @@ NRF. In total 22 features calculated.
 qualityScores_EM
 }
 \examples{
-print("Example")
+##To run the example code the user must provide 2 bam files: 
+##one for ChIP and one for the input"). Here we used ChIP-seq 
+##data from ENCODE. The files files can be downloaded 
+##from https://www.encodeproject.org/files/ENCFF000BLL/ and 
+##https://www.encodeproject.org/files/ENCFF000BKA/'
+chipName="ENCFF000BLL"
+inputName="ENCFF000BKA"
 \dontrun{
 CC_Result=qualityScores_EM(chipName=chipName,
-inputName=inputName, read_length=36, 
-debug=FALSE, mc=1, annotationID="hg19", savePlotPath=getwd())
+inputName=inputName, read_length=36)
 }
 }

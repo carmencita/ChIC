@@ -5,15 +5,11 @@
 \title{Wrapper function to plot the scaled metagene- profile  
 and to collect the QC-metrics}
 \usage{
-qualityScores_LMgenebody(binnedChip, binnedInput, savePlotPath = NULL,
-  debug = FALSE)
+qualityScores_LMgenebody(data, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{binnedChip}{metagene-object of TSS or TES returned 
-by createMetageneProfile() for the ChIP}
-
-\item{binnedInput}{metagene-object of TSS or TES returned 
-by createMetageneProfile() for the Input}
+\item{data}{metagene-list for input and chip sample 
+of the genebody profile returned by createMetageneProfile()}
 
 \item{savePlotPath}{if set the plot will be saved under 
 "savePlotPath". Default=NULL and plot will be forwarded to stdout.}
@@ -42,8 +38,7 @@ qualityScores_LMgenebody
 }
 \examples{
 print("Example")
-#geneBody_Plot=qualityScores_LMgenebody(Meta_Result$twopoint$chip,
-#Meta_Result$twopoint$input,path=getwd(),debug=TRUE)
-#completeListOfValues=append(completeListOfValues,geneBody_Plot)
+data(geneBodyProfile)
+geneBody_Plot=qualityScores_LMgenebody(geneBodyProfile)
 
 }

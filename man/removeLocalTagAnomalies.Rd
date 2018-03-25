@@ -35,35 +35,24 @@ neighbourhood.
 removeLocalTagAnomalies
 }
 \examples{
-print("Usage example")
+## This command is time intensive to run
+ChIC.data::chipBam
+ChIC.data::inputBam
 \dontrun{
-chip.data=readBamFile(chipName)
-input.data=readBamFile(inputName)
-print("calculate binding characteristics ChIP")
-### cross_correlation parameters
-estimating_fragment_length_range<-c(0,500)
-estimating_fragment_length_bin<-5
-chip_binding.characteristics<-get.binding.characteristics(chip.data, 
-srange=estimating_fragment_length_range, 
-bin=estimating_fragment_length_bin,
-accept.all.tags=TRUE)
-print("calculate cross correlation QC-metrics for the Chip")
-crossvalues_Chip<-getCrossCorrelationScores(chip.data,
-chip_binding.characteristics,
-read_length=read_length,
-savePlotPath=savePlotPath,plotname="ChIP")
-print("calculate binding characteristics Input")
-input_binding.characteristics<-get.binding.characteristics(input.data, 
-srange=estimating_fragment_length_range, 
-bin=estimating_fragment_length_bin, 
-accept.all.tags=TRUE)
-print("calculate cross correlation QC-metrics for the Input")
-crossvalues_Input=getCrossCorrelationScores
-(input.data,input_binding.characteristics,
-read_length=read_length, savePlotPath=savePlotPath, plotname="Input")
-
-selectedTags=removeLocalTagAnomalies(chip.data, input.data,
-chip_binding.characteristics,
-input_binding.characteristics)
+chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+srange=c(0,500), bin=5,accept.all.tags=TRUE)
+print ("calculate binding characteristics Input")
+input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+srange=c(0,500), bin=5,accept.all.tags=TRUE)
+##get chromosome information and order chip and input by it
+chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
+chip.data$tags=chipBam$tags[chrl_final]
+chip.data$quality=chipBam$quality[chrl_final]
+input.data$tags=inputBam$tags[chrl_final]
+input.data$quality=inputBam$quality[chrl_final]
+##remove sigular positions with extremely high tag counts with 
+##respect to the neighbourhood
+selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
+chip_binding.characteristics, input_binding.characteristics)
 }
 }

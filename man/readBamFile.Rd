@@ -20,8 +20,10 @@ Reading bam file format
 readBamFile
 }
 \examples{
+##To run the example code the user must provide a bam files:
+##Here we use a ChIP-seq sample from ENCODE. The file can be downloaded 
+##from https://www.encodeproject.org/files/ENCFF000BLL/'
 chipName="ENCFF000BLL"
-print(chipName)
 \dontrun{
 chip.data=readBamFile(chipName)
 }

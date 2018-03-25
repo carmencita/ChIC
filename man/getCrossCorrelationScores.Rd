@@ -55,9 +55,21 @@ getCrossCorrelationScores
 }
 \examples{
 print("Usage")
+## This command is time intensive to run
+## spp is required
+library(spp)
+## load example bam file 
+ChIC.data::chipBam
+## set parameters
+estimating_fragment_length_range<-c(0,500)
+estimating_fragment_length_bin<-5
 \dontrun{
-crossvalues_Chip<-getCrossCorrelationScores(chip.data, 
-chip_binding.characteristics, read_length=70, 
-savePlotPath=getwd(), plotname="ChIP")
+## calculate bindign characteristics 
+chip_binding.characteristics<-spp::get.binding.characteristics(chipBam, 
+srange=estimating_fragment_length_range, 
+bin=estimating_fragment_length_bin,accept.all.tags=TRUE)
+
+crossvalues_Chip<-getCrossCorrelationScores(chipBam, 
+chip_binding.characteristics, read_length=36)
 }
 }

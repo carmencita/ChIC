@@ -42,16 +42,31 @@ qualityScores_GM
 }
 \examples{
 print("Example of usage")
+## This command is time intensive to run
+ChIC.data::chipBam
+ChIC.data::inputBam
 \dontrun{
-CC_Result=qualityScores_EM(chipName=chipName,
-inputName=inputName, 
-read_length=36,  
-annotationID="hg19",
-savePlotPath=getwd())
-
-tag.shift=CC_Result$QCscores_ChIP$tag.shift
-smoothedDensityInput=CC_Result$TagDensityInput
-smoothedDensityChip=CC_Result$TagDensityChip
+chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+srange=c(0,500), bin=5,accept.all.tags=TRUE)
+print ("calculate binding characteristics Input")
+input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+srange=c(0,500), bin=5,accept.all.tags=TRUE)
+##get chromosome information and order chip and input by it
+chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
+chip.data$tags=chipBam$tags[chrl_final]
+chip.data$quality=chipBam$quality[chrl_final]
+input.data$tags=inputBam$tags[chrl_final]
+input.data$quality=inputBam$quality[chrl_final]
+##remove sigular positions with extremely high tag counts with 
+##respect to the neighbourhood
+selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
+chip_binding.characteristics, input_binding.characteristics)
+input.dataSelected=selectedTags$input.dataSelected
+chip.dataSelected=selectedTags$chip.dataSelected
+smoothed.densityChip=tagDensity(chip.dataSelected, 
+tag.shift=82)
+smoothed.densityInput=tagDensity(input.dataSelected, 
+tag.shift=82)
 
 Ch_Results=qualityScores_GM(densityChip=smoothedDensityChip,
 densityInput=smoothedDensityInput)

@@ -4,10 +4,13 @@
 \alias{metagenePlotsForComparison}
 \title{Function to create metage plots for comparison}
 \usage{
-metagenePlotsForComparison(chrommark, twopointElements, TSSElements,
-  TESElements, savePlotPath = NULL)
+metagenePlotsForComparison(data, chrommark, tag, savePlotPath = NULL)
 }
 \arguments{
+\item{data}{metagene-object of metagene profile by 
+createMetageneProfile() containing 
+input and chip profile}
+
 \item{chrommark}{String, chromatin mark to be analysed. 
 Has to be one of the following: H3K36me3, H3K4me3, 
 H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3,H3K27ac,
@@ -19,14 +22,8 @@ H2A.Z, H3K23me2, H2AK9ac, H3T11ph.
 For RNAPOL2 different variants are available: POLR2A 
 (for RNAPol2), POLR3G and POLR2AphosphoS2}
 
-\item{twopointElements}{metagene-object for the scaled 
-metagene profile by createMetageneProfile()}
-
-\item{TSSElements}{metagene-object for the non-scaled 
-metagene profile (TSS) by createMetageneProfile()}
-
-\item{TESElements}{metagene-object for the non-scaled 
-metagene profile (TES) by createMetageneProfile()}
+\item{tag}{indicating the kind of profile to plot. 
+Can be either: "geneBody", "TES" or "TSS".}
 
 \item{savePlotPath}{if set the plot will be saved under 
 "savePlotPath". Default=NULL and plot will be forwarded to stdout.}
@@ -50,12 +47,6 @@ compendium values stratified by chromatin marks.
 metagenePlotsForComparison
 }
 \examples{
-print("possible usage: ")
-\dontrun{
-metagenePlotsForComparison(chrommark="H3K4me1", 
-Meta_Result$twopoint, 
-Meta_Result$TSS, 
-Result_Meta$TES,plotName=chipName,
-savePlotPath=getwd())
-}
+data(TSSProfile)
+metagenePlotsForComparison(data=TSSProfile,chrommark="H3K36me3",tag="TSS")
 }

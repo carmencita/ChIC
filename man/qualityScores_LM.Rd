@@ -5,18 +5,14 @@
 \title{Wrapper function that plots non-scaled profiles for 
 TSS or TES and to collects the QC-metrics}
 \usage{
-qualityScores_LM(binnedChip, binnedInput, tag = "TSS", savePlotPath = NULL,
-  debug = FALSE)
+qualityScores_LM(data, tag, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{binnedChip}{metagene-object of TSS or TES returned 
-by createMetageneProfile() for the ChIP}
-
-\item{binnedInput}{metagene-object of TSS or TES returned 
-by createMetageneProfile() for the Input}
+\item{data}{metagene-list for input and chip sample for
+TSS or TES returned by createMetageneProfile()}
 
 \item{tag}{String that can be "TSS" or "TES",indicating if the TSS or 
-the TES should be calcualted (Default="TSS")}
+the TES profile should be calcualted (Default="TSS")}
 
 \item{savePlotPath}{if set the plot will be saved under 
 "savePlotPath". Default=NULL and plot will be forwarded to stdout.}
@@ -24,7 +20,8 @@ the TES should be calcualted (Default="TSS")}
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
 \value{
-returnList Dataframe with QC-values
+result Dataframe with QC-values for chip, input and 
+normalized metagene profile
 }
 \description{
 The non-scaled profile is constructed around the TSS/TES,
@@ -42,16 +39,7 @@ the standard deviation and the quantiles at 0%, 25%,
 qualityScores_LM
 }
 \examples{
-print ("Example")
-\dontrun{
-TSS_Plot=qualityScores_LM(Meta_Result$TSS$chip,
-Meta_Result$TSS$input,
-tag="TSS",path=getwd(),debug=TRUE)
-completeListOfValues=append(completeListOfValues,TSS_Plot)
+data(TSSProfile)
+TSS_Plot=qualityScores_LM(data=TSSProfile, tag="TSS")
 
-TES_Plot=qualityScores_LM(Meta_Result$TES$chip,
-Meta_Result$TES$input,
-tag="TES",path=getwd(),debug=TRUE)
-completeListOfValues=append(completeListOfValues,TES_Plot)
-}
 }

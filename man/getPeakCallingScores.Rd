@@ -43,10 +43,33 @@ getPeakCallingScores
 }
 \examples{
 print("Example")
+## This command is time intensive to run
 \dontrun{
-bindingScores=getPeakCallingScores(chip.data, 
-input.data, chip.dataSelected, input.dataSelected, 
-final.tag.shift)
-}
+## load example bam files
+ChIC.data::chipBam
+ChIC.data::inputBam
+chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
+print ("calculate binding characteristics Input")
+input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+srange=c(0,500), bin=5,accept.all.tags=TRUE)
+
+##get chromosome information and order chip and input by it
+chrl_final=intersect(names(chip.data$tags),names(inputBam$tags))
+chip.data$tags=chipBam$tags[chrl_final]
+chip.data$quality=chipBam$quality[chrl_final]
+input.data$tags=inputBam$tags[chrl_final]
+input.data$quality=inputBam$quality[chrl_final]
+##remove sigular positions with extremely high tag counts with 
+##respect to the neighbourhood
+selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
+chip_binding.characteristics, input_binding.characteristics)
+input.dataSelected=selectedTags$input.dataSelected
+chip.dataSelected=selectedTags$chip.dataSelected
+##Finally run function
+bindingScores=getPeakCallingScores(chipBam, 
+inputBam, chip.dataSelected, input.dataSelected, 
+tag.shift=82)
+}
 }
