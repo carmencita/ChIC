@@ -35,7 +35,7 @@
 
 qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
 {
-    stopif(length(TSSProfile) != 2L)
+    stopifnot(length(data) == 2L)
 
     binnedChip=data$chip
     binnedInput=data$input

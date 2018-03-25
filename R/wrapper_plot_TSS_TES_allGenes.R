@@ -33,8 +33,6 @@
 #' data(TSSProfile)
 #' TSS_Plot=qualityScores_LM(data=TSSProfile, tag="TSS")
 #'
-#' data(TESProfile)
-#' TES_Plot=qualityScores_LM(data=TESProfile, tag="TES")
 
 
 qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
@@ -42,7 +40,6 @@ qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
     stopifnot(tag %in% c("TES","TSS"))
     stopifnot(length(data) == 2L)
 
-    
     binnedChip=data$chip
     binnedInput=data$chip
     message("load metagene setting")

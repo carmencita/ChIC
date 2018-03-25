@@ -27,8 +27,8 @@
 #' @param data metagene-object of metagene profile by 
 #' createMetageneProfile() containing 
 #' input and chip profile
-#' @tag tag indicating the kind of profile to plot. Can be either:
-#' "geneBody", "TES" or "TSS".
+#' @param tag indicating the kind of profile to plot. 
+#' Can be either: "geneBody", "TES" or "TSS".
 #' @param savePlotPath if set the plot will be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #'
@@ -37,16 +37,12 @@
 #' @export
 #'
 #' @examples
-#' data(geneBodyProfile)
-#' metagenePlotsForComparison(data=geneBodyProfile, chrommark="H3K36me3",
-#' tag="geneBody")
-#'
 #' data(TSSProfile)
 #' metagenePlotsForComparison(data=TSSProfile,chrommark="H3K36me3",tag="TSS")
 
 
 
-metagenePlotsForComparison<-function(data,chrommark, tag, savePlotPath=NULL)
+metagenePlotsForComparison<-function(data, chrommark, tag, savePlotPath=NULL)
 {
     Hlist=f_metaGeneDefinition("Hlist")
     psc <- 1; # pseudocount, required to avoid log2 of 0
@@ -146,8 +142,8 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
     allChrom=f_metaGeneDefinition("Classes")
     ##reading compendium
     #compendium_db=NULL
-    #data(compendium_db,package="chic.data",envir = environment())
-    compendium_db=chic.data::compendium_db
+    #data(compendium_db,package="ChIC.data",envir = environment())
+    compendium_db=ChIC.data::compendium_db
     ##select the class for the respective chromatin mark
     #load("data/compendium_db.rda")
     profileInfo=f_getBindingClass(chrommark)
@@ -219,8 +215,8 @@ plotPredictionScore<-function(chrommark="H3K36me3", features_cc,
     
     allChrom=f_metaGeneDefinition("Classes")
     #rf_models=NULL
-    #data(rf_models,package="chic.data",envir = environment())
-    rf_models=chic.data::rf_models
+    #data(rf_models,package="ChIC.data",envir = environment())
+    rf_models=ChIC.data::rf_models
 
     #load("data/rf_models.rda")
 

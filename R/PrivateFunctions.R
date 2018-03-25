@@ -56,43 +56,43 @@ f_converNarrowPeakFormat =function(bd, margin = bd$whs)
 
 #' @keywords internal 
 ##get strand shift
-f_getCustomStrandShift= function(x,y){
-    ##x=binidng.characteristics$cross.correlation$x
-    ##y=binding.characteristics_cross.correlation_y_smoothed
-    deriv=diff(y)/diff(x)
-    ##globalminY=min(abs(deriv))
-    deriv=append(0,deriv)
-    ##to catch up the right index, because in deriv I loose one array-field
-    ##globalminX=x[which(abs(deriv)==globalminY)]
-    ####shift all um 5 nach rechts
-    ##check from the right side and pick the points 
-    ##with the x (closest to zero) and y largest 
-    ###means: search for regions with Vorzeichen change
-    startVorzeichen=sign(deriv[length(deriv)])
-    field=NULL
-    for (index in rev(seq(2,length(deriv))))
-    {
-        derivpoint=deriv[index]
-        xpoint=x[index]
-        ypoint=y[index]
-        ##print(paste(xpoint,ypoint,sep=" "))
-        if (startVorzeichen!=sign(derivpoint))
-        { 
-            ###Vorzeichenwechsel
-            field=rbind(field,c(xpoint,ypoint,derivpoint))
-            startVorzeichen=sign(derivpoint)
-        }
-    }
-    if (is.null(field) )
-    {
-        newShift="ERROR"
-    }else{
-        field=data.frame(field)
-        colnames(field)=c("x","y","deriv")
-        newShift=field[which(max(field$y)==field$y),]$x
-    }
-    return(newShift)
-}
+# f_getCustomStrandShift= function(x,y){
+#     ##x=binidng.characteristics$cross.correlation$x
+#     ##y=binding.characteristics_cross.correlation_y_smoothed
+#     deriv=diff(y)/diff(x)
+#     ##globalminY=min(abs(deriv))
+#     deriv=append(0,deriv)
+#     ##to catch up the right index, because in deriv I loose one array-field
+#     ##globalminX=x[which(abs(deriv)==globalminY)]
+#     ####shift all um 5 nach rechts
+#     ##check from the right side and pick the points 
+#     ##with the x (closest to zero) and y largest 
+#     ###means: search for regions with Vorzeichen change
+#     startVorzeichen=sign(deriv[length(deriv)])
+#     field=NULL
+#     for (index in rev(seq(2,length(deriv))))
+#     {
+#         derivpoint=deriv[index]
+#         xpoint=x[index]
+#         ypoint=y[index]
+#         ##print(paste(xpoint,ypoint,sep=" "))
+#         if (startVorzeichen!=sign(derivpoint))
+#         { 
+#             ###Vorzeichenwechsel
+#             field=rbind(field,c(xpoint,ypoint,derivpoint))
+#             startVorzeichen=sign(derivpoint)
+#         }
+#     }
+#     if (is.null(field) )
+#     {
+#         newShift="ERROR"
+#     }else{
+#         field=data.frame(field)
+#         colnames(field)=c("x","y","deriv")
+#         newShift=field[which(max(field$y)==field$y),]$x
+#     }
+#     return(newShift)
+# }
 
 #' @keywords internal 
 ##reads bam file or tagalign file 
@@ -1023,16 +1023,16 @@ f_variabilityValuesNorm<-function(dframe,breaks, tag)
 #####################################################################
 
 #' @keywords internal 
-## helper function to load profiles from chic.data
+## helper function to load profiles from ChIC.data
 f_loadDataCompendium=function(endung,chrommark,tag)
 {
     #load dataframe
     #compendium_profiles=NULL
-    #data(compendium_profiles, package="chic.data", envir=environment())
-    compendium_profiles=chic.data::compendium_profiles
+    #data(compendium_profiles, package="ChIC.data", envir=environment())
+    compendium_profiles=ChIC.data::compendium_profiles
     if (tag=="geneBody")
-    {name=paste(chrommark,"_",endung,"TWO", sep="")
-    }else{name=paste(chrommark,"_",endung,tag, sep="")}
+    {name=paste(chrommark,"_","TWO",endung, sep="")
+    }else{name=paste(chrommark,"_",tag,endung, sep="")}
     frame=compendium_profiles[[name]]
     return(frame)
 }
