@@ -137,7 +137,7 @@ qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
         outname=file.path(getwd(), "geneBody.result")
         file.remove(outname)
         write.table(result,file=outname,
-            row.names = FALSE, col.names=FALSE, append=TRUE, quote = FALSE)
+            row.names = TRUE, col.names=TRUE, quote = FALSE)
     }
 
     return(result)   

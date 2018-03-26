@@ -41,7 +41,7 @@ qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
     stopifnot(length(data) == 2L)
 
     binnedChip=data$chip
-    binnedInput=data$chip
+    binnedInput=data$input
     message("load metagene setting")
     #load("Settings.RData")
     settings=f_metaGeneDefinition(selection="Settings")
@@ -166,8 +166,8 @@ qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
         message("Debugging mode ON")
         outname=file.path(getwd(), paste(tag,"onepoints.result",sep="_"))
         file.remove(outname)
-        write.table(result,file=outname,row.names = FALSE, 
-            col.names=FALSE,append=TRUE, quote = FALSE)
+        write.table(result,file=outname,row.names = TRUE, 
+            col.names=TRUE, quote = FALSE)
     }
     return(result)
 }
