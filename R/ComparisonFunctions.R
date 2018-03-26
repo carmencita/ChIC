@@ -217,14 +217,15 @@ predictionScore<-function(chrommark, features_cc,
     ## loaad prediction model
     pmodel=f_getPredictionModel(chrommark,Hlist)
     ## get features
-    selectedFeatures=c(colnames(pmodel$trainingData))
-    selectedFeatures=selectedFeatures[-(which(selectedFeatures==".outcome"))]
+    selectedFeat=c(colnames(pmodel$trainingData))
+    selectedFeat=selectedFeat[-(which(selectedFeat==".outcome"))]
 
     TSS=f_convertframe(features_TSS)
     TES=f_convertframe(features_TES)
     geneBody=f_convertframe(features_scaled)
     
-    p1=c(features_cc$QCscores_ChIP,features_cc$QCscores_binding,features_global)
+    p1=c(features_cc$QCscores_ChIP,
+        features_cc$QCscores_binding,features_global)
     fframe <- data.frame(matrix(p1),nrow=35, byrow=TRUE)
     rownames(fframe)=names(p1)
 
@@ -266,12 +267,13 @@ predictionScore<-function(chrommark, features_cc,
     })
     rownames(helper)=a
 
-    selectedFeatures[!(selectedFeatures %in% rownames(helper))]
-    featureVector = data.frame("values"=unlist(helper[rownames(helper) %in% selectedFeatures,]))
-    rownames(featureVector)=rownames(helper)[rownames(helper) %in% selectedFeatures]
-    featureVector=data.frame(t(featureVector))
-    featureVector$Class=as.factor("P")
+    selectedFeat[!(selectedFeat %in% rownames(helper))]
+    fVector = data.frame(
+        "values"=unlist(helper[rownames(helper) %in% selectedFeat,]))
+    rownames(fVector)=rownames(helper)[rownames(helper) %in% selectedFeat]
+    fVector=data.frame(t(fVector))
+    fVector$Class=as.factor("P")
     
-    prediction=predict(pmodel, newdata=featureVector,type="prob")
+    prediction=predict(pmodel, newdata=fVector,type="prob")
     return(prediction$P)
 }
