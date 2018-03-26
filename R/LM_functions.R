@@ -27,11 +27,62 @@
 #'
 #' @return returnList
 #'
-#'@examples
-#' print("Example")
-#' data(geneBodyProfile)
-#' geneBody_Plot=qualityScores_LMgenebody(geneBodyProfile)
+#' @examples
+#' print("Example Code")
+#' ## This command is time intensive to run
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
 #'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
+#' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
+#' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
+#' ##get chromosome information and order chip and input by it
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
+#' ##remove sigular positions with extremely high tag counts with 
+#' ##respect to the neighbourhood
+#' selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
+#' chip_binding.characteristics, input_binding.characteristics)
+#' input.dataSelected=selectedTags$input.dataSelected
+#' chip.dataSelected=selectedTags$chip.dataSelected
+#'
+#' ##get smoothed tagdensity 
+#' smoothedChip=tagDensity(chip.dataSelected, 
+#' tag.shift=82)
+#' smoothedInput=tagDensity(input.dataSelected, 
+#' tag.shift=82)
+#'
+#' Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
+#' smoothedInput,tag.shift=82)
+#'
+#' geneBodyScores=qualityScores_LMgenebody(Meta_Result$geneBody,
+#' savePlotPath=getwd())
+#'}
 
 qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
 {
@@ -176,11 +227,62 @@ qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
 #' @return result Dataframe with QC-values for chip, input and 
 #' normalized metagene profile
 #'
-#'@examples
-#' data(TSSProfile)
-#' TSS_Plot=qualityScores_LM(data=TSSProfile, tag="TSS")
+#' @examples
+#' message("Example Code")
+#' ## This command is time intensive to run
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
 #'
-
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
+#' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
+#' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
+#' ##get chromosome information and order chip and input by it
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
+#' ##remove sigular positions with extremely high tag counts with 
+#' ##respect to the neighbourhood
+#' selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
+#' chip_binding.characteristics, input_binding.characteristics)
+#' input.dataSelected=selectedTags$input.dataSelected
+#' chip.dataSelected=selectedTags$chip.dataSelected
+#'
+#' ##get smoothed tagdensity 
+#' smoothedChip=tagDensity(chip.dataSelected, 
+#' tag.shift=82)
+#' smoothedInput=tagDensity(input.dataSelected, 
+#' tag.shift=82)
+#'
+#' Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
+#' smoothedInput,tag.shift=82)
+#'
+#' TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS",
+#' savePlotPath=getwd())
+#'}
 
 qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
 {    

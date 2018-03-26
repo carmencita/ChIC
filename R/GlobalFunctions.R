@@ -1,6 +1,5 @@
 #' @import ChIC.data
 #' @import caret
-# @import girafe
 #' @rawNamespace import(girafe, except = plot)
 #' @import spp 
 #' @importFrom graphics abline axis legend lines matplot par
@@ -57,16 +56,31 @@
 #' @export
 #'
 #' @examples
+#'
+#' setwd(tempdir())
+#' \dontrun{
+#'
+#' ## This command is time intensive to run
 #' ##To run the example code the user must provide 2 bam files: 
-#' ##one for ChIP and one for the input"). Here we used ChIP-seq 
-#' ##data from ENCODE. The files files can be downloaded 
-#' ##from https://www.encodeproject.org/files/ENCFF000BLL/ and 
-#' ##https://www.encodeproject.org/files/ENCFF000BKA/'
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. An example file can be downloaded as follows
+#' ## get bam file
+#'
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
 #' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
 #' inputName="ENCFF000BKA"
-#'\dontrun{
+#' input.data=readBamFile(inputName)
+#'
 #' CC_Result=qualityScores_EM(chipName=chipName,
-#' inputName=inputName, read_length=36)
+#' inputName=inputName, read_length=36, annotationID="hg19",
+#' mc=5)
 #'}
 
 
@@ -218,23 +232,33 @@ qualityScores_EM<-function(chipName, inputName, read_length,
 #'
 #' @export
 #'
-#'@examples
-#' print("Usage")
+#' @examples
+#' print("Example Code")
 #' ## This command is time intensive to run
-#' ## spp is required
-#' library(spp)
-#' ## load example bam file 
-#' ChIC.data::chipBam
-#' ## set parameters
-#' estimating_fragment_length_range<-c(0,500)
-#' estimating_fragment_length_bin<-5
-#' \dontrun{
-#' ## calculate bindign characteristics 
-#' chip_binding.characteristics<-spp::get.binding.characteristics(chipBam, 
-#' srange=estimating_fragment_length_range, 
-#' bin=estimating_fragment_length_bin,accept.all.tags=TRUE)
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
 #'
-#' crossvalues_Chip<-getCrossCorrelationScores(chipBam, 
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
+#' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
+#' crossvalues_Chip<-getCrossCorrelationScores(chip.data, 
 #' chip_binding.characteristics, read_length=36)
 #' }
 
@@ -533,35 +557,54 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
 #'
 #' @export
 #'
-#'@examples
-#' print("Example")
+#' @examples
+#' print("Example Code")
 #' ## This command is time intensive to run
-#'\dontrun{
-#' ## load example bam files
-#' ChIC.data::chipBam
-#' ChIC.data::inputBam
-#' chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
-#' print ("calculate binding characteristics Input")
-#' input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
-#' chrl_final=intersect(names(chip.data$tags),names(inputBam$tags))
-#' chip.data$tags=chipBam$tags[chrl_final]
-#' chip.data$quality=chipBam$quality[chrl_final]
-#' input.data$tags=inputBam$tags[chrl_final]
-#' input.data$quality=inputBam$quality[chrl_final]
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
 #' ##remove sigular positions with extremely high tag counts with 
 #' ##respect to the neighbourhood
-#' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
+#' selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
 #' chip_binding.characteristics, input_binding.characteristics)
 #' input.dataSelected=selectedTags$input.dataSelected
 #' chip.dataSelected=selectedTags$chip.dataSelected
+#'
 #' ##Finally run function
-#' bindingScores=getPeakCallingScores(chipBam, 
-#' inputBam, chip.dataSelected, input.dataSelected, 
+#' bindingScores=getPeakCallingScores(chip=chip.data, 
+#' input=input.data, chip.dataSelected=chip.dataSelected, 
+#' input.dataSelected=input.dataSelected, 
 #' tag.shift=82)
 #' }
 
@@ -761,35 +804,58 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
 #' @export
 #'
 #' @examples
-#' print("Example of usage")
+#' print("Example Code")
 #' ## This command is time intensive to run
-#' ChIC.data::chipBam
-#' ChIC.data::inputBam
-#'\dontrun{
-#' chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
-#' print ("calculate binding characteristics Input")
-#' input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+#'
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
 #' ##get chromosome information and order chip and input by it
-#' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
-#' chip.data$tags=chipBam$tags[chrl_final]
-#' chip.data$quality=chipBam$quality[chrl_final]
-#' input.data$tags=inputBam$tags[chrl_final]
-#' input.data$quality=inputBam$quality[chrl_final]
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
 #' ##remove sigular positions with extremely high tag counts with 
 #' ##respect to the neighbourhood
-#' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
+#' selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
 #' chip_binding.characteristics, input_binding.characteristics)
 #' input.dataSelected=selectedTags$input.dataSelected
 #' chip.dataSelected=selectedTags$chip.dataSelected
-#' smoothed.densityChip=tagDensity(chip.dataSelected, 
-#' tag.shift=82)
-#' smoothed.densityInput=tagDensity(input.dataSelected, 
-#' tag.shift=82)
 #'
-#' Ch_Results=qualityScores_GM(densityChip=smoothedDensityChip,
-#' densityInput=smoothedDensityInput)
+#' ##get smoothed tagdensity 
+#' smoothedChip=tagDensity(chip.dataSelected, 
+#' tag.shift=82)
+#' smoothedInput=tagDensity(input.dataSelected, 
+#' tag.shift=82)
+#' 
+#' ##Finally run function
+#' Ch_Results=qualityScores_GM(densityChip=smoothedChip,
+#' densityInput=smoothedInput)
 #' }
 
 qualityScores_GM<-function(densityChip, densityInput, 
@@ -892,37 +958,58 @@ qualityScores_GM<-function(densityChip, densityInput,
 #' made of a list containing the chip and the input profile
 #'
 #' @export
-#'
 #' @examples
-#' print("Example usage")
+#' print("Example Code")
 #' ## This command is time intensive to run
-#' ChIC.data::chipBam
-#' ChIC.data::inputBam
-#'\dontrun{
-#' chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
-#' print ("calculate binding characteristics Input")
-#' input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+#'
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
 #' ##get chromosome information and order chip and input by it
-#' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
-#' chip.data$tags=chipBam$tags[chrl_final]
-#' chip.data$quality=chipBam$quality[chrl_final]
-#' input.data$tags=inputBam$tags[chrl_final]
-#' input.data$quality=inputBam$quality[chrl_final]
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
 #' ##remove sigular positions with extremely high tag counts with 
 #' ##respect to the neighbourhood
-#' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
+#' selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
 #' chip_binding.characteristics, input_binding.characteristics)
 #' input.dataSelected=selectedTags$input.dataSelected
 #' chip.dataSelected=selectedTags$chip.dataSelected
-#' smoothed.densityChip=tagDensity(chip.dataSelected, 
+#'
+#' ##get smoothed tagdensity 
+#' smoothedChip=tagDensity(chip.dataSelected, 
 #' tag.shift=82)
-#' smoothed.densityInput=tagDensity(input.dataSelected, 
+#' smoothedInput=tagDensity(input.dataSelected, 
 #' tag.shift=82)
 #'
-#' Meta_Result=createMetageneProfile(smoothed.densityChip, 
-#' smoothed.densityInput,tag.shift=82)
+#' Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
+#' smoothedInput,tag.shift=82)
 #'}
 
 
@@ -933,10 +1020,10 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     ##require(ChIC.data)
     if (annotationID=="hg19"){
         #hg19_refseq_genes_filtered_granges=NULL
-        #data(hg19_refseq_genes_filtered_granges, 
-        #    package="ChIC.data", envir = environment())
-        annotObject=ChIC.data::hg19_refseq_genes_filtered_granges
-    }
+        data("hg19_refseq_genes_filtered_granges", 
+            package="ChIC.data", envir = environment())
+        annotObject=hg19_refseq_genes_filtered_granges
+    }   
     ##geneAnnotations_file=
     ##paste(annotationID,"_refseq_genes_filtered_granges",sep="")
     ##annotObject=current_annotations_object
@@ -1016,18 +1103,24 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 #' @param filename, name/path of the bam file to be read (without extension)
 #'
 #' @return result list of lists, every list corresponds to a chromosome 
-#' and contains 
-#' a vecotr of coordinates of the 5' ends of the aligned tags
+#' and contains a vector of coordinates of the 5' ends of the aligned tags
 #'
 #' @export
 #'
 #' @examples
-#' ##To run the example code the user must provide a bam files:
-#' ##Here we use a ChIP-seq sample from ENCODE. The file can be downloaded 
-#' ##from https://www.encodeproject.org/files/ENCFF000BLL/'
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
 #' chipName="ENCFF000BLL"
-#'\dontrun{
 #' chip.data=readBamFile(chipName)
+
 #' }
 
 readBamFile<-function(filename)
@@ -1063,26 +1156,48 @@ readBamFile<-function(filename)
 #'
 #' @export
 #'
-#'@examples
+#' @examples
+#' print("Example Code")
 #' ## This command is time intensive to run
-#' ChIC.data::chipBam
-#' ChIC.data::inputBam
-#'\dontrun{
-#' chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. The files files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
-#' print ("calculate binding characteristics Input")
-#' input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+#'
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
 #' ##get chromosome information and order chip and input by it
-#' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
-#' chip.data$tags=chipBam$tags[chrl_final]
-#' chip.data$quality=chipBam$quality[chrl_final]
-#' input.data$tags=inputBam$tags[chrl_final]
-#' input.data$quality=inputBam$quality[chrl_final]
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
 #' ##remove sigular positions with extremely high tag counts with 
 #' ##respect to the neighbourhood
-#' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
-#' chip_binding.characteristics, input_binding.characteristics)
+#' selectedTags=removeLocalTagAnomalies(chip=chip.data, input=input.data, 
+#' chip_b.characteristics=chip_binding.characteristics, 
+#' input_b.characteristics=input_binding.characteristics)
 #'}
 removeLocalTagAnomalies<-function(chip, input, chip_b.characteristics, 
 input_b.characteristics)
@@ -1114,31 +1229,54 @@ input_b.characteristics)
 #'
 #' @export
 #'
-#'@examples
-#' print("Example")
+#' @export
+#' @examples
+#' print("Example Code")
 #' ## This command is time intensive to run
-#' ChIC.data::chipBam
-#' ChIC.data::inputBam
-#'\dontrun{
-#' chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
-#' print ("calculate binding characteristics Input")
-#' input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+#'
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
 #' ##get chromosome information and order chip and input by it
-#' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
-#' chip.data$tags=chipBam$tags[chrl_final]
-#' chip.data$quality=chipBam$quality[chrl_final]
-#' input.data$tags=inputBam$tags[chrl_final]
-#' input.data$quality=inputBam$quality[chrl_final]
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
 #' ##remove sigular positions with extremely high tag counts with 
 #' ##respect to the neighbourhood
-#' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
+#' selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
 #' chip_binding.characteristics, input_binding.characteristics)
-#'
+#' input.dataSelected=selectedTags$input.dataSelected
 #' chip.dataSelected=selectedTags$chip.dataSelected
-#' smoothed.densityChip=tagDensity(chip.dataSelected, 
-#' tag.shift=82)
+#'
+#' ##get smoothed tagdensity 
+#' smoothedChip=tagDensity(data=chip.dataSelected, 
+#' tag.shift=82,annotationID="hg19",mc=5)
 #'}
 
 
@@ -1151,8 +1289,8 @@ tagDensity<-function(data, tag.shift, annotationID="hg19", mc=1)
     ##load(paste("/data/",filename,sep=""))
     if (annotationID=="hg19"){
         #hg19_chrom_info=NULL
-        #data(hg19_chrom_info, package="ChIC.data", envir = environment())
-        chromInfo=ChIC.data::hg19_chrom_info
+        data("hg19_chrom_info", package="ChIC.data", envir = environment())
+        chromInfo=hg19_chrom_info
     }
     ##hg19_chrom_info=get(filename)
     ##print(str(hg19_chrom_info))

@@ -54,22 +54,32 @@ maps, divided by the number of unique mapping reads).
 getCrossCorrelationScores
 }
 \examples{
-print("Usage")
+print("Example Code")
 ## This command is time intensive to run
-## spp is required
-library(spp)
-## load example bam file 
-ChIC.data::chipBam
-## set parameters
-estimating_fragment_length_range<-c(0,500)
-estimating_fragment_length_bin<-5
-\dontrun{
-## calculate bindign characteristics 
-chip_binding.characteristics<-spp::get.binding.characteristics(chipBam, 
-srange=estimating_fragment_length_range, 
-bin=estimating_fragment_length_bin,accept.all.tags=TRUE)
+##To run the example code the user must provide 2 bam files: 
+##one for ChIP and one for the input". Here we used ChIP-seq 
+##data from ENCODE. Two example files can be downloaded as follows
+## get bam file
+setwd(tempdir())
 
-crossvalues_Chip<-getCrossCorrelationScores(chipBam, 
+\dontrun{
+##chip data
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
+chipName="ENCFF000BLL"
+chip.data=readBamFile(chipName)
+
+##input data
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
+inputName="ENCFF000BKA"
+input.data=readBamFile(inputName)
+
+## calculate binding characteristics 
+chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
+srange=c(0,500), bin=5,accept.all.tags=TRUE)
+
+crossvalues_Chip<-getCrossCorrelationScores(chip.data, 
 chip_binding.characteristics, read_length=36)
 }
 }

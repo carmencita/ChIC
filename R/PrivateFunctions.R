@@ -885,7 +885,7 @@ f_maximaAucfunction=function(dframe,breaks, estBinSize,tag)
     aucFrame=data.frame(as.numeric(as.character(fframe$chipAUC)),
         as.numeric(as.character(fframe$inputAUC)))
     colnames(aucFrame)=c("Chip","Input")
-    rownames(aucFrame)= paste("auc",tag,fframe$i,"x",sep="_")
+    rownames(aucFrame)= paste("auc",tag,fframe$i,sep="_")
     
     
     finalReturn=NULL
@@ -938,7 +938,7 @@ f_maximaAucfunctionNorm=function(dframe,breaks, estBinSize,tag)
     ##save auc for Chip and Input
     aucFrame=data.frame(as.numeric(as.character(fframe$AUC)))
     colnames(aucFrame)=c("Norm")
-    rownames(aucFrame)= paste("auc",tag,fframe$i,"x",sep="_")
+    rownames(aucFrame)= paste("auc",tag,fframe$i,sep="_")
     
     
     finalReturn=NULL
@@ -1028,8 +1028,8 @@ f_loadDataCompendium=function(endung,chrommark,tag)
 {
     #load dataframe
     #compendium_profiles=NULL
-    #data(compendium_profiles, package="ChIC.data", envir=environment())
-    compendium_profiles=ChIC.data::compendium_profiles
+    data("compendium_profiles", package="ChIC.data", envir=environment())
+    #compendium_profiles=ChIC.data::compendium_profiles
     if (tag=="geneBody")
     {name=paste(chrommark,"_","TWO",endung, sep="")
     }else{name=paste(chrommark,"_",tag,endung, sep="")}
@@ -1186,3 +1186,53 @@ f_plotValueDistribution = function(compendium, title,
         message("pdf saved under ",filename)
     }    
 }
+
+
+
+#' @keywords internal 
+## helper function to select the random forest model
+## for the respective chromatinmark
+f_getPredictionModel<-function(chrommark,hlist)
+{
+    #library(randomForest)
+    allChrom=f_metaGeneDefinition("Classes")
+    data("rf_models", package="ChIC.data", envir=environment())
+    
+    if (chrommark %in% Hlist)
+    {
+        if (chrommark %in% allChrom$allSharp)
+        {model=rf_models[["sharpEncode"]]}
+        
+        if (chrommark%in%allChrom$allBroad)
+        {model=rf_models[["broadEncode"]]}
+
+        if (chrommark%in%allChrom$RNAPol2)
+        {model=rf_models[["RNAPol2Encode"]]}
+
+        if (chrommark=="H3K9me3")
+        {model=rf_models[["H3K9Encode"]]}
+        
+        if (chrommark=="H3K27me3")
+        {model=rf_models[["H3K27Encode"]]}
+            
+        if (chrommark=="H3K36me3")
+        {model=rf_models[["H3K36Encode"]]}
+    }else{
+        model=rf_models$TFmodel
+    }
+    return(model)
+}
+
+
+#' @keywords internal 
+## helper function that converts frame with chip and normalized values to 
+## one column frame to further be procecced.
+f_convertframe<-function(oldframe)
+{
+    values=c(oldframe$Chip,oldframe$Norm)
+    newframe=data.frame(values)
+    nn=c(paste("chip",rownames(oldframe),sep="_"),
+        paste("norm",rownames(oldframe),sep="_"))
+    rownames(newframe)=nn
+    return(newframe)
+}   

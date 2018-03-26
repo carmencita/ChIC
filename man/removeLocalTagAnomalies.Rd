@@ -35,24 +35,46 @@ neighbourhood.
 removeLocalTagAnomalies
 }
 \examples{
+print("Example Code")
 ## This command is time intensive to run
-ChIC.data::chipBam
-ChIC.data::inputBam
+##To run the example code the user must provide 2 bam files: 
+##one for ChIP and one for the input". Here we used ChIP-seq 
+##data from ENCODE. The files files can be downloaded as follows
+## get bam file
+setwd(tempdir())
+
 \dontrun{
-chip_binding.characteristics<-spp::get.binding.characteristics(chipBam,
+##chip data
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
+chipName="ENCFF000BLL"
+chip.data=readBamFile(chipName)
+
+##input data
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
+inputName="ENCFF000BKA"
+input.data=readBamFile(inputName)
+
+## calculate binding characteristics 
+chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
 srange=c(0,500), bin=5,accept.all.tags=TRUE)
-print ("calculate binding characteristics Input")
-input_binding.characteristics<-spp::get.binding.characteristics(inputBam,
+
+## calculate binding characteristics 
+input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
 srange=c(0,500), bin=5,accept.all.tags=TRUE)
+
 ##get chromosome information and order chip and input by it
-chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
-chip.data$tags=chipBam$tags[chrl_final]
-chip.data$quality=chipBam$quality[chrl_final]
-input.data$tags=inputBam$tags[chrl_final]
-input.data$quality=inputBam$quality[chrl_final]
+chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+chip.data$tags=chip.datatags[chrl_final]
+chip.data$quality=chip.data$quality[chrl_final]
+input.data$tags=input.data$tags[chrl_final]
+input.data$quality=input.data$quality[chrl_final]
+
 ##remove sigular positions with extremely high tag counts with 
 ##respect to the neighbourhood
-selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
-chip_binding.characteristics, input_binding.characteristics)
+selectedTags=removeLocalTagAnomalies(chip=chip.data, input=input.data, 
+chip_b.characteristics=chip_binding.characteristics, 
+input_b.characteristics=input_binding.characteristics)
 }
 }

@@ -142,8 +142,8 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
     allChrom=f_metaGeneDefinition("Classes")
     ##reading compendium
     #compendium_db=NULL
-    #data(compendium_db,package="ChIC.data",envir = environment())
-    compendium_db=ChIC.data::compendium_db
+    data("compendium_db",package="ChIC.data",envir = environment())
+    #compendium_db=ChIC.data::compendium_db
     ##select the class for the respective chromatin mark
     #load("data/compendium_db.rda")
     profileInfo=f_getBindingClass(chrommark)
@@ -169,12 +169,11 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
 }
 
 
-
 #'@title Predict score
 #'
 #' @description
-#' BLABLA 
-#' plotPredictionScore
+#'  
+#' predictionScore
 #'
 #' @param chrommark String, chromatin mark to be analysed. Has to be 
 #' one of the following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,
@@ -189,14 +188,12 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
 #' qualityScores_EM()
 #' @param features_global list, list with QC-metrics returned from 
 #' qualityScores_GM()
-#' @param features_local_TSS list, list with QC-metrics returned from 
+#' @param features_TSS list, list with QC-metrics returned from 
 #' qualityScores_LM() with option TSS
-#' @param features_local_TES list,  list with QC-metrics returned from 
+#' @param features_TES list,  list with QC-metrics returned from 
 #' qualityScores_LM() with option TES
-#' @param features_local_scaled list, list with QC-metrics returned from 
+#' @param features_scaled list, list with QC-metrics returned from 
 #' qualityScores_LMgenebody()
-#' @param savePlotPath Default=NULL, when set saves the density plot 
-#' (pdf format) under the given path.
 #'
 #' @export
 #'
@@ -204,60 +201,40 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
 #'@examples
 #' print("Prediction")
 #'\dontrun{
-#' something somethign
+#' te=predictionScore(chrommark="H3K36me3", features_cc=CC_Result,
+#' features_global=Ch_Results,features_TSS=TSS_Plot, features_TES=TES_Plot,
+#' features_scaled=geneBody_Plot)
 #'}
-plotPredictionScore<-function(chrommark="H3K36me3", features_cc,
-    features_global,features_local_TSS, features_local_TES, 
-    features_local_scaled, savePlotPath=NULL)
+
+
+predictionScore<-function(chrommark, features_cc,
+    features_global,features_TSS, features_TES, features_scaled)
 {
-    #library(randomForest)
-    message("load profile classes...")
-    
-    allChrom=f_metaGeneDefinition("Classes")
-    #rf_models=NULL
-    #data(rf_models,package="ChIC.data",envir = environment())
-    rf_models=ChIC.data::rf_models
+    Hlist=f_metaGeneDefinition("Hlist")
+    stopifnot(chrommark %in% Hlist)
+    message("load prediction models...")
 
-    #load("data/rf_models.rda")
-
-    Hlist=f_metaGeneDefinition("Hlist")    
-    model=NULL
-    if (chrommark %in% Hlist){
-
-        if (chrommark %in% allChrom$allSharp)
-        {model=rf_models[["sharpEncode"]]}
-        
-        if (chrommark%in%allChrom$allBroad)
-        {model=rf_models[["broadEncode"]]}
-
-        if (chrommark%in%allChrom$RNAPol2)
-        {model=rf_models[["RNAPol2Encode"]]}
-        
-        if (chrommark=="H3K9me3")
-        {model=rf_models[["H3K9Encode"]]}
-        if (chrommark=="H3K27me3")
-        {model=rf_models[["H3K27Encode"]]}
-        if (chrommark=="H3K36me3")
-        {model=rf_models[["H3K36Encode"]]}
-
-    }else{
-        model=rf_models$TFmodel
-    }
-
-
-    part1=data.frame(unlist(c(features_cc,features_global)))
-    colnames(part1)="Value"
-    part1$Feature=rownames(part1)
-    frame=rbind(part1,features_local_TSS,features_local_TES,
-        features_local_scaled)
-    rownames(frame)=NULL
-
-
-    selectedFeatures=c(colnames(model$trainingData))
+    ## loaad prediction model
+    pmodel=f_getPredictionModel(chrommark,Hlist)
+    ## get features
+    selectedFeatures=c(colnames(pmodel$trainingData))
     selectedFeatures=selectedFeatures[-(which(selectedFeatures==".outcome"))]
 
-    featureVector=frame
-    a=lapply(as.list(featureVector$Feature),function(element){
+    TSS=f_convertframe(features_TSS)
+    TES=f_convertframe(features_TES)
+    geneBody=f_convertframe(features_scaled)
+    
+    p1=c(features_cc$QCscores_ChIP,features_cc$QCscores_binding,features_global)
+    fframe <- data.frame(matrix(p1),nrow=35, byrow=TRUE)
+    rownames(fframe)=names(p1)
+
+    fframe$nrow <-NULL
+    fframe$byrow<-NULL
+    colnames(fframe)="values"
+
+    helper=rbind(TSS,TES,geneBody,fframe)
+    
+    a=lapply(as.list(rownames(helper)),function(element){
         word=strsplit(element,"-")[[1]]
         if (length(word)>1)
         {        
@@ -271,20 +248,30 @@ plotPredictionScore<-function(chrommark="H3K36me3", features_cc,
             new=paste(word,".",sep="")            
             word=new
         }
+
+        ##Remove this part once featuresname "twopoint" is substitued
+        ##by "geneBody" in the prediction modeds
+        if (length(grep("geneBody",element))>0)
+        {      
+            word=strsplit(element,"geneBody")[[1]]
+            new=paste(word[1],"twopoint",word[2],sep="")
+            word=new
+            if (length(grep("norm_localMax",word))>0)
+            {
+                new=strsplit(word,"twopoint")[[1]]
+                word=paste(new[1],"twopoints",new[2],sep="")
+            }
+        }
         return(word)
     })
+    rownames(helper)=a
 
-    featureVector$FeaturesNew=c(unlist(a))
-
-    helpi=selectedFeatures[!(selectedFeatures %in% featureVector$FeaturesNew)]
-    if (length(helpi) != 0)
-    {
-        print ("ERROR in features")
-    }else{
-        inn=featureVector[featureVector$FeaturesNew %in% selectedFeatures,]
-        test=data.frame(t(inn$Value))
-        colnames(test)=c(inn$FeaturesNew)
-        test =test[order(colnames(test))]
-        prediction=predict(model, newdata=test,type="prob")
-    }    
+    selectedFeatures[!(selectedFeatures %in% rownames(helper))]
+    featureVector = data.frame("values"=unlist(helper[rownames(helper) %in% selectedFeatures,]))
+    rownames(featureVector)=rownames(helper)[rownames(helper) %in% selectedFeatures]
+    featureVector=data.frame(t(featureVector))
+    featureVector$Class=as.factor("P")
+    
+    prediction=predict(pmodel, newdata=featureVector,type="prob")
+    return(prediction$P)
 }

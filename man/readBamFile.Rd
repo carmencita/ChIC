@@ -11,8 +11,7 @@ readBamFile(filename)
 }
 \value{
 result list of lists, every list corresponds to a chromosome 
-and contains 
-a vecotr of coordinates of the 5' ends of the aligned tags
+and contains a vector of coordinates of the 5' ends of the aligned tags
 }
 \description{
 Reading bam file format
@@ -20,11 +19,17 @@ Reading bam file format
 readBamFile
 }
 \examples{
-##To run the example code the user must provide a bam files:
-##Here we use a ChIP-seq sample from ENCODE. The file can be downloaded 
-##from https://www.encodeproject.org/files/ENCFF000BLL/'
-chipName="ENCFF000BLL"
+##To run the example code the user must provide 2 bam files: 
+##one for ChIP and one for the input". Here we used ChIP-seq 
+##data from ENCODE. Two example files can be downloaded as follows
+## get bam file
+setwd(tempdir())
+
 \dontrun{
+##chip data
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
+chipName="ENCFF000BLL"
 chip.data=readBamFile(chipName)
 }
 }
