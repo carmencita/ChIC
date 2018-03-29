@@ -92,7 +92,8 @@ qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
     binnedInput=data$input
     message("load metagene setting")
     settings=f_metaGeneDefinition(selection="Settings")
-    psc <- 1;## pseudocount## required to avoid log2 of 0
+    ## pseudocount## required to avoid log2 of 0
+    psc <- 1;
     break_points_2P=settings$break_points_2P
     estimated_bin_size_2P=settings$estimated_bin_size_2P
     chip <- log2(do.call(rbind,binnedChip)+psc)
@@ -297,7 +298,8 @@ qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
     break_points=settings$break_points
     estimated_bin_size_1P=settings$estimated_bin_size_1P
 
-    psc <- 1;## pseudocount## required to avoid log2 of 0
+    ## pseudocount## required to avoid log2 of 0
+    psc <- 1;
     chip <-log2(do.call(rbind,binnedChip)+psc)
     input<-log2(do.call(rbind,binnedInput)+psc)
 

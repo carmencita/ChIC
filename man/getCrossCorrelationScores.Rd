@@ -5,8 +5,8 @@
 \title{QC-metrics from cross-correlation profile, phantom peak and 
 general QC-metrics}
 \usage{
-getCrossCorrelationScores(data, bchar, read_length = 70,
-  savePlotPath = NULL, plotname = "phantom")
+getCrossCorrelationScores(data, bchar, read_length, savePlotPath = NULL,
+  plotname = "phantom")
 }
 \arguments{
 \item{data}{data-structure with tag information read from 

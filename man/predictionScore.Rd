@@ -40,10 +40,54 @@ something something
 predictionScore
 }
 \examples{
-print("Prediction")
+## This command is time intensive to run
+##To run the example code the user must provide 2 bam files: 
+##one for ChIP and one for the input". Here we used ChIP-seq 
+##data from ENCODE. Two example files can be downloaded as follows
+## get bam file
+setwd(tempdir())
+
 \dontrun{
+##chip data
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
+chipName="ENCFF000BLL"
+chip.data=readBamFile(chipName)
+
+##input data
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
+inputName="ENCFF000BKA"
+input.data=readBamFile(inputName)
+
+##caluclate first set of QC-metrics
+CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
+read_length=36, mc=5, annotationID="hg19")
+
+##save the tagshift as it is needed later
+tag.shift=CC_Result$QCscores_ChIP$tag.shift
+
+##smoothed tagdensities used as input for the next steps
+smoothedDensityInput=CC_Result$TagDensityInput
+smoothedChip=CC_Result$TagDensityChip
+
+###GLOBAL features#########
+##caluclate second set of QC-metrics
+Ch_Results=qualityScores_GM(densityChip=smoothedChip,
+densityInput=smoothedInput)
+
+###LOCAL features########
+##caluclate third set of QC-metrics
+Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
+smoothed.densityInput=smoothedInput,tag.shift=tag.shift,annotationID="hg19")
+
+##create plots and get values
+TSS_scores=qualityScores_LM(Meta_Result$TSS,tag="TSS")
+TES_scores=qualityScores_LM(Meta_Result$TES,tag="TES")
+geneBody_scores=qualityScores_LMgenebody(Meta_Result$geneBody)
+
 te=predictionScore(chrommark="H3K36me3", features_cc=CC_Result,
-features_global=Ch_Results,features_TSS=TSS_Plot, features_TES=TES_Plot,
-features_scaled=geneBody_Plot)
+features_global=Ch_Results,features_TSS=TSS_scores, features_TES=TES_scores,
+features_scaled=geneBody_scores)
 }
 }

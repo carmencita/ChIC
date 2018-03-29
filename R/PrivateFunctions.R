@@ -4,27 +4,79 @@
 #####                                                     ###########
 #####################################################################
 
-#load("Settings.RData")
+# #load("Settings.RData")
+# #' @keywords internal 
+# ##format conversion
+# f_convertFormatBroadPeak <- function(given.clusters)
+# {
+#     chrl <- names(given.clusters)
+#     names(chrl) <- chrl
+#     chrl <- chrl[unlist(lapply(given.clusters, function(d) length(d$s))) > 0]
+#     md <- do.call(rbind, lapply(chrl, function(chr)        
+#     { 
+#         df <- given.clusters[[chr]]
+#         cbind(chr, df$s, df$e, ".", "0", ".", df$rv, -1, -1)
+#     }))
+#     md <- md[order(as.numeric(md[, 7]), decreasing = TRUE), ]
+#     md=data.frame(md)
+#     return(md)
+# }
+
+
+# #' @keywords internal 
+# ##format conversion
+# f_converNarrowPeakFormat =function(bd, margin = bd$whs) 
+# {
+#     if (is.null(margin)) 
+#     {
+#         margin <- 50
+#     }
+#     chrl <- names(bd$npl)
+#     names(chrl) <- chrl
+#     md <- do.call(rbind, lapply(chrl, function(chr) 
+#     {
+#         df <- bd$npl[[chr]]
+#         x <- df$x
+#         rs <- df$rs
+#         if (is.null(rs)){rs <- rep(NA, length(x))}
+#         re <- df$re
+#         if (is.null(re)) {re <- rep(NA, length(x))}
+#         ivi <- which(is.na(rs))
+#         if (any(ivi)) {rs[ivi] <- x[ivi] - margin}
+#         ivi <- which(is.na(re))
+#         if (any(ivi)) {re[ivi] <- x[ivi] + margin}
+#         cbind(chr, rs, re, ".", "0", ".", 
+#             df$y, -1, format(df$fdr, 
+#             scientific = TRUE, digits = 3), x - rs)
+#     }))
+#     md <- md[order(as.numeric(md[, 7]), decreasing = TRUE), ]
+#     md=data.frame(md)
+#     return(md)
+# }
+
 #' @keywords internal 
-##format conversion
+##format conversion (Koustav)
 f_convertFormatBroadPeak <- function(given.clusters)
 {
     chrl <- names(given.clusters)
     names(chrl) <- chrl
-    chrl <- chrl[unlist(lapply(given.clusters, function(d) length(d$s))) > 0]
+    chrl <- chrl[unlist(lapply(
+        given.clusters, function(d) length(d$s))) > 0]
     md <- do.call(rbind, lapply(chrl, function(chr)        
     { 
         df <- given.clusters[[chr]]
-        cbind(chr, df$s, df$e, ".", "0", ".", df$rv, -1, -1)
+        data.frame(chr=chr, start=df$s, end=df$e, name=".", 
+            score="0", strand=".", rv=df$rv, A1=-1, A2=-1)
     }))
     md <- md[order(as.numeric(md[, 7]), decreasing = TRUE), ]
     md=data.frame(md)
-    return(md)
+    md.minimal <- md[,c(1,2,3)]
+    return(md.minimal)
 }
 
 
 #' @keywords internal 
-##format conversion
+##format conversion (Koustav)
 f_converNarrowPeakFormat =function(bd, margin = bd$whs) 
 {
     if (is.null(margin)) 
@@ -45,54 +97,15 @@ f_converNarrowPeakFormat =function(bd, margin = bd$whs)
         if (any(ivi)) {rs[ivi] <- x[ivi] - margin}
         ivi <- which(is.na(re))
         if (any(ivi)) {re[ivi] <- x[ivi] + margin}
-        cbind(chr, rs, re, ".", "0", ".", 
-            df$y, -1, format(df$fdr, 
-            scientific = TRUE, digits = 3), x - rs)
+        data.frame(chr=chr, start=rs, end=re, name=".", 
+            score="0", strand=".", y=df$y, A1=-1, fdr=format(df$fdr, 
+            scientific = TRUE, digits = 3),dist=x - rs)
     }))
     md <- md[order(as.numeric(md[, 7]), decreasing = TRUE), ]
     md=data.frame(md)
-    return(md)
+    md.minimal <- md[,c(1,2,3)]
+    return(md.minimal)
 }
-
-#' @keywords internal 
-##get strand shift
-# f_getCustomStrandShift= function(x,y){
-#     ##x=binidng.characteristics$cross.correlation$x
-#     ##y=binding.characteristics_cross.correlation_y_smoothed
-#     deriv=diff(y)/diff(x)
-#     ##globalminY=min(abs(deriv))
-#     deriv=append(0,deriv)
-#     ##to catch up the right index, because in deriv I loose one array-field
-#     ##globalminX=x[which(abs(deriv)==globalminY)]
-#     ####shift all um 5 nach rechts
-#     ##check from the right side and pick the points 
-#     ##with the x (closest to zero) and y largest 
-#     ###means: search for regions with Vorzeichen change
-#     startVorzeichen=sign(deriv[length(deriv)])
-#     field=NULL
-#     for (index in rev(seq(2,length(deriv))))
-#     {
-#         derivpoint=deriv[index]
-#         xpoint=x[index]
-#         ypoint=y[index]
-#         ##print(paste(xpoint,ypoint,sep=" "))
-#         if (startVorzeichen!=sign(derivpoint))
-#         { 
-#             ###Vorzeichenwechsel
-#             field=rbind(field,c(xpoint,ypoint,derivpoint))
-#             startVorzeichen=sign(derivpoint)
-#         }
-#     }
-#     if (is.null(field) )
-#     {
-#         newShift="ERROR"
-#     }else{
-#         field=data.frame(field)
-#         colnames(field)=c("x","y","deriv")
-#         newShift=field[which(max(field$y)==field$y),]$x
-#     }
-#     return(newShift)
-# }
 
 #' @keywords internal 
 ##reads bam file or tagalign file 
@@ -215,6 +228,91 @@ f_tagDensity=function(data,tag.shift,chromDef,mc=1)
     return(smoothed.density)
 }
 
+# Author: Koustav Pal, 
+# Contact: koustav.pal@ifom.eu, 
+# Affiliation: IFOM - FIRC Institute of Molecular Oncology
+# Why use this function and not the GenomicRanges function 
+# makeGRangesFromDataFrame?
+# 1. This function creates names out of coordinates and does not inherit 
+#names from a data.frame as the default package function does. If it must
+# be inherited, it can be specified with Names=Args. This provides better 
+# control on what the names are for each row and in some cases ensures
+# that users are proactive when using the %in% construct. Because the 
+# default behaviour is to construct new names, when users use an %in% 
+# construct they will encounter an error when older names are not 
+# recycled, forcing them to use the Names=Args parameter.
+# 2. Using cbind > rbind > as.data.frame creates a scenario where first 
+# a matrix is created and then cast as a data.frame. In a matrix all 
+# points must be of the same type. Therefore, when a single row/col contains
+# a character type value all values are cast as factors. 
+# makeGRangesFromDataFrame sticks to R principles and
+# and produces no errors. Rather, as it expects to encounter a numeric 
+# type in start and end cols, all factors are cast back to numeric using 
+# the as.character > as.numeric construct. While this behaviour is helpful, it
+# needlessly uses two additional steps to circumvent a probable bug. 
+# MakeGRangesObject does no such thing 
+# and will return an error as IRanges does not accept factor values.
+MakeGRangesObject = function(Chrom=NULL, Start=NULL, End=NULL, Strand=NULL,
+    Names=NULL,Sep = ":"){
+    #require(GenomicRanges)
+    if(is.null(Names)){
+        Names<-paste(Chrom,as.integer(Start),as.integer(End),sep=Sep)
+    }
+    if(is.null(Strand)){
+        Strand<-rep("*",length(Chrom))
+    }
+        Object<-GenomicRanges::GRanges(
+            seqnames=Rle(Chrom),
+            ranges=IRanges(Start,end=End,names=Names),
+            strand=Rle(strand( Strand )))
+        return(Object)
+}
+# Author: Koustav Pal, 
+# Contact: koustav.pal@ifom.eu, 
+# Affiliation: IFOM - FIRC Institute of Molecular Oncology
+# Creates non-overlapping regions from overlapping regions 
+# in the SAME ranges object.
+ReduceOverlappingRegions <- function(Ranges=NULL){
+    HitsObject <- findOverlaps(query = Ranges,subject = Ranges)
+    PairList <- HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
+    No.overlaps <- Ranges[!(queryHits(HitsObject) %in% queryHits(PairList))]
+    if(length(PairList)==0) {
+        return(No.overlaps)
+    }
+    Done.list <- NULL
+    All.idx <- NULL
+    Q.hits <- unique(queryHits(PairList))
+    NewRanges.list<-list()
+    for(Q.hit in queryHits)
+    {
+        if(!(Q.hit %in% Done.list)){
+            All.paired <- FALSE
+            Priori.length <- 0
+            Priori.query <- 0
+            Query <- Q.hit
+            while(!All.paired){
+                Subjects <- PairList[PairList[,1] %in% Query,2]
+                if(length(Subjects)!=Priori.length){
+                    Priori.length <- length(Subjects)
+                    Priori.query <- Query
+                    Query <- c(Query,Subjects)
+                }else{
+                    All.paired<-TRUE
+                }
+            }
+            Start<-min(start(Ranges[unique(c(Priori.query,Subjects))]))
+            End<-max(end(Ranges[unique(c(Priori.query,Subjects))]))
+            Chrom<-unique(as.vector(seqnames(
+                Ranges[unique(c(Priori.query,Subjects))])))
+            Done.list <- c(Done.list,Priori.query)
+            All.idx <- unique(c(All.idx,Priori.query,Subjects))
+            NewRanges.list[[paste("Boo",Q.hit,sep=".")]]<-MakeGRangesObject(
+                Chrom=Chrom,Start=Start, End=End)         
+        }
+    }
+    NewRanges<-unique(do.call(c,unlist(NewRanges.list,use.names=FALSE)))
+    return(c(NewRanges,No.overlaps))
+}
 
 #####################################################################
 #####                                                       #########
@@ -1192,13 +1290,13 @@ f_plotValueDistribution = function(compendium, title,
 #' @keywords internal 
 ## helper function to select the random forest model
 ## for the respective chromatinmark
-f_getPredictionModel<-function(chrommark,hlist)
+f_getPredictionModel<-function(chrommark, histList)
 {
     #library(randomForest)
     allChrom=f_metaGeneDefinition("Classes")
     data("rf_models", package="ChIC.data", envir=environment())
     
-    if (chrommark %in% Hlist)
+    if (chrommark %in% histList)
     {
         if (chrommark %in% allChrom$allSharp)
         {model=rf_models[["sharpEncode"]]}

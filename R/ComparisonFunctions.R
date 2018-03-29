@@ -37,19 +37,83 @@
 #' @export
 #'
 #' @examples
-#' data(TSSProfile)
-#' metagenePlotsForComparison(data=TSSProfile,chrommark="H3K36me3",tag="TSS")
-
-
+#' print("Example Code")
+#' ## This command is time intensive to run
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ## calculate binding characteristics 
+#' chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
+#' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
+#' ## calculate binding characteristics 
+#' input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
+#' srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'
+#' ##get chromosome information and order chip and input by it
+#' chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
+#' chip.data$tags=chip.datatags[chrl_final]
+#' chip.data$quality=chip.data$quality[chrl_final]
+#' input.data$tags=input.data$tags[chrl_final]
+#' input.data$quality=input.data$quality[chrl_final]
+#'
+#' ##remove sigular positions with extremely high tag counts with 
+#' ##respect to the neighbourhood
+#' selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
+#' chip_binding.characteristics, input_binding.characteristics)
+#' input.dataSelected=selectedTags$input.dataSelected
+#' chip.dataSelected=selectedTags$chip.dataSelected
+#'
+#' ##get smoothed tagdensity 
+#' smoothedChip=tagDensity(chip.dataSelected, 
+#' tag.shift=82)
+#' smoothedInput=tagDensity(input.dataSelected, 
+#' tag.shift=82)
+#'
+#' Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
+#' smoothedInput,tag.shift=82)
+#'
+#' metagenePlotsForComparison(data=Meta_Result$geneBody,chrommark="H3K36me3",
+#' tag="geneBody",savePlotPath=getwd())
+#' metagenePlotsForComparison(data=Meta_Result$TSS,chrommark="H3K36me3",
+#' tag="TSS",savePlotPath=getwd())
+#'}
 
 metagenePlotsForComparison<-function(data, chrommark, tag, savePlotPath=NULL)
 {
-    Hlist=f_metaGeneDefinition("Hlist")
-    psc <- 1; # pseudocount, required to avoid log2 of 0
 
-    stopifnot(chrommark %in% Hlist)
-    stopifnot(tag %in% c("geneBody","TES","TSS"))
-    stopifnot(length(data) == 2L)
+    Hlist=f_metaGeneDefinition("Hlist")
+    # pseudocount, required to avoid log2 of 0
+    psc <- 1; 
+
+    ##########
+    ##check if input format is ok
+    #stopifnot(tag %in% c("geneBody","TES","TSS"))
+    #stopifnot(length(data) == 2L)
+    if (!(is.list(data)&(length(data)==2L)))
+        stop("Invalid format for data")
+    #stopifnot(chrommark %in% Hlist)
+    if (!(chrommark %in% Hlist)) 
+        stop("Chromatin mark not valid. Check manual for valid options.")
+    if (!(tag %in% c("geneBody","TES","TSS"))) 
+        stop("tag not valid! Please use: geneBody, TES or TSS")
+    ##########
 
     iframe=log2(do.call(rbind,data$input)+psc)
     cframe=log2(do.call(rbind,data$chip)+psc)
@@ -135,10 +199,17 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
     currentValue,savePlotPath=NULL)
 {
     Hlist=f_metaGeneDefinition("Hlist")
+
+    ##########
+    ##check if input format is ok
+    #stopifnot(chrommark %in% Hlist)
+    if (!(chrommark %in% Hlist)) 
+        stop("Chromatin mark not valid! (Check manual for valid options)")
+    if (!is.numeric(currentValue))
+        stop("currentValue is not numeric!")
     
-    stopifnot(chrommark %in% Hlist)
-    stopifnot(is.numeric(currentValue))
-    
+    ##########
+
     allChrom=f_metaGeneDefinition("Classes")
     ##reading compendium
     #compendium_db=NULL
@@ -198,12 +269,57 @@ plotReferenceDistribution<-function(chrommark,metricToBePlotted="RSC",
 #' @export
 #'
 #' @return something something
-#'@examples
-#' print("Prediction")
-#'\dontrun{
+#'
+#' @examples
+#' ## This command is time intensive to run
+#' ##To run the example code the user must provide 2 bam files: 
+#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##data from ENCODE. Two example files can be downloaded as follows
+#' ## get bam file
+#' setwd(tempdir())
+#'
+#' \dontrun{
+#' ##chip data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+#' chipName="ENCFF000BLL"
+#' chip.data=readBamFile(chipName)
+#'
+#' ##input data
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
+#' inputName="ENCFF000BKA"
+#' input.data=readBamFile(inputName)
+#'
+#' ##caluclate first set of QC-metrics
+#' CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
+#' read_length=36, mc=5, annotationID="hg19")
+#'
+#' ##save the tagshift as it is needed later
+#' tag.shift=CC_Result$QCscores_ChIP$tag.shift
+#'
+#' ##smoothed tagdensities used as input for the next steps
+#' smoothedDensityInput=CC_Result$TagDensityInput
+#' smoothedChip=CC_Result$TagDensityChip
+#'
+#' ###GLOBAL features#########
+#' ##caluclate second set of QC-metrics
+#' Ch_Results=qualityScores_GM(densityChip=smoothedChip,
+#' densityInput=smoothedInput)
+#'
+#' ###LOCAL features########
+#' ##caluclate third set of QC-metrics
+#' Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
+#' smoothed.densityInput=smoothedInput,tag.shift=tag.shift,annotationID="hg19")
+#'
+#' ##create plots and get values
+#' TSS_scores=qualityScores_LM(Meta_Result$TSS,tag="TSS")
+#' TES_scores=qualityScores_LM(Meta_Result$TES,tag="TES")
+#' geneBody_scores=qualityScores_LMgenebody(Meta_Result$geneBody)
+#'
 #' te=predictionScore(chrommark="H3K36me3", features_cc=CC_Result,
-#' features_global=Ch_Results,features_TSS=TSS_Plot, features_TES=TES_Plot,
-#' features_scaled=geneBody_Plot)
+#' features_global=Ch_Results,features_TSS=TSS_scores, features_TES=TES_scores,
+#' features_scaled=geneBody_scores)
 #'}
 
 
@@ -211,11 +327,28 @@ predictionScore<-function(chrommark, features_cc,
     features_global,features_TSS, features_TES, features_scaled)
 {
     Hlist=f_metaGeneDefinition("Hlist")
-    stopifnot(chrommark %in% Hlist)
-    message("load prediction models...")
+    #stopifnot((chrommark %in% Hlist)&)
 
+    ##########
+    ##check if input format is ok
+    if (!(chrommark %in% Hlist)) 
+        stop("Chromatin mark not valid. Check manual for valid options.")
+    if (!(is.list(features_cc)&(length(features_cc)==5L)))
+        stop("Invalid format for features_cc")
+    if (!(is.list(features_global)&(length(features_global)==9L)))
+        stop("Invalid format for features_global")
+    if (!(is.list(features_TSS)&(length(features_TSS)==3L)))
+        stop("Invalid format for features_TSS")
+    if (!(is.list(features_TES)&(length(features_TES)==3L)))
+        stop("Invalid format for features_TES")
+    if (!(is.list(features_scaled)&(length(features_scaled)==3L)))
+        stop("Invalid format for features_scaled")
+    ##########
+
+    message("load prediction models...")
+    
     ## loaad prediction model
-    pmodel=f_getPredictionModel(chrommark,Hlist)
+    pmodel=f_getPredictionModel(chrommark=chrommark, histList=Hlist)
     ## get features
     selectedFeat=c(colnames(pmodel$trainingData))
     selectedFeat=selectedFeat[-(which(selectedFeat==".outcome"))]

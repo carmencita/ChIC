@@ -64,7 +64,7 @@ and calculates a number of QC-metrics from cross-correlation analysis
 and from peak-calling. 
 
 <<eval=TRUE, echo=TRUE >>=
-require(ChIC)
+require(CHIC)
 chipName="ENCFF000BLL"
 inputName="ENCFF000BKA"
 

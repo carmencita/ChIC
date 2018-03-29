@@ -1,16 +1,21 @@
 #' @import ChIC.data
 #' @import caret
-#' @rawNamespace import(girafe, except = plot)
+#' @rawNamespace import(girafe, except = c(plot,reduce))
 #' @import spp 
+#' @import GenomicRanges
 #' @importFrom graphics abline axis legend lines matplot par
 #' plot polygon text
+#' @importFrom IRanges IRanges findOverlaps
+#' @importFrom BiocGenerics strand
+#' @importFrom S4Vectors Rle queryHits subjectHits
 #' @importFrom grDevices dev.off pdf rainbow
 #' @importFrom stats density na.omit predict quantile sd var
 #' @importFrom utils str write.table data
-#' @importFrom  BiocParallel bplapply
+#' @importFrom BiocParallel bplapply
 #' @importFrom methods new
-#' @importFrom genomeIntervals seqnames interval_union
-#' @importFrom intervals close_intervals
+
+# importFrom genomeIntervals seqnames interval_union
+# importFrom intervals close_intervals
 
 
 #####################################################################
@@ -87,6 +92,36 @@
 qualityScores_EM<-function(chipName, inputName, read_length, 
     annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
 {
+    ##########
+    ##check if input format is ok
+    if (!( is.character(chipName) &  is.character(inputName)))
+        stop("Invalid chipName or inputName (String required)")
+    
+    if (!is.numeric(read_length))
+        stop("read_length must be numeric")  
+    if (read_length<1)
+        stop("tag.shift must be > 0")  
+
+    if (!( is.character(annotationID) & (annotationID=="hg19")))
+    {
+        warning("Invalid annotationID. Setting back to default value. 
+        (Currently only hg19 is supported)")
+        annotationID="hg19"   
+    }
+
+    if (!is.numeric(mc))
+    {
+        warning("mc must be numeric")
+        mc=1
+    }
+
+    if (mc<1)
+    {
+        warning("mc set to 1")
+        mc=1
+    }
+
+    ##########
     message("reading bam files")
     chip.data=readBamFile(chipName)
     input.data=readBamFile(inputName)
@@ -262,9 +297,23 @@ qualityScores_EM<-function(chipName, inputName, read_length,
 #' chip_binding.characteristics, read_length=36)
 #' }
 
-getCrossCorrelationScores<-function(data, bchar, read_length=70, 
+getCrossCorrelationScores<-function(data, bchar, read_length, 
     savePlotPath=NULL, plotname="phantom")
 {
+    ##########
+    ##check if input format is ok
+    if (!(is.list(data)&(length(data)==2L)))
+        stop("Invalid format for data")
+
+    if (!(is.list(bchar)&(length(bchar)==3L)))
+        stop("Invalid format for bchar")
+
+    if (!is.numeric(read_length))
+        stop("read_length must be numeric")  
+    if (read_length<1)
+        stop("tag.shift must be > 0")  
+
+    ##########
 
     ## cross_correlation_customShift_withSmoothing parameters
     ##ccRangeSubset=cross_correlation_range_subset
@@ -436,21 +485,15 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
         "CC_RSC"=round(phScores$RSC,3),
         "CC_QualityFlag"=phScores$quality_flag,
         "CC_shift."=phScores$peak$x,
-        ##"read_length"=phantom_peak.scores$read_length,
         "CC_A."=round(phScores$peak$y,3),
         "CC_B."=round(phScores$phantom_cc$y,3),
         "CC_C."=round(phScores$min_cc$y,3))
     
     ##4 NRF calculation
     message("NRF calculation")
-    ##ALL_TAGS<-sum(sapply(data$tags, length))
-    ##UNIQUE_TAGS<-sum(sapply(lapply(data$tags, unique), length))
-    ##UNIQUE_TAGS_nostrand<-sum(sapply(lapply(data$tags, FUN=function(x) 
-    ##   {unique(abs(x))}), length))
 
     ALL_TAGS<- sum(lengths(data$tags))
     UNIQUE_TAGS<-sum(lengths(lapply(data$tags, unique)))
-
     UNIQUE_TAGS_nostrand=sum(lengths(lapply(data$tags, FUN=function(x){
         unique(abs(x))})))
 
@@ -550,7 +593,7 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
 #' @param input.dataSelected selected Input tags after running 
 #' removeLocalTagAnomalies() which removes local tag anomalies
 #' @param tag.shift Integer containing the value of the tag shif, 
-#' calculated by getCrossCorrelationScores()
+#' calculated by getCrossCorrelationScores(). Default=75
 #' @param chrorder chromosome order (default=NULL) 
 #'
 #' @return QCscoreList List with 6 QC-values
@@ -612,7 +655,24 @@ getCrossCorrelationScores<-function(data, bchar, read_length=70,
 getPeakCallingScores<-function(chip, input, chip.dataSelected, 
     input.dataSelected, tag.shift=75, chrorder=NULL)
 {
-    ##load("Settings.RData")
+    ##########
+    ##check if input format is ok
+    if (!(is.list(chip)&(length(chip)==2L)))
+        stop("Invalid format for data")
+    if (!(is.list(input)&(length(input)==2L)))
+        stop("Invalid format for data")
+
+    if (!is.list(chip.dataSelected))
+        stop("Invalid format for chip.dataSelected")
+    if (!is.list(input.dataSelected))
+        stop("Invalid format for input.dataSelected")
+
+    if (!is.numeric(tag.shift))
+        stop("tag.shift must be numeric")  
+    if (tag.shift<1)
+        stop("tag.shift must be > 0")  
+    ##########
+    
     ##for simplicity we use currently a shorter chromosome frame 
     ##to avoid problems 
     chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
@@ -636,18 +696,8 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
     ##"input",input.data.samplename, "window", current_window_size, "zthresh",
     ##current_zthresh,"broadPeak", sep="."))
     md=f_convertFormatBroadPeak(broad.clusters)
-    broadPeak_genomeIntervals_object<-new("Genome_intervals",
-        .Data=(cbind(
-            as.integer(as.character(md[,2])), 
-            as.integer(as.character(md[,3]))) ), 
-            closed=TRUE,
-        annotation = data.frame(
-            seq_name = factor(md[,1]), 
-                inter_base=FALSE, 
-                start = as.integer(as.character(md[,2])),
-                end =as.integer(as.character(md[,3]))))
-        ##}
-    ##}
+    broadPeakRangesObject<-MakeGRangesObject(Chrom=md$chr,
+        Start=md$start,End=md$end)
 
     ##12 get binding sites with FDR and eval
     chip.data12<-chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
@@ -680,67 +730,47 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
         bp_broadpeak <- spp::add.broad.peak.regions(chip.data12, 
             input.data12, bp_eval, window.size=1000, z.thr=3)
         md=f_converNarrowPeakFormat(bp_broadpeak)
-        sharpPeak_genomeIntervals_object<-new("Genome_intervals",
-            .Data=(cbind(
-                as.integer(as.character(md[,2])), 
-                as.integer(as.character(md[,3]))) ), 
-                closed=TRUE,
-            annotation = data.frame(
-                seq_name = factor(md[,1]), 
-                    inter_base=FALSE, 
-                    start = as.integer(as.character(md[,2])),
-                    end =as.integer(as.character(md[,3]))))
+        sharpPeakRangesObject<-MakeGRangesObject(Chrom=md[,1], 
+            Start=md[,2],End=md[,3])
 
-        ##13 is only looping and writing into file
-        ##15 FRiP
+        ##FRiP
         chip.test<-lapply(chip$tags, FUN=function(x) {x+tag.shift})
-        ##SORTS the tags for each chrom
-        #TOTAL_reads<-sum(sapply(chip.test, length))
-
-        #TOTAL_reads<-sum(unlist(lapply(chip.test, length)))
         TOTAL_reads <- sum(lengths(chip.test))
+
         ##Frip broad binding sites (histones)
-        broadPeak_genomeIntervals_object<-intervals::close_intervals(
-            genomeIntervals::interval_union(broadPeak_genomeIntervals_object))
-        
+        broadPeakRangesObject<-ReduceOverlappingRegions(broadPeakRangesObject)
+       
         regions_data_list<-split(as.data.frame(
-            broadPeak_genomeIntervals_object), 
-            f=genomeIntervals::seqnames(broadPeak_genomeIntervals_object))
+            broadPeakRangesObject), 
+            f=seqnames(broadPeakRangesObject))
 
         chrl<-names(regions_data_list)
         names(chrl)<-chrl
 
-        # outcountsBroadPeak<-sum(sapply(chrl, FUN=function(chr) {
-        #     sum(spp:::points.within(x=abs(chip.test[[chr]]), 
-        #         fs=((regions_data_list[[chr]])[,1]), 
-        #         fe=((regions_data_list[[chr]])[,2]), 
-        #         return.point.counts = TRUE))
-        # }))
         outcountsBroadPeak<-sum(unlist(
             lapply(chrl, FUN=function(chr) {
             sum(spp::points_withinFunction(x=abs(chip.test[[chr]]), 
-                fs=((regions_data_list[[chr]])[,1]), 
-                fe=((regions_data_list[[chr]])[,2]), 
+                fs=regions_data_list[[chr]]$start, 
+                fe=regions_data_list[[chr]]$end, 
                 return.point.counts = TRUE))
-        })))
-
+            })))
         FRiP_broadPeak<-outcountsBroadPeak/TOTAL_reads
 
-        ##Frip sharp peaks 14
-        sharpPeak_genomeIntervals_object<-intervals::close_intervals(
-            genomeIntervals::interval_union(sharpPeak_genomeIntervals_object))
+         ##Frip sharp peaks 14
+        sharpPeakRangesObject<-ReduceOverlappingRegions(sharpPeakRangesObject)
 
         regions_data_list<-split(as.data.frame(
-            sharpPeak_genomeIntervals_object), 
-            f=genomeIntervals::seqnames(sharpPeak_genomeIntervals_object))
+            sharpPeakRangesObject), 
+            f=seqnames(sharpPeakRangesObject))
+
         chrl<-names(regions_data_list)
         names(chrl)<-chrl
 
         outcountsSharpPeak<-sum(unlist(
             lapply(chrl, FUN=function(chr) {
-            sum(spp::points_withinFunction(x=abs(chip.test[[chr]]), 
-                fs=((regions_data_list[[chr]])[,1]), 
-                fe=((regions_data_list[[chr]])[,2]), 
+                sum(spp::points_withinFunction(x=abs(chip.test[[chr]]), 
+                fs=regions_data_list[[chr]]$start, 
+                fe=regions_data_list[[chr]]$end, 
                 return.point.counts = TRUE))
         })))
 
@@ -861,6 +891,14 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
 qualityScores_GM<-function(densityChip, densityInput, 
     savePlotPath=NULL, debug=FALSE)
 {
+    ##########
+    ##check if input format is ok
+    if (!is.list(densityChip))
+        stop("Invalid format for densityChip")
+    if (!is.list(densityInput))
+        stop("Invalid format for densityInput")
+    ########## 
+
     ##shorten frame and reduce resolution
     message("shorten frame")
     chip.smoothed.density=f_shortenFrame(densityChip)
@@ -1016,6 +1054,38 @@ qualityScores_GM<-function(densityChip, densityInput,
 createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput, 
     tag.shift, annotationID="hg19", debug=FALSE, mc=1)
 {
+    ##########
+    ##check if input format is ok
+    if (!is.list(smoothed.densityChip))
+        stop("Invalid format for smoothed.densityChip")
+    if (!is.list(smoothed.densityInput))
+        stop("Invalid format for smoothed.densityInput")
+    
+    if (!is.numeric(tag.shift))
+        stop("tag.shift must be numeric")  
+    if (tag.shift<1)
+        stop("tag.shift must be > 0")  
+    
+    if (!( is.character(annotationID) & (annotationID=="hg19")))
+    {
+        warning("Invalid annotationID. Setting back to default value. 
+        (Currently only hg19 is supported)")
+        annotationID="hg19"   
+    }
+
+    if (!is.numeric(mc))
+    {
+        warning("mc must be numeric")
+        mc=1
+    }
+
+    if (mc<1)
+    {
+        warning("mc set to 1")
+        mc=1
+    }
+    ##########
+
     message("Load gene annotation")
     ##require(ChIC.data)
     if (annotationID=="hg19"){
@@ -1031,14 +1101,22 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     #annotObject=get(hg19_refseq_genes_filtered_granges)
     ##current_annotations_object=refseq_genes_filtered_granges
     ## format annotations as chromosome lists
-    annotObject<-data.frame(annotObject@.Data, 
-        genomeIntervals::annotation(annotObject), stringsAsFactors=FALSE)
-    annotObject$interval_starts<-as.integer(annotObject$interval_starts)
-    annotObject$interval_ends<-as.integer(annotObject$interval_ends)
-    annotObject$seq_name<-as.character(annotObject$seq_name)
-    annotatedGenesPerChr <-split(annotObject,
-        f=annotObject$seq_name)
+    
+    # annotObject<-data.frame(annotObject@.Data, 
+    #     genomeIntervals::annotation(annotObject), stringsAsFactors=FALSE)
+    # annotObject$interval_starts<-as.integer(annotObject$interval_starts)
+    # annotObject$interval_ends<-as.integer(annotObject$interval_ends)
+    # annotObject$seq_name<-as.character(annotObject$seq_name)
+    # annotatedGenesPerChr <-split(annotObject,
+    #     f=annotObject$seq_name)
 
+    annotObjectNew<-data.frame(annotObject@.Data, annotObject@annotation, stringsAsFactors=FALSE)
+    annotObjectNew$interval_starts<-as.integer(annotObjectNew$interval_starts)
+    annotObjectNew$interval_ends<-as.integer(annotObjectNew$interval_ends)
+    annotObjectNew$seq_name<-as.character(annotObjectNew$seq_name)
+    
+    annotatedGenesPerChr <-split(annotObjectNew,
+        f=annotObjectNew$seq_name)
 
     ##two.point.scaling
     ##create scaled metageneprofile
@@ -1046,10 +1124,10 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     message("Calculating scaled metageneprofile ...")
     smoothed.densityInput=list(td=smoothed.densityInput)
     message("process input")
-    
 
     binned_Input = masked_t.get.gene.av.density(smoothed.densityInput, 
         gdl=annotatedGenesPerChr, mc=mc)
+    
     ##Chip
     smoothed.densityChip=list(td=smoothed.densityChip)
     message("process ChIP")
@@ -1125,6 +1203,11 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 
 readBamFile<-function(filename)
 {
+    ##########
+    ##check if input format is ok
+    if (!is.character(filename))
+        stop("Invalid filename (String required)")
+    #########
     result=f_readFile(filename=filename,reads.aligner.type="bam")
     return(result)
 }
@@ -1202,6 +1285,19 @@ readBamFile<-function(filename)
 removeLocalTagAnomalies<-function(chip, input, chip_b.characteristics, 
 input_b.characteristics)
 {
+    ##########
+    ##check if input format is ok
+    if (!(is.list(chip)&(length(chip)==2L)))
+        stop("Invalid format for chip")
+    if (!(is.list(chip_b.characteristics)&(length(chip_b.characteristics)==3L)))
+        stop("Invalid format for chip_b.characteristics")
+
+    if (!(is.list(input)&(length(input)==2L)))
+        stop("Invalid format for input")
+    if (!(is.list(input_b.characteristics)&(length(input_b.characteristics)==3L)))
+        stop("Invalid format for input_b.characteristics")
+    #########
+
     result=f_removeLocalTagAnomalies(chip, input, chip_b.characteristics, 
             input_b.characteristics, remove.local.tag.anomalies=TRUE, 
             select.informative.tags=FALSE)
@@ -1282,18 +1378,42 @@ input_b.characteristics)
 
 tagDensity<-function(data, tag.shift, annotationID="hg19", mc=1)
 {
+    ##########
+    ##check if input format is ok
+    if (!is.list(data))
+        stop("Invalid format for data")
 
-    ##load hg19_chrom_info
-    ##filename=paste(annotationID,"_chrom_info",sep="")
-    ##print(paste("load ",filename))
-    ##load(paste("/data/",filename,sep=""))
+    if (!is.numeric(tag.shift))
+        stop("tag.shift must be numeric")  
+    if (tag.shift<1)
+        stop("tag.shift must be > 0")  
+
+    if (!( is.character(annotationID) & (annotationID=="hg19")))
+    {
+        warning("Invalid annotationID. Setting back to default value. 
+        (Currently only hg19 is supported)")
+        annotationID="hg19"   
+    }
+
+    if (!is.numeric(mc))
+    {
+        warning("mc must be numeric")
+        mc=1
+    }
+
+    if (mc<1)
+    {
+        warning("mc set to 1")
+        mc=1
+    }
+    ##########
+    
+    ##load chrom_info
     if (annotationID=="hg19"){
         #hg19_chrom_info=NULL
         data("hg19_chrom_info", package="ChIC.data", envir = environment())
         chromInfo=hg19_chrom_info
     }
-    ##hg19_chrom_info=get(filename)
-    ##print(str(hg19_chrom_info))
     smoothed.density=f_tagDensity(data=data, 
         tag.shift=tag.shift, 
         chromDef=chromInfo, mc=mc)

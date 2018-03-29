@@ -21,7 +21,7 @@ removeLocalTagAnomalies() which removes local tag anomalies}
 removeLocalTagAnomalies() which removes local tag anomalies}
 
 \item{tag.shift}{Integer containing the value of the tag shif, 
-calculated by getCrossCorrelationScores()}
+calculated by getCrossCorrelationScores(). Default=75}
 
 \item{chrorder}{chromosome order (default=NULL)}
 }
