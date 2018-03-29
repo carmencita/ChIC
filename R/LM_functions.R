@@ -20,7 +20,7 @@
 #' @param data metagene-list for input and chip sample 
 #' of the genebody profile returned by createMetageneProfile()
 #' @param savePlotPath if set the plot will be saved under 
-#' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
+#' 'savePlotPath'. Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
 #' @export
@@ -28,25 +28,25 @@
 #' @return returnList
 #'
 #' @examples
-#' print("Example Code")
+#' print('Example Code')
 #' ## This command is time intensive to run
 #' ##To run the example code the user must provide 2 bam files: 
-#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##one for ChIP and one for the input'. Here we used ChIP-seq 
 #' ##data from ENCODE. Two example files can be downloaded as follows
 #' ## get bam file
 #' setwd(tempdir())
 #'
 #' \dontrun{
 #' ##chip data
-#' system("wget 
-#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
-#' chipName="ENCFF000BLL"
+#' system('wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam')
+#' chipName='ENCFF000BLL'
 #' chip.data=readBamFile(chipName)
 #'
 #' ##input data
-#' system("wget 
-#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
-#' inputName="ENCFF000BKA"
+#' system('wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam')
+#' inputName='ENCFF000BKA'
 #' input.data=readBamFile(inputName)
 #'
 #' ## calculate binding characteristics 
@@ -84,115 +84,122 @@
 #' savePlotPath=getwd())
 #'}
 
-qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
+qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
 {
     stopifnot(length(data) == 2L)
-
-    binnedChip=data$chip
-    binnedInput=data$input
-    message("load metagene setting")
-    settings=f_metaGeneDefinition(selection="Settings")
-    ## pseudocount## required to avoid log2 of 0
-    psc <- 1;
-    break_points_2P=settings$break_points_2P
-    estimated_bin_size_2P=settings$estimated_bin_size_2P
-    chip <- log2(do.call(rbind,binnedChip)+psc)
-    input<-log2(do.call(rbind,binnedInput)+psc)    
-
-    input.noNorm<-colMeans(input,na.rm=TRUE)
-    chip.noNorm <- colMeans(chip,na.rm=TRUE)
-    all.noNorm<-cbind(chip.noNorm, input.noNorm)
-    colnames(all.noNorm)<-c("Chip","Input")
-
-
-    ##values at specific predefined points
-    hotSpotsValues=f_spotfunction(all.noNorm, break_points_2P, 
-        tag="geneBody")
-    ##local maxima and area in all the predefined regions
-    maxAucValues=f_maximaAucfunction(all.noNorm, breaks=break_points_2P, 
-        estBinSize=estimated_bin_size_2P, tag="geneBody")
-
-    ##make plots
-    colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
-    if (!is.null(savePlotPath))
-    {
-        filename=file.path(savePlotPath,"ScaledMetaGene_ChIP_Input.pdf")
-        pdf(file=filename,width=10, height=7)
-    }    
-    par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
-    matplot(x=as.numeric(rownames(all.noNorm)),y=all.noNorm, type="l", 
-        lwd=2, lty=1, col=colori, xlab="metagene coordinates", 
-        ylab="mean of log2 tag density", main="metagene", xaxt='n')
-
-    currBreak_points=break_points_2P[c(-2,-5)]
-    abline(v=c( break_points_2P[c(2,5)]),lty=2,col="darkgrey", lwd=3)
-    abline(v=currBreak_points,lty=3,col="darkgrey", lwd=2)
-    axis(side = 1, at = break_points_2P, 
-        labels = c("-2KB","TSS","TSS+500","TES-500","TES","+1KB"))
-
-    legend(x="topleft", fill=colori, 
-        legend=colnames(all.noNorm),bg="white",cex=0.8)
-
-    if (!is.null(savePlotPath))
-    {
-        dev.off()
-        message("pdf saved under ",filename)
-    }
-
-    ####################
-    ###normalized plot and values
-    ####################
-
-    common_genes<-rownames(input)[rownames(input) %in% rownames(chip)]
-    frameNormalized<-colMeans(
-        t(t(chip[common_genes,])-t(input[common_genes,])), 
-        na.rm=TRUE)
-
-    hotSpotsValuesNorm<-f_spotfunctionNorm(frameNormalized, 
-        breaks=break_points_2P, tag="geneBody")
-    maxAucValuesNorm<-f_maximaAucfunctionNorm(frameNormalized,
-        breaks=break_points_2P, 
-        estBinSize=estimated_bin_size_2P, tag="geneBody")
-    if (!is.null(savePlotPath))
-    {
-        filename=file.path(savePlotPath,"ScaledMetaGene_normalized.pdf")
-        pdf(filename,width=10, height=7)
-    }
-    par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
-    plot(x=as.numeric(names(frameNormalized)),y=frameNormalized, type="l", 
-        lwd=2, lty=1, col="orange",xlab="metagene coordinates", 
-        ylab="mean log2 enrichment (signal/input)",
-        main="normalized metagene", xaxt='n')#,cex.axis=1.3,cex.lab=1.3)
     
-    currBreak_points=break_points_2P[c(-2,-5)]##c(-2000,500,2500,4000)
-    abline(v=c( break_points_2P[c(2,5)]),lty=2,col="darkgrey", lwd=3)
-    abline(v=currBreak_points,lty=3,col="darkgrey", lwd=2)
+    binnedChip <- data$chip
+    binnedInput <- data$input
+    message("load metagene setting")
+    settings <- f_metaGeneDefinition(selection = "Settings")
+    ## pseudocount## required to avoid log2 of 0
+    psc <- 1
+    break_points_2P <- settings$break_points_2P
+    estimated_bin_size_2P <- settings$estimated_bin_size_2P
+    chip <- log2(do.call(rbind, binnedChip) + psc)
+    input <- log2(do.call(rbind, binnedInput) + psc)
+    
+    input.noNorm <- colMeans(input, na.rm = TRUE)
+    chip.noNorm <- colMeans(chip, na.rm = TRUE)
+    all.noNorm <- cbind(chip.noNorm, input.noNorm)
+    colnames(all.noNorm) <- c("Chip", "Input")
+    
+    
+    ## values at specific predefined points
+    hotSpotsValues <- f_spotfunction(all.noNorm, 
+        break_points_2P, tag = "geneBody")
+    ## local maxima and area in all the predefined regions
+    maxAucValues <- f_maximaAucfunction(all.noNorm, 
+        breaks = break_points_2P, 
+        estBinSize = estimated_bin_size_2P, 
+        tag = "geneBody")
+    
+    ## make plots
+    colori <- c(rev(rainbow(ncol(all.noNorm) - 1)), "black")
+    if (!is.null(savePlotPath)) {
+        filename <- file.path(savePlotPath, "ScaledMetaGene_ChIP_Input.pdf")
+        pdf(file = filename, width = 10, height = 7)
+    }
+    par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+    matplot(x = as.numeric(rownames(all.noNorm)), 
+        y = all.noNorm, type = "l", lwd = 2, 
+        lty = 1, col = colori, xlab = "metagene coordinates", 
+        ylab = "mean of log2 tag density", 
+        main = "metagene", xaxt = "n")
+    
+    currBreak_points <- break_points_2P[c(-2, -5)]
+    abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
+        col = "darkgrey", lwd = 3)
+    abline(v = currBreak_points, lty = 3, 
+        col = "darkgrey", lwd = 2)
     axis(side = 1, at = break_points_2P, 
-        labels = c("-2KB","TSS","TSS+500","TES-500","TES","+1KB"))
-
-    legend(x="topleft", fill=colori, legend=colnames(all.noNorm), 
-        bg="white", cex=0.8)
-
-    if (!is.null(savePlotPath))
-    {
+        labels = c("-2KB", "TSS", "TSS+500", "TES-500", "TES", "+1KB"))
+    
+    legend(x = "topleft", fill = colori, legend = colnames(all.noNorm), 
+        bg = "white", 
+        cex = 0.8)
+    
+    if (!is.null(savePlotPath)) {
         dev.off()
-        message("pdf saved under ",filename)
+        message("pdf saved under ", filename)
     }
-
-    p1=rbind(hotSpotsValues,maxAucValues)
-    p3=rbind(hotSpotsValuesNorm, maxAucValuesNorm)
-    result=data.frame(cbind(p1,p3)) 
-
-    if (debug)
-    {
+    
+    #################### normalized plot and values
+    
+    common_genes <- rownames(input)[rownames(input) %in% rownames(chip)]
+    frameNormalized <- colMeans(
+        t(t(chip[common_genes, ]) - t(input[common_genes, ])), 
+        na.rm = TRUE)
+    
+    hotSpotsValuesNorm <- f_spotfunctionNorm(frameNormalized, 
+        breaks = break_points_2P, 
+        tag = "geneBody")
+    maxAucValuesNorm <- f_maximaAucfunctionNorm(frameNormalized, 
+        breaks = break_points_2P, 
+        estBinSize = estimated_bin_size_2P, tag = "geneBody")
+    if (!is.null(savePlotPath)) {
+        filename <- file.path(savePlotPath, "ScaledMetaGene_normalized.pdf")
+        pdf(filename, width = 10, height = 7)
+    }
+    par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+    plot(x = as.numeric(names(frameNormalized)), 
+        y = frameNormalized, 
+        type = "l", 
+        lwd = 2, lty = 1, col = "orange", 
+        xlab = "metagene coordinates", 
+        ylab = "mean log2 enrichment (signal/input)", 
+        main = "normalized metagene", xaxt = "n")  #,cex.axis=1.3,cex.lab=1.3)
+    
+    currBreak_points <- break_points_2P[c(-2, -5)]  ##c(-2000,500,2500,4000)
+    abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
+        col = "darkgrey", lwd = 3)
+    abline(v = currBreak_points, lty = 3, 
+        col = "darkgrey", lwd = 2)
+    axis(side = 1, at = break_points_2P, 
+        labels = c("-2KB", "TSS", "TSS+500", "TES-500", "TES", "+1KB"))
+    
+    legend(x = "topleft", fill = colori, 
+        legend = colnames(all.noNorm), bg = "white", 
+        cex = 0.8)
+    
+    if (!is.null(savePlotPath)) {
+        dev.off()
+        message("pdf saved under ", filename)
+    }
+    
+    p1 <- rbind(hotSpotsValues, maxAucValues)
+    p3 <- rbind(hotSpotsValuesNorm, maxAucValuesNorm)
+    result <- data.frame(cbind(p1, p3))
+    
+    if (debug) {
         message("Debugging mode ON")
-        outname=file.path(getwd(), "geneBody.result")
+        outname <- file.path(getwd(), "geneBody.result")
         file.remove(outname)
-        write.table(result,file=outname,
-            row.names = TRUE, col.names=TRUE, quote = FALSE)
+        write.table(result, file = outname, row.names = TRUE, 
+            col.names = TRUE, quote = FALSE)
     }
-
-    return(result)   
+    
+    return(result)
 }
 
 
@@ -217,10 +224,10 @@ qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
 #'
 #' @param data metagene-list for input and chip sample for
 #' TSS or TES returned by createMetageneProfile()
-#' @param tag String that can be "TSS" or "TES",indicating if the TSS or 
-#' the TES profile should be calcualted (Default="TSS")
+#' @param tag String that can be 'TSS' or 'TES',indicating if the TSS or 
+#' the TES profile should be calcualted (Default='TSS')
 #' @param savePlotPath if set the plot will be saved under 
-#' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
+#' 'savePlotPath'. Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
 #' @export
@@ -229,25 +236,25 @@ qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
 #' normalized metagene profile
 #'
 #' @examples
-#' message("Example Code")
+#' message('Example Code')
 #' ## This command is time intensive to run
 #' ##To run the example code the user must provide 2 bam files: 
-#' ##one for ChIP and one for the input". Here we used ChIP-seq 
+#' ##one for ChIP and one for the input'. Here we used ChIP-seq 
 #' ##data from ENCODE. Two example files can be downloaded as follows
 #' ## get bam file
 #' setwd(tempdir())
 #'
 #' \dontrun{
 #' ##chip data
-#' system("wget 
-#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
-#' chipName="ENCFF000BLL"
+#' system('wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam')
+#' chipName='ENCFF000BLL'
 #' chip.data=readBamFile(chipName)
 #'
 #' ##input data
-#' system("wget 
-#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam")
-#' inputName="ENCFF000BKA"
+#' system('wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BKA.bam')
+#' inputName='ENCFF000BKA'
 #' input.data=readBamFile(inputName)
 #'
 #' ## calculate binding characteristics 
@@ -281,144 +288,147 @@ qualityScores_LMgenebody<-function(data, savePlotPath=NULL, debug=FALSE)
 #' Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
 #' smoothedInput,tag.shift=82)
 #'
-#' TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS",
+#' TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag='TSS',
 #' savePlotPath=getwd())
 #'}
 
-qualityScores_LM<-function(data, tag, savePlotPath=NULL, debug=FALSE)
-{    
-    stopifnot(tag %in% c("TES","TSS"))
+qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE) 
+{
+    stopifnot(tag %in% c("TES", "TSS"))
     stopifnot(length(data) == 2L)
-
-    binnedChip=data$chip
-    binnedInput=data$input
+    
+    binnedChip <- data$chip
+    binnedInput <- data$input
     message("load metagene setting")
-    #load("Settings.RData")
-    settings=f_metaGeneDefinition(selection="Settings")
-    break_points=settings$break_points
-    estimated_bin_size_1P=settings$estimated_bin_size_1P
-
+    # load('Settings.RData')
+    settings <- f_metaGeneDefinition(selection = "Settings")
+    break_points <- settings$break_points
+    estimated_bin_size_1P <- settings$estimated_bin_size_1P
+    
     ## pseudocount## required to avoid log2 of 0
-    psc <- 1;
-    chip <-log2(do.call(rbind,binnedChip)+psc)
-    input<-log2(do.call(rbind,binnedInput)+psc)
-
-
-    input.noNorm<-colMeans(input,na.rm=TRUE)
-    chip.noNorm <- colMeans(chip,na.rm=TRUE)
-    all.noNorm=NULL
-    all.noNorm<-cbind(chip.noNorm, input.noNorm)
-    colnames(all.noNorm)<-c("Chip","Input")
+    psc <- 1
+    chip <- log2(do.call(rbind, binnedChip) + psc)
+    input <- log2(do.call(rbind, binnedInput) + psc)
     
-
-    ##values at specific predefined points
-    hotSpotsValues=f_spotfunction(all.noNorm, break_points, 
-        tag=tag)
-    ##local maxima and area in all the predefined regions
-    maxAucValues=f_maximaAucfunction(all.noNorm, break_points, 
-        estimated_bin_size_1P, tag=tag)
-
-    ## chip_dispersion_TES_-1000_0% 
-    ## chip_dispersion_TES_-1000_25% 
-    ## chip_dispersion_TES_-1000_50% 
-    ## chip_dispersion_TES_-1000_75% 
-    ## chip_dispersion_TES_-1000_sd 
-    ## chip_dispersion_TES_-1000_variance 
-
     
-    variabilityValues=f_variabilityValues(all.noNorm, break_points, 
-        tag=tag)
-
-    ##make plots
-    colori<-c(rev(rainbow(ncol(all.noNorm)-1)), "black")
-    if (!is.null(savePlotPath))
-    {
-        filename=file.path(savePlotPath,paste("ChIP_Input_",tag,".pdf",sep=""))
-        pdf(file=filename,width=10, height=7)
-    }    
-    par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
-    matplot(x=as.numeric(rownames(all.noNorm)), 
-        y=all.noNorm, type="l", lwd=2, lty=1,
-        col=colori,xlab="metagene coordinates",
-        ylab="mean of log2 tag density",main=tag,xaxt='n')
-
-
-    newbreak_points=break_points[-c(4)]# c(-2000,-1000,-500,500,1000,2000)
-    abline(v=0,lty=2,col="darkgrey", lwd=2)
-    abline(v=newbreak_points,lty=3,col="darkgrey", lwd=2)
-    ##abline(v=0,lty=2,col="darkgrey", lwd=2)###plot TSS        
-    ##plotPoints=c(-2000,-1000,-500,500,1000,2000)###plot remaining be
-    ##abline(v=plotPoints,lty=3,col="darkgrey", lwd=2)
+    input.noNorm <- colMeans(input, na.rm = TRUE)
+    chip.noNorm <- colMeans(chip, na.rm = TRUE)
+    all.noNorm <- NULL
+    all.noNorm <- cbind(chip.noNorm, input.noNorm)
+    colnames(all.noNorm) <- c("Chip", "Input")
+    
+    
+    ## values at specific predefined points
+    hotSpotsValues <- f_spotfunction(all.noNorm, break_points, tag = tag)
+    ## local maxima and area in all the predefined regions
+    maxAucValues <- f_maximaAucfunction(all.noNorm, break_points, 
+        estimated_bin_size_1P, 
+        tag = tag)
+    
+    ## chip_dispersion_TES_-1000_0% chip_dispersion_TES_-1000_25%
+    ## chip_dispersion_TES_-1000_50% chip_dispersion_TES_-1000_75%
+    ## chip_dispersion_TES_-1000_sd chip_dispersion_TES_-1000_variance
+    
+    
+    variabilityValues <- f_variabilityValues(all.noNorm, 
+        break_points, 
+        tag = tag)
+    
+    ## make plots
+    colori <- c(rev(rainbow(ncol(all.noNorm) - 1)), "black")
+    if (!is.null(savePlotPath)) {
+        filename <- file.path(savePlotPath, 
+            paste("ChIP_Input_", tag, ".pdf", sep = ""))
+        pdf(file = filename, width = 10, height = 7)
+    }
+    par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+    matplot(x = as.numeric(rownames(all.noNorm)), y = all.noNorm, 
+        type = "l", lwd = 2, 
+        lty = 1, col = colori, xlab = "metagene coordinates", 
+        ylab = "mean of log2 tag density", 
+        main = tag, xaxt = "n")
+    
+    
+    newbreak_points <- break_points[-c(4)]  
+    # c(-2000,-1000,-500,500,1000,2000)
+    abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)
+    abline(v = newbreak_points, lty = 3, col = "darkgrey", lwd = 2)
+    ## abline(v=0,lty=2,col='darkgrey', lwd=2)###plot TSS
+    ## plotPoints=c(-2000,-1000,-500,500,1000,2000)###plot remaining be
+    ## abline(v=plotPoints,lty=3,col='darkgrey', lwd=2)
     axis(side = 1, at = break_points, 
-        labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
-    legend(x="topleft", fill=colori, legend=colnames(all.noNorm), 
-        bg="white",cex=0.8)
-
-    if (!is.null(savePlotPath))
-    {
-        dev.off()
-        message("pdf saved under ",filename)
-    }
-
-
-    ##normalized plot and values
-    common_genes<-rownames(input)[rownames(input) %in% rownames(chip)]
-
-    all.Norm<-colMeans(t
-        (t(chip[common_genes,])-t(input[common_genes,])),na.rm=TRUE)
-
-    hotSpotsValuesNorm=f_spotfunctionNorm(all.Norm, break_points, 
-        tag=tag)
-
-    maxAucValuesNorm=f_maximaAucfunctionNorm(all.Norm, break_points, 
-        estimated_bin_size_1P, tag=tag)
-
-    variabilityValuesNorm=f_variabilityValuesNorm(all.noNorm, break_points, 
-        tag=tag)
-
-
-    if (!is.null(savePlotPath))
-    {
-        filename=file.path(savePlotPath,paste("Normalized_",tag,".pdf",sep=""))
-        pdf(file=filename,width=10, height=7)
-    }
-    par(mar = c(3.5,3.5,2.0,0.5), mgp = c(2,0.65,0), cex = 1);
-    plot(x=as.numeric(names(all.Norm)),y=all.Norm, type="l", lwd=2, lty=1, 
-        col="orange",xlab="metagene coordinates",
-        ylab="mean log2 enrichment (signal/input)",
-        main=paste("normalized",tag,sep=" "), xaxt='n')
-
-    abline(v=0,lty=2,col="darkgrey", lwd=2)
-    abline(v=newbreak_points,lty=3,col="darkgrey", lwd=2)
-    axis(side = 1, at = break_points, 
-        labels = c("-2KB","-1KB","-500",tag,"500","+1KB","+2KB"))
-    legend(x="topleft", fill=colori, legend=colnames(all.noNorm), 
-        bg="white", cex=0.8)
+        labels = c("-2KB", "-1KB", "-500", tag, "500", "+1KB", "+2KB"))
+    legend(x = "topleft", fill = colori, legend = colnames(all.noNorm), 
+        bg = "white", 
+        cex = 0.8)
     
-    if (!is.null(savePlotPath))
-    {
+    if (!is.null(savePlotPath)) {
         dev.off()
-        message("pdf saved under ",filename)
+        message("pdf saved under ", filename)
     }
-
-    #convert values and features to one frame
-    p1=rbind(hotSpotsValues,maxAucValues)
-    p2=rbind(variabilityValues[[1]], 
-        variabilityValues[[2]],
+    
+    
+    ## normalized plot and values
+    common_genes <- rownames(input)[rownames(input) %in% rownames(chip)]
+    
+    all.Norm <- colMeans(
+        t(t(chip[common_genes, ]) - t(input[common_genes, ])), 
+        na.rm = TRUE)
+    
+    hotSpotsValuesNorm <- f_spotfunctionNorm(all.Norm, 
+        break_points, tag = tag)
+    
+    maxAucValuesNorm <- f_maximaAucfunctionNorm(all.Norm, 
+        break_points, estimated_bin_size_1P, 
+        tag = tag)
+    
+    variabilityValuesNorm <- f_variabilityValuesNorm(all.noNorm, 
+        break_points, tag = tag)
+    
+    
+    if (!is.null(savePlotPath)) {
+        filename <- file.path(savePlotPath, 
+            paste("Normalized_", tag, ".pdf", sep = ""))
+        pdf(file = filename, width = 10, height = 7)
+    }
+    par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+    plot(x = as.numeric(names(all.Norm)), y = all.Norm, 
+        type = "l", lwd = 2, lty = 1, 
+        col = "orange", xlab = "metagene coordinates", 
+        ylab = "mean log2 enrichment (signal/input)", 
+        main = paste("normalized", tag, sep = " "), xaxt = "n")
+    
+    abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)
+    abline(v = newbreak_points, lty = 3, col = "darkgrey", lwd = 2)
+    axis(side = 1, at = break_points, 
+        labels = c("-2KB", "-1KB", "-500", tag, "500", "+1KB", "+2KB"))
+    legend(x = "topleft", fill = colori, 
+        legend = colnames(all.noNorm), bg = "white", 
+        cex = 0.8)
+    
+    if (!is.null(savePlotPath)) {
+        dev.off()
+        message("pdf saved under ", filename)
+    }
+    
+    # convert values and features to one frame
+    p1 <- rbind(hotSpotsValues, maxAucValues)
+    p2 <- rbind(variabilityValues[[1]], 
+        variabilityValues[[2]], 
         variabilityValues[[3]])
-    p3=rbind(hotSpotsValuesNorm, maxAucValuesNorm)
-    p4=rbind(variabilityValuesNorm[[1]], 
-        variabilityValuesNorm[[2]],
+    p3 <- rbind(hotSpotsValuesNorm, maxAucValuesNorm)
+    p4 <- rbind(variabilityValuesNorm[[1]], 
+        variabilityValuesNorm[[2]], 
         variabilityValuesNorm[[3]])
-    result=data.frame(cbind(rbind(p1,p2),rbind(p3,p4)))
-
-    if (debug)
-    {
+    result <- data.frame(cbind(rbind(p1, p2), rbind(p3, p4)))
+    
+    if (debug) {
         message("Debugging mode ON")
-        outname=file.path(getwd(), paste(tag,"onepoints.result",sep="_"))
+        outname <- file.path(getwd(), 
+            paste(tag, "onepoints.result", sep = "_"))
         file.remove(outname)
-        write.table(result,file=outname,row.names = TRUE, 
-            col.names=TRUE, quote = FALSE)
+        write.table(result, file = outname, 
+            ow.names = TRUE, col.names = TRUE, quote = FALSE)
     }
     return(result)
 }

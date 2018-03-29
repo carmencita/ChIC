@@ -14,15 +14,12 @@
 #' @importFrom BiocParallel bplapply
 #' @importFrom methods new
 
-# importFrom genomeIntervals seqnames interval_union
-# importFrom intervals close_intervals
+#######################################################################
+###############                                         ###############  
+############### FUNCTIONS QC-metrics for narrow binding PROFILES ######
+###############                                         ###############
+#######################################################################
 
-
-#####################################################################
-####                                                  ###############
-#### FUNCTIONS QC-metrics for narrow binding PROFILES ###############
-####                                                  ###############
-#####################################################################
 
 
 #' @title Wrapper function to calculate QC-metrics from 
@@ -89,138 +86,139 @@
 #'}
 
 
-qualityScores_EM<-function(chipName, inputName, read_length, 
-    annotationID="hg19", mc=1, savePlotPath=NULL, debug=FALSE)
+qualityScores_EM <- function(chipName, inputName, read_length, 
+    annotationID = "hg19", mc = 1, savePlotPath = NULL, debug = FALSE) 
 {
-    ##########
-    ##check if input format is ok
-    if (!( is.character(chipName) &  is.character(inputName)))
+    ########## check if input format is ok
+    if (!(is.character(chipName) & is.character(inputName))) 
         stop("Invalid chipName or inputName (String required)")
     
-    if (!is.numeric(read_length))
-        stop("read_length must be numeric")  
-    if (read_length<1)
-        stop("tag.shift must be > 0")  
-
-    if (!( is.character(annotationID) & (annotationID=="hg19")))
-    {
+    if (!is.numeric(read_length)) 
+        stop("read_length must be numeric")
+    if (read_length < 1) 
+        stop("tag.shift must be > 0")
+    
+    if (!(is.character(annotationID) & (annotationID == "hg19"))) {
         warning("Invalid annotationID. Setting back to default value. 
         (Currently only hg19 is supported)")
-        annotationID="hg19"   
+        annotationID <- "hg19"
     }
-
-    if (!is.numeric(mc))
-    {
+    
+    if (!is.numeric(mc)) {
         warning("mc must be numeric")
-        mc=1
+        mc <- 1
     }
-
-    if (mc<1)
-    {
+    
+    if (mc < 1) {
         warning("mc set to 1")
-        mc=1
+        mc <- 1
     }
-
-    ##########
+    
+    ########## 
     message("reading bam files")
-    chip.data=readBamFile(chipName)
-    input.data=readBamFile(inputName)
-
-    if (debug)
-    {
-        save(chip.data, input.data, file="bamFiles.RData")
+    chip.data <- readBamFile(chipName)
+    input.data <- readBamFile(inputName)
+    
+    if (debug) {
+        save(chip.data, input.data, file = "bamFiles.RData")
     }
-
-    ##plot and calculate cross correlation and phantom characteristics
-    ##for the ChIP
+    
+    ## plot and calculate cross correlation and phantom 
+    ## characteristics for the ChIP
     message("calculate binding characteristics ChIP")
     ## cross_correlation parameters
-    estimating_fragment_length_range<-c(0,500)
-    estimating_fragment_length_bin<-5
-
-    ##chip_binding.characteristics<-get.binding.characteristics(chip.data, 
-    ##srange=estimating_fragment_length_range, 
-    ##bin=estimating_fragment_length_bin, accept.all.tags=T)
-
+    estimating_fragment_length_range <- c(0, 500)
+    estimating_fragment_length_bin <- 5
+    
+    ## chip_binding.characteristics<-get.binding.characteristics(chip.data,
+    ## srange=estimating_fragment_length_range, 
+    ## bin=estimating_fragment_length_bin,
+    ## accept.all.tags=T)
+    
     chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
-        srange=estimating_fragment_length_range, 
-        bin=estimating_fragment_length_bin,accept.all.tags=TRUE)
-
+        srange = estimating_fragment_length_range, 
+        bin = estimating_fragment_length_bin, accept.all.tags = TRUE)
+    
     message("calculate cross correlation QC-metrics for the Chip")
-    crossvalues_Chip<- getCrossCorrelationScores(chip.data, 
+    crossvalues_Chip <- getCrossCorrelationScores(chip.data, 
         chip_binding.characteristics, 
-        read_length=read_length, 
-        savePlotPath=savePlotPath, plotname="ChIP")
-    ##save the tag.shift
-    final.tag.shift<-crossvalues_Chip$tag.shift
-
-    ##plot and calculate cross correlation and phantom characteristics 
-    ##for the input
+        read_length = read_length, 
+        savePlotPath = savePlotPath, plotname = "ChIP")
+    ## save the tag.shift
+    final.tag.shift <- crossvalues_Chip$tag.shift
+    
+    ## plot and calculate cross correlation and phantom 
+    ## characteristics for the input
     message("calculate binding characteristics Input")
     
     input_binding.characteristics<-spp::get.binding.characteristics(input.data,
-        srange=estimating_fragment_length_range, 
-        bin=estimating_fragment_length_bin, accept.all.tags=TRUE)
-
+        srange = estimating_fragment_length_range, 
+        bin = estimating_fragment_length_bin, 
+        accept.all.tags = TRUE)
+    
     message("calculate cross correlation QC-metrics for the Input")
-    crossvalues_Input=getCrossCorrelationScores(input.data, 
-        input_binding.characteristics, read_length=read_length, 
-        savePlotPath=savePlotPath,plotname="Input")
-
-    if (debug)
-    {
+    crossvalues_Input <- getCrossCorrelationScores(input.data, 
+        input_binding.characteristics, 
+        read_length = read_length, 
+        savePlotPath = savePlotPath, plotname = "Input")
+    
+    if (debug) {
         save(chip_binding.characteristics, input_binding.characteristics, 
-            file="bindingCharacteristics.RData")
+            file = "bindingCharacteristics.RData")
     }
-
-    ##get chromosome information and order chip and input by it
-    chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
-    chip.data$tags=chip.data$tags[chrl_final]
-    chip.data$quality=chip.data$quality[chrl_final]
-    input.data$tags=input.data$tags[chrl_final]
-    input.data$quality=input.data$quality[chrl_final]
-
-    ##remove sigular positions with extremely high tag counts with 
-    ##respect to the neighbourhood
-    selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
-        chip_binding.characteristics, input_binding.characteristics)
     
-    input.dataSelected=selectedTags$input.dataSelected
-    chip.dataSelected=selectedTags$chip.dataSelected
-
-    if (debug)
-    {
-        save(chip.dataSelected,input.dataSelected,file="dataSelected.RData")
+    ## get chromosome information and order chip and input by it
+    chrl_final <- intersect(names(chip.data$tags), names(input.data$tags))
+    chip.data$tags <- chip.data$tags[chrl_final]
+    chip.data$quality <- chip.data$quality[chrl_final]
+    input.data$tags <- input.data$tags[chrl_final]
+    input.data$quality <- input.data$quality[chrl_final]
+    
+    ## remove sigular positions with extremely high tag counts with respect 
+    ## to the neighbourhood
+    selectedTags <- removeLocalTagAnomalies(chip.data, input.data, 
+        chip_binding.characteristics, 
+        input_binding.characteristics)
+    
+    input.dataSelected <- selectedTags$input.dataSelected
+    chip.dataSelected <- selectedTags$chip.dataSelected
+    
+    if (debug) {
+        save(chip.dataSelected, input.dataSelected, 
+            file = "dataSelected.RData")
     }
-
-    ##get QC-values from peak calling
-    bindingScores=getPeakCallingScores(chip.data, input.data, 
-        chip.dataSelected, input.dataSelected, final.tag.shift)
     
-    ##objects of smoothed tag density for ChIP and Input
-    smoothed.densityChip=tagDensity(chip.dataSelected, 
-        final.tag.shift, annotationID=annotationID, mc=mc)
-    smoothed.densityInput=tagDensity(input.dataSelected, 
-        final.tag.shift, annotationID=annotationID, mc=mc)
+    ## get QC-values from peak calling
+    bindingScores <- getPeakCallingScores(chip.data, 
+        input.data, 
+        chip.dataSelected, 
+        input.dataSelected, 
+        final.tag.shift)
     
-    returnList=list("QCscores_ChIP"=crossvalues_Chip,
-        "QCscores_Input"=crossvalues_Input,
-        "QCscores_binding"=bindingScores,
-        "TagDensityChip"=smoothed.densityChip,
-        "TagDensityInput"=smoothed.densityInput)
-
-    if (debug)
-    {
-        writeout=list("QCscores_ChIP"=crossvalues_Chip,
-        "QCscores_Input"=crossvalues_Input,
-        "QCscores_binding"=bindingScores)
-        write.table(writeout, file=file.path(getwd(), "CC.results"))
-        save(smoothed.densityChip, smoothed.densityInput,
-            file="smoothed.RData")
+    ## objects of smoothed tag density for ChIP and Input
+    smoothed.densityChip <- tagDensity(chip.dataSelected, final.tag.shift, 
+        annotationID = annotationID, mc = mc)
+    smoothed.densityInput <- tagDensity(input.dataSelected, final.tag.shift, 
+        annotationID = annotationID, mc = mc)
+    
+    returnList <- list(QCscores_ChIP = crossvalues_Chip, 
+        QCscores_Input = crossvalues_Input, 
+        QCscores_binding = bindingScores, 
+        TagDensityChip = smoothed.densityChip, 
+        TagDensityInput = smoothed.densityInput)
+    
+    if (debug) {
+        writeout <- list(QCscores_ChIP = crossvalues_Chip, 
+            QCscores_Input = crossvalues_Input, 
+            QCscores_binding = bindingScores)
+        write.table(writeout, file = file.path(getwd(), "CC.results"))
+        save(smoothed.densityChip, smoothed.densityInput, 
+            file = "smoothed.RData")
     }
     return(returnList)
-
+    
 }
+
 
 
 #' @title QC-metrics from cross-correlation profile, phantom peak and 
@@ -297,274 +295,268 @@ qualityScores_EM<-function(chipName, inputName, read_length,
 #' chip_binding.characteristics, read_length=36)
 #' }
 
-getCrossCorrelationScores<-function(data, bchar, read_length, 
-    savePlotPath=NULL, plotname="phantom")
+getCrossCorrelationScores <- function(data, bchar, read_length, 
+    savePlotPath = NULL, plotname = "phantom") 
 {
-    ##########
-    ##check if input format is ok
-    if (!(is.list(data)&(length(data)==2L)))
+    ########## check if input format is ok
+    if (!(is.list(data) & (length(data) == 2L))) 
         stop("Invalid format for data")
-
-    if (!(is.list(bchar)&(length(bchar)==3L)))
+    
+    if (!(is.list(bchar) & (length(bchar) == 3L))) 
         stop("Invalid format for bchar")
-
-    if (!is.numeric(read_length))
-        stop("read_length must be numeric")  
-    if (read_length<1)
-        stop("tag.shift must be > 0")  
-
-    ##########
-
+    
+    if (!is.numeric(read_length)) 
+        stop("read_length must be numeric")
+    if (read_length < 1) 
+        stop("tag.shift must be > 0")
+    
+    ########## 
+    
     ## cross_correlation_customShift_withSmoothing parameters
-    ##ccRangeSubset=cross_correlation_range_subset
-    ccRangeSubset<-100:500
-    cross_correlation_smoothing_k<-10    
+    ## ccRangeSubset=cross_correlation_range_subset
+    ccRangeSubset <- 100:500
+    cross_correlation_smoothing_k <- 10
     ## Phantom peaks
-    PhantomPeak_range<-c(-500, 1500)
-    PhPeakbin<-5
-
-    ##step 1.2: Phantom peak and cross-correlation
+    PhantomPeak_range <- c(-500, 1500)
+    PhPeakbin <- 5
+    
+    ## step 1.2: Phantom peak and cross-correlation
     message("Phantom peak and cross-correlation")
-    phChar<-spp::get.binding.characteristics(data, 
-        srange=PhantomPeak_range, bin=PhPeakbin, accept.all.tags=TRUE)
-
-    ph_peakidx<-which(
-        (phChar$cross.correlation$x >= (read_length-round(2*PhPeakbin))) & 
-        (phChar$cross.correlation$x <= (read_length+round(1.5*PhPeakbin)))
-    )
-
-    ph_peakidx<-ph_peakidx[which.max(phChar$cross.correlation$y[ph_peakidx])] 
-    phantom_cc<-phChar$cross.correlation[ph_peakidx,]
-
+    phChar <- spp::get.binding.characteristics(data, 
+        srange = PhantomPeak_range, 
+        bin = PhPeakbin, accept.all.tags = TRUE)
+    
+    ph_peakidx <- which(
+        (phChar$cross.correlation$x >= (read_length - round(2 * PhPeakbin))) & 
+        (phChar$cross.correlation$x <= (read_length + round(1.5 * PhPeakbin))))
+    
+    ph_peakidx <- ph_peakidx[which.max(phChar$cross.correlation$y[ph_peakidx])]
+    phantom_cc <- phChar$cross.correlation[ph_peakidx, ]
+    
     ## Minimum value of cross correlation in srange
-    min_cc<-phChar$cross.correlation[which.min(phChar$cross.correlation$y) , ]
+    min_cc <- phChar$cross.correlation[which.min(phChar$cross.correlation$y), ]
     ## Normalized Strand cross-correlation coefficient (NSC)
-    NSC<-phChar$peak$y / min_cc$y
-    ##Relative Strand Cross correlation Coefficient (RSC)
-    RSC<-(phChar$peak$y-min_cc$y)/(phantom_cc$y-min_cc$y)
-
+    NSC <- phChar$peak$y/min_cc$y
+    ## Relative Strand Cross correlation Coefficient (RSC)
+    RSC <- (phChar$peak$y - min_cc$y)/(phantom_cc$y - min_cc$y)
+    
     ## Quality flag based on RSC value
     qflag <- f_qflag(RSC)
-    ##phScores=phantom_peak.scores
-    phScores<- list(phantom_cc=phantom_cc, 
-        NSC=NSC, RSC=RSC, quality_flag=qflag, 
-        min_cc=min_cc, peak=phChar$peak, 
-        read_length=read_length)
+    ## phScores=phantom_peak.scores
+    phScores <- list(phantom_cc = phantom_cc, 
+        NSC = NSC, RSC = RSC, quality_flag = qflag, 
+        min_cc = min_cc, peak = phChar$peak, read_length = read_length)
     
     message("smooting...")
-    ##2.0 smoothed cross correlation
-    ##ss is subset selection
-    ss<- which(bchar$cross.correlation$x %in% ccRangeSubset) 
-    bchar$cross.correlation<-bchar$cross.correlation[ss,]
-    ##add smoothing
-    ##bindCharCC_Ysmoothed=binding.characteristics_cross.correlation_y_smoothed
-    bindCharCC_Ysmoothed<-caTools::runmean(
-        bchar$cross.correlation$y, k=cross_correlation_smoothing_k)
-    ##assign the new maximum coordinates
-    bchar$peak$y<-max(bindCharCC_Ysmoothed)
-    iindex=(which(bindCharCC_Ysmoothed==bchar$peak$y))
-    bchar$peak$x<-bchar$cross.correlation$x[iindex]
-
+    ## 2.0 smoothed cross correlation ss is subset selection
+    ss <- which(bchar$cross.correlation$x %in% ccRangeSubset)
+    bchar$cross.correlation <- bchar$cross.correlation[ss, ]
+    ## add smoothing
+    bindCharCC_Ysmoothed <- caTools::runmean(bchar$cross.correlation$y, 
+        k = cross_correlation_smoothing_k)
+    ## assign the new maximum coordinates
+    bchar$peak$y <- max(bindCharCC_Ysmoothed)
+    iindex <- (which(bindCharCC_Ysmoothed == bchar$peak$y))
+    bchar$peak$x <- bchar$cross.correlation$x[iindex]
+    
     ## plot cross correlation curve with smoothing
-
-    strandShift<-bchar$peak$x
+    
+    strandShift <- bchar$peak$x
     message("Check strandshift...")
     
-    a = tryCatch({
-        deriv=diff(bindCharCC_Ysmoothed)/diff(bchar$cross.correlation$x)
-        deriv=append(0,deriv)
-        newShift=bchar$cross.correlation$x[which.max(abs((diff(sign(deriv)))))]
+    a <- tryCatch({
+        deriv <- diff(bindCharCC_Ysmoothed)/diff(bchar$cross.correlation$x)
+        deriv <- append(0, deriv)
+        iindex <- which.max( abs(( diff(sign(deriv) ))))
+        newShift <- bchar$cross.correlation$x[iindex]
     }, warning = function(w) {
-        newShift=strandShift
+        newShift <- strandShift
         message("strandshift problems...")
     })
     message(a)
-
-    # # newShift=f_getCustomStrandShift(x=bchar$cross.correlation$x, 
-    # #     y=bindCharCC_Ysmoothed)
-    # message("newShift  is ",newShift)
-    # oldShift=NULL
-    # if (newShift!="ERROR")
-    # {
-    if (newShift!=strandShift)
-    {
-            oldShift=strandShift
-            strandShift=newShift
-            message("Strandshift is substituted")
-    }else{message("strandshift remains the same...") }
-
-    ##2.2 phantom peak with smoothing
+    
+    # # newShift=f_getCustomStrandShift(x=bchar$cross.correlation$x, #
+    # y=bindCharCC_Ysmoothed) message('newShift is ',newShift) oldShift=NULL if
+    # (newShift!='ERROR') {
+    if (newShift != strandShift) {
+        oldShift <- strandShift
+        strandShift <- newShift
+        message("Strandshift is substituted")
+    } else {
+        message("strandshift remains the same...")
+    }
+    
+    ## 2.2 phantom peak with smoothing
     message("Phantom peak with smoothing")
-    ##phantom.characteristics<-phantom.characteristics
-    ##select a subset of cross correlation profile where we expect the peak
-    ss_forPeakcheck<- which(phChar$cross.correlation$x %in% ccRangeSubset)
-    ##phantomSmoothing=phantom.characteristics_cross.correlation_y_smoothed
-    phantomSmoothing<-caTools::runmean(phChar$cross.correlation$y, 
-        k=cross_correlation_smoothing_k)
+    ## phantom.characteristics<-phantom.characteristics select a subset of 
+    ## cross correlation profile where we expect the peak
+    ss_forPeakcheck <- which(phChar$cross.correlation$x %in% ccRangeSubset)
+    ## phantomSmoothing=phantom.characteristics_cross.correlation_y_smoothed
+    phantomSmoothing <- caTools::runmean(phChar$cross.correlation$y, 
+        k = cross_correlation_smoothing_k)
     ## assign the new maximum coordinates
-    max_y_peakcheck<-max(phantomSmoothing[ss_forPeakcheck])
-    ##indexMaxPeak=index_for_maxpeak
-    indexMaxPeak<-(which(phantomSmoothing==max_y_peakcheck))
-    ## %%% use this additional control just in case there is another cross 
-    ##correlation bin with exactly the ame height outside of 
-    ## the desired search region (e.g. important if the phantom peak 
-    ##is as high or higher than the main cross correlation peak)
-    indexMaxPeak<-indexMaxPeak[(indexMaxPeak %in% ss_forPeakcheck)]
-    ## %% force index 1 just in case there are two points with exactly 
-    ##the same cc value
-    max_x_peakcheck<-phChar$cross.correlation$x[(indexMaxPeak[1])]
-
-    if (max_x_peakcheck>phChar$peak$x) 
-    {
-        whatever=which(phChar$cross.correlation$x==max_x_peakcheck)
-        phChar$peak$y<-phChar$cross.correlation$y[whatever]
-        phChar$peak$x<-max_x_peakcheck
-        phScores$peak<-phChar$peak
-        ##Normalized Strand cross-correlation coefficient (NSC)
-        NSC<-phChar$peak$y / phScores$min_cc$y
-        phScores$NSC<-NSC
+    max_y_peakcheck <- max(phantomSmoothing[ss_forPeakcheck])
+    ## indexMaxPeak=index_for_maxpeak
+    indexMaxPeak <- (which(phantomSmoothing == max_y_peakcheck))
+    ## %%% use this additional control just in case there 
+    ## is another cross correlation
+    ## bin with exactly the ame height outside of the desired 
+    ## search region (e.g.
+    ## important if the phantom peak is as high or higher than the main cross
+    ## correlation peak)
+    indexMaxPeak <- indexMaxPeak[(indexMaxPeak %in% ss_forPeakcheck)]
+    ## force index 1 just in case there are two points with 
+    ## exactly the same cc value
+    max_x_peakcheck <- phChar$cross.correlation$x[(indexMaxPeak[1])]
+    
+    if (max_x_peakcheck > phChar$peak$x) {
+        whatever <- which(phChar$cross.correlation$x == max_x_peakcheck)
+        phChar$peak$y <- phChar$cross.correlation$y[whatever]
+        phChar$peak$x <- max_x_peakcheck
+        phScores$peak <- phChar$peak
+        ## Normalized Strand cross-correlation coefficient (NSC)
+        NSC <- phChar$peak$y/phScores$min_cc$y
+        phScores$NSC <- NSC
         ## Relative Strand Cross correlation Coefficient (RSC)
-        divisor=(phScores$phantom_cc$y-phScores$min_cc$y)
-        RSC<-(phChar$peak$y-phScores$min_cc$y)/divisor
-        phScores$RSC<-RSC
+        divisor <- (phScores$phantom_cc$y - phScores$min_cc$y)
+        RSC <- (phChar$peak$y - phScores$min_cc$y)/divisor
+        phScores$RSC <- RSC
         ## Quality flag based on RSC value
         qflag <- f_qflag(RSC)
-        phScores$quality_flag<-qflag    
-    }else{
+        phScores$quality_flag <- qflag
+    } else {
         phChar$peak$y
-        ##<-max(phantom.characteristics_cross.correlation_y_smoothed)
+        ## <-max(phantom.characteristics_cross.correlation_y_smoothed)
         phChar$peak$x
     }
     
-    if (!is.null(savePlotPath))
-    {
-        filename=file.path(savePlotPath,
-            paste(plotname,"CrossCorrelation.pdf",sep="_"))
-        pdf(file=filename)
+    if (!is.null(savePlotPath)) {
+        filename <- file.path(savePlotPath, 
+            paste(plotname, "CrossCorrelation.pdf", sep = "_"))
+        pdf(file = filename)
     }
-
+    
     ## plot cross correlation curve with smoothing
     message("plot cross correlation curve with smoothing")
-    par(mar = c(3.5,3.5,1.0,0.5), mgp = c(2,0.65,0), cex = 0.8)
-    plot(phChar$cross.correlation,type='l',xlab="strand shift",
-        ylab="cross-correlation",main="CrossCorrelation Profile")
-    lines(x=phChar$cross.correlation$x, 
-        y=phantomSmoothing, 
-        lwd=2, col="blue")
-    lines(x=rep(phScores$peak$x, times=2), 
-        y=c(0,phScores$peak$y), lty=2,lwd=2, col="red")
-    lines(x=rep(phScores$phantom_cc$x, times=2), 
-        y=c(0,phScores$phantom_cc$y), lty=2,lwd=2, col="orange")
-    abline(h=phScores$min_cc$y, lty=2,lwd=2, col="grey")
-    text(x=phScores$peak$x, y=phScores$peak$y, 
-        labels=paste("A =",signif(phScores$peak$y,3)), 
-        col="red", pos=3)
-    text(x=phScores$phantom_cc$x,y=phScores$phantom_cc$y,
-        labels=paste("B =",signif(phScores$phantom_cc$y,3)), 
-        col="orange", pos=2)
-    text(x=min(phChar$cross.correlation$x), 
-        y=phScores$min_cc$y, 
-        labels=paste("C =",signif(phScores$min_cc$y,3)), 
-        col="grey", adj=c(0,-1))
-    legend(x="topright", legend=c(
-        paste("NSC = A/C =", signif(phScores$NSC,3)),
-            paste("RSC = (A-C)/(B-C) =", signif(phScores$RSC,3)),
-            paste("Quality flag =", phScores$quality_flag),
-            "",
-            paste("Shift =", (phScores$peak$x)),
-            paste("Read length =", (read_length))))
+    par(mar = c(3.5, 3.5, 1, 0.5), mgp = c(2, 0.65, 0), cex = 0.8)
+    plot(phChar$cross.correlation, type = "l", xlab = "strand shift", 
+        ylab = "cross-correlation", 
+        main = "CrossCorrelation Profile")
+    lines(x = phChar$cross.correlation$x, y = phantomSmoothing, 
+        lwd = 2, col = "blue")
+    lines(x = rep(phScores$peak$x, times = 2), 
+        y = c(0, phScores$peak$y), lty = 2, 
+        lwd = 2, col = "red")
+    lines(x = rep(phScores$phantom_cc$x, times = 2), 
+        y = c(0, phScores$phantom_cc$y), 
+        lty = 2, lwd = 2, col = "orange")
+    abline(h = phScores$min_cc$y, lty = 2, lwd = 2, col = "grey")
+    text(x = phScores$peak$x, y = phScores$peak$y, 
+        labels = paste("A =", signif(phScores$peak$y, 3)), 
+        col = "red", pos = 3)
+    text(x = phScores$phantom_cc$x, y = phScores$phantom_cc$y, 
+        labels = paste("B =", signif(phScores$phantom_cc$y, 3)), 
+        col = "orange", pos = 2)
+    text(x = min(phChar$cross.correlation$x), 
+        y = phScores$min_cc$y, 
+        labels = paste("C =", signif(phScores$min_cc$y, 3)), 
+        col = "grey", adj = c(0, -1))
+    legend(x = "topright", 
+        legend = c(paste("NSC = A/C =", signif(phScores$NSC, 3)), 
+        paste("RSC = (A-C)/(B-C) =", signif(phScores$RSC, 3)), 
+        paste("Quality flag =", phScores$quality_flag), "", 
+        paste("Shift =", (phScores$peak$x)), 
+        paste("Read length =", (read_length))))
     
-    if (!is.null(savePlotPath))
-    {
+    if (!is.null(savePlotPath)) {
         dev.off()
-        message("pdf saved under",filename)
+        message("pdf saved under", filename)
     }
-
-    phantomScores= list(
-        "CC_NSC"=round(phScores$NSC,3),
-        "CC_RSC"=round(phScores$RSC,3),
-        "CC_QualityFlag"=phScores$quality_flag,
-        "CC_shift."=phScores$peak$x,
-        "CC_A."=round(phScores$peak$y,3),
-        "CC_B."=round(phScores$phantom_cc$y,3),
-        "CC_C."=round(phScores$min_cc$y,3))
     
-    ##4 NRF calculation
+    phantomScores <- list(CC_NSC = round(phScores$NSC, 3), 
+        CC_RSC = round(phScores$RSC, 3), 
+        CC_QualityFlag = phScores$quality_flag, 
+        CC_shift. = phScores$peak$x, 
+        CC_A. = round(phScores$peak$y, 3), 
+        CC_B. = round(phScores$phantom_cc$y, 3), 
+        CC_C. = round(phScores$min_cc$y, 3))
+    
+    ## 4 NRF calculation
     message("NRF calculation")
-
-    ALL_TAGS<- sum(lengths(data$tags))
-    UNIQUE_TAGS<-sum(lengths(lapply(data$tags, unique)))
-    UNIQUE_TAGS_nostrand=sum(lengths(lapply(data$tags, FUN=function(x){
-        unique(abs(x))})))
-
-    NRF<-UNIQUE_TAGS/ALL_TAGS
-    NRF_nostrand<-UNIQUE_TAGS_nostrand/ALL_TAGS
-
+    
+    ALL_TAGS <- sum(lengths(data$tags))
+    UNIQUE_TAGS <- sum(lengths(lapply(data$tags, unique)))
+    UNIQUE_TAGS_nostrand <- sum(lengths(lapply(data$tags, FUN = function(x) {
+        unique(abs(x))
+    })))
+    
+    NRF <- UNIQUE_TAGS/ALL_TAGS
+    NRF_nostrand <- UNIQUE_TAGS_nostrand/ALL_TAGS
+    
     ## to compensate for lib size differences
     message("compensate for lib size differences")
-    ##nomi<-rep(names(data$tags), sapply(data$tags, length))
-    nomi<-rep(names(data$tags), lapply(data$tags, length))
-
-    dataNRF<-unlist(data$tags)
-    names(dataNRF)<-NULL
-    dataNRF<-paste(nomi, dataNRF, sep="")
-
-    if (ALL_TAGS > 10e6) {
+    ## nomi<-rep(names(data$tags), sapply(data$tags, length))
+    nomi <- rep(names(data$tags), lapply(data$tags, length))
+    
+    dataNRF <- unlist(data$tags)
+    names(dataNRF) <- NULL
+    dataNRF <- paste(nomi, dataNRF, sep = "")
+    
+    if (ALL_TAGS > 1e+07) {
         
-        UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x){
-            return(length(unique(sample(dataNRF, size=10e6))))
+        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, 
+            FUN = function(x) {
+            return(length(unique(sample(dataNRF, size = 1e+07))))
         })))
-
+        
     } else {
-        UNIQUE_TAGS_LibSizeadjusted<-round(mean(sapply(1:100, FUN=function(x){
-            return(length(unique(sample(dataNRF, size=10e6, replace=TRUE))))
+        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, 
+            FUN = function(x) {
+            return(length(unique(sample(dataNRF, 
+                size = 1e+07, replace = TRUE))))
         })))
     }
     
-    NRF_LibSizeadjusted<-UNIQUE_TAGS_LibSizeadjusted/10e6
-    STATS_NRF=list("CC_ALL_TAGS"=ALL_TAGS, 
-        "CC_UNIQUE_TAGS"=UNIQUE_TAGS, 
-        "CC_UNIQUE_TAGS_nostrand"=UNIQUE_TAGS_nostrand, 
-        "CC_NRF"=NRF, 
-        "CC_NRF_nostrand"=NRF_nostrand, 
-        "CC_NRF_LibSizeadjusted"=NRF_LibSizeadjusted)
-
-    ##N1= number of genomic locations to which EXACTLY one 
-    ##unique mapping read maps
-    ##Nd = the number of genomic locations to which AT LEAST 
-    ##one unique mapping read maps, i.e. the number of non-redundant, 
-    ##unique mapping reads
-    #N1<-sum(sapply(data$tags, FUN=function(x) {
-    #    checkDuplicate<-duplicated(x)
-    #    duplicated_positions<-unique(x[checkDuplicate])
-    #    OUT<-x[!(x %in% duplicated_positions)]
-    #    return(length(OUT))
-    #}))
-
-    N1<-sum(unlist(lapply(data$tags, FUN=function(x) {
-        checkDuplicate<-duplicated(x)
-        duplicated_positions<-unique(x[checkDuplicate])
-        OUT<-x[!(x %in% duplicated_positions)]
+    NRF_LibSizeadjusted <- UNIQUE_TAGS_LibSizeadjusted/1e+07
+    STATS_NRF <- list(CC_ALL_TAGS = ALL_TAGS, 
+        CC_UNIQUE_TAGS = UNIQUE_TAGS, 
+        CC_UNIQUE_TAGS_nostrand = UNIQUE_TAGS_nostrand, 
+        CC_NRF = NRF, CC_NRF_nostrand = NRF_nostrand, 
+        CC_NRF_LibSizeadjusted = NRF_LibSizeadjusted)
+    
+    ## N1= number of genomic locations to which EXACTLY one 
+    ## unique mapping read maps
+    ## Nd = the number of genomic locations to which AT LEAST 
+    ## one unique mapping read
+    ## maps, i.e. the number of non-redundant, unique mapping reads
+    ## N1<-sum(sapply(data$tags, FUN=function(x) {checkDuplicate<-duplicated(x)
+    ## duplicated_positions<-unique(x[checkDuplicate]) OUT<-x[!(x %in%
+    ## duplicated_positions)] return(length(OUT)) }))
+    
+    N1 <- sum(unlist(lapply(data$tags, FUN = function(x) {
+        checkDuplicate <- duplicated(x)
+        duplicated_positions <- unique(x[checkDuplicate])
+        OUT <- x[!(x %in% duplicated_positions)]
         return(length(OUT))
     })))
-
-    ##Nd<-sum(sapply(lapply(data$tags, unique), length))
-    Nd<-sum(unlist(lapply(data$tags, FUN=function(x){
+    
+    ## Nd<-sum(sapply(lapply(data$tags, unique), length))
+    Nd <- sum(unlist(lapply(data$tags, FUN = function(x) {
         length(unique(x))
     })))
-
-    PBC = N1/Nd
+    
+    PBC <- N1/Nd
     tag.shift <- round(strandShift/2)
-        
-    finalList <- append(append(
-        list("CC_StrandShift"=strandShift,
-            "tag.shift"=tag.shift,
-            "N1"=round(N1,3),
-            "Nd"=round(Nd,3),
-            "CC_PBC"=round(PBC,3),
-            "CC_readLength"=read_length,
-            "CC_UNIQUE_TAGS_LibSizeadjusted"=UNIQUE_TAGS_LibSizeadjusted),
-        phantomScores),STATS_NRF)
+    
+    finalList <- append(append(list(CC_StrandShift = strandShift, 
+        tag.shift = tag.shift, 
+        N1 = round(N1, 3), 
+        Nd = round(Nd, 3), 
+        CC_PBC = round(PBC, 3), 
+        CC_readLength = read_length, 
+        CC_UNIQUE_TAGS_LibSizeadjusted = UNIQUE_TAGS_LibSizeadjusted), 
+        phantomScores), 
+        STATS_NRF)
     return(finalList)
 }
 
@@ -651,147 +643,143 @@ getCrossCorrelationScores<-function(data, bchar, read_length,
 #' tag.shift=82)
 #' }
 
-
-getPeakCallingScores<-function(chip, input, chip.dataSelected, 
-    input.dataSelected, tag.shift=75, chrorder=NULL)
+getPeakCallingScores <- function(chip, input, chip.dataSelected, 
+    input.dataSelected, tag.shift = 75, chrorder = NULL) 
 {
-    ##########
-    ##check if input format is ok
-    if (!(is.list(chip)&(length(chip)==2L)))
+    ########## check if input format is ok
+    if (!(is.list(chip) & (length(chip) == 2L))) 
         stop("Invalid format for data")
-    if (!(is.list(input)&(length(input)==2L)))
+    if (!(is.list(input) & (length(input) == 2L))) 
         stop("Invalid format for data")
-
-    if (!is.list(chip.dataSelected))
-        stop("Invalid format for chip.dataSelected")
-    if (!is.list(input.dataSelected))
-        stop("Invalid format for input.dataSelected")
-
-    if (!is.numeric(tag.shift))
-        stop("tag.shift must be numeric")  
-    if (tag.shift<1)
-        stop("tag.shift must be > 0")  
-    ##########
     
-    ##for simplicity we use currently a shorter chromosome frame 
-    ##to avoid problems 
-    chrorder<-paste("chr", c(1:19, "X","Y"), sep="")
-
-    ##5 broadRegions
-    ##6 enrichment broad regions
-    ##zthresh_list<-c(3,4)
-    current_window_size<-1000
+    if (!is.list(chip.dataSelected)) 
+        stop("Invalid format for chip.dataSelected")
+    if (!is.list(input.dataSelected)) 
+        stop("Invalid format for input.dataSelected")
+    
+    if (!is.numeric(tag.shift)) 
+        stop("tag.shift must be numeric")
+    if (tag.shift < 1) 
+        stop("tag.shift must be > 0")
+    ########## 
+    
+    ## for simplicity we use currently a shorter chromosome 
+    ## frame to avoid problems
+    chrorder <- paste("chr", c(1:19, "X", "Y"), sep = "")
+    
+    ## 5 broadRegions 6 enrichment broad regions zthresh_list<-c(3,4)
+    current_window_size <- 1000
     message("Broad regions of enrichment")
-    ##for (current_window_size in window_sizes_list) 
-    ##{
-    ##for (current_zthresh in zthresh_list) 
-    ##{
-    current_zthresh=4
+    ## for (current_window_size in window_sizes_list) { for (current_zthresh in
+    ## zthresh_list) {
+    current_zthresh <- 4
     broad.clusters <- spp::get.broad.enrichment.clusters(chip.dataSelected, 
-        input.dataSelected, window.size=current_window_size, 
-        z.thr=current_zthresh, tag.shift=tag.shift)
-    ###start end logE znrichment
-    ##write.broadpeak.info(broad.clusters, paste("broadRegions", 
-    ##chip.data.samplename,
-    ##"input",input.data.samplename, "window", current_window_size, "zthresh",
-    ##current_zthresh,"broadPeak", sep="."))
-    md=f_convertFormatBroadPeak(broad.clusters)
-    broadPeakRangesObject<-MakeGRangesObject(Chrom=md$chr,
-        Start=md$start,End=md$end)
-
-    ##12 get binding sites with FDR and eval
-    chip.data12<-chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
+        input.dataSelected, 
+        window.size = current_window_size, 
+        z.thr = current_zthresh, 
+        tag.shift = tag.shift)
+    ### start end logE znrichment write.broadpeak.info(broad.clusters,
+    ### paste('broadRegions', chip.data.samplename,
+    ##'input',input.data.samplename, 'window', current_window_size, 'zthresh',
+    ## current_zthresh,'broadPeak', sep='.'))
+    md <- f_convertFormatBroadPeak(broad.clusters)
+    broadPeakRangesObject <- MakeGRangesObject(Chrom = md$chr, 
+        Start = md$start, 
+        End = md$end)
+    
+    ## 12 get binding sites with FDR and eval
+    chip.data12 <- chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
     input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
-
+    
     message("Binding sites detection fdr")
-    fdr <- 1e-2
+    fdr <- 0.01
     detection.window.halfsize <- tag.shift
     message("Window Tag Density method - WTD")
-    bp_FDR <- spp::find.binding.positions(signal.data=chip.data12, 
-        control.data=input.data12, fdr=fdr, whs=detection.window.halfsize*2, 
-        tag.count.whs=detection.window.halfsize, cluster=NULL)
-    FDR_detect<-sum(unlist(lapply(bp_FDR$npl,function(d) length(d$x))))
-        
+    bp_FDR <- spp::find.binding.positions(signal.data = chip.data12, 
+        control.data = input.data12, 
+        fdr = fdr, whs = detection.window.halfsize * 2, 
+        tag.count.whs = detection.window.halfsize, 
+        cluster = NULL)
+    FDR_detect <- sum(unlist(lapply(bp_FDR$npl, function(d) length(d$x))))
+    
     message("Binding sites detection evalue")
-    eval<-10
-    bp_eval <- spp::find.binding.positions(signal.data=chip.data12, 
-        control.data=input.data12, e.value=eval, 
-        whs=detection.window.halfsize*2, cluster=NULL)
-    eval_detect=sum(unlist(lapply(bp_eval$npl,function(d) length(d$x))))
-
-
-    ## output detected binding positions
-    ##output.binding.results(results=bp,
-    ##filename=paste("WTC.binding.positions.evalue", 
-    ##chip.data.samplename,"input",input.data.samplename, "txt", sep="."))
-    if (length(bp_eval$npl)>1)
-    {
-        ##14 get precise binding position using escore LARGE PEAKS
-        bp_broadpeak <- spp::add.broad.peak.regions(chip.data12, 
-            input.data12, bp_eval, window.size=1000, z.thr=3)
-        md=f_converNarrowPeakFormat(bp_broadpeak)
-        sharpPeakRangesObject<-MakeGRangesObject(Chrom=md[,1], 
-            Start=md[,2],End=md[,3])
-
-        ##FRiP
-        chip.test<-lapply(chip$tags, FUN=function(x) {x+tag.shift})
+    eval <- 10
+    bp_eval <- spp::find.binding.positions(signal.data = chip.data12, 
+        control.data = input.data12, 
+        e.value = eval, whs = detection.window.halfsize * 2, cluster = NULL)
+    eval_detect <- sum(unlist(lapply(bp_eval$npl, function(d) length(d$x))))
+    
+    
+    ## output detected binding positions output.binding.results(results=bp,
+    ## filename=paste('WTC.binding.positions.evalue',
+    ## chip.data.samplename,'input',input.data.samplename, 'txt', sep='.'))
+    if (length(bp_eval$npl) > 1) {
+        ## 14 get precise binding position using escore LARGE PEAKS
+        bp_broadpeak <- spp::add.broad.peak.regions(chip.data12, input.data12, 
+            bp_eval, 
+            window.size = 1000, z.thr = 3)
+        md <- f_converNarrowPeakFormat(bp_broadpeak)
+        sharpPeakRangesObject <- MakeGRangesObject(Chrom = md[, 1], 
+            Start = md[, 2], End = md[, 3])
+        
+        ## FRiP
+        chip.test <- lapply(chip$tags, FUN = function(x) {
+            x + tag.shift
+        })
         TOTAL_reads <- sum(lengths(chip.test))
-
-        ##Frip broad binding sites (histones)
+        
+        ## Frip broad binding sites (histones)
         broadPeakRangesObject<-ReduceOverlappingRegions(broadPeakRangesObject)
-       
-        regions_data_list<-split(as.data.frame(
-            broadPeakRangesObject), 
-            f=seqnames(broadPeakRangesObject))
-
-        chrl<-names(regions_data_list)
-        names(chrl)<-chrl
-
-        outcountsBroadPeak<-sum(unlist(
-            lapply(chrl, FUN=function(chr) {
-            sum(spp::points_withinFunction(x=abs(chip.test[[chr]]), 
-                fs=regions_data_list[[chr]]$start, 
-                fe=regions_data_list[[chr]]$end, 
-                return.point.counts = TRUE))
-            })))
-        FRiP_broadPeak<-outcountsBroadPeak/TOTAL_reads
-
-         ##Frip sharp peaks 14
-        sharpPeakRangesObject<-ReduceOverlappingRegions(sharpPeakRangesObject)
-
-        regions_data_list<-split(as.data.frame(
-            sharpPeakRangesObject), 
-            f=seqnames(sharpPeakRangesObject))
-
-        chrl<-names(regions_data_list)
-        names(chrl)<-chrl
-
-        outcountsSharpPeak<-sum(unlist(
-            lapply(chrl, FUN=function(chr) {
-                sum(spp::points_withinFunction(x=abs(chip.test[[chr]]), 
-                fs=regions_data_list[[chr]]$start, 
-                fe=regions_data_list[[chr]]$end, 
+        
+        regions_data_list <- split(as.data.frame(broadPeakRangesObject), 
+            f = seqnames(broadPeakRangesObject))
+        
+        chrl <- names(regions_data_list)
+        names(chrl) <- chrl
+        
+        outcountsBroadPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
+            sum(spp::points_withinFunction(x = abs(chip.test[[chr]]), 
+                fs = regions_data_list[[chr]]$start, 
+                fe = regions_data_list[[chr]]$end, 
                 return.point.counts = TRUE))
         })))
-
-        FRiP_sharpPeak<-outcountsSharpPeak/TOTAL_reads
-    }else{
-        TOTAL_reads=0
-        FRiP_broadPeak=0
-        outcountsBroadPeak=0
-        FRiP_sharpPeak=0
-        outcountsSharpPeak=0
+        FRiP_broadPeak <- outcountsBroadPeak/TOTAL_reads
+        
+        ## Frip sharp peaks 14
+        sharpPeakRangesObject<-ReduceOverlappingRegions(sharpPeakRangesObject)
+        
+        regions_data_list <- split(as.data.frame(sharpPeakRangesObject), 
+            f = seqnames(sharpPeakRangesObject))
+        
+        chrl <- names(regions_data_list)
+        names(chrl) <- chrl
+        
+        outcountsSharpPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
+            sum(spp::points_withinFunction(x = abs(chip.test[[chr]]), 
+                fs = regions_data_list[[chr]]$start, 
+                fe = regions_data_list[[chr]]$end, 
+                return.point.counts = TRUE))
+        })))
+        
+        FRiP_sharpPeak <- outcountsSharpPeak/TOTAL_reads
+    } else {
+        TOTAL_reads <- 0
+        FRiP_broadPeak <- 0
+        outcountsBroadPeak <- 0
+        FRiP_sharpPeak <- 0
+        outcountsSharpPeak <- 0
     }
-
-    QCscoreList=list("CC_FDRpeaks"=round(FDR_detect,3),
-        "CC_evalpeaks"=round(eval_detect,3),
-        "CC_FRiP_broadPeak"=round(FRiP_broadPeak,3),  
-        "CC_FRiP_sharpPeak"=round(FRiP_sharpPeak,3), 
-        "CC_outcountsBroadPeak"=outcountsBroadPeak,
-        "CC_outcountsSharpPeak"= outcountsSharpPeak)
-
+    
+    QCscoreList <- list(CC_FDRpeaks = round(FDR_detect, 3), 
+        CC_evalpeaks = round(eval_detect, 3), 
+        CC_FRiP_broadPeak = round(FRiP_broadPeak, 3), 
+        CC_FRiP_sharpPeak = round(FRiP_sharpPeak, 3), 
+        CC_outcountsBroadPeak = outcountsBroadPeak, 
+        CC_outcountsSharpPeak = outcountsSharpPeak)
+    
     return(QCscoreList)
 }
+
 
 
 ###############################################################################
@@ -888,73 +876,75 @@ getPeakCallingScores<-function(chip, input, chip.dataSelected,
 #' densityInput=smoothedInput)
 #' }
 
-qualityScores_GM<-function(densityChip, densityInput, 
-    savePlotPath=NULL, debug=FALSE)
+qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL, 
+    debug = FALSE) 
 {
-    ##########
-    ##check if input format is ok
-    if (!is.list(densityChip))
+    ########## check if input format is ok
+    if (!is.list(densityChip)) 
         stop("Invalid format for densityChip")
-    if (!is.list(densityInput))
+    if (!is.list(densityInput)) 
         stop("Invalid format for densityInput")
     ########## 
-
-    ##shorten frame and reduce resolution
+    
+    ## shorten frame and reduce resolution
     message("shorten frame")
-    chip.smoothed.density=f_shortenFrame(densityChip)
-    input.smoothed.density=f_shortenFrame(densityInput)
+    chip.smoothed.density <- f_shortenFrame(densityChip)
+    input.smoothed.density <- f_shortenFrame(densityInput)
     
-    chip<-unlist(lapply(chip.smoothed.density, FUN=function(list_element) 
-    {
-        return(list_element$y)
-    }))
-    input<-unlist(lapply(input.smoothed.density, FUN=function(list_element) 
-    {
+    chip <- unlist(lapply(chip.smoothed.density, 
+        FUN = function(list_element) {
         return(list_element$y)
     }))
 
-    ##create cumulative function for chip and input
+    input <- unlist(lapply(input.smoothed.density, 
+        FUN = function(list_element) {
+        return(list_element$y)
+    }))
+    
+    ## create cumulative function for chip and input
     message("Calculate cumsum")
-    cumSumChip=f_sortAndBinning(chip)
-    cumSumInput=f_sortAndBinning(input)
-
-    ##caluclate QCvalues for chip
-    chipFracTopPercent<-(1-cumSumChip[(which(cumSumChip$x>=0.99)[1]),"pj"])
-    chipFracOfBinsWithoutReads<-cumSumChip$x[(which(cumSumChip$pj>0)[1])]
-
-    ##caluclate QCvalues for input
-    inputFracTopPercent<-(1-cumSumInput[(which(cumSumInput$x>=0.99)[1]),"pj"])
-    inputFracWithoutReads<-cumSumInput$x[(which(cumSumInput$pj>0)[1])]
-
-    ##get the point of maximum distance between the two functions 
-    ##and the sign of the distance
-    sign_sign=sign(max(cumSumInput$pj-cumSumChip$pj))###input-chip
-    arrowx=cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$x
-
-    ##get the distance between the curves
-    yIn=round(cumSumInput[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3)
-    yCh=round(cumSumChip[which.max(abs(cumSumInput$pj-cumSumChip$pj)),]$pj,3)
-    dist=abs(yIn-yCh)
-    ##prepare list to be returned
-    finalList=list("Ch_X.axis"=round(arrowx,3),
-        "Ch_Y.Input"=yIn,
-        "Ch_Y.Chip"=yCh,
-        "Ch_sign_chipVSinput"=sign_sign,
-        "Ch_FractionReadsTopbins_chip"=round(chipFracTopPercent,3),
-        "Ch_FractionReadsTopbins_input"=round(inputFracTopPercent,3),
-        "Ch_Fractions_without_reads_chip"=round(chipFracOfBinsWithoutReads,3),
-        "Ch_Fractions_without_reads_input"=round(inputFracWithoutReads,3),
-        "Ch_DistanceInputChip"=dist)
-    ##create Fingerprint plot
-    f_fingerPrintPlot(cumSumChip,cumSumInput,savePlotPath=savePlotPath)
+    cumSumChip <- f_sortAndBinning(chip)
+    cumSumInput <- f_sortAndBinning(input)
     
-    if (debug)
-    {
-        write.table(finalList,file=file.path(getwd(),"Chance.results"))
+    ## caluclate QCvalues for chip
+    chipFracTopPercent <- (1-cumSumChip[(which(cumSumChip$x >= 0.99)[1]),"pj"])
+    chipFracOfBinsWithoutReads <- cumSumChip$x[(which(cumSumChip$pj > 0)[1])]
+    
+    ## caluclate QCvalues for input
+    inputFracTopPercent <- (1-
+        cumSumInput[(which(cumSumInput$x >= 0.99)[1]),"pj"])
+    inputFracWithoutReads <- cumSumInput$x[(which(cumSumInput$pj > 0)[1])]
+    
+    ## get the point of maximum distance between the two functions
+    ##  and the sign of the distance
+    sign_sign <- sign(max(cumSumInput$pj - cumSumChip$pj))  ###input-chip
+    arrowx <- cumSumChip[which.max(abs(cumSumInput$pj - cumSumChip$pj)), ]$x
+    
+    ## get the distance between the curves
+    yIn <- round(
+        cumSumInput[which.max(abs(cumSumInput$pj - cumSumChip$pj)), ]$pj, 3)
+    yCh <- round(
+        cumSumChip[which.max(abs(cumSumInput$pj - cumSumChip$pj)), ]$pj, 3)
+    dist <- abs(yIn - yCh)
+    ## prepare list to be returned
+    finalList <- list(Ch_X.axis = round(arrowx, 3), 
+        Ch_Y.Input = yIn, Ch_Y.Chip = yCh, 
+        Ch_sign_chipVSinput = sign_sign, 
+        Ch_FractionReadsTopbins_chip = round(chipFracTopPercent, 3), 
+        Ch_FractionReadsTopbins_input = round(inputFracTopPercent, 3), 
+        Ch_Fractions_without_reads_chip = round(chipFracOfBinsWithoutReads, 3),
+        Ch_Fractions_without_reads_input = round(inputFracWithoutReads, 3), 
+        Ch_DistanceInputChip = dist)
+    ## create Fingerprint plot
+    f_fingerPrintPlot(cumSumChip, cumSumInput, savePlotPath = savePlotPath)
+    
+    if (debug) {
+        write.table(finalList, file = file.path(getwd(), "Chance.results"))
     }
-    ##return QC values
+    ## return QC values
     return(finalList)
 }
+
 
 
 ############################################################################
@@ -1050,124 +1040,121 @@ qualityScores_GM<-function(densityChip, densityInput,
 #' smoothedInput,tag.shift=82)
 #'}
 
-
 createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput, 
-    tag.shift, annotationID="hg19", debug=FALSE, mc=1)
+    tag.shift, annotationID = "hg19", debug = FALSE, mc = 1) 
 {
-    ##########
-    ##check if input format is ok
-    if (!is.list(smoothed.densityChip))
+    ########## check if input format is ok
+    if (!is.list(smoothed.densityChip)) 
         stop("Invalid format for smoothed.densityChip")
-    if (!is.list(smoothed.densityInput))
+    if (!is.list(smoothed.densityInput)) 
         stop("Invalid format for smoothed.densityInput")
     
-    if (!is.numeric(tag.shift))
-        stop("tag.shift must be numeric")  
-    if (tag.shift<1)
-        stop("tag.shift must be > 0")  
+    if (!is.numeric(tag.shift)) 
+        stop("tag.shift must be numeric")
+    if (tag.shift < 1) 
+        stop("tag.shift must be > 0")
     
-    if (!( is.character(annotationID) & (annotationID=="hg19")))
-    {
+    if (!(is.character(annotationID) & (annotationID == "hg19"))) {
         warning("Invalid annotationID. Setting back to default value. 
         (Currently only hg19 is supported)")
-        annotationID="hg19"   
+        annotationID <- "hg19"
     }
-
-    if (!is.numeric(mc))
-    {
+    
+    if (!is.numeric(mc)) {
         warning("mc must be numeric")
-        mc=1
+        mc <- 1
     }
-
-    if (mc<1)
-    {
+    
+    if (mc < 1) {
         warning("mc set to 1")
-        mc=1
+        mc <- 1
     }
-    ##########
-
+    ########## 
+    
     message("Load gene annotation")
-    ##require(ChIC.data)
-    if (annotationID=="hg19"){
-        #hg19_refseq_genes_filtered_granges=NULL
+    ## require(ChIC.data)
+    if (annotationID == "hg19") {
+        # hg19_refseq_genes_filtered_granges=NULL
         data("hg19_refseq_genes_filtered_granges", 
-            package="ChIC.data", envir = environment())
-        annotObject=hg19_refseq_genes_filtered_granges
-    }   
-    ##geneAnnotations_file=
-    ##paste(annotationID,"_refseq_genes_filtered_granges",sep="")
-    ##annotObject=current_annotations_object
+            package = "ChIC.data", envir = environment())
+        annotObject <- hg19_refseq_genes_filtered_granges
+    }
+    ## geneAnnotations_file=
+    ## paste(annotationID,'_refseq_genes_filtered_granges',sep='')
+    ## annotObject=current_annotations_object 
     ##annotObject=get(geneAnnotations_file)
-    #annotObject=get(hg19_refseq_genes_filtered_granges)
-    ##current_annotations_object=refseq_genes_filtered_granges
+    ## annotObject=get(hg19_refseq_genes_filtered_granges)
+    ## current_annotations_object=refseq_genes_filtered_granges 
     ## format annotations as chromosome lists
     
-    # annotObject<-data.frame(annotObject@.Data, 
-    #     genomeIntervals::annotation(annotObject), stringsAsFactors=FALSE)
+    # annotObject<-data.frame(annotObject@.Data,
+    # genomeIntervals::annotation(annotObject), stringsAsFactors=FALSE)
     # annotObject$interval_starts<-as.integer(annotObject$interval_starts)
     # annotObject$interval_ends<-as.integer(annotObject$interval_ends)
-    # annotObject$seq_name<-as.character(annotObject$seq_name)
-    # annotatedGenesPerChr <-split(annotObject,
-    #     f=annotObject$seq_name)
-
-    annotObjectNew<-data.frame(annotObject@.Data, annotObject@annotation, stringsAsFactors=FALSE)
-    annotObjectNew$interval_starts<-as.integer(annotObjectNew$interval_starts)
-    annotObjectNew$interval_ends<-as.integer(annotObjectNew$interval_ends)
-    annotObjectNew$seq_name<-as.character(annotObjectNew$seq_name)
+    # annotObject$seq_name<-as.character(annotObject$seq_name) 
+    # annotatedGenesPerChr
+    # <-split(annotObject, f=annotObject$seq_name)
     
-    annotatedGenesPerChr <-split(annotObjectNew,
-        f=annotObjectNew$seq_name)
-
-    ##two.point.scaling
-    ##create scaled metageneprofile
-    ##input
+    annotObjectNew <- data.frame(annotObject@.Data, annotObject@annotation, 
+        stringsAsFactors = FALSE)
+    annotObjectNew$interval_starts <-as.integer(annotObjectNew$interval_starts)
+    annotObjectNew$interval_ends <- as.integer(annotObjectNew$interval_ends)
+    annotObjectNew$seq_name <- as.character(annotObjectNew$seq_name)
+    
+    annotatedGenesPerChr <- split(annotObjectNew, f = annotObjectNew$seq_name)
+    
+    ## two.point.scaling create scaled metageneprofile input
     message("Calculating scaled metageneprofile ...")
-    smoothed.densityInput=list(td=smoothed.densityInput)
+    smoothed.densityInput <- list(td = smoothed.densityInput)
     message("process input")
-
-    binned_Input = masked_t.get.gene.av.density(smoothed.densityInput, 
-        gdl=annotatedGenesPerChr, mc=mc)
     
-    ##Chip
-    smoothed.densityChip=list(td=smoothed.densityChip)
+    binned_Input <- masked_t.get.gene.av.density(smoothed.densityInput, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc)
+    
+    ## Chip
+    smoothed.densityChip <- list(td = smoothed.densityChip)
     message("process ChIP")
-    binned_Chip= masked_t.get.gene.av.density(smoothed.densityChip,
-        gdl=annotatedGenesPerChr,mc=mc)
-
-    geneBody=list(chip=binned_Chip,input= binned_Input)
-
-    ##one.point.scaling
-    ##create non-scaled metageneprofile for TSS
+    binned_Chip <- masked_t.get.gene.av.density(smoothed.densityChip, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc)
+    
+    geneBody <- list(chip = binned_Chip, input = binned_Input)
+    
+    ## one.point.scaling create non-scaled metageneprofile for TSS
     message("Creating non-scaled metageneprofiles...")
     message("...TSS")
-
-    binnedInput_TSS<-masked_getGeneAvDensity_TES_TSS(smoothed.densityInput, 
-        gdl=annotatedGenesPerChr,mc=mc,tag="TSS")
-    binnedChip_TSS<-masked_getGeneAvDensity_TES_TSS(smoothed.densityChip, 
-        gdl=annotatedGenesPerChr,mc=mc,tag="TSS")
-    onepointTSS=list(chip=binnedChip_TSS,input= binnedInput_TSS)
-
-    ##one.point.scaling
-    ##create non-scaled metageneprofile for TES
+    
+    binnedInput_TSS <- masked_getGeneAvDensity_TES_TSS(smoothed.densityInput, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc, tag = "TSS")
+    binnedChip_TSS <- masked_getGeneAvDensity_TES_TSS(smoothed.densityChip, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc, tag = "TSS")
+    onepointTSS <- list(chip = binnedChip_TSS, input = binnedInput_TSS)
+    
+    ## one.point.scaling create non-scaled metageneprofile for TES
     message("...TES")
-    binnedInput_TES<-masked_getGeneAvDensity_TES_TSS(smoothed.densityInput,
-        gdl=annotatedGenesPerChr,mc=mc,tag="TES")
-    binnedChip_TES<-masked_getGeneAvDensity_TES_TSS(smoothed.densityChip,
-        gdl=annotatedGenesPerChr,mc=mc,tag="TES")
-    onepointTES=list(chip=binnedChip_TES,input= binnedInput_TES)
-
-    if (debug)
-    {
-        save(binned_Chip, binned_Input,file=file.path(getwd(),
-            paste("geneBody.RData",sep="_")))
-        save(binnedChip_TSS, binnedInput_TSS,file=file.path(getwd(), 
-            paste("OnePointTSS.RData",sep="_")))
-        save(binnedChip_TES, binnedInput_TES,file=file.path(getwd(), 
-            paste("OnePointTES.RData",sep="_")))
+    binnedInput_TES <- masked_getGeneAvDensity_TES_TSS(smoothed.densityInput, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc, tag = "TES")
+    binnedChip_TES <- masked_getGeneAvDensity_TES_TSS(smoothed.densityChip, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc, tag = "TES")
+    onepointTES <- list(chip = binnedChip_TES, input = binnedInput_TES)
+    
+    if (debug) {
+        save(binned_Chip, binned_Input, file = file.path(getwd(), 
+            paste("geneBody.RData", sep = "_")))
+        save(binnedChip_TSS, binnedInput_TSS, file = file.path(getwd(), 
+            paste("OnePointTSS.RData", sep = "_")))
+        save(binnedChip_TES, binnedInput_TES, file = file.path(getwd(), 
+            paste("OnePointTES.RData", sep = "_")))
     }
-
-    return(list("geneBody"=geneBody, "TSS"=onepointTSS, "TES"=onepointTES))
+    
+    return(list(geneBody = geneBody, TSS = onepointTSS, TES = onepointTES))
 }
+
 
 
 
@@ -1201,16 +1188,16 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 
 #' }
 
-readBamFile<-function(filename)
-{
-    ##########
-    ##check if input format is ok
-    if (!is.character(filename))
+
+readBamFile <- function(filename) {
+    ########## check if input format is ok
+    if (!is.character(filename)) 
         stop("Invalid filename (String required)")
-    #########
-    result=f_readFile(filename=filename,reads.aligner.type="bam")
+    ######### 
+    result <- f_readFile(filename = filename, reads.aligner.type = "bam")
     return(result)
 }
+
 
 
 #'@title Removes loval anomalies
@@ -1282,25 +1269,26 @@ readBamFile<-function(filename)
 #' chip_b.characteristics=chip_binding.characteristics, 
 #' input_b.characteristics=input_binding.characteristics)
 #'}
-removeLocalTagAnomalies<-function(chip, input, chip_b.characteristics, 
-input_b.characteristics)
+removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics, 
+    input_b.characteristics) 
 {
-    ##########
-    ##check if input format is ok
-    if (!(is.list(chip)&(length(chip)==2L)))
+    ########## check if input format is ok
+    if (!(is.list(chip) & (length(chip) == 2L))) 
         stop("Invalid format for chip")
-    if (!(is.list(chip_b.characteristics)&(length(chip_b.characteristics)==3L)))
+    if (!(is.list(chip_b.characteristics) & 
+        (length(chip_b.characteristics) == 3L))) 
         stop("Invalid format for chip_b.characteristics")
-
-    if (!(is.list(input)&(length(input)==2L)))
+    
+    if (!(is.list(input) & (length(input) == 2L))) 
         stop("Invalid format for input")
-    if (!(is.list(input_b.characteristics)&(length(input_b.characteristics)==3L)))
+    if (!(is.list(input_b.characteristics) & 
+        (length(input_b.characteristics) == 3L))) 
         stop("Invalid format for input_b.characteristics")
-    #########
-
-    result=f_removeLocalTagAnomalies(chip, input, chip_b.characteristics, 
-            input_b.characteristics, remove.local.tag.anomalies=TRUE, 
-            select.informative.tags=FALSE)
+    ######### 
+    
+    result <- f_removeLocalTagAnomalies(chip, input, chip_b.characteristics, 
+        input_b.characteristics, 
+        remove.local.tag.anomalies = TRUE, select.informative.tags = FALSE)
     return(result)
 }
 
@@ -1376,46 +1364,43 @@ input_b.characteristics)
 #'}
 
 
-tagDensity<-function(data, tag.shift, annotationID="hg19", mc=1)
-{
-    ##########
-    ##check if input format is ok
-    if (!is.list(data))
+
+tagDensity <- function(data, tag.shift, annotationID = "hg19", mc = 1) {
+    ########## check if input format is ok
+    if (!is.list(data)) 
         stop("Invalid format for data")
-
-    if (!is.numeric(tag.shift))
-        stop("tag.shift must be numeric")  
-    if (tag.shift<1)
-        stop("tag.shift must be > 0")  
-
-    if (!( is.character(annotationID) & (annotationID=="hg19")))
-    {
+    
+    if (!is.numeric(tag.shift)) 
+        stop("tag.shift must be numeric")
+    if (tag.shift < 1) 
+        stop("tag.shift must be > 0")
+    
+    if (!(is.character(annotationID) & (annotationID == "hg19"))) {
         warning("Invalid annotationID. Setting back to default value. 
         (Currently only hg19 is supported)")
-        annotationID="hg19"   
+        annotationID <- "hg19"
     }
-
-    if (!is.numeric(mc))
-    {
-        warning("mc must be numeric")
-        mc=1
-    }
-
-    if (mc<1)
-    {
-        warning("mc set to 1")
-        mc=1
-    }
-    ##########
     
-    ##load chrom_info
-    if (annotationID=="hg19"){
-        #hg19_chrom_info=NULL
-        data("hg19_chrom_info", package="ChIC.data", envir = environment())
-        chromInfo=hg19_chrom_info
+    if (!is.numeric(mc)) {
+        warning("mc must be numeric")
+        mc <- 1
     }
-    smoothed.density=f_tagDensity(data=data, 
-        tag.shift=tag.shift, 
-        chromDef=chromInfo, mc=mc)
+    
+    if (mc < 1) {
+        warning("mc set to 1")
+        mc <- 1
+    }
+    ########## 
+    
+    ## load chrom_info
+    if (annotationID == "hg19") {
+        # hg19_chrom_info=NULL
+        data("hg19_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- hg19_chrom_info
+    }
+    smoothed.density <- f_tagDensity(data = data, 
+        tag.shift = tag.shift, 
+        chromDef = chromInfo, 
+        mc = mc)
     return(smoothed.density)
 }

@@ -11,11 +11,11 @@ qualityScores_LM(data, tag, savePlotPath = NULL, debug = FALSE)
 \item{data}{metagene-list for input and chip sample for
 TSS or TES returned by createMetageneProfile()}
 
-\item{tag}{String that can be "TSS" or "TES",indicating if the TSS or 
-the TES profile should be calcualted (Default="TSS")}
+\item{tag}{String that can be 'TSS' or 'TES',indicating if the TSS or 
+the TES profile should be calcualted (Default='TSS')}
 
 \item{savePlotPath}{if set the plot will be saved under 
-"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
+'savePlotPath'. Default=NULL and plot will be forwarded to stdout.}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
@@ -39,25 +39,25 @@ the standard deviation and the quantiles at 0%, 25%,
 qualityScores_LM
 }
 \examples{
-message("Example Code")
+message('Example Code')
 ## This command is time intensive to run
 ##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input". Here we used ChIP-seq 
+##one for ChIP and one for the input'. Here we used ChIP-seq 
 ##data from ENCODE. Two example files can be downloaded as follows
 ## get bam file
 setwd(tempdir())
 
 \dontrun{
 ##chip data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
-chipName="ENCFF000BLL"
+system('wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam')
+chipName='ENCFF000BLL'
 chip.data=readBamFile(chipName)
 
 ##input data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
-inputName="ENCFF000BKA"
+system('wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam')
+inputName='ENCFF000BKA'
 input.data=readBamFile(inputName)
 
 ## calculate binding characteristics 
@@ -91,7 +91,7 @@ tag.shift=82)
 Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
 smoothedInput,tag.shift=82)
 
-TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS",
+TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag='TSS',
 savePlotPath=getwd())
 }
 }

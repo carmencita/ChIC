@@ -12,7 +12,7 @@ qualityScores_LMgenebody(data, savePlotPath = NULL, debug = FALSE)
 of the genebody profile returned by createMetageneProfile()}
 
 \item{savePlotPath}{if set the plot will be saved under 
-"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
+'savePlotPath'. Default=NULL and plot will be forwarded to stdout.}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
@@ -37,25 +37,25 @@ normalized profile.
 qualityScores_LMgenebody
 }
 \examples{
-print("Example Code")
+print('Example Code')
 ## This command is time intensive to run
 ##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input". Here we used ChIP-seq 
+##one for ChIP and one for the input'. Here we used ChIP-seq 
 ##data from ENCODE. Two example files can be downloaded as follows
 ## get bam file
 setwd(tempdir())
 
 \dontrun{
 ##chip data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
-chipName="ENCFF000BLL"
+system('wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam')
+chipName='ENCFF000BLL'
 chip.data=readBamFile(chipName)
 
 ##input data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
-inputName="ENCFF000BKA"
+system('wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam')
+inputName='ENCFF000BKA'
 input.data=readBamFile(inputName)
 
 ## calculate binding characteristics 

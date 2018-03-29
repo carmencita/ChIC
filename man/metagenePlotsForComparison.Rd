@@ -23,10 +23,10 @@ For RNAPOL2 different variants are available: POLR2A
 (for RNAPol2), POLR3G and POLR2AphosphoS2}
 
 \item{tag}{indicating the kind of profile to plot. 
-Can be either: "geneBody", "TES" or "TSS".}
+Can be either: 'geneBody', 'TES' or 'TSS'.}
 
 \item{savePlotPath}{if set the plot will be saved under 
-"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
+'savePlotPath'. Default=NULL and plot will be forwarded to stdout.}
 }
 \value{
 nothing, creates a figure under 'savePlotPath'
@@ -47,25 +47,25 @@ compendium values stratified by chromatin marks.
 metagenePlotsForComparison
 }
 \examples{
-print("Example Code")
+print('Example Code')
 ## This command is time intensive to run
 ##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input". Here we used ChIP-seq 
+##one for ChIP and one for the input'. Here we used ChIP-seq 
 ##data from ENCODE. Two example files can be downloaded as follows
 ## get bam file
 setwd(tempdir())
 
 \dontrun{
 ##chip data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
-chipName="ENCFF000BLL"
+system('wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam')
+chipName='ENCFF000BLL'
 chip.data=readBamFile(chipName)
 
 ##input data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
-inputName="ENCFF000BKA"
+system('wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam')
+inputName='ENCFF000BKA'
 input.data=readBamFile(inputName)
 
 ## calculate binding characteristics 
@@ -99,9 +99,9 @@ tag.shift=82)
 Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
 smoothedInput,tag.shift=82)
 
-metagenePlotsForComparison(data=Meta_Result$geneBody,chrommark="H3K36me3",
-tag="geneBody",savePlotPath=getwd())
-metagenePlotsForComparison(data=Meta_Result$TSS,chrommark="H3K36me3",
-tag="TSS",savePlotPath=getwd())
+metagenePlotsForComparison(data=Meta_Result$geneBody,chrommark='H3K36me3',
+tag='geneBody',savePlotPath=getwd())
+metagenePlotsForComparison(data=Meta_Result$TSS,chrommark='H3K36me3',
+tag='TSS',savePlotPath=getwd())
 }
 }

@@ -18,12 +18,12 @@ H3K23me2,
 H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: POLR2A 
 (for RNAPol2), POLR3G and POLR2AphosphoS2}
 
-\item{metricToBePlotted}{The metric to be plotted (Default="RSC")}
+\item{metricToBePlotted}{The metric to be plotted (Default='RSC')}
 
 \item{currentValue}{The value of the current sample}
 
 \item{savePlotPath}{if set the plot will be saved under 
-"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
+'savePlotPath'. Default=NULL and plot will be forwarded to stdout.}
 }
 \value{
 nothing, creates a figure under 'savePlotPath'
@@ -36,8 +36,8 @@ chromatin marks.
 plotReferenceDistribution
 }
 \examples{
-print ("Plot distribution of RSC")
-plotReferenceDistribution(chrommark="H3K4me1",metricToBePlotted="RSC",
+print ('Plot distribution of RSC')
+plotReferenceDistribution(chrommark='H3K4me1',metricToBePlotted='RSC',
 currentValue=0.8)
 
 }
