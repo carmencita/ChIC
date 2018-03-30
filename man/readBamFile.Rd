@@ -34,6 +34,6 @@ system("wget
 https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
 
 bamName=file.path(filepath,bamID)
-chipBam=readBamFile(fileName)
+chipBam=readBamFile(bamName)
 }
 }

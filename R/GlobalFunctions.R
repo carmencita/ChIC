@@ -1162,7 +1162,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 #' https://www.encodeproject.org/files/ENCFF000BLL/@@@download/ENCFF000BLL.bam")
 #'
 #' bamName=file.path(filepath,bamID)
-#' chipBam=readBamFile(fileName)
+#' chipBam=readBamFile(bamName)
 #' }
 
 readBamFile <- function(filename) {
