@@ -2,7 +2,7 @@
 ### Encoding: UTF-8
 
 ###################################################
-### code chunk number 1: ChIC_Vignette.Rnw:56-64
+### code chunk number 1: ChIC_Vignette.Rnw:58-66
 ###################################################
 ##load ChIC
 library(ChIC)
@@ -15,17 +15,28 @@ data("inputBam", package = "ChIC.data", envir = environment())
 
 
 ###################################################
-### code chunk number 2: ChIC_Vignette.Rnw:75-80 (eval = FALSE)
+### code chunk number 2: ChIC_Vignette.Rnw:77-93 (eval = FALSE)
 ###################################################
 ## ##caluclate first set of QC-metrics: EM 
 ## mc=4
+## filepath=tempdir()
+## setwd(filepath)
+## 
+## system("wget 
+## https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+## system("wget 
+## https://www.encodeproject.org/files/ENCFF000BKA/@@download/ENCFF000BKA.bam")
+## 
+## chipName=file.path(filepath,"ENCFF000BLL")
+## inputName=file.path(filepath,"ENCFF000BKA")
+## 
 ## CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 ## read_length=36, mc=mc)
 ## finalTagShift=CC_Result$QCscores_ChIP$tag.shift
 
 
 ###################################################
-### code chunk number 3: ChIC_Vignette.Rnw:107-111 (eval = FALSE)
+### code chunk number 3: ChIC_Vignette.Rnw:120-124 (eval = FALSE)
 ###################################################
 ## chipName=file.path(filepath,"ENCFF000BLL")
 ## inputName=file.path(filepath,"ENCFF000BKA")
@@ -34,13 +45,13 @@ data("inputBam", package = "ChIC.data", envir = environment())
 
 
 ###################################################
-### code chunk number 4: ChIC_Vignette.Rnw:129-130
+### code chunk number 4: ChIC_Vignette.Rnw:142-143
 ###################################################
 mc=36
 
 
 ###################################################
-### code chunk number 5: ChIC_Vignette.Rnw:134-146
+### code chunk number 5: ChIC_Vignette.Rnw:147-159
 ###################################################
 ## calculate binding characteristics 
 
@@ -57,7 +68,7 @@ finalTagShift=crossvalues_Chip$tag.shift
 
 
 ###################################################
-### code chunk number 6: ChIC_Vignette.Rnw:152-155 (eval = FALSE)
+### code chunk number 6: ChIC_Vignette.Rnw:165-168 (eval = FALSE)
 ###################################################
 ## ## calculate cross correlation QC-metrics for input
 ## crossvalues_input<-getCrossCorrelationScores(inputBam, 
@@ -65,7 +76,7 @@ finalTagShift=crossvalues_Chip$tag.shift
 
 
 ###################################################
-### code chunk number 7: ChIC_Vignette.Rnw:180-195
+### code chunk number 7: ChIC_Vignette.Rnw:193-208
 ###################################################
 ##get chromosome information and order chip and input by it
 chrl_final=intersect(names(chipBam$tags),
@@ -85,7 +96,7 @@ chipBamSelected=selectedTags$chip.dataSelected
 
 
 ###################################################
-### code chunk number 8: ChIC_Vignette.Rnw:203-208
+### code chunk number 8: ChIC_Vignette.Rnw:216-221
 ###################################################
 ##Finally run function
 bindingScores=getPeakCallingScores(chip=chipBam, 
@@ -95,7 +106,7 @@ tag.shift=finalTagShift)
 
 
 ###################################################
-### code chunk number 9: ChIC_Vignette.Rnw:220-224
+### code chunk number 9: ChIC_Vignette.Rnw:233-237
 ###################################################
 smoothedChip=tagDensity(chipBamSelected, 
     tag.shift=finalTagShift)
@@ -104,14 +115,14 @@ smoothedInput=tagDensity(inputBamSelected,
 
 
 ###################################################
-### code chunk number 10: ChIC_Vignette.Rnw:240-242
+### code chunk number 10: ChIC_Vignette.Rnw:253-255
 ###################################################
 Ch_Results=qualityScores_GM(densityChip=smoothedChip,
 densityInput=smoothedInput,savePlotPath=filepath)
 
 
 ###################################################
-### code chunk number 11: ChIC_Vignette.Rnw:275-278
+### code chunk number 11: ChIC_Vignette.Rnw:288-291
 ###################################################
 Meta_Result=createMetageneProfile(
     smoothed.densityChip=smoothedChip, 
@@ -119,7 +130,7 @@ Meta_Result=createMetageneProfile(
 
 
 ###################################################
-### code chunk number 12: ChIC_Vignette.Rnw:284-288
+### code chunk number 12: ChIC_Vignette.Rnw:297-301
 ###################################################
 TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS",
 savePlotPath=filepath)
@@ -128,7 +139,7 @@ savePlotPath=filepath)
 
 
 ###################################################
-### code chunk number 13: ChIC_Vignette.Rnw:294-297
+### code chunk number 13: ChIC_Vignette.Rnw:307-310
 ###################################################
 #create scaled metagene profile
 geneBody_Scores=qualityScores_LMgenebody(Meta_Result$geneBody,
@@ -136,7 +147,7 @@ savePlotPath=filepath)
 
 
 ###################################################
-### code chunk number 14: ChIC_Vignette.Rnw:325-329
+### code chunk number 14: ChIC_Vignette.Rnw:338-342
 ###################################################
 metagenePlotsForComparison(data=Meta_Result$geneBody,
     chrommark="H3K36me3", tag="geneBody", savePlotPath=filepath)
@@ -145,21 +156,21 @@ metagenePlotsForComparison(data=Meta_Result$TSS,
 
 
 ###################################################
-### code chunk number 15: ChIC_Vignette.Rnw:340-342
+### code chunk number 15: ChIC_Vignette.Rnw:353-355
 ###################################################
 plotReferenceDistribution(chrommark="H3K4me1", 
   metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
 
 
 ###################################################
-### code chunk number 16: ChIC_Vignette.Rnw:364-366
+### code chunk number 16: ChIC_Vignette.Rnw:377-379
 ###################################################
 data("EM_scores", package = "ChIC.data", envir = environment())
 CC_Result=EM_scores
 
 
 ###################################################
-### code chunk number 17: ChIC_Vignette.Rnw:369-376
+### code chunk number 17: ChIC_Vignette.Rnw:382-389
 ###################################################
 te=predictionScore(chrommark="H3K36me3", 
     features_cc=CC_Result,

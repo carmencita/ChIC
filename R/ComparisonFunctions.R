@@ -293,12 +293,18 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' ## temporary directory "filepath"
 #'
 #' mc=4
-#' chipName="ENCFF000BLL"
-#' inputName="ENCFF000BKA"
 #'
 #' \dontrun{
 #' filepath=tempdir()
 #' setwd(filepath)
+#'
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@@download/ENCFF000BLL.bam")
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BKA/@@@download/ENCFF000BKA.bam")
+#'
+#' chipName=file.path(filepath,"ENCFF000BLL")
+#' inputName=file.path(filepath,"ENCFF000BKA")
 #'
 #' CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 #' read_length=36, mc=mc,savePlotPath=filepath)

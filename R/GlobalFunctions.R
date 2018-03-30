@@ -68,13 +68,17 @@
 #' ## and save them in the working directory (here given in the 
 #' ## temporary directory "filepath"
 #'
-#' chipName="ENCFF000BLL"
-#' inputName="ENCFF000BKA"
 #' mc=4
 #' \dontrun{
 #' filepath=tempdir()
 #' setwd(filepath)
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@@download/ENCFF000BLL.bam")
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BKA/@@@download/ENCFF000BKA.bam")
 #'
+#' chipName=file.path(filepath,"ENCFF000BLL")
+#' inputName=file.path(filepath,"ENCFF000BKA")
 #' CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 #' read_length=36, mc=mc,savePlotPath=filepath)
 #'}
@@ -1150,9 +1154,14 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 #' ## https://www.encodeproject.org/files/ENCFF000BLL/
 #' ## and save it in the working directory 
 #'
-#' bamName="ENCFF000BLL"
+#' bamID="ENCFF000BLL"
 #' \dontrun{
-#' fileName=file.path(getwd(),bamName)
+#' filepath=tempdir()
+#' setwd(filepath)
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BLL/@@@download/ENCFF000BLL.bam")
+#'
+#' bamName=file.path(filepath,bamID)
 #' chipBam=readBamFile(fileName)
 #' }
 

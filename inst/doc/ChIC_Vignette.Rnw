@@ -41,9 +41,11 @@ To run the example code the user must provide 2 bam files:
 one for ChIP and one for the input". Here we used ChIP-seq 
 data from ENCODE. Two example files can be downloaded using the 
 following link:
-\hyperref[ENCFF000BLL]{https://www.encodeproject.org/files/ENCFF000BLL/}
+\hyperref[ENCFF000BLL]{
+https://www.encodeproject.org/files/ENCFF000BLL/}
 
-\hyperref[ENCFF000BKA]{https://www.encodeproject.org/files/ENCFF000BKA/}
+\hyperref[ENCFF000BKA]{
+https://www.encodeproject.org/files/ENCFF000BKA/}
 
 The tutorial illustrates output and input of ChIC functions 
 using a ENCODE ChIP-seq dataset for H3K36me3 (ID: ENCFF000BLL) and its input 
@@ -75,6 +77,17 @@ and from peak-calling. We will refer to this measures as ENCODE Metrics (EM).
 <<eval=FALSE, echo=TRUE >>=
 ##caluclate first set of QC-metrics: EM 
 mc=4
+filepath=tempdir()
+setwd(filepath)
+
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BKA/@@download/ENCFF000BKA.bam")
+
+chipName=file.path(filepath,"ENCFF000BLL")
+inputName=file.path(filepath,"ENCFF000BKA")
+
 CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 read_length=36, mc=mc)
 finalTagShift=CC_Result$QCscores_ChIP$tag.shift

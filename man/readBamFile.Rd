@@ -26,9 +26,14 @@ readBamFile
 ## https://www.encodeproject.org/files/ENCFF000BLL/
 ## and save it in the working directory 
 
-bamName="ENCFF000BLL"
+bamID="ENCFF000BLL"
 \dontrun{
-fileName=file.path(getwd(),bamName)
+filepath=tempdir()
+setwd(filepath)
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+
+bamName=file.path(filepath,bamID)
 chipBam=readBamFile(fileName)
 }
 }
