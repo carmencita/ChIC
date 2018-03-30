@@ -322,7 +322,7 @@ ChIC provides tre functions for that:
     the compendium
     \item \textit{plotReferenceDistribution} to compare a QC-metric with the 
     compendium values
-    \textit{predictionScore} to obtain a single quality score from the previously 
+    \item \textit{predictionScore} to obtain a single quality score from the previously 
     computed QC-metrics 
 \end{itemize}
 
