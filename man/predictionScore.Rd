@@ -40,54 +40,52 @@ something something
 predictionScore
 }
 \examples{
-## This command is time intensive to run
-##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input'. Here we used ChIP-seq 
-##data from ENCODE. Two example files can be downloaded as follows
-## get bam file
-setwd(tempdir())
 
-chipName='ENCFF000BLL'
+## To execute this command the user has to run the entire pipeline
+## (time intensive to run)
+
+## To run this example code the user MUST provide 2 bam files: 
+## one for ChIP and one for the input". Here we used ChIP-seq 
+## data from ENCODE. Two example files can be downloaded using the 
+## following link:
+## https://www.encodeproject.org/files/ENCFF000BLL/
+## https://www.encodeproject.org/files/ENCFF000BKA/
+## and save them in the working directory (here given in the 
+## temporary directory "filepath"
+
 \dontrun{
-##chip data
-system('wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam')
-chip.data=readBamFile(chipName)
+filepath=tempdir()
+setwd(filepath)
+chipName="ENCFF000BLL"
+inputName="ENCFF000BKA"
+mc=4
 
-##input data
-system('wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam')
-inputName='ENCFF000BKA'
-input.data=readBamFile(inputName)
-
-##caluclate first set of QC-metrics
 CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
-read_length=36, mc=5, annotationID='hg19')
+read_length=36, mc=mc,savePlotPath=filepath)
 
-##save the tagshift as it is needed later
-tag.shift=CC_Result$QCscores_ChIP$tag.shift
+##save tag.shift value
+finalTagShift=CC_Result$QCscores_ChIP$tag.shift
 
-##smoothed tagdensities used as input for the next steps
+##save the smooted profile
 smoothedDensityInput=CC_Result$TagDensityInput
-smoothedChip=CC_Result$TagDensityChip
+smoothedDensityChip=CC_Result$TagDensityChip
 
-###GLOBAL features#########
-##caluclate second set of QC-metrics
-Ch_Results=qualityScores_GM(densityChip=smoothedChip,
-densityInput=smoothedInput)
+##caluclate GM QC-metrics
+Ch_Results=qualityScores_GM(densityChip=smoothedDensityChip,
+densityInput=smoothedDensityInput,savePlotPath=filepath)
 
-###LOCAL features########
-##caluclate third set of QC-metrics
-Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
-smoothed.densityInput=smoothedInput,tag.shift=tag.shift,annotationID='hg19')
+##caluclate metagene profiles
+Meta_Result=createMetageneProfile(smoothedDensityChip,smoothedDensityInput,
+finalTagShift,annotationID="hg19",mc=mc)
 
-##create plots and get values
-TSS_scores=qualityScores_LM(Meta_Result$TSS,tag='TSS')
-TES_scores=qualityScores_LM(Meta_Result$TES,tag='TES')
-geneBody_scores=qualityScores_LMgenebody(Meta_Result$geneBody)
+##get LM QC-values
+TSSProfile=qualityScores_LM(Meta_Result$TSS,tag="TSS",savePlotPath=filepath)
+TESProfile=qualityScores_LM(Meta_Result$TES,tag="TES",savePlotPath=filepath)
+geneBody_Plot=qualityScores_LMgenebody(Meta_Result$geneBody,savePlotPath=filepath)
 
-te=predictionScore(chrommark='H3K36me3', features_cc=CC_Result,
-features_global=Ch_Results,features_TSS=TSS_scores, features_TES=TES_scores,
-features_scaled=geneBody_scores)
+##Finally use all calculated QC-metrics to predict the final score
+predictionScore(chrommark="H3K36me3", features_cc=CC_Result,
+features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
+features_scaled=geneBody_Plot)
 }
 }

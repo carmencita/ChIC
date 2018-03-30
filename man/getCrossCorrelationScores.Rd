@@ -25,7 +25,7 @@ cross-correlation profile (see spp::get.binding.characteristics).}
 DEFAULT ="phantomCrossCorrelation". Available only if savePlotPath is set}
 }
 \value{
-finalList List with different QC-metrics
+finalList List with QC-metrics
 }
 \description{
 We use cross-correlation analysis to obtain QC-metrics proposed for 
@@ -54,32 +54,25 @@ maps, divided by the number of unique mapping reads).
 getCrossCorrelationScores
 }
 \examples{
-print("Example Code")
+
 ## This command is time intensive to run
-##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input". Here we used ChIP-seq 
-##data from ENCODE. Two example files can be downloaded as follows
-## get bam file
-setwd(tempdir())
+
+## To run the example code the user must provide a bam file 
+## and read it with the readBamFile() function.
+## To make it easier for the user to run the example code we 
+## provide a bam file in our ChIC.data package that has 
+## already been loaded with the readBamFile() function.
+ 
+filepath=tempdir()
+setwd(filepath)
 
 \dontrun{
-##chip data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
-chipName="ENCFF000BLL"
-chip.data=readBamFile(chipName)
+data("chipBam", package = "ChIC.data", envir = environment())
 
-##input data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
-inputName="ENCFF000BKA"
-input.data=readBamFile(inputName)
-
-## calculate binding characteristics 
-chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
+chip_binding.characteristics<-spp::get.binding.characteristics(chipBam, 
 srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
-crossvalues_Chip<-getCrossCorrelationScores(chip.data, 
-chip_binding.characteristics, read_length=36)
+crossvalues_Chip<-getCrossCorrelationScores(chipBam, 
+chip_binding.characteristics, read_length=36, savePlotPath=filepath)
 }
 }

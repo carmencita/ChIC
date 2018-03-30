@@ -37,7 +37,7 @@ plotReferenceDistribution
 }
 \examples{
 print ('Plot distribution of RSC')
-plotReferenceDistribution(chrommark='H3K4me1',metricToBePlotted='RSC',
-currentValue=0.8)
+plotReferenceDistribution(chrommark="H3K4me1", 
+   metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
 
 }

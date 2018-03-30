@@ -30,8 +30,6 @@ file (without extension)}
 \value{
 returnList, contains
 QCscores_ChIP List of QC-metrics with crosscorrelation values for the ChIP
-QCscores_Input List of QC-metrics with crosscorrelation values for the 
-Input
 QCscores_binding List of QCscores from peak calls
 TagDensityChip Tag-density profile, smoothed by the Gaussian kernel 
 (for further details see "spp" package)
@@ -39,38 +37,32 @@ TagDensityInput Tag density-profile, smoothed by the Gaussian kernel
 (for further details see "spp" package)
 }
 \description{
-Wrapper function that reads input bam files and 
-provides QC-metrics from cross-correlation 
-analysis, from peak calling and general metrics like read-length or 
-NRF. In total 22 features calculated.
+Wrapper function that reads input bam files and provides QC-metrics from 
+cross-correlation analysis, from peak calling and general metrics like 
+read-length or NRF. In total 22 features are calculated.
 
 qualityScores_EM
 }
 \examples{
 
-setwd(tempdir())
-\dontrun{
-
 ## This command is time intensive to run
-##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input". Here we used ChIP-seq 
-##data from ENCODE. An example file can be downloaded as follows
-## get bam file
+## To run this example code the user MUST provide 2 bam files: 
+## one for ChIP and one for the input". Here we used ChIP-seq 
+## data from ENCODE. Two example files can be downloaded using the 
+## following link:
+## https://www.encodeproject.org/files/ENCFF000BLL/
+## https://www.encodeproject.org/files/ENCFF000BKA/
+## and save them in the working directory (here given in the 
+## temporary directory "filepath"
 
-##chip data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
+\dontrun{
+filepath=tempdir()
+setwd(filepath)
 chipName="ENCFF000BLL"
-chip.data=readBamFile(chipName)
-
-##input data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam")
 inputName="ENCFF000BKA"
-input.data=readBamFile(inputName)
+mc=4
 
-CC_Result=qualityScores_EM(chipName=chipName,
-inputName=inputName, read_length=36, annotationID="hg19",
-mc=5)
+CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
+read_length=36, mc=mc,savePlotPath=filepath)
 }
 }

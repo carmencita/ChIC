@@ -39,38 +39,31 @@ finally a random forestl model to compute the single value quality score.
 \newpage
 To run the example code the user must provide 2 bam files: 
 one for ChIP and one for the input". Here we used ChIP-seq 
-data from ENCODE. Two example files can be downloaded as follows
+data from ENCODE. Two example files can be downloaded using the 
+following link:
+\hyperref[ENCFF000BLL]{https://www.encodeproject.org/files/ENCFF000BLL/}
 
-<<eval=FALSE, echo=FALSE>>=
-library(ChIC)
-## get bam file
-setwd(tempdir())
-chipName="/lustre/data/FF/Carmen/BitBucket/ENCFF000BLL"
-inputName="/lustre/data/FF/Carmen/BitBucket/ENCFF000BKA"
-@
-
-<<eval=TRUE, echo=TRUE >>=
-##load ChIC
-library(ChIC)
-
-## set path to download
-filepath=tempdir()
-setwd(filepath)
-path="https://www.encodeproject.org/files/ENCFF000BLL/@@download/"
-
-chipName="ENCFF000BLL"
-command=paste("wget",path, chipName,sep=" ")
-system(command)
-
-inputName="ENCFF000BKA"
-command=paste("wget",path, inputName,sep=" ")
-system(command)
-@
+\hyperref[ENCFF000BKA]{https://www.encodeproject.org/files/ENCFF000BKA/}
 
 The tutorial illustrates output and input of ChIC functions 
 using a ENCODE ChIP-seq dataset for H3K36me3 (ID: ENCFF000BLL) and its input 
 (ID: ENCFF000BKA). The sample has been flagged by ENCODE with a red audit 
 because of low read depth. 
+
+For timing reasons in this tutorial will start from already read 
+bam files by loading input and chip data from our 
+datapackage "ChIC.data":
+<<eval=TRUE, echo=TRUE >>=
+##load ChIC
+library(ChIC)
+## set path for working directory
+filepath=tempdir()
+setwd(filepath)
+
+data("chipBam", package = "ChIC.data", envir = environment())
+data("inputBam", package = "ChIC.data", envir = environment())
+@
+
 
 \section{ENCODE Metrics (EM) based on sharp-peak profiles and 
 cross-correlation analysis}
@@ -79,6 +72,14 @@ cross-correlation analysis}
 and calculates a number of QC-metrics from cross-correlation analysis 
 and from peak-calling. We will refer to this measures as ENCODE Metrics (EM).
 
+<<eval=FALSE, echo=TRUE >>=
+##caluclate first set of QC-metrics: EM 
+mc=4
+CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
+read_length=36, mc=mc)
+finalTagShift=CC_Result$QCscores_ChIP$tag.shift
+@
+
 The function expects two bam files: one for the immunoprecipitation (ChIP) 
 and one for the control (Input). The read length (read\_length parameter) 
 can be taken from the bam file itself. 
@@ -86,42 +87,33 @@ An additional option is the use of the 'mc' parameter, set to 1 per default.
 When changed it triggers the parallelization of a few processes and 
 speeds up the calculations.
 
-<<eval=FALSE, echo=TRUE >>=
-library(ChIC)
-chipName="ENCFF000BLL"
-inputName="ENCFF000BKA"
-
-## number of CPUs for parallelization 
-mc=5
-
-##caluclate first set of QC-metrics: EM 
-CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
-read_length=36, mc=mc)
-finalTagShift=CC_Result$QCscores_ChIP$tag.shift
-@
-
-<<eval=TRUE, echo=FALSE >>=
-finalTagShift=82
-@
-
 The function returns a number of QC-metrics 
+
 \cite{chicpapero}, amongst others the "tag.shift" value which 
 represents an input parameter for further steps (i.e. peak-calling 
 and metagene calculation). 
 
+The wrapper is executing the following functions:
 
-The wrapper is based on the following functions:
 \subsection{Reading BAM files}
 The first step in the \textit{qualityScores\_EM} function 
 reads ChIP-seq data in .bam file-format. The function 
 expects only the filename, that can also contain the pathname.
 
-<<eval=TRUE, echo=TRUE >>=
-chip.data=readBamFile(chipName)
-input.data=readBamFile(inputName)
+PLEASE NOTE: The following code chunk is executed 
+if the user starts from the 
+bam file. As we have already loaded the bam file, we skip this part.
+
+<<eval=FALSE, echo=TRUE >>=
+chipName=file.path(filepath,"ENCFF000BLL")
+inputName=file.path(filepath,"ENCFF000BKA")
+chipBam=readBamFile(chipName)
+inputBam=readBamFile(inputName)
 @
 
+
 \subsection{Calculate QC-metrics from CrossCorrelation analysis}
+
 The next function called is the 
 \textit{getCrossCorrelationScores} that calculates QC-metrics from 
 the crosscorrelation analysis and other general metrics, e.g. the 
@@ -133,21 +125,34 @@ The binding-characteristics structure provides information about the
 peak separation distance and the cross-correlation profile (for more details 
 see \cite{Kharchenko2008}).
 
+
+<<eval=TRUE, echo=FALSE >>=
+mc=36
+@
+
+
 <<eval=TRUE, echo=TRUE >>=
 ## calculate binding characteristics 
 
 chip_binding.characteristics<-spp::get.binding.characteristics(
-    chip.data, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 input_binding.characteristics<-spp::get.binding.characteristics(
-    input.data, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ## calculate cross correlation QC-metrics
-crossvalues_Chip<-getCrossCorrelationScores(chip.data, 
-chip_binding.characteristics, read_length=36,savePlotPath=NULL)
+crossvalues_Chip<-getCrossCorrelationScores(chipBam, 
+chip_binding.characteristics, read_length=36,savePlotPath=filepath)
+finalTagShift=crossvalues_Chip$tag.shift
+@
 
-crossvalues_Input<-getCrossCorrelationScores(input.data, 
-input_binding.characteristics, read_length=36,savePlotPath=NULL)
+The user can also choose to calculate the cross-correlation for the input 
+by simply using the following command:
+
+<<eval=FALSE, echo=TRUE >>=
+## calculate cross correlation QC-metrics for input
+crossvalues_input<-getCrossCorrelationScores(inputBam, 
+chip_binding.characteristics, read_length=36,savePlotPath=filepath)
 @
 
 savePlotPath sets the path in which the cross-correlation plot (as pdf) 
@@ -174,20 +179,20 @@ counts compared to the neighborhood
 
 <<eval=TRUE, echo=TRUE >>=
 ##get chromosome information and order chip and input by it
-chrl_final=intersect(names(chip.data$tags),
-    names(input.data$tags))
-chip.data$tags=chip.data$tags[chrl_final]
-chip.data$quality=chip.data$quality[chrl_final]
-input.data$tags=input.data$tags[chrl_final]
-input.data$quality=input.data$quality[chrl_final]
+chrl_final=intersect(names(chipBam$tags),
+    names(inputBam$tags))
+chipBam$tags=chipBam$tags[chrl_final]
+chipBam$quality=chipBam$quality[chrl_final]
+inputBam$tags=inputBam$tags[chrl_final]
+inputBam$quality=inputBam$quality[chrl_final]
 
 ##remove sigular positions with extremely high read counts with 
 ##respect to the neighbourhood
-selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
+selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
 chip_binding.characteristics, input_binding.characteristics)
 
-input.dataSelected=selectedTags$input.dataSelected
-chip.dataSelected=selectedTags$chip.dataSelected
+inputBamSelected=selectedTags$input.dataSelected
+chipBamSelected=selectedTags$chip.dataSelected
 @
 
 
@@ -197,9 +202,9 @@ The last set of QC-metrics are calculated on the number of called peaks using
 
 <<eval=TRUE, echo=TRUE >>=
 ##Finally run function
-bindingScores=getPeakCallingScores(chip=chip.data, 
-input=input.data, chip.dataSelected=chip.dataSelected, 
-input.dataSelected=input.dataSelected, 
+bindingScores=getPeakCallingScores(chip=chipBam, 
+input=inputBam, chip.dataSelected=chipBamSelected, 
+input.dataSelected=inputBamSelected, 
 tag.shift=finalTagShift)
 @
 
@@ -213,9 +218,9 @@ the Global enrichment profile Metrics (GM) and the
 local enrichment profile metrics (LM).
 
 <<eval=TRUE, echo=TRUE >>=
-smoothedChip=tagDensity(chip.dataSelected, 
+smoothedChip=tagDensity(chipBamSelected, 
     tag.shift=finalTagShift)
-smoothedInput=tagDensity(input.dataSelected, 
+smoothedInput=tagDensity(inputBamSelected, 
     tag.shift=finalTagShift)
 @
 
@@ -234,7 +239,7 @@ percent of bins with highest coverage for ChIP and input.
 
 <<eval=TRUE, echo=TRUE>>=
 Ch_Results=qualityScores_GM(densityChip=smoothedChip,
-densityInput=smoothedInput,savePlotPath=getwd())
+densityInput=smoothedInput,savePlotPath=filepath)
 @
 
 
@@ -270,7 +275,7 @@ metagene-profiles for ChIP and input.
 <<eval=TRUE, echo=TRUE>>=
 Meta_Result=createMetageneProfile(
     smoothed.densityChip=smoothedChip, 
-    smoothedInput,tag.shift=finalTagShift)
+    smoothedInput,tag.shift=finalTagShift, mc=mc)
 @
 
 The objects in 'Meta\_Result' can be used to create the final metagene plots and to get 
@@ -278,9 +283,9 @@ the respective QC-values for the non-scaled profiles around the TSS and TES.
 
 <<eval=TRUE, echo=TRUE >>=
 TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS",
-savePlotPath=getwd())
+savePlotPath=filepath)
 TES_Scores=qualityScores_LM(data=Meta_Result$TES, tag="TES",
-savePlotPath=getwd())
+savePlotPath=filepath)
 @
 
 The "geneBody" object can be used to plot the scaled metagene profile 
@@ -289,7 +294,7 @@ and to get its respective QC-values:
 <<eval=TRUE, echo=TRUE >>=
 #create scaled metagene profile
 geneBody_Scores=qualityScores_LMgenebody(Meta_Result$geneBody,
-savePlotPath=getwd())
+savePlotPath=filepath)
 @
 
 
@@ -319,9 +324,9 @@ provided by the compendium mean (black line) and standard error
 
 <<eval=TRUE, echo=TRUE >>=
 metagenePlotsForComparison(data=Meta_Result$geneBody,
-    chrommark="H3K36me3", tag="geneBody", savePlotPath=getwd())
+    chrommark="H3K36me3", tag="geneBody", savePlotPath=filepath)
 metagenePlotsForComparison(data=Meta_Result$TSS,
-    chrommark="H3K36me3", tag="TSS", savePlotPath=getwd())
+    chrommark="H3K36me3", tag="TSS", savePlotPath=filepath)
 @
 
 
@@ -334,7 +339,7 @@ large number of already published data (Figure \ref{fig:MetaProfileComparison} D
 
 <<eval=TRUE, echo=TRUE >>=
 plotReferenceDistribution(chrommark="H3K4me1", 
-  metricToBePlotted="RSC", currentValue=0.49)
+  metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
 @
 
 
@@ -357,8 +362,7 @@ Moreover, we used the compendium of metrics to train a machine learning model
 that summarizes the sample quality in a single score. 
 
 <<eval=TRUE, echo=FALSE >>=
-library(ChIC.data)
-data("EM_scores")
+data("EM_scores", package = "ChIC.data", envir = environment())
 CC_Result=EM_scores
 @
 

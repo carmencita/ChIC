@@ -39,59 +39,57 @@ the standard deviation and the quantiles at 0%, 25%,
 qualityScores_LM
 }
 \examples{
-message('Example Code')
+
 ## This command is time intensive to run
-##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input'. Here we used ChIP-seq 
-##data from ENCODE. Two example files can be downloaded as follows
-## get bam file
-setwd(tempdir())
-
+##
+## To run the example code the user must provide two bam files 
+## for the ChIP and the input and read them with the readBamFile() function.
+## To make it easier for the user to run the example code we 
+## provide tow bam examples (chip and input) in our ChIC.data 
+## package that have already been loaded with the readBamFile() function.
+## 
+mc=4
+finalTagShift=82
 \dontrun{
-##chip data
-system('wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam')
-chipName='ENCFF000BLL'
-chip.data=readBamFile(chipName)
 
-##input data
-system('wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BKA.bam')
-inputName='ENCFF000BKA'
-input.data=readBamFile(inputName)
+filepath=tempdir()
+setwd(filepath)
+
+data("chipBam", package = "ChIC.data", envir = environment())
+data("inputBam", package = "ChIC.data", envir = environment())
 
 ## calculate binding characteristics 
-chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
-srange=c(0,500), bin=5,accept.all.tags=TRUE)
+chip_binding.characteristics<-spp::get.binding.characteristics(
+   chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
-## calculate binding characteristics 
-input_binding.characteristics<-spp::get.binding.characteristics(input.data, 
-srange=c(0,500), bin=5,accept.all.tags=TRUE)
+input_binding.characteristics<-spp::get.binding.characteristics(
+   inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
-chrl_final=intersect(names(chip.data$tags),names(input.data$tags))
-chip.data$tags=chip.datatags[chrl_final]
-chip.data$quality=chip.data$quality[chrl_final]
-input.data$tags=input.data$tags[chrl_final]
-input.data$quality=input.data$quality[chrl_final]
+chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))
+chipBam$tags=chipBam$tags[chrl_final]
+chipBam$quality=chipBam$quality[chrl_final]
+inputBam$tags=inputBam$tags[chrl_final]
+inputBam$quality=inputBam$quality[chrl_final]
 
-##remove sigular positions with extremely high tag counts with 
+##remove sigular positions with extremely high read counts with 
 ##respect to the neighbourhood
-selectedTags=removeLocalTagAnomalies(chip.data, input.data, 
+selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
 chip_binding.characteristics, input_binding.characteristics)
-input.dataSelected=selectedTags$input.dataSelected
-chip.dataSelected=selectedTags$chip.dataSelected
 
-##get smoothed tagdensity 
-smoothedChip=tagDensity(chip.dataSelected, 
-tag.shift=82)
-smoothedInput=tagDensity(input.dataSelected, 
-tag.shift=82)
+inputBamSelected=selectedTags$input.dataSelected
+chipBamSelected=selectedTags$chip.dataSelected
 
+##smooth input and chip tags
+smoothedChip=tagDensity(chipBamSelected, tag.shift=finalTagShift)
+smoothedInput=tagDensity(inputBamSelected, tag.shift=finalTagShift)
+
+##calculate metagene profiles
 Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
-smoothedInput,tag.shift=82)
+    smoothedInput,tag.shift=finalTagShift, mc=mc)
 
-TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag='TSS',
-savePlotPath=getwd())
+##estract QC-values and plot metageneprofile for TSS
+TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS",
+savePlotPath=filepath))
 }
 }

@@ -19,17 +19,15 @@ Reading bam file format
 readBamFile
 }
 \examples{
-##To run the example code the user must provide 2 bam files: 
-##one for ChIP and one for the input". Here we used ChIP-seq 
-##data from ENCODE. Two example files can be downloaded as follows
-## get bam file
-setwd(tempdir())
+
+## To run this example code the user MUST provide a bam file: 
+## The user can download a ChIP-seq bam file for example 
+## from ENCODE:
+## https://www.encodeproject.org/files/ENCFF000BLL/
+## and save it in the working directory 
 
 \dontrun{
-##chip data
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@download/ENCFF000BLL.bam")
-chipName="ENCFF000BLL"
-chip.data=readBamFile(chipName)
+fileName=file.path(getwd(),"ENCFF000BLL")
+chipBam=readBamFile(fileName)
 }
 }
