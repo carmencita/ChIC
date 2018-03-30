@@ -59,10 +59,8 @@ mc=4
 filepath=tempdir()
 setwd(filepath)
 
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BKA/@@download/ENCFF000BKA.bam")
+system("wget https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+system("wget https://www.encodeproject.org/files/ENCFF000BKA/@@download/ENCFF000BKA.bam")
 
 chipName=file.path(filepath,"ENCFF000BLL")
 inputName=file.path(filepath,"ENCFF000BKA")

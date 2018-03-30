@@ -30,8 +30,7 @@ bamID="ENCFF000BLL"
 \dontrun{
 filepath=tempdir()
 setwd(filepath)
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+system("wget https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
 
 bamName=file.path(filepath,bamID)
 chipBam=readBamFile(bamName)
