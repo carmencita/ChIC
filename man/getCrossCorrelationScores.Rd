@@ -63,10 +63,10 @@ getCrossCorrelationScores
 ## provide a bam file in our ChIC.data package that has 
 ## already been loaded with the readBamFile() function.
  
-filepath=tempdir()
-setwd(filepath)
 
 \dontrun{
+filepath=tempdir()
+setwd(filepath)
 data("chipBam", package = "ChIC.data", envir = environment())
 
 chip_binding.characteristics<-spp::get.binding.characteristics(chipBam, 

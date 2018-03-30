@@ -37,7 +37,11 @@ plotReferenceDistribution
 }
 \examples{
 print ('Plot distribution of RSC')
+\dontrun{
+filepath=tempdir()
+setwd(filepath)
+
 plotReferenceDistribution(chrommark="H3K4me1", 
    metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
-
+}
 }

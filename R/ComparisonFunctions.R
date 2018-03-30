@@ -198,9 +198,13 @@ metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
 #' @return nothing, creates a figure under 'savePlotPath'
 #'@examples
 #' print ('Plot distribution of RSC')
+#' \dontrun{
+#' filepath=tempdir()
+#' setwd(filepath)
+#'
 #' plotReferenceDistribution(chrommark="H3K4me1", 
 #'    metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
-#'
+#'}
 
 plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC", 
     currentValue, savePlotPath = NULL) {
