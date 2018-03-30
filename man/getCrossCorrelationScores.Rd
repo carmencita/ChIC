@@ -47,7 +47,7 @@ NSC  (Landt et al., 2012), and the quality control tag
 mapped reads (NRF; ratio between the number of uniquely mapped 
 reads divided by the total number of reads), the NRF adjusted by 
 library size and ignoring the 
-strand direction (NRF_nostrand), and the PCR bottleneck coefficient PBCb 
+strand direction (NRF_nostrand), and the PCR bottleneck coefficient PBC 
 (number of genomic locations to which exactly one unique mapping read 
 maps, divided by the number of unique mapping reads).
 
@@ -64,8 +64,8 @@ getCrossCorrelationScores
 ## already been loaded with the readBamFile() function.
  
 
-\dontrun{
 print("Get Cross-correlation for ChIP")
+\dontrun{
 filepath=tempdir()
 setwd(filepath)
 data("chipBam", package = "ChIC.data", envir = environment())

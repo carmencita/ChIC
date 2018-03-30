@@ -82,7 +82,8 @@ finalTagShift,annotationID="hg19",mc=mc)
 ##get LM QC-values
 TSSProfile=qualityScores_LM(Meta_Result$TSS,tag="TSS",savePlotPath=filepath)
 TESProfile=qualityScores_LM(Meta_Result$TES,tag="TES",savePlotPath=filepath)
-geneBody_Plot=qualityScores_LMgenebody(Meta_Result$geneBody,savePlotPath=filepath)
+geneBody_Plot=qualityScores_LMgenebody(Meta_Result$geneBody, 
+savePlotPath=filepath)
 
 ##Finally use all calculated QC-metrics to predict the final score
 predictionScore(chrommark="H3K36me3", features_cc=CC_Result,
