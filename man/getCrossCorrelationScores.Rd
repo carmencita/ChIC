@@ -65,6 +65,7 @@ getCrossCorrelationScores
  
 
 \dontrun{
+print("Get Cross-correlation for ChIP")
 filepath=tempdir()
 setwd(filepath)
 data("chipBam", package = "ChIC.data", envir = environment())

@@ -292,12 +292,13 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' ## and save them in the working directory (here given in the 
 #' ## temporary directory "filepath"
 #'
+#' mc=4
+#' chipName="ENCFF000BLL"
+#' inputName="ENCFF000BKA"
+#'
 #' \dontrun{
 #' filepath=tempdir()
 #' setwd(filepath)
-#' chipName="ENCFF000BLL"
-#' inputName="ENCFF000BKA"
-#' mc=4
 #'
 #' CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 #' read_length=36, mc=mc,savePlotPath=filepath)

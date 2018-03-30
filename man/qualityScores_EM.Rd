@@ -55,12 +55,12 @@ qualityScores_EM
 ## and save them in the working directory (here given in the 
 ## temporary directory "filepath"
 
-\dontrun{
-filepath=tempdir()
-setwd(filepath)
 chipName="ENCFF000BLL"
 inputName="ENCFF000BKA"
 mc=4
+\dontrun{
+filepath=tempdir()
+setwd(filepath)
 
 CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 read_length=36, mc=mc,savePlotPath=filepath)

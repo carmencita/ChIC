@@ -68,12 +68,12 @@
 #' ## and save them in the working directory (here given in the 
 #' ## temporary directory "filepath"
 #'
-#' \dontrun{
-#' filepath=tempdir()
-#' setwd(filepath)
 #' chipName="ENCFF000BLL"
 #' inputName="ENCFF000BKA"
 #' mc=4
+#' \dontrun{
+#' filepath=tempdir()
+#' setwd(filepath)
 #'
 #' CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 #' read_length=36, mc=mc,savePlotPath=filepath)
@@ -271,6 +271,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #'  
 #' 
 #' \dontrun{
+#' print("Get Cross-correlation for ChIP")
 #' filepath=tempdir()
 #' setwd(filepath)
 #' data("chipBam", package = "ChIC.data", envir = environment())
@@ -1149,8 +1150,9 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 #' ## https://www.encodeproject.org/files/ENCFF000BLL/
 #' ## and save it in the working directory 
 #'
+#' bamName="ENCFF000BLL"
 #' \dontrun{
-#' fileName=file.path(getwd(),"ENCFF000BLL")
+#' fileName=file.path(getwd(),bamName)
 #' chipBam=readBamFile(fileName)
 #' }
 

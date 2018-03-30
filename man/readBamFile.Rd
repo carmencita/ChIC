@@ -26,8 +26,9 @@ readBamFile
 ## https://www.encodeproject.org/files/ENCFF000BLL/
 ## and save it in the working directory 
 
+bamName="ENCFF000BLL"
 \dontrun{
-fileName=file.path(getwd(),"ENCFF000BLL")
+fileName=file.path(getwd(),bamName)
 chipBam=readBamFile(fileName)
 }
 }
