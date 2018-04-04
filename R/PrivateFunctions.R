@@ -967,7 +967,7 @@ f_maximaAucfunctionNorm <- function(dframe, breaks, estBinSize, tag)
 f_variabilityValues <- function(dframe, breaks, tag) {
     variabilityValues <- lapply(breaks[1:3], FUN = function(start) {
         
-        print(start)
+        #print(start)
         end <- abs(start)
         sub_set <- dframe[which((as.numeric(rownames(dframe)) <= end) & 
             (as.numeric(rownames(dframe)) >= start)), ]
@@ -1004,7 +1004,7 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
     newframe$x <- rownames(newframe)
     colnames(newframe) <- c("Norm", "break")
     variabilityValues <- lapply(breaks[1:3], FUN = function(start) {
-        print(start)
+        #print(start)
         end <- abs(start)
         sub_set <- newframe[which((as.numeric(rownames(newframe)) <= end) & 
             (as.numeric(rownames(newframe)) >= start)), ]
