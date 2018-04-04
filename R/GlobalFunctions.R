@@ -296,7 +296,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #' ## provide a bam file in our ChIC.data package that has 
 #' ## already been loaded with the readBamFile() function.
 #'  
-#' 
+#' mc=4
 #' print("Get Cross-correlation for ChIP")
 #' \dontrun{
 #' filepath=tempdir()
@@ -306,7 +306,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #' chip_binding.characteristics<-spp::get.binding.characteristics(chipBam, 
 #' srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
-#' crossvalues_Chip<-getCrossCorrelationScores(chipBam, 
+#' crossvalues_Chip<-getCrossCorrelationScores(chipBam, mc=mc,
 #' chip_binding.characteristics, read_length=36, savePlotPath=filepath)
 #' }
 
@@ -659,7 +659,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
 #' ##Finally run function
 #' bindingScores=getPeakCallingScores(chip=chipBam, input=inputBam, 
 #' chip.dataSelected=chipBamSelected, input.dataSelected=inputBamSelected, 
-#' tag.shift=finalTagShift)
+#' tag.shift=finalTagShift, mc=mc)
 #' }
 getPeakCallingScores <- function(chip, input, chip.dataSelected, 
     input.dataSelected, tag.shift = 75, mc=1, chrorder = NULL) 
