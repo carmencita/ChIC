@@ -154,6 +154,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
     # smoothed.density<-mclapply(data, FUN=function(current_chr_list)
     smoothed.density <- BiocParallel::bplapply(data, 
         BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+        #BPPARAM = BiocParallel::SnowParam(workers = mc,type = "SOCK"), 
         FUN = function(current_chr_list) {
             current_chr <- names(current_chr_list)
             str(current_chr_list)

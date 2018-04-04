@@ -1,6 +1,6 @@
 #' @import ChIC.data
 #' @import caret
-#' @rawNamespace import(girafe, except = c(plot,reduce))
+# @rawNamespace import(girafe, except = c(plot,reduce))
 #' @import spp 
 #' @import GenomicRanges
 #' @importFrom graphics abline axis legend lines matplot par
@@ -13,6 +13,7 @@
 #' @importFrom utils str write.table data
 #' @importFrom BiocParallel bplapply
 #' @importFrom methods new
+#' @importFrom parallel makeCluster stopCluster
 
 #######################################################################
 ###############                                         ###############  
@@ -111,6 +112,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     }
     
     ########## 
+
     message("reading bam files")
     chip.data <- readBamFile(chipName)
     input.data <- readBamFile(inputName)
@@ -130,28 +132,50 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     ## srange=estimating_fragment_length_range, 
     ## bin=estimating_fragment_length_bin,
     ## accept.all.tags=T)
-    
+
+    #switch cluster on
+    if (mc > 1) {
+        cluster <- parallel::makeCluster( mc )
+    }
+
     chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
         srange = estimating_fragment_length_range, 
-        bin = estimating_fragment_length_bin, accept.all.tags = TRUE)
+        bin = estimating_fragment_length_bin, 
+        accept.all.tags = TRUE, cluster = cluster)
     
+    #switch cluster off   
+    if (mc > 1) {
+        parallel::stopCluster( cluster )
+    }
     message("calculate cross correlation QC-metrics for the Chip")
     crossvalues_Chip <- getCrossCorrelationScores(chip.data, 
         chip_binding.characteristics, 
         read_length = read_length, 
-        savePlotPath = savePlotPath, plotname = "ChIP")
+        savePlotPath = savePlotPath, 
+        mc = mc,
+        plotname = "ChIP")
     ## save the tag.shift
     final.tag.shift <- crossvalues_Chip$tag.shift
     
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the input
     message("calculate binding characteristics Input")
-    
+        
+    #switch cluster on
+    if (mc > 1) {
+        cluster <- parallel::makeCluster( mc )
+    }
+
     input_binding.characteristics<-spp::get.binding.characteristics(input.data,
         srange = estimating_fragment_length_range, 
         bin = estimating_fragment_length_bin, 
-        accept.all.tags = TRUE)
+        accept.all.tags = TRUE, cluster = cluster)
     
+    #switch cluster off   
+    if (mc > 1) {
+        parallel::stopCluster( cluster )
+    }
+
     #message("calculate cross correlation QC-metrics for the Input")
     #crossvalues_Input <- getCrossCorrelationScores(input.data, 
     #    input_binding.characteristics, 
@@ -189,7 +213,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         input.data, 
         chip.dataSelected, 
         input.dataSelected, 
-        final.tag.shift)
+        final.tag.shift, mc=mc)
     
     ## objects of smoothed tag density for ChIP and Input
     smoothed.densityChip <- tagDensity(chip.dataSelected, final.tag.shift, 
@@ -256,6 +280,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
 #' @param plotname Name of the crossCorrelation plot (pdf). 
 #' DEFAULT ="phantomCrossCorrelation". Available only if savePlotPath is set
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
 #'
 #' @return finalList List with QC-metrics 
 #'
@@ -286,7 +311,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #' }
 
 getCrossCorrelationScores <- function(data, bchar, read_length, 
-    savePlotPath = NULL, plotname = "phantom") 
+    savePlotPath = NULL, plotname = "phantom", mc=1) 
 {
     ########## check if input format is ok
     if (!(is.list(data) & (length(data) == 2L))) 
@@ -311,11 +336,20 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
     PhPeakbin <- 5
     
     ## step 1.2: Phantom peak and cross-correlation
+    if (mc > 1) {
+        cluster <- parallel::makeCluster( mc )
+    }
+
     message("Phantom peak and cross-correlation")
     phChar <- spp::get.binding.characteristics(data, 
         srange = PhantomPeak_range, 
-        bin = PhPeakbin, accept.all.tags = TRUE)
-    
+        bin = PhPeakbin, accept.all.tags = TRUE,
+        cluster = cluster)
+
+    if (mc>1) {
+        parallel::stopCluster( cluster )
+    }
+
     ph_peakidx <- which(
         (phChar$cross.correlation$x >= (read_length - round(2 * PhPeakbin))) & 
         (phChar$cross.correlation$x <= (read_length + round(1.5 * PhPeakbin))))
@@ -577,6 +611,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
 #' @param tag.shift Integer containing the value of the tag shift, 
 #' calculated by getCrossCorrelationScores(). Default=75
 #' @param chrorder chromosome order (default=NULL) 
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
 #'
 #' @return QCscoreList List with 6 QC-values
 #'
@@ -627,7 +662,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
 #' tag.shift=finalTagShift)
 #' }
 getPeakCallingScores <- function(chip, input, chip.dataSelected, 
-    input.dataSelected, tag.shift = 75, chrorder = NULL) 
+    input.dataSelected, tag.shift = 75, mc=1, chrorder = NULL) 
 {
     ########## check if input format is ok
     if (!(is.list(chip) & (length(chip) == 2L))) 
@@ -674,6 +709,10 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     chip.data12 <- chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
     input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
     
+    if (mc > 1) {
+        cluster <- parallel::makeCluster( mc )
+    }
+
     message("Binding sites detection fdr")
     fdr <- 0.01
     detection.window.halfsize <- tag.shift
@@ -682,16 +721,19 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         control.data = input.data12, 
         fdr = fdr, whs = detection.window.halfsize * 2, 
         tag.count.whs = detection.window.halfsize, 
-        cluster = NULL)
+        cluster = cluster)
     FDR_detect <- sum(unlist(lapply(bp_FDR$npl, function(d) length(d$x))))
     
     message("Binding sites detection evalue")
     eval <- 10
     bp_eval <- spp::find.binding.positions(signal.data = chip.data12, 
         control.data = input.data12, 
-        e.value = eval, whs = detection.window.halfsize * 2, cluster = NULL)
+        e.value = eval, whs = detection.window.halfsize * 2, cluster = cluster)
     eval_detect <- sum(unlist(lapply(bp_eval$npl, function(d) length(d$x))))
     
+    if (mc > 1) {
+        parallel::stopCluster( cluster )
+    }
     
     ## output detected binding positions output.binding.results(results=bp,
     ## filename=paste('WTC.binding.positions.evalue',

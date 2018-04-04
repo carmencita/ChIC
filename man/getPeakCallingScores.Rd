@@ -5,7 +5,7 @@
 \title{Calculating QC-values from peak calling procedure}
 \usage{
 getPeakCallingScores(chip, input, chip.dataSelected, input.dataSelected,
-  tag.shift = 75, chrorder = NULL)
+  tag.shift = 75, mc = 1, chrorder = NULL)
 }
 \arguments{
 \item{chip}{data-structure with tag information for the 
@@ -22,6 +22,8 @@ removeLocalTagAnomalies() which removes local tag anomalies}
 
 \item{tag.shift}{Integer containing the value of the tag shift, 
 calculated by getCrossCorrelationScores(). Default=75}
+
+\item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 
 \item{chrorder}{chromosome order (default=NULL)}
 }

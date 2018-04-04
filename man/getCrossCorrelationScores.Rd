@@ -6,7 +6,7 @@
 general QC-metrics}
 \usage{
 getCrossCorrelationScores(data, bchar, read_length, savePlotPath = NULL,
-  plotname = "phantom")
+  plotname = "phantom", mc = 1)
 }
 \arguments{
 \item{data}{data-structure with tag information read from 
@@ -23,6 +23,8 @@ cross-correlation profile (see spp::get.binding.characteristics).}
 
 \item{plotname}{Name of the crossCorrelation plot (pdf). 
 DEFAULT ="phantomCrossCorrelation". Available only if savePlotPath is set}
+
+\item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
 \value{
 finalList List with QC-metrics
