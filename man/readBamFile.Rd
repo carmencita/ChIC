@@ -23,14 +23,14 @@ readBamFile
 ## To run this example code the user MUST provide a bam file: 
 ## The user can download a ChIP-seq bam file for example 
 ## from ENCODE:
-## https://www.encodeproject.org/files/ENCFF000BLL/
+## https://www.encodeproject.org/files/ENCFF000BFX/
 ## and save it in the working directory 
 
-bamID="ENCFF000BLL"
+bamID="ENCFF000BFX"
 \dontrun{
 filepath=tempdir()
 setwd(filepath)
-system("wget https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
+system("wget https://www.encodeproject.org/files/ENCFF000BFX/@download/ENCFF000BFX.bam")
 
 bamName=file.path(filepath,bamID)
 chipBam=readBamFile(bamName)

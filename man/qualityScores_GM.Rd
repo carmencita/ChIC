@@ -51,24 +51,26 @@ qualityScores_GM
 ## package that have already been loaded with the readBamFile() function.
 ## 
 mc=4
-finalTagShift=82
+finalTagShift=98
 \dontrun{
 
 filepath=tempdir()
 setwd(filepath)
 
-data("chipBam", package = "ChIC.data", envir = environment())
-data("inputBam", package = "ChIC.data", envir = environment())
+data("chipSubset", package = "ChIC.data", envir = environment())
+chipBam=chipSubset
+data("inputSubset", package = "ChIC.data", envir = environment())
+inputBam=inputSubset
 
 ## calculate binding characteristics 
+
 chip_binding.characteristics<-spp::get.binding.characteristics(
    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
-
 input_binding.characteristics<-spp::get.binding.characteristics(
    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
-chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))
+chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
 chipBam$tags=chipBam$tags[chrl_final]
 chipBam$quality=chipBam$quality[chrl_final]
 inputBam$tags=inputBam$tags[chrl_final]
@@ -83,9 +85,12 @@ inputBamSelected=selectedTags$input.dataSelected
 chipBamSelected=selectedTags$chip.dataSelected
 
 ##smooth input and chip tags
-smoothedChip=tagDensity(chipBamSelected, tag.shift=finalTagShift)
-smoothedInput=tagDensity(inputBamSelected, tag.shift=finalTagShift)
-Ch_Results=qualityScores_GM(densityChip=smoothedChip,
-densityInput=smoothedInput,savePlotPath=filepath)
+smoothedChip <- tagDensity(chipBamSelected, 
+   tag.shift = finalTagShift, mc = mc)
+smoothedInput <- tagDensity(inputBamSelected, 
+   tag.shift = finalTagShift, mc = mc)
+
+Ch_Results <- qualityScores_GM(densityChip = smoothedChip,
+    densityInput = smoothedInput, savePlotPath = filepath)
 }
 }

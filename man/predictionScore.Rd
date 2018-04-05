@@ -48,8 +48,8 @@ predictionScore
 ## one for ChIP and one for the input". Here we used ChIP-seq 
 ## data from ENCODE. Two example files can be downloaded using the 
 ## following link:
-## https://www.encodeproject.org/files/ENCFF000BLL/
-## https://www.encodeproject.org/files/ENCFF000BKA/
+## https://www.encodeproject.org/files/ENCFF000BFX/
+## https://www.encodeproject.org/files/ENCFF000BDQ/
 ## and save them in the working directory (here given in the 
 ## temporary directory "filepath"
 
@@ -59,11 +59,11 @@ mc=4
 filepath=tempdir()
 setwd(filepath)
 
-system("wget https://www.encodeproject.org/files/ENCFF000BLL/@@download/ENCFF000BLL.bam")
-system("wget https://www.encodeproject.org/files/ENCFF000BKA/@@download/ENCFF000BKA.bam")
+system("wget https://www.encodeproject.org/files/ENCFF000BFX/@@download/ENCFF000BFX.bam")
+system("wget https://www.encodeproject.org/files/ENCFF000BDQ/@@download/ENCFF000BDQ.bam")
 
-chipName=file.path(filepath,"ENCFF000BLL")
-inputName=file.path(filepath,"ENCFF000BKA")
+chipName=file.path(filepath,"ENCFF000BFX")
+inputName=file.path(filepath,"ENCFF000BDQ")
 
 CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 read_length=36, mc=mc,savePlotPath=filepath)
@@ -90,7 +90,7 @@ geneBody_Plot=qualityScores_LMgenebody(Meta_Result$geneBody,
 savePlotPath=filepath)
 
 ##Finally use all calculated QC-metrics to predict the final score
-predictionScore(chrommark="H3K36me3", features_cc=CC_Result,
+predictionScore(chrommark="H3K4me3", features_cc=CC_Result,
 features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
 features_scaled=geneBody_Plot)
 }

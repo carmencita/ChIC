@@ -66,16 +66,21 @@ getCrossCorrelationScores
 ## already been loaded with the readBamFile() function.
  
 mc=4
-print("Get Cross-correlation for ChIP")
+print("Cross-correlation for ChIP")
 \dontrun{
 filepath=tempdir()
 setwd(filepath)
-data("chipBam", package = "ChIC.data", envir = environment())
+data("chipSubset", package = "ChIC.data", envir = environment())
+chipBam=chipSubset
 
-chip_binding.characteristics<-spp::get.binding.characteristics(chipBam, 
-srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
-crossvalues_Chip<-getCrossCorrelationScores(chipBam, mc=mc,
-chip_binding.characteristics, read_length=36, savePlotPath=filepath)
+## calculate binding characteristics 
+
+chip_binding.characteristics<-spp::get.binding.characteristics(
+   chipBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+
+crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
+    chip_binding.characteristics, read_length = 36, 
+    savePlotPath = filepath, mc = mc)
 }
 }

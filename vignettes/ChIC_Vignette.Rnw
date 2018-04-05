@@ -53,7 +53,7 @@ using a ENCODE ChIP-seq dataset for H3K36me3 (ID: ENCFF000BFX) and its input
 (ID: ENCFF000BDQ).
 
 For timing reasons in this tutorial we will start from already read 
-bam file reads for chromosome 2 only. Therefore we are loading input and chip data 
+bam file reads for a subset of chromosomes. Therefore we are loading input and chip data 
 from our datapackage "ChIC.data":
 
 <<eval=TRUE, echo=TRUE >>=
@@ -64,11 +64,13 @@ library(ChIC)
 #filepath=tempdir()
 #setwd(filepath)
 filepath=getwd()
-#load tag-list with reads aligned to chromosome 1 
-data("chr2Bam", package = "ChIC.data", envir = environment())
-chipBam=chr2Bam
-data("chr2BamInput", package = "ChIC.data", envir = environment())
-inputBam=chr2BamInput
+#load tag-list with reads aligned to a subset of chromosomes
+
+
+data("chipSubset", package = "ChIC.data", envir = environment())
+chipBam=chipSubset
+data("inputSubset", package = "ChIC.data", envir = environment())
+inputBam=inputSubset
 @
 
 
@@ -146,7 +148,7 @@ see \cite{Kharchenko2008}).
 
 <<eval=TRUE, echo=FALSE >>=
 
-mc=20
+mc=5
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 #tagshift=98
 @

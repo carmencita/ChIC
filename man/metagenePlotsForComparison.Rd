@@ -53,28 +53,31 @@ metagenePlotsForComparison
 ## To run the example code the user must provide two bam files 
 ## for the ChIP and the input and read them with the readBamFile() function.
 ## To make it easier for the user to run the example code we 
-## provide tow bam examples (chip and input) in our ChIC.data 
+## provide a subset of chromosomes for chip and input in our ChIC.data 
 ## package that have already been loaded with the readBamFile() function.
 ## 
 mc=4
-finalTagShift=82
+finalTagShift=98
+
 \dontrun{
 
 filepath=tempdir()
 setwd(filepath)
 
-data("chipBam", package = "ChIC.data", envir = environment())
-data("inputBam", package = "ChIC.data", envir = environment())
+data("chipSubset", package = "ChIC.data", envir = environment())
+chipBam=chipSubset
+data("inputSubset", package = "ChIC.data", envir = environment())
+inputBam=inputSubset
 
 ## calculate binding characteristics 
+
 chip_binding.characteristics<-spp::get.binding.characteristics(
    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
-
 input_binding.characteristics<-spp::get.binding.characteristics(
    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
-chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))
+chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
 chipBam$tags=chipBam$tags[chrl_final]
 chipBam$quality=chipBam$quality[chrl_final]
 inputBam$tags=inputBam$tags[chrl_final]
@@ -89,19 +92,19 @@ inputBamSelected=selectedTags$input.dataSelected
 chipBamSelected=selectedTags$chip.dataSelected
 
 ##smooth input and chip tags
-smoothedChip=tagDensity(chipBamSelected, tag.shift=finalTagShift)
-smoothedInput=tagDensity(inputBamSelected, tag.shift=finalTagShift)
+smoothedChip <- tagDensity(chipBamSelected, 
+   tag.shift = finalTagShift, mc = mc)
+smoothedInput <- tagDensity(inputBamSelected, 
+   tag.shift = finalTagShift, mc = mc)
 
 ##calculate metagene profiles
-Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
-    smoothedInput,tag.shift=finalTagShift, mc=mc)
+Meta_Result <- createMetageneProfile(
+   smoothed.densityChip = smoothedChip, 
+   smoothed.densityInput = smoothedInput, 
+   tag.shift = finalTagShift, mc = mc)
 
 ##compare metagene features of the geneBody with the compendium
-metagenePlotsForComparison(data=Meta_Result$geneBody,
-    chrommark="H3K36me3", tag="geneBody", savePlotPath=filepath)
-
-##compare metagene features of the TSS with the compendium
-metagenePlotsForComparison(data=Meta_Result$TSS,
-   chrommark="H3K36me3", tag="TSS", savePlotPath=filepath)
+metagenePlotsForComparison(data = Meta_Result$geneBody,
+   chrommark = "H3K4me3", tag = "geneBody")
 }
 }

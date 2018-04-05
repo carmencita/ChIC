@@ -43,56 +43,59 @@
 #' ## To run the example code the user must provide two bam files 
 #' ## for the ChIP and the input and read them with the readBamFile() function.
 #' ## To make it easier for the user to run the example code we 
-#' ## provide tow bam examples (chip and input) in our ChIC.data 
+#' ## provide a subset of chromosomes for chip and input in our ChIC.data 
 #' ## package that have already been loaded with the readBamFile() function.
 #' ## 
 #' mc=4
-#' finalTagShift=82
+#' finalTagShift=98
+#'
 #' \dontrun{
 #'
 #' filepath=tempdir()
 #' setwd(filepath)
-#' 
-#' data("chipBam", package = "ChIC.data", envir = environment())
-#' data("inputBam", package = "ChIC.data", envir = environment())
-#' 
+#'
+#' data("chipSubset", package = "ChIC.data", envir = environment())
+#' chipBam=chipSubset
+#' data("inputSubset", package = "ChIC.data", envir = environment())
+#' inputBam=inputSubset
+#'
 #' ## calculate binding characteristics 
+#'
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
 #'    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
-#'
 #' input_binding.characteristics<-spp::get.binding.characteristics(
 #'    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
-#' chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))
+#' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
 #' chipBam$tags=chipBam$tags[chrl_final]
 #' chipBam$quality=chipBam$quality[chrl_final]
 #' inputBam$tags=inputBam$tags[chrl_final]
 #' inputBam$quality=inputBam$quality[chrl_final]
-#'
+#' 
 #' ##remove sigular positions with extremely high read counts with 
 #' ##respect to the neighbourhood
 #' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
 #' chip_binding.characteristics, input_binding.characteristics)
-#'
+#' 
 #' inputBamSelected=selectedTags$input.dataSelected
 #' chipBamSelected=selectedTags$chip.dataSelected
 #'
 #' ##smooth input and chip tags
-#' smoothedChip=tagDensity(chipBamSelected, tag.shift=finalTagShift)
-#' smoothedInput=tagDensity(inputBamSelected, tag.shift=finalTagShift)
-#' 
+#' smoothedChip <- tagDensity(chipBamSelected, 
+#'    tag.shift = finalTagShift, mc = mc)
+#' smoothedInput <- tagDensity(inputBamSelected, 
+#'    tag.shift = finalTagShift, mc = mc)
+#'
 #' ##calculate metagene profiles
-#' Meta_Result=createMetageneProfile(smoothed.densityChip=smoothedChip, 
-#'     smoothedInput,tag.shift=finalTagShift, mc=mc)
+#' Meta_Result <- createMetageneProfile(
+#'    smoothed.densityChip = smoothedChip, 
+#'    smoothed.densityInput = smoothedInput, 
+#'    tag.shift = finalTagShift, mc = mc)
 #'
 #' ##compare metagene features of the geneBody with the compendium
-#' metagenePlotsForComparison(data=Meta_Result$geneBody,
-#'     chrommark="H3K36me3", tag="geneBody", savePlotPath=filepath)
-#'
-#' ##compare metagene features of the TSS with the compendium
-#' metagenePlotsForComparison(data=Meta_Result$TSS,
-#'    chrommark="H3K36me3", tag="TSS", savePlotPath=filepath)
+#' metagenePlotsForComparison(data = Meta_Result$geneBody,
+#'    chrommark = "H3K4me3", tag = "geneBody")
 #'}
 
 metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
@@ -287,8 +290,8 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' ## one for ChIP and one for the input". Here we used ChIP-seq 
 #' ## data from ENCODE. Two example files can be downloaded using the 
 #' ## following link:
-#' ## https://www.encodeproject.org/files/ENCFF000BLL/
-#' ## https://www.encodeproject.org/files/ENCFF000BKA/
+#' ## https://www.encodeproject.org/files/ENCFF000BFX/
+#' ## https://www.encodeproject.org/files/ENCFF000BDQ/
 #' ## and save them in the working directory (here given in the 
 #' ## temporary directory "filepath"
 #'
@@ -298,11 +301,11 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' filepath=tempdir()
 #' setwd(filepath)
 #'
-#' system("wget https://www.encodeproject.org/files/ENCFF000BLL/@@@download/ENCFF000BLL.bam")
-#' system("wget https://www.encodeproject.org/files/ENCFF000BKA/@@@download/ENCFF000BKA.bam")
+#' system("wget https://www.encodeproject.org/files/ENCFF000BFX/@@@download/ENCFF000BFX.bam")
+#' system("wget https://www.encodeproject.org/files/ENCFF000BDQ/@@@download/ENCFF000BDQ.bam")
 #'
-#' chipName=file.path(filepath,"ENCFF000BLL")
-#' inputName=file.path(filepath,"ENCFF000BKA")
+#' chipName=file.path(filepath,"ENCFF000BFX")
+#' inputName=file.path(filepath,"ENCFF000BDQ")
 #'
 #' CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
 #' read_length=36, mc=mc,savePlotPath=filepath)
@@ -329,7 +332,7 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' savePlotPath=filepath)
 #'
 #' ##Finally use all calculated QC-metrics to predict the final score
-#' predictionScore(chrommark="H3K36me3", features_cc=CC_Result,
+#' predictionScore(chrommark="H3K4me3", features_cc=CC_Result,
 #' features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
 #' features_scaled=geneBody_Plot)
 #'}

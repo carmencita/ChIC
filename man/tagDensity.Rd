@@ -34,17 +34,21 @@ tagDensity
 ## To run the example code the user must provide two bam files, 
 ## (one for the ChIP and one for the input) and read them 
 ## using readBamFile() function. To make it easier for the user 
-## to run the example code we provide two bam files 
-## (chip and input) in our ChIC.data package that have 
+## to run the example code we provide a subset of chromosomes for 
+## chip and input in our ChIC.data package that have 
 ## already been loaded with the readBamFile() function. 
 mc=4
+finalTagShift=98
 \dontrun{
 
 filepath=tempdir()
 setwd(filepath)
 
-data("chipBam", package = "ChIC.data", envir = environment())
-data("inputBam", package = "ChIC.data", envir = environment())
+data("chipSubset", package = "ChIC.data", envir = environment())
+chipBam=chipSubset
+data("inputSubset", package = "ChIC.data", envir = environment())
+inputBam=inputSubset
+
 chip_binding.characteristics<-spp::get.binding.characteristics(
    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 input_binding.characteristics<-spp::get.binding.characteristics(

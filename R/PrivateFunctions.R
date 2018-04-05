@@ -215,48 +215,95 @@ MakeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL,
 }
 # Author: Koustav Pal, Contact: koustav.pal@ifom.eu, Affiliation: IFOM - FIRC
 # Institute of Molecular Oncology Creates non-overlapping regions from
-# overlapping regions in the SAME ranges object.
 ReduceOverlappingRegions <- function(Ranges = NULL) 
 {
-    HitsObject <- findOverlaps(query = Ranges, subject = Ranges)
-    PairList <- HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
-    No.overlaps <- Ranges[!(queryHits(HitsObject) %in% queryHits(PairList))]
-    if (length(PairList) == 0) {
-        return(No.overlaps)
-    }
-    Done.list <- NULL
-    All.idx <- NULL
-    Q.hits <- unique(queryHits(PairList))
-    NewRanges.list <- list()
-    for (Q.hit in queryHits) {
-        if (!(Q.hit %in% Done.list)) {
-            All.paired <- FALSE
-            Priori.length <- 0
-            Priori.query <- 0
-            Query <- Q.hit
-            while (!All.paired) {
-                Subjects <- PairList[PairList[, 1] %in% Query, 2]
-                if (length(Subjects) != Priori.length) {
-                    Priori.length <- length(Subjects)
-                    Priori.query <- Query
-                    Query <- c(Query, Subjects)
-                } else {
-                    All.paired <- TRUE
-                }
-            }
-            Start <- min(start(Ranges[unique(c(Priori.query, Subjects))]))
-            End <- max(end(Ranges[unique(c(Priori.query, Subjects))]))
-            Chrom <- unique(as.vector(seqnames(Ranges[unique(
-                c(Priori.query, Subjects))])))
-            Done.list <- c(Done.list, Priori.query)
-            All.idx <- unique(c(All.idx, Priori.query, Subjects))
-            NewRanges.list[[paste("Boo", Q.hit, sep = ".")]] <- 
-                MakeGRangesObject(Chrom = Chrom, Start = Start, End = End)
+    # Try it out.
+    Ranges.split <- split(Ranges,seqnames(Ranges))
+    Non.overlapping.ranges.list <- lapply(Ranges.split,function(Range){
+        My.Range <- Range[order(start(Range))]
+        Chrom <- unique(as.vector(seqnames(My.Range)))
+        Q.name <- "Queries"
+        S.name <- "Subject"
+        HitsObject <- findOverlaps(query = My.Range, subject = My.Range)
+        PairList.hits <- HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
+        PairList <- data.frame(queryHits(PairList.hits), subjectHits(PairList.hits))
+        colnames(PairList) <- c(Q.name,S.name)
+        No.overlaps <- My.Range[!(seq_along(My.Range) %in% PairList[,Q.name])]
+        if (nrow(PairList) == 0) {
+            return(No.overlaps)
         }
-    }
-    NewRanges <- unique(do.call(c, unlist(NewRanges.list, use.names = FALSE)))
-    return(c(NewRanges, No.overlaps))
-}
+        PairList.gt <- PairList[PairList[,S.name] > PairList[,Q.name],]
+        PairList.lt <- PairList[PairList[,S.name] < PairList[,Q.name],]
+        colnames(PairList.lt) <- c(S.name,Q.name)
+        PairList.lt <- PairList.lt[,c(Q.name,S.name)]
+        PairList <- rbind(PairList.lt,PairList.gt)
+        PairList <- PairList[order(PairList[,Q.name]),]
+
+        unique.queries <- unique(PairList[,Q.name])
+        unique.subjects <- unique(PairList[,S.name])
+
+        Which.q <- unique.queries[which(!(unique.queries %in% unique.subjects))]
+        Which.s <- unique.subjects[which(!(unique.subjects %in% unique.queries))]
+
+        if(length(Which.q)!=length(Which.s)){
+            stop("Cannot resolve overlaps. Contact the writer of the function
+                to deconvolute the logic!\n")
+        }
+
+        Starts <- start(My.Range[Which.q])
+        Ends <- sapply(seq_along(Which.s),function(x){
+            Index <- Which.q[x]:Which.s[x]
+            max(end(My.Range[Index]))
+        })
+
+        NewRanges <- MakeGRangesObject(Chrom=rep(Chrom,length(Starts)),Start= Starts, End= Ends)
+        return(c(No.overlaps,NewRanges))
+    })
+    Non.overlapping.ranges <- do.call(c, unlist(Non.overlapping.ranges.list,use.names = FALSE))
+    return(Non.overlapping.ranges)
+}# overlapping regions in the SAME ranges object.
+
+# ReduceOverlappingRegions <- function(Ranges = NULL) 
+# {
+#     HitsObject <- findOverlaps(query = Ranges, subject = Ranges)
+#     PairList <- HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
+#     No.overlaps <- Ranges[!(queryHits(HitsObject) %in% queryHits(PairList))]
+#     if (length(PairList) == 0) {
+#         return(No.overlaps)
+#     }
+#     Done.list <- NULL
+#     All.idx <- NULL
+#     Q.hits <- unique(queryHits(PairList))
+#     NewRanges.list <- list()
+#     for (Q.hit in queryHits) {
+#         if (!(Q.hit %in% Done.list)) {
+#             All.paired <- FALSE
+#             Priori.length <- 0
+#             Priori.query <- 0
+#             Query <- Q.hit
+#             while (!All.paired) {
+#                 Subjects <- PairList[PairList[, 1] %in% Query, 2]
+#                 if (length(Subjects) != Priori.length) {
+#                     Priori.length <- length(Subjects)
+#                     Priori.query <- Query
+#                     Query <- c(Query, Subjects)
+#                 } else {
+#                     All.paired <- TRUE
+#                 }
+#             }
+#             Start <- min(start(Ranges[unique(c(Priori.query, Subjects))]))
+#             End <- max(end(Ranges[unique(c(Priori.query, Subjects))]))
+#             Chrom <- unique(as.vector(seqnames(Ranges[unique(
+#                 c(Priori.query, Subjects))])))
+#             Done.list <- c(Done.list, Priori.query)
+#             All.idx <- unique(c(All.idx, Priori.query, Subjects))
+#             NewRanges.list[[paste("Boo", Q.hit, sep = ".")]] <- 
+#                 MakeGRangesObject(Chrom = Chrom, Start = Start, End = End)
+#         }
+#     }
+#     NewRanges <- unique(do.call(c, unlist(NewRanges.list, use.names = FALSE)))
+#     return(c(NewRanges, No.overlaps))
+# }
 
 ##################################################################### 
 ######### FUNCTIONS QC-metrics for global read distribution ######### 

@@ -34,9 +34,9 @@
 #' ## To run the example code the user must provide two bam files 
 #' ## for the ChIP and the input and read them with the readBamFile() function.
 #' ## To make it easier for the user to run the example code we 
-#' ## provide tow bam examples (chip and input) in our ChIC.data 
+#' ## provide a subset of chromosomes for chip and input in our ChIC.data 
 #' ## package that have already been loaded with the readBamFile() function.
-#' ## 
+#'  
 #' mc=4
 #' finalTagShift=82
 #' \dontrun{
@@ -241,9 +241,9 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
 #' ## To run the example code the user must provide two bam files 
 #' ## for the ChIP and the input and read them with the readBamFile() function.
 #' ## To make it easier for the user to run the example code we 
-#' ## provide tow bam examples (chip and input) in our ChIC.data 
+#' ## provide a subset of chromosomes for chip and input in our ChIC.data 
 #' ## package that have already been loaded with the readBamFile() function.
-#' ## 
+#' 
 #' mc=4
 #' finalTagShift=82
 #' \dontrun{
