@@ -148,8 +148,6 @@ see \cite{Kharchenko2008}).
 
 mc=20
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
-
-finalTagShift=crossvalues_Chip$tag.shift
 #tagshift=98
 @
 
@@ -176,6 +174,14 @@ parallel::stopCluster( cluster )
 crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
     chip_binding.characteristics, read_length = 36, 
     savePlotPath = filepath, mc = mc)
+@
+
+The output of the function is a list with calculated QC-metrics. Additionally 
+we have to save the calculated tag.shift value for further steps:
+
+<<eval=TRUE, echo=TRUE >>=
+str(crossvalues_Chip)
+
 finalTagShift <- crossvalues_Chip$tag.shift
 @
 
@@ -218,7 +224,9 @@ chipBam$tags <- chipBam$tags[chrl_final]
 chipBam$quality <- chipBam$quality[chrl_final]
 inputBam$tags <- inputBam$tags[chrl_final]
 inputBam$quality <- inputBam$quality[chrl_final]
+@
 
+<<eval=TRUE, echo=TRUE >>=
 ##remove sigular positions with extremely high read counts with 
 ##respect to the neighbourhood
 selectedTags <- removeLocalTagAnomalies(chipBam, inputBam, 
@@ -232,14 +240,6 @@ chipBamSelected <- selectedTags$chip.dataSelected
 \subsection{Calculate QC-metrics from peak calls}
 The last set of QC-metrics are calculated on the number of called peaks using  
 \textit{getPeakCallingScores}.
-
-<<eval=FALSE, echo=TRUE >>=
-##Finally run function
-bindingScores <- getPeakCallingScores(chip = chipBam, 
-    input = inputBam, chip.dataSelected = chipBamSelected, 
-    input.dataSelected = inputBamSelected, 
-    tag.shift = finalTagShift, mc = mc)
-@
 
 
 <<eval=TRUE, echo=FALSE >>=
