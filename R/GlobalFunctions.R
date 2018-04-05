@@ -743,6 +743,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         bp_broadpeak <- spp::add.broad.peak.regions(chip.data12, input.data12, 
             bp_eval, 
             window.size = 1000, z.thr = 3)
+      
         md <- f_converNarrowPeakFormat(bp_broadpeak)
         sharpPeakRangesObject <- MakeGRangesObject(Chrom = md[, 1], 
             Start = md[, 2], End = md[, 3])
