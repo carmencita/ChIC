@@ -291,35 +291,35 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #' @return finalList List with QC-metrics 
 #'
 #' @export
-#'
-#' @examples
-#'
-#' ## This command is time intensive to run
-#' 
-#' ## To run the example code the user must provide a bam file 
-#' ## and read it with the readBamFile() function.
-#' ## To make it easier for the user to run the example code we 
-#' ## provide a bam file in our ChIC.data package that has 
-#' ## already been loaded with the readBamFile() function.
-#'  
-#' mc=4
-#' print("Cross-correlation for ChIP")
-#' \dontrun{
-#' filepath=tempdir()
-#' setwd(filepath)
-#' data("chipSubset", package = "ChIC.data", envir = environment())
-#' chipBam=chipSubset
-#'
-#'
-#' ## calculate binding characteristics 
-#'
-#' chip_binding.characteristics<-spp::get.binding.characteristics(
-#'    chipBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
-#'
-#' crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
-#'     chip_binding.characteristics, read_length = 36, 
-#'     savePlotPath = filepath, mc = mc)
-#'}
+#
+# @examples
+#
+# ## This command is time intensive to run
+# 
+# ## To run the example code the user must provide a bam file 
+# ## and read it with the readBamFile() function.
+# ## To make it easier for the user to run the example code we 
+# ## provide a bam file in our ChIC.data package that has 
+# ## already been loaded with the readBamFile() function.
+#  
+# mc=4
+# print("Cross-correlation for ChIP")
+# \dontrun{
+# filepath=tempdir()
+# setwd(filepath)
+# data("chipSubset", package = "ChIC.data", envir = environment())
+# chipBam=chipSubset
+#
+#
+# ## calculate binding characteristics 
+#
+# chip_binding.characteristics<-spp::get.binding.characteristics(
+#    chipBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+#
+# crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
+#     chip_binding.characteristics, read_length = 36, 
+#     savePlotPath = filepath, mc = mc)
+#}
 
 getCrossCorrelationScores <- function(data, bchar, read_length, 
     savePlotPath = NULL, plotname = "phantom", mc=1) 
@@ -627,7 +627,9 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
 #' @return QCscoreList List with 6 QC-values
 #'
 #' @export
-#'
+#' @examples
+#' mc=4
+
 
 getPeakCallingScores <- function(chip, input, chip.dataSelected, 
     input.dataSelected, tag.shift = 75, mc=1, chrorder = NULL) 
