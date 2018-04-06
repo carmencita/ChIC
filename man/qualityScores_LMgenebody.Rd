@@ -2,17 +2,17 @@
 % Please edit documentation in R/LM_functions.R
 \name{qualityScores_LMgenebody}
 \alias{qualityScores_LMgenebody}
-\title{Wrapper function to plot the scaled metagene- profile  
-and to collect the QC-metrics}
+\title{Wrapper function to plot the scaled metagene- profile and to 
+collect the QC-metrics}
 \usage{
 qualityScores_LMgenebody(data, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{data}{metagene-list for input and chip sample 
-of the genebody profile returned by createMetageneProfile()}
+\item{data}{metagene-list for input and chip sample of the genebody profile
+returned by createMetageneProfile()}
 
-\item{savePlotPath}{if set the plot will be saved under 
-'savePlotPath'. Default=NULL and plot will be forwarded to stdout.}
+\item{savePlotPath}{if set the plot will be saved under 'savePlotPath'. 
+Default=NULL and plot will be forwarded to stdout.}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
@@ -20,19 +20,16 @@ of the genebody profile returned by createMetageneProfile()}
 returnList
 }
 \description{
-The scaled metagene profile that includes the gene body, 
-the signal is captured on a real scale from the TSS and an upstream 
-region of 2KB. From the TSS, the gene body is constructed with 0.5KB 
-in real scale at the gene start (TSS + 0.5KB) and the gene end 
-(TES - 0.5KB), whereas the remaining gene body is 
-scaled to a virtual length of 2000. Considering the length 
-of these regions, the minimum gene length required is 3KB and 
-shorter genes are filtered out. From the profile, we take enrichment 
-values at different coordinates: at 
--2KB, at the TSS, inner margin (0.5KB), gene body 
-(2KB + 2 * inner margin), 
-gene body+1KB. We collect in total 42 QC-metrics from the ChIP and 
-normalized profile. 
+The scaled metagene profile that includes the gene body, the 
+signal is captured on a real scale from the TSS and an upstream region of 
+2KB. From the TSS, the gene body is constructed with 0.5KB in real scale 
+at the gene start (TSS + 0.5KB) and the gene end (TES - 0.5KB), whereas 
+the remaining gene body is scaled to a virtual length of 2000. Considering 
+the length of these regions, the minimum gene length required is 3KB and 
+shorter genes are filtered out. From the profile, we take enrichment values 
+at different coordinates: at -2KB, at the TSS, inner margin (0.5KB), gene 
+body (2KB + 2 * inner margin), gene body+1KB. We collect in total 42 
+QC-metrics from the ChIP and normalized profile. 
 
 qualityScores_LMgenebody
 }
@@ -40,12 +37,12 @@ qualityScores_LMgenebody
 
 ## This command is time intensive to run
 ##
-## To run the example code the user must provide two bam files 
-## for the ChIP and the input and read them with the readBamFile() function.
-## To make it easier for the user to run the example code we 
-## provide a subset of chromosomes for chip and input in our ChIC.data 
-## package that have already been loaded with the readBamFile() function.
- 
+## To run the example code the user must provide two bam files for the ChIP
+## and the input and read them with the readBamFile() function. To make it
+## easier for the user to run the example code we provide tow bam examples 
+## (chip and input) in our ChIC.data package that have already been loaded 
+## with the readBamFile() function.
+
 mc=4
 finalTagShift=82
 \dontrun{
@@ -58,10 +55,10 @@ data("inputBam", package = "ChIC.data", envir = environment())
 
 ## calculate binding characteristics 
 chip_binding.characteristics<-spp::get.binding.characteristics(
-   chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 input_binding.characteristics<-spp::get.binding.characteristics(
-   inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
 chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))

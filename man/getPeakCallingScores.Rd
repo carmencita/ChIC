@@ -5,14 +5,14 @@
 \title{Calculating QC-values from peak calling procedure}
 \usage{
 getPeakCallingScores(chip, input, chip.dataSelected, input.dataSelected,
-  tag.shift = 75, mc = 1, chrorder = NULL)
+    tag.shift = 75, mc = 1, chrorder = NULL)
 }
 \arguments{
-\item{chip}{data-structure with tag information for the 
-ChIP (see readBamFile())}
+\item{chip}{data-structure with tag information for the ChIP 
+(see readBamFile())}
 
-\item{input}{data-structure with tag information for the
-Input (see readBamFile())}
+\item{input}{data-structure with tag information for the Input
+(see readBamFile())}
 
 \item{chip.dataSelected}{selected ChIP tags after running 
 removeLocalTagAnomalies() which removes local tag anomalies}
@@ -31,15 +31,57 @@ calculated by getCrossCorrelationScores(). Default=75}
 QCscoreList List with 6 QC-values
 }
 \description{
-QC-metrics based on the peak calling are the fraction of usable 
-reads in the peak regions (FRiP) (Landt et al., 2012), for 
-which the function calls sharp- and broad-binding peaks to 
-obtain two types: the FRiP_sharpsPeak and 
-the FRiP_broadPeak. The function takes the number of called 
-of peaks using an 
-FDR of 0.01 and an evalue of 10 (Kharchenko et al., 2008). And 
-count the number of peaks called when using the 
-sharp- and broad-binding option. 
+QC-metrics based on the peak calling are the fraction of usable reads in 
+the peak regions (FRiP) (Landt et al., 2012), for which the function calls 
+sharp- and broad-binding peaks to obtain two types: the FRiP_sharpsPeak and 
+the FRiP_broadPeak. The function takes the number of called of peaks using 
+an FDR of 0.01 and an evalue of 10 (Kharchenko et al., 2008). And count 
+the number of peaks called when using the sharp- and broad-binding option. 
 
 getPeakCallingScores
+}
+\examples{
+
+mc=4
+finalTagShift=98
+print("Cross-correlation for ChIP")
+
+\dontrun{
+filepath=tempdir()
+setwd(filepath)
+
+data("chipSubset", package = "ChIC.data", envir = environment())
+chipBam=chipSubset
+data("inputSubset", package = "ChIC.data", envir = environment())
+inputBam=inputSubset
+
+## calculate binding characteristics 
+
+chip_binding.characteristics<-spp::get.binding.characteristics(
+    chipBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+
+input_binding.characteristics<-spp::get.binding.characteristics(
+    inputBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+
+##get chromosome information and order chip and input by it
+chrl_final <- intersect(names(chipBam$tags), names(inputBam$tags))
+chipBam$tags <- chipBam$tags[chrl_final]
+chipBam$quality <- chipBam$quality[chrl_final]
+inputBam$tags <- inputBam$tags[chrl_final]
+inputBam$quality <- inputBam$quality[chrl_final]
+
+##remove sigular positions with extremely high read counts with 
+##respect to the neighbourhood
+selectedTags <- removeLocalTagAnomalies(chipBam, inputBam, 
+    chip_binding.characteristics, input_binding.characteristics)
+
+inputBamSelected <- selectedTags$input.dataSelected
+chipBamSelected <- selectedTags$chip.dataSelected
+
+##Finally run function
+bindingScores <- getPeakCallingScores(chip = chipBam, 
+    input = inputBam, chip.dataSelected = chipBamSelected, 
+    input.dataSelected = inputBamSelected, 
+    tag.shift = finalTagShift, mc = mc)
+}
 }

@@ -5,17 +5,17 @@
 \title{Metrics taken from global read distribution}
 \usage{
 qualityScores_GM(densityChip, densityInput, savePlotPath = NULL,
-  debug = FALSE)
+    debug = FALSE)
 }
 \arguments{
-\item{densityChip}{Smoothed tag-density object for ChIP (returned 
-by qualityScores_EM).}
+\item{densityChip}{Smoothed tag-density object for ChIP (returned by
+qualityScores_EM).}
 
-\item{densityInput}{Smoothed tag density object for Input (returned 
-by qualityScores_EM)}
+\item{densityInput}{Smoothed tag density object for Input (returned by
+qualityScores_EM)}
 
-\item{savePlotPath}{if set the plot will be saved under 
-"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
+\item{savePlotPath}{if set the plot will be saved under "savePlotPath". 
+Default=NULL and plot will be forwarded to stdout.}
 
 \item{debug}{Boolean to enter debugging mode (default= FALSE)}
 }
@@ -23,20 +23,18 @@ by qualityScores_EM)}
 finalList List with 9 QC-values
 }
 \description{
-This set of values is based on the global read distribution along 
-the genome for immunoprecipitation and input data (Diaz et al., 2012). 
-The genome is binned and the read coverage counted for each bin. Then 
-the function computes the cumulative 
-distribution of reads density per genomic bin and plots the 
-fraction of the coverage on the y-axis and the fraction of bins on 
-the x-axis. Then different values can be 
-sampled from the cumulative distribution: like the fraction of 
-bins without reads for in immunoprecipitation and input,the point of the 
-maximum distance between the ChIP and the input 
-(x-axis, y-axis for immunoprecipitation and input, 
-distance (as absolute difference), the sign of the differences), 
-the fraction of reads in the top 1%bin for immunoprecipitation and 
-input. Finally, the funciton returns 9 QC-measures
+This set of values is based on the global read distribution along the genome 
+for immunoprecipitation and input data (Diaz et al., 2012). The genome is 
+binned and the read coverage counted for each bin. Then the function 
+computes the cumulative distribution of reads density per genomic bin and 
+plots the fraction of the coverage on the y-axis and the fraction of bins 
+on the x-axis. Then different values can be sampled from the cumulative 
+distribution: like the fraction of bins without reads for in 
+immunoprecipitation and input,the point of the maximum distance between the 
+ChIP and the input (x-axis, y-axis for immunoprecipitation and input, 
+distance (as absolute difference), the sign of the differences), the 
+fraction of reads in the top 1 percent bin for immunoprecipitation and 
+input. Finally, the funciton returns 9 QC-measures.
 
 qualityScores_GM
 }
@@ -44,12 +42,12 @@ qualityScores_GM
 
 ## This command is time intensive to run
 ##
-## To run the example code the user must provide two bam files 
-## for the ChIP and the input and read them with the readBamFile() function.
-## To make it easier for the user to run the example code we 
-## provide tow bam examples (chip and input) in our ChIC.data 
-## package that have already been loaded with the readBamFile() function.
-## 
+## To run the example code the user must provide two bam files for the ChIP 
+## and the input and read them with the readBamFile() function. To make it 
+## easier for the user to run the example code we provide tow bam examples 
+## (chip and input) in our ChIC.data package that have already been loaded 
+## with the readBamFile() function.
+
 mc=4
 finalTagShift=98
 \dontrun{
@@ -65,9 +63,9 @@ inputBam=inputSubset
 ## calculate binding characteristics 
 
 chip_binding.characteristics<-spp::get.binding.characteristics(
-   chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 input_binding.characteristics<-spp::get.binding.characteristics(
-   inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
 chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
@@ -86,9 +84,9 @@ chipBamSelected=selectedTags$chip.dataSelected
 
 ##smooth input and chip tags
 smoothedChip <- tagDensity(chipBamSelected, 
-   tag.shift = finalTagShift, mc = mc)
+    tag.shift = finalTagShift, mc = mc)
 smoothedInput <- tagDensity(inputBamSelected, 
-   tag.shift = finalTagShift, mc = mc)
+    tag.shift = finalTagShift, mc = mc)
 
 Ch_Results <- qualityScores_GM(densityChip = smoothedChip,
     densityInput = smoothedInput, savePlotPath = filepath)

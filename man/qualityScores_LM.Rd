@@ -2,51 +2,50 @@
 % Please edit documentation in R/LM_functions.R
 \name{qualityScores_LM}
 \alias{qualityScores_LM}
-\title{Wrapper function that plots non-scaled profiles for 
-TSS or TES and to collects the QC-metrics}
+\title{Wrapper function that plots non-scaled profiles for TSS of TES and 
+to collect the QC-metrics}
 \usage{
 qualityScores_LM(data, tag, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{data}{metagene-list for input and chip sample for
-TSS or TES returned by createMetageneProfile()}
+\item{data}{metagene-list for input and chip sample for TSS or TES returned 
+by createMetageneProfile()}
 
-\item{tag}{String that can be 'TSS' or 'TES',indicating if the TSS or 
-the TES profile should be calcualted (Default='TSS')}
+\item{tag}{String that can be 'TSS' or 'TES',indicating if the TSS or the 
+TES profile should be calcualted (Default='TSS')}
 
-\item{savePlotPath}{if set the plot will be saved under 
-'savePlotPath'. Default=NULL and plot will be forwarded to stdout.}
+\item{savePlotPath}{if set the plot will be saved under 'savePlotPath'. 
+Default=NULL and plot will be forwarded to stdout.}
 
 \item{debug}{Boolean to enter in debugging mode (default= FALSE)}
 }
 \value{
-result Dataframe with QC-values for chip, input and 
-normalized metagene profile
+result Dataframe with QC-values for chip, input and normalized 
+metagene profile
 }
 \description{
-The non-scaled profile is constructed around the TSS/TES,
-with 2KB up- and downstream regions respectively. Different values 
-are taken at the TSS/TES and surroundings with +/-2KB, +/-1KB 
-and +/-500 sizes. For all the genomic 
-positions, we kept the values for the ChIP and the normalized profile,
-as the normalization already contains information from the input. 
-Additionally, we calculated for all of the intervals between 
-the predefined positions the area under the profile, 
-the local maxima (x, y coordinates), the variance, 
-the standard deviation and the quantiles at 0%, 25%, 
-50% and 75%. In total the function returns 43 QC-metrics.
+The non-scaled profile is constructed around the TSS/TES, with 2KB up- and 
+downstream regions respectively. Different values are taken at the TSS/TES 
+and surroundings with +/-2KB, +/-1KB and +/-500 sizes. For all the genomic 
+positions, we kept the values for the ChIP and the normalized profile, as 
+the normalization already contains information from the input. Additionally,
+we calculated for all of the intervals between the predefined positions the
+area under the profile, the local maxima (x, y coordinates), the variance, 
+the standard deviation and the quantiles at 0%, 25%, 50% and 75%. In total 
+the function returns 43 QC-metrics.
 
 qualityScores_LM
 }
 \examples{
 
+
 ## This command is time intensive to run
 ##
-## To run the example code the user must provide two bam files 
-## for the ChIP and the input and read them with the readBamFile() function.
-## To make it easier for the user to run the example code we 
-## provide a subset of chromosomes for chip and input in our ChIC.data 
-## package that have already been loaded with the readBamFile() function.
+## To run the example code the user must provide two bam files for the ChIP
+## and the input and read them with the readBamFile() function. To make it
+## easier for the user to run the example code we provide tow bam examples 
+## (chip and input) in our ChIC.data package that have already been loaded 
+## with the readBamFile() function.
 
 mc=4
 finalTagShift=82
@@ -60,10 +59,10 @@ data("inputBam", package = "ChIC.data", envir = environment())
 
 ## calculate binding characteristics 
 chip_binding.characteristics<-spp::get.binding.characteristics(
-   chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 input_binding.characteristics<-spp::get.binding.characteristics(
-   inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
 chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))

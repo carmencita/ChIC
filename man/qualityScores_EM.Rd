@@ -2,19 +2,18 @@
 % Please edit documentation in R/GlobalFunctions.R
 \name{qualityScores_EM}
 \alias{qualityScores_EM}
-\title{Wrapper function to calculate QC-metrics from 
-cross-correlation analysis, QC-metrics designed for TFs and 
-QC-metrics from peak-calls}
+\title{Wrapper function to calculate QC-metrics from cross-correlation 
+analysis, QC-metrics designed for TFs and QC-metrics from peak-calls}
 \usage{
 qualityScores_EM(chipName, inputName, read_length, annotationID = "hg19",
-  mc = 1, savePlotPath = NULL, debug = FALSE)
+    mc = 1, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
-\item{chipName}{String, filename and path to the ChIP 
-file (without extension)}
+\item{chipName}{String, filename and path to the ChIP bam file 
+(without extension)}
 
-\item{inputName}{String, filename and path to the Input 
-file (without extension)}
+\item{inputName}{String, filename and path to the Input bam file
+(without extension)}
 
 \item{read_length}{Integer, length of the reads}
 
@@ -46,14 +45,14 @@ qualityScores_EM
 \examples{
 
 ## This command is time intensive to run
-## To run this example code the user MUST provide 2 bam files: 
-## one for ChIP and one for the input". Here we used ChIP-seq 
-## data from ENCODE. Two example files can be downloaded using the 
-## following link:
+
+## To run this example code the user MUST provide 2 bam files: one for ChIP 
+## and one for the input". Here we used ChIP-seq data from ENCODE. Two 
+## example files can be downloaded using the following link:
 ## https://www.encodeproject.org/files/ENCFF000BFX/
 ## https://www.encodeproject.org/files/ENCFF000BDQ/
-## and save them in the working directory (here given in the 
-## temporary directory "filepath"
+## and save them in the working directory (here given in the temporary 
+## directory "filepath"
 
 mc=4
 \dontrun{

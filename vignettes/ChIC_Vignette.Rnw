@@ -53,8 +53,8 @@ using a ENCODE ChIP-seq dataset for H3K36me3 (ID: ENCFF000BFX) and its input
 (ID: ENCFF000BDQ).
 
 For timing reasons in this tutorial we will start from already read 
-bam file reads for a subset of chromosomes. Therefore we are loading input and chip data 
-from our datapackage "ChIC.data":
+bam file reads for a subset of chromosomes. Therefore we are loading input 
+and chip data from our datapackage "ChIC.data":
 
 <<eval=TRUE, echo=TRUE >>=
 ##load ChIC
@@ -240,7 +240,7 @@ chipBamSelected <- selectedTags$chip.dataSelected
 
 
 \subsection{Calculate QC-metrics from peak calls}
-The last set of QC-metrics are calculated on the number of called peaks using  
+The last set of QC-metrics are calculated on the number of called peaks using 
 \textit{getPeakCallingScores}.
 
 
@@ -293,12 +293,12 @@ densityInput=smoothedInput)
 @
 
 \begin{figure}[htbp]
- \centering
+\centering
 <<eval=TRUE, label=Fingerprint, fig=TRUE, echo=FALSE>>=
 <<Fingerprint>>
 @
- \caption{Fingerprint plot of sample ENCFF000BFX and its input ENCFF000BDQ.}
- \label{fig:Fingerprint}
+\caption{Fingerprint plot of sample ENCFF000BFX and its input ENCFF000BDQ.}
+\label{fig:Fingerprint}
 \end{figure}
 
 
@@ -331,8 +331,9 @@ Meta_Result <- createMetageneProfile(
     tag.shift = finalTagShift, mc = mc)
 @
 
-The objects in 'Meta\_Result' can be used to create the final metagene plots and to get 
-the respective QC-values for the non-scaled profiles around the TSS and TES.
+The objects in 'Meta\_Result' can be used to create the final metagene plots 
+and to get the respective QC-values for the non-scaled profiles around the TSS 
+and TES.
 
 <<eval=FALSE, echo=TRUE >>=
 TSS_Scores <- qualityScores_LM(data = Meta_Result$TSS, tag = "TSS",
@@ -362,12 +363,13 @@ geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 @
 
 \begin{figure}[htbp]
- \centering
+    \centering
 <<eval=TRUE,label=geneBody, fig=TRUE, echo=FALSE>>=
 <<geneBody>>
 @
- \caption{Metagene profiles: Signal enrichment for ChIP and Input along the gene body.}
- \label{fig:geneBody}
+    \caption{Metagene profiles: Signal enrichment for ChIP and Input along 
+    the gene body.}
+    \label{fig:geneBody}
 \end{figure}
 
 
@@ -375,7 +377,8 @@ geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 \begin{figure}[htbp]
 \centering
 .\includegraphics{ScaledMetaGene_normalized.pdf}
-\caption{Normalized metagene profile: signal enrichment for ChIP over Input along the gene body.}
+\caption{Normalized metagene profile: signal enrichment for ChIP over 
+Input along the gene body.}
 \label{fig:norm}
 \end{figure}
 
@@ -387,12 +390,12 @@ reference for comparison to new samples.
 
 ChIC provides tre functions for that: 
 \begin{itemize}
-    \item \textit{metagenePlotsForComparison} to compare the metagene plots with 
-    the compendium
+    \item \textit{metagenePlotsForComparison} to compare the metagene plots  
+    with the compendium
     \item \textit{plotReferenceDistribution} to compare a QC-metric with the 
     compendium values
-    \item \textit{predictionScore} to obtain a single quality score from the previously 
-    computed QC-metrics 
+    \item \textit{predictionScore} to obtain a single quality score from 
+    the previously computed QC-metrics 
 \end{itemize}
 
 
@@ -426,16 +429,16 @@ metagenePlotsForComparison(data = Meta_Result$geneBody,
 
 
 \begin{figure}[htbp]
- \centering
+\centering
 <<eval=TRUE,label=ComparisonInput, fig=TRUE, echo=FALSE>>=
 <<ComparisonInput>>
 @
 
- \caption{Enrichment profile and QC-metrics can be plotted against the pre-computed 
-profiles of the compendium. The metagene profile shows the sample signal (red line) 
-for the input when compared to the compendium mean signal (black line) 
-and its 2x standard error (blue shadow). }
- \label{fig:MetaProfileComparison}
+\caption{Enrichment profile and QC-metrics can be plotted against 
+the pre-computed profiles of the compendium. The metagene profile shows 
+the sample signal (red line) for the input when compared to the compendium 
+mean signal (black line) and its 2x standard error (blue shadow). }
+\label{fig:MetaProfileComparison}
 \end{figure}
 
 
@@ -444,10 +447,10 @@ and its 2x standard error (blue shadow). }
 \centering
 .\includegraphics{Comparison.pdf}
 \caption{Enrichment profile plotted against the pre-computed 
-profiles of the compendium. The metagene profiles show the sample signal (red line) 
-for the ChIP (A) and the enrichment (chip over input) (B) when compared 
-to the compendium mean signal (black line) and its 2x standard error 
-(blue shadow).}
+profiles of the compendium. The metagene profiles show the sample signal 
+(red line) for the ChIP (A) and the enrichment (chip over input) (B) 
+when compared to the compendium mean signal (black line) and its 2x standard 
+error (blue shadow).}
 \label{fig:norm}
 \end{figure}
 
@@ -457,8 +460,8 @@ to the compendium mean signal (black line) and its 2x standard error
 The plot against the reference compendium of metrics add an extra level of 
 information that can be easily used by less experienced users. 
 Indeed, the function \textit{plotReferenceDistribution} is helpful to 
-visually compare the characteristics of an analysed sample with a 
-large number of already published data (Figure \ref{fig:MetaProfileComparison} D).
+visually compare the characteristics of an analysed sample with a large 
+number of already published data (Figure \ref{fig:MetaProfileComparison}).
 
 <<eval=FALSE, echo=TRUE >>=
 plotReferenceDistribution(chrommark = "H3K4me3", 
@@ -473,14 +476,14 @@ plotReferenceDistribution(chrommark = "H3K4me3",
 @
 
 \begin{figure}[htbp]
- \centering
+\centering
 <<eval=TRUE, label=ReferenceDistr, fig=TRUE, echo=FALSE>>=
 <<ReferenceDistr>>
 @
- \caption{QC-metric of newly analysed ChIP-seq sample can be 
+\caption{QC-metric of newly analysed ChIP-seq sample can be 
 compared to the reference values of the compendium. The density plot shows 
 the QC-metric RSC (red dashed line) of the current sample.}
- \label{fig:ref}
+\label{fig:ref}
 \end{figure}
 
 

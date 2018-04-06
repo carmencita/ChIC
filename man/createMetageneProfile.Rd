@@ -5,41 +5,39 @@
 \title{Wrapper function to create scaled and non-scaled metageneprofiles}
 \usage{
 createMetageneProfile(smoothed.densityChip, smoothed.densityInput, tag.shift,
-  annotationID = "hg19", debug = FALSE, mc = 1)
+    annotationID = "hg19", debug = FALSE, mc = 1)
 }
 \arguments{
-\item{smoothed.densityChip}{Smoothed tag-density object for ChIP 
-(returned by qualityScores_EM)}
+\item{smoothed.densityChip}{Smoothed tag-density object for ChIP (returned 
+by qualityScores_EM)}
 
-\item{smoothed.densityInput}{Smoothed tag-density object for Input 
-(returned by qualityScores_EM)}
+\item{smoothed.densityInput}{Smoothed tag-density object for Input (returned
+by qualityScores_EM)}
 
-\item{tag.shift}{Integer containing the value of the tag shif, 
-calculated by getCrossCorrelationScores()}
+\item{tag.shift}{Integer containing the value of the tag shif, calculated by
+getCrossCorrelationScores()}
 
-\item{annotationID}{String indicating the genome assembly 
-(Default="hg19")}
+\item{annotationID}{String indicating the genome assembly (Default="hg19")}
 
 \item{debug}{Boolean to enter debugging mode (default= FALSE)}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
 \value{
-list with 3 objects: scaled profile ("geneBody"), 
-non-scaled profile for TSS (TSS) and TES (TES). Each object is 
-made of a list containing the chip and the input profile
+list with 3 objects: scaled profile ("geneBody"), non-scaled profile
+for TSS (TSS) and TES (TES). Each object is made of a list containing the 
+chip and the input profile
 }
 \description{
-Metagene plots show the signal enrichment around a region of interest 
-like the TSS or over a predefined set of genes. The tag density of 
-the immunoprecipitation is taken over all RefSeg annotated human genes, 
-averaged and log2 transformed. The same is done for the input. The 
-normalized profile is calculated as the signal enrichment 
-(immunoprecipitation over the input). Two objects are created: 
-a non-scaled profile for the TSS  and TES, and a scaled profile for 
-the entire gene, including the gene body. 
-The non-scaled profile is constructed around the TSS/TES, with 2KB up- 
-and downstream regions respectively. 
+Metagene plots show the signal enrichment around a region of interest like 
+the TSS or over a predefined set of genes. The tag density of the 
+immunoprecipitation is taken over all RefSeg annotated human genes, averaged
+and log2 transformed. The same is done for the input. The normalized profile
+is calculated as the signal enrichment (immunoprecipitation over the input).
+Two objects are created: a non-scaled profile for the TSS  and TES, and a 
+scaled profile for the entire gene, including the gene body. The non-scaled 
+profile is constructed around the TSS/TES, with 2KB up- and downstream 
+regions respectively. 
 
 CreateMetageneProfile
 }
@@ -47,12 +45,12 @@ CreateMetageneProfile
 
 ## This command is time intensive to run
 ##
-## To run the example code the user must provide two bam files 
-## for the ChIP and the input and read them with the readBamFile() function.
-## To make it easier for the user to run the example code we 
-## provide tow bam examples (chip and input) in our ChIC.data 
-## package that have already been loaded with the readBamFile() function.
-## 
+## To run the example code the user must provide two bam files for the ChIP
+## and the input and read them with the readBamFile() function. To make it
+## easier for the user to run the example code we provide tow bam examples 
+## (chip and input) in our ChIC.data package that have already been loaded 
+##with the readBamFile() function.
+
 mc=4
 finalTagShift=98
 \dontrun{
@@ -68,9 +66,9 @@ inputBam=inputSubset
 ## calculate binding characteristics 
 
 chip_binding.characteristics<-spp::get.binding.characteristics(
-   chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 input_binding.characteristics<-spp::get.binding.characteristics(
-   inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
 chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
@@ -89,14 +87,14 @@ chipBamSelected=selectedTags$chip.dataSelected
 
 ##smooth input and chip tags
 smoothedChip <- tagDensity(chipBamSelected, 
-   tag.shift = finalTagShift, mc = mc)
+    tag.shift = finalTagShift, mc = mc)
 smoothedInput <- tagDensity(inputBamSelected, 
-   tag.shift = finalTagShift, mc = mc)
+    tag.shift = finalTagShift, mc = mc)
 
 ##calculate metagene profiles
 Meta_Result <- createMetageneProfile(
-   smoothed.densityChip = smoothedChip, 
-   smoothed.densityInput = smoothedInput, 
-   tag.shift = finalTagShift, mc = mc)
+    smoothed.densityChip = smoothedChip, 
+    smoothed.densityInput = smoothedInput, 
+    tag.shift = finalTagShift, mc = mc)
 }
 }

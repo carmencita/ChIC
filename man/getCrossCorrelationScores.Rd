@@ -6,23 +6,23 @@
 general QC-metrics}
 \usage{
 getCrossCorrelationScores(data, bchar, read_length, savePlotPath = NULL,
-  plotname = "phantom", mc = 1)
+    plotname = "phantom", mc = 1)
 }
 \arguments{
-\item{data}{data-structure with tag information read from 
-bam file (see readBamFile())}
+\item{data}{data-structure with tag information read from bam file 
+(see readBamFile())}
 
 \item{bchar}{binding.characteristics is a data-structure containing binding 
-information for binding preak separation distance and 
-cross-correlation profile (see spp::get.binding.characteristics).}
+information for binding preak separation distance and cross-correlation 
+profile (see spp::get.binding.characteristics).}
 
 \item{read_length}{Integer, read length of "data" (Defaul="36")}
 
-\item{savePlotPath}{if set the plot will be saved under 
-"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
+\item{savePlotPath}{if set the plot will be saved under "savePlotPath". 
+Default=NULL and plot will be forwarded to stdout.}
 
-\item{plotname}{Name of the crossCorrelation plot (pdf). 
-DEFAULT ="phantomCrossCorrelation". Available only if savePlotPath is set}
+\item{plotname}{Name of the crossCorrelation plot (pdf). Available only 
+if savePlotPath is set}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
@@ -31,27 +31,50 @@ finalList List with QC-metrics
 }
 \description{
 We use cross-correlation analysis to obtain QC-metrics proposed for 
-narrow-binding patterns. After calculating the strand 
-cross-correlation coefficient (Kharchenko et al., 2008), 
-we take the following values from the profile: 
-coordinates of the ChIP-peak (fragment length, height A), 
-coordinates at the phantom-peak (read length, height B) and 
-the baseline (C), the strand-shift, the 
-number of uniquely mapped reads (unique_tags), uniquely 
-mapped reads corrected by 
-the library size, the number of reads and the read lengths. 
-We calculate different 
-values using the relative and absolute height of the cross-correlation 
-peaks: the relative and normalized strand coefficient RSC and 
-NSC  (Landt et al., 2012), and the quality control tag 
+narrow-binding patterns. After calculating the strand cross-correlation
+coefficient (Kharchenko et al., 2008), we take the following values from
+the profile: 
+coordinates of the ChIP-peak (fragment length, height A), coordinates at 
+the phantom-peak (read length, height B) and the baseline (C), the 
+strand-shift, the number of uniquely mapped reads (unique_tags), uniquely 
+mapped reads corrected by the library size, the number of reads and the 
+read lengths. We calculate different values using the relative and absolute 
+height of the cross-correlation peaks: the relative and normalized strand 
+coefficient RSC and NSC  (Landt et al., 2012), and the quality control tag 
 (Marinov et al., 2013). Other values regarding the library complexity 
-(Landt et al., 2012) like the fraction of non-redundant 
-mapped reads (NRF; ratio between the number of uniquely mapped 
-reads divided by the total number of reads), the NRF adjusted by 
-library size and ignoring the 
+(Landt et al., 2012) like the fraction of non-redundant mapped reads 
+(NRF; ratio between the number of uniquely mapped reads divided by the 
+total number of reads), the NRF adjusted by library size and ignoring the 
 strand direction (NRF_nostrand), and the PCR bottleneck coefficient PBC 
-(number of genomic locations to which exactly one unique mapping read 
-maps, divided by the number of unique mapping reads).
+(number of genomic locations to which exactly one unique mapping read maps, 
+divided by the number of unique mapping reads).
 
 getCrossCorrelationScores
+}
+\examples{
+
+## This command is time intensive to run
+
+## To run the example code the user must provide a bam file and read it 
+## with the readBamFile() function. To make it easier for the user to run 
+## the example code we provide a bam file in our ChIC.data package that has 
+## already been loaded with the readBamFile() function.
+
+mc=4
+print("Cross-correlation for ChIP")
+\dontrun{
+filepath=tempdir()
+setwd(filepath)
+data("chipSubset", package = "ChIC.data", envir = environment())
+chipBam=chipSubset
+
+## calculate binding characteristics 
+
+chip_binding.characteristics<-spp::get.binding.characteristics( chipBam, 
+    srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+
+crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
+    chip_binding.characteristics, read_length = 36, 
+    savePlotPath = filepath, mc = mc)
+}
 }

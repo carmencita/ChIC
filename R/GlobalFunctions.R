@@ -23,9 +23,8 @@
 
 
 
-#' @title Wrapper function to calculate QC-metrics from 
-#' cross-correlation analysis, QC-metrics designed for TFs and 
-#' QC-metrics from peak-calls
+#' @title Wrapper function to calculate QC-metrics from cross-correlation 
+#' analysis, QC-metrics designed for TFs and QC-metrics from peak-calls
 #'
 #' @description
 #' Wrapper function that reads input bam files and provides QC-metrics from 
@@ -34,10 +33,10 @@
 #'
 #' qualityScores_EM
 #'
-#' @param chipName String, filename and path to the ChIP 
-#' file (without extension)
-#' @param inputName String, filename and path to the Input 
-#' file (without extension)
+#' @param chipName String, filename and path to the ChIP bam file 
+#' (without extension)
+#' @param inputName String, filename and path to the Input bam file
+#' (without extension)
 #' @param read_length Integer, length of the reads
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
@@ -47,8 +46,6 @@
 #'
 #' @return returnList, contains
 #' QCscores_ChIP List of QC-metrics with crosscorrelation values for the ChIP
-# QCscores_Input List of QC-metrics with crosscorrelation values for the 
-# Input
 #' QCscores_binding List of QCscores from peak calls
 #' TagDensityChip Tag-density profile, smoothed by the Gaussian kernel 
 #' (for further details see "spp" package)
@@ -60,14 +57,14 @@
 #' @examples
 #'
 #' ## This command is time intensive to run
-#' ## To run this example code the user MUST provide 2 bam files: 
-#' ## one for ChIP and one for the input". Here we used ChIP-seq 
-#' ## data from ENCODE. Two example files can be downloaded using the 
-#' ## following link:
+#'
+#' ## To run this example code the user MUST provide 2 bam files: one for ChIP 
+#' ## and one for the input". Here we used ChIP-seq data from ENCODE. Two 
+#' ## example files can be downloaded using the following link:
 #' ## https://www.encodeproject.org/files/ENCFF000BFX/
 #' ## https://www.encodeproject.org/files/ENCFF000BDQ/
-#' ## and save them in the working directory (here given in the 
-#' ## temporary directory "filepath"
+#' ## and save them in the working directory (here given in the temporary 
+#' ## directory "filepath"
 #'
 #' mc=4
 #' \dontrun{
@@ -252,74 +249,68 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #'
 #' @description 
 #' We use cross-correlation analysis to obtain QC-metrics proposed for 
-#' narrow-binding patterns. After calculating the strand 
-#' cross-correlation coefficient (Kharchenko et al., 2008), 
-#' we take the following values from the profile: 
-#' coordinates of the ChIP-peak (fragment length, height A), 
-#' coordinates at the phantom-peak (read length, height B) and 
-#' the baseline (C), the strand-shift, the 
-#' number of uniquely mapped reads (unique_tags), uniquely 
-#' mapped reads corrected by 
-#' the library size, the number of reads and the read lengths. 
-#' We calculate different 
-#' values using the relative and absolute height of the cross-correlation 
-#' peaks: the relative and normalized strand coefficient RSC and 
-#' NSC  (Landt et al., 2012), and the quality control tag 
+#' narrow-binding patterns. After calculating the strand cross-correlation
+#' coefficient (Kharchenko et al., 2008), we take the following values from
+#' the profile: 
+#' coordinates of the ChIP-peak (fragment length, height A), coordinates at 
+#' the phantom-peak (read length, height B) and the baseline (C), the 
+#' strand-shift, the number of uniquely mapped reads (unique_tags), uniquely 
+#' mapped reads corrected by the library size, the number of reads and the 
+#' read lengths. We calculate different values using the relative and absolute 
+#' height of the cross-correlation peaks: the relative and normalized strand 
+#' coefficient RSC and NSC  (Landt et al., 2012), and the quality control tag 
 #' (Marinov et al., 2013). Other values regarding the library complexity 
-#' (Landt et al., 2012) like the fraction of non-redundant 
-#' mapped reads (NRF; ratio between the number of uniquely mapped 
-#' reads divided by the total number of reads), the NRF adjusted by 
-#' library size and ignoring the 
+#' (Landt et al., 2012) like the fraction of non-redundant mapped reads 
+#' (NRF; ratio between the number of uniquely mapped reads divided by the 
+#' total number of reads), the NRF adjusted by library size and ignoring the 
 #' strand direction (NRF_nostrand), and the PCR bottleneck coefficient PBC 
-#' (number of genomic locations to which exactly one unique mapping read 
-#' maps, divided by the number of unique mapping reads).
+#' (number of genomic locations to which exactly one unique mapping read maps, 
+#' divided by the number of unique mapping reads).
 #'
 #' getCrossCorrelationScores
 #'
-#' @param data data-structure with tag information read from 
-#' bam file (see readBamFile())
+#' @param data data-structure with tag information read from bam file 
+#' (see readBamFile())
 #' @param bchar binding.characteristics is a data-structure containing binding 
-#' information for binding preak separation distance and 
-#' cross-correlation profile (see spp::get.binding.characteristics).
+#' information for binding preak separation distance and cross-correlation 
+#' profile (see spp::get.binding.characteristics).
 #' @param read_length Integer, read length of "data" (Defaul="36") 
-#' @param savePlotPath if set the plot will be saved under 
-#' "savePlotPath". Default=NULL and plot will be forwarded to stdout. 
-#' @param plotname Name of the crossCorrelation plot (pdf). 
-#' DEFAULT ="phantomCrossCorrelation". Available only if savePlotPath is set
+#' @param savePlotPath if set the plot will be saved under "savePlotPath". 
+#' Default=NULL and plot will be forwarded to stdout. 
+#' @param plotname Name of the crossCorrelation plot (pdf). Available only 
+#' if savePlotPath is set
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #'
 #' @return finalList List with QC-metrics 
 #'
 #' @export
-#
-# @examples
-#
-# ## This command is time intensive to run
-# 
-# ## To run the example code the user must provide a bam file 
-# ## and read it with the readBamFile() function.
-# ## To make it easier for the user to run the example code we 
-# ## provide a bam file in our ChIC.data package that has 
-# ## already been loaded with the readBamFile() function.
-#  
-# mc=4
-# print("Cross-correlation for ChIP")
-# \dontrun{
-# filepath=tempdir()
-# setwd(filepath)
-# data("chipSubset", package = "ChIC.data", envir = environment())
-# chipBam=chipSubset
-#
-#
-# ## calculate binding characteristics 
-#
-# chip_binding.characteristics<-spp::get.binding.characteristics(
-#    chipBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
-#
-# crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
-#     chip_binding.characteristics, read_length = 36, 
-#     savePlotPath = filepath, mc = mc)
-#}
+#'
+#' @examples
+#'
+#' ## This command is time intensive to run
+#'
+#' ## To run the example code the user must provide a bam file and read it 
+#' ## with the readBamFile() function. To make it easier for the user to run 
+#' ## the example code we provide a bam file in our ChIC.data package that has 
+#' ## already been loaded with the readBamFile() function.
+#' 
+#' mc=4
+#' print("Cross-correlation for ChIP")
+#' \dontrun{
+#' filepath=tempdir()
+#' setwd(filepath)
+#' data("chipSubset", package = "ChIC.data", envir = environment())
+#' chipBam=chipSubset
+#'
+#' ## calculate binding characteristics 
+#'
+#' chip_binding.characteristics<-spp::get.binding.characteristics( chipBam, 
+#'     srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+#'
+#' crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
+#'     chip_binding.characteristics, read_length = 36, 
+#'     savePlotPath = filepath, mc = mc)
+#'}
 
 getCrossCorrelationScores <- function(data, bchar, read_length, 
     savePlotPath = NULL, plotname = "phantom", mc=1) 
@@ -433,7 +424,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
     max_y_peakcheck <- max(phantomSmoothing[ss_forPeakcheck])
     ## indexMaxPeak=index_for_maxpeak
     indexMaxPeak <- (which(phantomSmoothing == max_y_peakcheck))
-    ## %%% use this additional control just in case there 
+    ## use this additional control just in case there 
     ## is another cross correlation
     ## bin with exactly the ame height outside of the desired 
     ## search region (e.g.
@@ -599,22 +590,19 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
 #' @title Calculating QC-values from peak calling procedure
 #'
 #' @description
-#' QC-metrics based on the peak calling are the fraction of usable 
-#' reads in the peak regions (FRiP) (Landt et al., 2012), for 
-#' which the function calls sharp- and broad-binding peaks to 
-#' obtain two types: the FRiP_sharpsPeak and 
-#' the FRiP_broadPeak. The function takes the number of called 
-#' of peaks using an 
-#' FDR of 0.01 and an evalue of 10 (Kharchenko et al., 2008). And 
-#' count the number of peaks called when using the 
-#' sharp- and broad-binding option. 
+#' QC-metrics based on the peak calling are the fraction of usable reads in 
+#' the peak regions (FRiP) (Landt et al., 2012), for which the function calls 
+#' sharp- and broad-binding peaks to obtain two types: the FRiP_sharpsPeak and 
+#' the FRiP_broadPeak. The function takes the number of called of peaks using 
+#' an FDR of 0.01 and an evalue of 10 (Kharchenko et al., 2008). And count 
+#' the number of peaks called when using the sharp- and broad-binding option. 
 #'
 #' getPeakCallingScores
 #'
-#' @param chip data-structure with tag information for the 
-#' ChIP (see readBamFile())
-#' @param input data-structure with tag information for the  
-#' Input (see readBamFile())
+#' @param chip data-structure with tag information for the ChIP 
+#' (see readBamFile())
+#' @param input data-structure with tag information for the Input
+#' (see readBamFile())
 #' @param chip.dataSelected selected ChIP tags after running 
 #' removeLocalTagAnomalies() which removes local tag anomalies
 #' @param input.dataSelected selected Input tags after running 
@@ -628,7 +616,49 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
 #'
 #' @export
 #' @examples
+#'
 #' mc=4
+#' finalTagShift=98
+#' print("Cross-correlation for ChIP")
+#'
+#' \dontrun{
+#' filepath=tempdir()
+#' setwd(filepath)
+#'
+#' data("chipSubset", package = "ChIC.data", envir = environment())
+#' chipBam=chipSubset
+#' data("inputSubset", package = "ChIC.data", envir = environment())
+#' inputBam=inputSubset
+#'
+#' ## calculate binding characteristics 
+#'
+#' chip_binding.characteristics<-spp::get.binding.characteristics(
+#'     chipBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+#'
+#' input_binding.characteristics<-spp::get.binding.characteristics(
+#'     inputBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE)
+#'
+#' ##get chromosome information and order chip and input by it
+#' chrl_final <- intersect(names(chipBam$tags), names(inputBam$tags))
+#' chipBam$tags <- chipBam$tags[chrl_final]
+#' chipBam$quality <- chipBam$quality[chrl_final]
+#' inputBam$tags <- inputBam$tags[chrl_final]
+#' inputBam$quality <- inputBam$quality[chrl_final]
+#'
+#' ##remove sigular positions with extremely high read counts with 
+#' ##respect to the neighbourhood
+#' selectedTags <- removeLocalTagAnomalies(chipBam, inputBam, 
+#'     chip_binding.characteristics, input_binding.characteristics)
+#'
+#' inputBamSelected <- selectedTags$input.dataSelected
+#' chipBamSelected <- selectedTags$chip.dataSelected
+#'
+#' ##Finally run function
+#' bindingScores <- getPeakCallingScores(chip = chipBam, 
+#'     input = inputBam, chip.dataSelected = chipBamSelected, 
+#'     input.dataSelected = inputBamSelected, 
+#'     tag.shift = finalTagShift, mc = mc)
+#'}
 
 
 getPeakCallingScores <- function(chip, input, chip.dataSelected, 
@@ -668,7 +698,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         tag.shift = tag.shift)
     ### start end logE znrichment write.broadpeak.info(broad.clusters,
     ### paste('broadRegions', chip.data.samplename,
-    ##'input',input.data.samplename, 'window', current_window_size, 'zthresh',
+    ## input,input.data.samplename, 'window', current_window_size, 'zthresh',
     ## current_zthresh,'broadPeak', sep='.'))
     md <- f_convertFormatBroadPeak(broad.clusters)
     broadPeakRangesObject <- MakeGRangesObject(Chrom = md$chr, 
@@ -677,7 +707,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     
     ## 12 get binding sites with FDR and eval
     chip.data12 <- chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
-    input.data12 <- input.dataSelected[(names(input.dataSelected) %in% chrorder)]
+    input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
     
     if (mc > 1) {
         cluster <- parallel::makeCluster( mc )
@@ -714,7 +744,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
             input.data12, 
             bp_eval, 
             window.size = 1000, z.thr = 3)
-      
+
         md <- f_converNarrowPeakFormat(bp_broadpeak)
         sharpPeakRangesObject <- MakeGRangesObject(Chrom = md[, 1], 
             Start = md[, 2], End = md[, 3])
@@ -788,30 +818,28 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 #'@title Metrics taken from global read distribution
 #'
 #' @description
-#' This set of values is based on the global read distribution along 
-#' the genome for immunoprecipitation and input data (Diaz et al., 2012). 
-#' The genome is binned and the read coverage counted for each bin. Then 
-#' the function computes the cumulative 
-#' distribution of reads density per genomic bin and plots the 
-#' fraction of the coverage on the y-axis and the fraction of bins on 
-#' the x-axis. Then different values can be 
-#' sampled from the cumulative distribution: like the fraction of 
-#' bins without reads for in immunoprecipitation and input,the point of the 
-#' maximum distance between the ChIP and the input 
-#' (x-axis, y-axis for immunoprecipitation and input, 
-#' distance (as absolute difference), the sign of the differences), 
-#' the fraction of reads in the top 1%bin for immunoprecipitation and 
-#' input. Finally, the funciton returns 9 QC-measures
+#' This set of values is based on the global read distribution along the genome 
+#' for immunoprecipitation and input data (Diaz et al., 2012). The genome is 
+#' binned and the read coverage counted for each bin. Then the function 
+#' computes the cumulative distribution of reads density per genomic bin and 
+#' plots the fraction of the coverage on the y-axis and the fraction of bins 
+#' on the x-axis. Then different values can be sampled from the cumulative 
+#' distribution: like the fraction of bins without reads for in 
+#' immunoprecipitation and input,the point of the maximum distance between the 
+#' ChIP and the input (x-axis, y-axis for immunoprecipitation and input, 
+#' distance (as absolute difference), the sign of the differences), the 
+#' fraction of reads in the top 1 percent bin for immunoprecipitation and 
+#' input. Finally, the funciton returns 9 QC-measures.
 #'
 
 #' qualityScores_GM
 #'
-#' @param densityChip Smoothed tag-density object for ChIP (returned 
-#' by qualityScores_EM). 
-#' @param densityInput Smoothed tag density object for Input (returned 
-#' by qualityScores_EM)
-#' @param savePlotPath if set the plot will be saved under 
-#' "savePlotPath". Default=NULL and plot will be forwarded to stdout.
+#' @param densityChip Smoothed tag-density object for ChIP (returned by
+#' qualityScores_EM). 
+#' @param densityInput Smoothed tag density object for Input (returned by
+#' qualityScores_EM)
+#' @param savePlotPath if set the plot will be saved under "savePlotPath". 
+#' Default=NULL and plot will be forwarded to stdout.
 #' @param debug Boolean to enter debugging mode (default= FALSE)
 #'
 #' @return finalList List with 9 QC-values
@@ -822,12 +850,12 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 #'
 #' ## This command is time intensive to run
 #' ##
-#' ## To run the example code the user must provide two bam files 
-#' ## for the ChIP and the input and read them with the readBamFile() function.
-#' ## To make it easier for the user to run the example code we 
-#' ## provide tow bam examples (chip and input) in our ChIC.data 
-#' ## package that have already been loaded with the readBamFile() function.
-#' ## 
+#' ## To run the example code the user must provide two bam files for the ChIP 
+#' ## and the input and read them with the readBamFile() function. To make it 
+#' ## easier for the user to run the example code we provide tow bam examples 
+#' ## (chip and input) in our ChIC.data package that have already been loaded 
+#' ## with the readBamFile() function.
+#' 
 #' mc=4
 #' finalTagShift=98
 #' \dontrun{
@@ -843,9 +871,9 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 #' ## calculate binding characteristics 
 #'
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
-#'    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #' input_binding.characteristics<-spp::get.binding.characteristics(
-#'    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
@@ -864,9 +892,9 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 #'
 #' ##smooth input and chip tags
 #' smoothedChip <- tagDensity(chipBamSelected, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     tag.shift = finalTagShift, mc = mc)
 #' smoothedInput <- tagDensity(inputBamSelected, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     tag.shift = finalTagShift, mc = mc)
 #'
 #' Ch_Results <- qualityScores_GM(densityChip = smoothedChip,
 #'     densityInput = smoothedInput, savePlotPath = filepath)
@@ -953,33 +981,31 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
 #'@title Wrapper function to create scaled and non-scaled metageneprofiles 
 #'
 #' @description
-#' Metagene plots show the signal enrichment around a region of interest 
-#' like the TSS or over a predefined set of genes. The tag density of 
-#' the immunoprecipitation is taken over all RefSeg annotated human genes, 
-#' averaged and log2 transformed. The same is done for the input. The 
-#' normalized profile is calculated as the signal enrichment 
-#' (immunoprecipitation over the input). Two objects are created: 
-#' a non-scaled profile for the TSS  and TES, and a scaled profile for 
-#' the entire gene, including the gene body. 
-#' The non-scaled profile is constructed around the TSS/TES, with 2KB up- 
-#' and downstream regions respectively. 
+#' Metagene plots show the signal enrichment around a region of interest like 
+#' the TSS or over a predefined set of genes. The tag density of the 
+#' immunoprecipitation is taken over all RefSeg annotated human genes, averaged
+#' and log2 transformed. The same is done for the input. The normalized profile
+#' is calculated as the signal enrichment (immunoprecipitation over the input).
+#' Two objects are created: a non-scaled profile for the TSS  and TES, and a 
+#' scaled profile for the entire gene, including the gene body. The non-scaled 
+#' profile is constructed around the TSS/TES, with 2KB up- and downstream 
+#' regions respectively. 
 #' 
 #' CreateMetageneProfile
 #'
-#' @param smoothed.densityChip Smoothed tag-density object for ChIP 
-#' (returned by qualityScores_EM)
-#' @param smoothed.densityInput Smoothed tag-density object for Input 
-#' (returned by qualityScores_EM)
-#' @param tag.shift Integer containing the value of the tag shif, 
-#' calculated by getCrossCorrelationScores()
-#' @param annotationID String indicating the genome assembly 
-#' (Default="hg19")
+#' @param smoothed.densityChip Smoothed tag-density object for ChIP (returned 
+#' by qualityScores_EM)
+#' @param smoothed.densityInput Smoothed tag-density object for Input (returned
+#' by qualityScores_EM)
+#' @param tag.shift Integer containing the value of the tag shif, calculated by
+#' getCrossCorrelationScores()
+#' @param annotationID String indicating the genome assembly (Default="hg19")
 #' @param debug Boolean to enter debugging mode (default= FALSE)
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #'
-#' @return list with 3 objects: scaled profile ("geneBody"), 
-#' non-scaled profile for TSS (TSS) and TES (TES). Each object is 
-#' made of a list containing the chip and the input profile
+#' @return list with 3 objects: scaled profile ("geneBody"), non-scaled profile
+#' for TSS (TSS) and TES (TES). Each object is made of a list containing the 
+#' chip and the input profile
 #'
 #' @export
 #'
@@ -987,12 +1013,12 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
 #'
 #' ## This command is time intensive to run
 #' ##
-#' ## To run the example code the user must provide two bam files 
-#' ## for the ChIP and the input and read them with the readBamFile() function.
-#' ## To make it easier for the user to run the example code we 
-#' ## provide tow bam examples (chip and input) in our ChIC.data 
-#' ## package that have already been loaded with the readBamFile() function.
-#' ## 
+#' ## To run the example code the user must provide two bam files for the ChIP
+#' ## and the input and read them with the readBamFile() function. To make it
+#' ## easier for the user to run the example code we provide tow bam examples 
+#' ## (chip and input) in our ChIC.data package that have already been loaded 
+#' ##with the readBamFile() function.
+#'
 #' mc=4
 #' finalTagShift=98
 #' \dontrun{
@@ -1008,9 +1034,9 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
 #' ## calculate binding characteristics 
 #'
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
-#'    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #' input_binding.characteristics<-spp::get.binding.characteristics(
-#'    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
@@ -1029,15 +1055,15 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
 #'
 #' ##smooth input and chip tags
 #' smoothedChip <- tagDensity(chipBamSelected, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     tag.shift = finalTagShift, mc = mc)
 #' smoothedInput <- tagDensity(inputBamSelected, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     tag.shift = finalTagShift, mc = mc)
 #'
 #' ##calculate metagene profiles
 #' Meta_Result <- createMetageneProfile(
-#'    smoothed.densityChip = smoothedChip, 
-#'    smoothed.densityInput = smoothedInput, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     smoothed.densityChip = smoothedChip, 
+#'     smoothed.densityInput = smoothedInput, 
+#'     tag.shift = finalTagShift, mc = mc)
 #'}
 
 createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput, 
@@ -1164,16 +1190,15 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 #'
 #' @param filename, name/path of the bam file to be read (without extension)
 #'
-#' @return result list of lists, every list corresponds to a chromosome 
-#' and contains a vector of coordinates of the 5' ends of the aligned tags
+#' @return result list of lists, every list corresponds to a chromosome and 
+#' contains a vector of coordinates of the 5' ends of the aligned tags.
 #'
 #' @export
 #'
 #' @examples
 #'
-#' ## To run this example code the user MUST provide a bam file: 
-#' ## The user can download a ChIP-seq bam file for example 
-#' ## from ENCODE:
+#' ## To run this example code the user MUST provide a bam file: The user can 
+#' ## download a ChIP-seq bam file for example from ENCODE:
 #' ## https://www.encodeproject.org/files/ENCFF000BFX/
 #' ## and save it in the working directory 
 #'
@@ -1181,7 +1206,8 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
 #' \dontrun{
 #' filepath=tempdir()
 #' setwd(filepath)
-#' system("wget https://www.encodeproject.org/files/ENCFF000BFX/@@download/ENCFF000BFX.bam")
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BFX/@@download/ENCFF000BFX.bam")
 #'
 #' bamName=file.path(filepath,bamID)
 #' chipBam=readBamFile(bamName)
@@ -1201,24 +1227,21 @@ readBamFile <- function(filename) {
 #'@title Removes loval anomalies
 #'
 #' @description
-#' The removeLocalTagAnomalies function removes tags from regions 
-#' with extremely high tag counts compared to the
-#' neighbourhood.
+#' The removeLocalTagAnomalies function removes tags from regions with 
+#' extremely high tag counts compared to the neighbourhood.
 #'
 #' removeLocalTagAnomalies
 #'
-#' @param chip, data-structure with tag information for the 
-#' ChIP (see readBamFile())
-#' @param input, data-structure with tag information for the 
-#' Input (see readBamFile())
-#' @param chip_b.characteristics binding.characteristics of the ChIP. 
-#' Is a data-structure containing binding information for binding preak
-#' separation distance and cross-correlation profile 
-#' (see spp::get.binding.characteristics)
-#' @param input_b.characteristics, binding.characteristics of the Input. 
-#' Is a data-structure containing binding information for binding preak
-#' separation distance and cross-correlation profile 
-#' (see spp::get.binding.characteristics)
+#' @param chip, data-structure with tag information for the ChIP (see 
+#' readBamFile())
+#' @param input, data-structure with tag information for the Input (see 
+#' readBamFile())
+#' @param chip_b.characteristics binding.characteristics of the ChIP. Is a 
+#' data-structure containing binding information for binding peak separation 
+#' distance and cross-correlation profile (see get.binding.characteristics)
+#' @param input_b.characteristics, binding.characteristics of the Input. Is a 
+#' data-structure containing binding information for binding preak separation 
+#' distance and cross-correlation profile (see get.binding.characteristics)
 #'
 #' @return result A list containing filtered data structure for ChIP and Input
 #'
@@ -1228,39 +1251,39 @@ readBamFile <- function(filename) {
 #'
 #' ## This command is time intensive to run
 #' ##
-#' ## To run the example code the user must provide two bam files, 
-#' ## (one for the ChIP and one for the input) and read them 
-#' ## using readBamFile() function. To make it easier for the user 
-#' ## to run the example code we provide a subset of chromosomes for 
-#' ## chip and input in our ChIC.data package that have 
-#' ## already been loaded with the readBamFile() function. 
+#' ## To run the example code the user must provide two bam files for the ChIP
+#' ## and the input and read them with the readBamFile() function. To make it
+#' ## easier for the user to run the example code we provide tow bam examples 
+#' ## (chip and input) in our ChIC.data package that have already been loaded 
+#' ##with the readBamFile() function.
+#'
 #' mc=4
 #' \dontrun{
 #'
 #' filepath=tempdir()
 #' setwd(filepath)
-#' 
+#'
 #' ##load the data
 #' data("chipSubset", package = "ChIC.data", envir = environment())
 #' chipBam=chipSubset
 #' data("inputSubset", package = "ChIC.data", envir = environment())
 #' inputBam=inputSubset
-#' 
+#'
 #' ## calculate binding characteristics 
-#' 
+#'
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
 #' chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #' 
 #' input_binding.characteristics<-spp::get.binding.characteristics(
 #' inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
-#' 
+#'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
 #' chipBam$tags=chipBam$tags[chrl_final]
 #' chipBam$quality=chipBam$quality[chrl_final]
 #' inputBam$tags=inputBam$tags[chrl_final]
 #' inputBam$quality=inputBam$quality[chrl_final]
-#' 
+#'
 #' ##remove sigular positions with extremely high read counts with 
 #' ##respect to the neighbourhood
 #' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
@@ -1299,15 +1322,14 @@ removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
 #' tagDensity
 #'
 #' @param data, data-structure with tag information (see readBamFile())
-#' @param tag.shift, Integer containing the value of the tag shif, 
-#' calculated by getCrossCorrelationScores()
-#' @param annotationID String, indicating the genome assembly 
-#' (Default="hg19")
+#' @param tag.shift, Integer containing the value of the tag shif, calculated 
+#' by getCrossCorrelationScores()
+#' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #'
 #' @return smoothed.density A list of lists, each list corresponds to a 
-#' chromosome and contains a 
-#' vector of coordinates of the 5' ends of the aligned tags
+#' chromosome and contains a vector of coordinates of the 5' ends of the 
+#' aligned tags
 #'
 #' @export
 #'
@@ -1315,12 +1337,12 @@ removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
 #'
 #' ## This command is time intensive to run
 #' ##
-#' ## To run the example code the user must provide two bam files, 
-#' ## (one for the ChIP and one for the input) and read them 
-#' ## using readBamFile() function. To make it easier for the user 
-#' ## to run the example code we provide a subset of chromosomes for 
-#' ## chip and input in our ChIC.data package that have 
-#' ## already been loaded with the readBamFile() function. 
+#' ## To run the example code the user must provide two bam files for the ChIP
+#' ## and the input and read them with the readBamFile() function. To make it
+#' ## easier for the user to run the example code we provide tow bam examples 
+#' ## (chip and input) in our ChIC.data package that have already been loaded 
+#' ## with the readBamFile() function.
+#'
 #' mc=4
 #' finalTagShift=98
 #' \dontrun{
@@ -1334,9 +1356,9 @@ removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
 #' inputBam=inputSubset
 #'
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
-#'    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #' input_binding.characteristics<-spp::get.binding.characteristics(
-#'    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
@@ -1344,12 +1366,12 @@ removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
 #' chipBam$quality=chipBam$quality[chrl_final]
 #' inputBam$tags=inputBam$tags[chrl_final]
 #' inputBam$quality=inputBam$quality[chrl_final]
-#' 
+#'
 #' ##remove sigular positions with extremely high read counts with 
 #' ##respect to the neighbourhood
 #' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
 #' chip_binding.characteristics, input_binding.characteristics)
-#' 
+#'
 #' chipBamSelected=selectedTags$chip.dataSelected
 #'
 #' smoothedChip=tagDensity(chipBamSelected, tag.shift=finalTagShift)

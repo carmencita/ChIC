@@ -5,32 +5,29 @@
 \title{Removes loval anomalies}
 \usage{
 removeLocalTagAnomalies(chip, input, chip_b.characteristics,
-  input_b.characteristics)
+    input_b.characteristics)
 }
 \arguments{
-\item{chip, }{data-structure with tag information for the 
-ChIP (see readBamFile())}
+\item{chip, }{data-structure with tag information for the ChIP (see 
+readBamFile())}
 
-\item{input, }{data-structure with tag information for the 
-Input (see readBamFile())}
+\item{input, }{data-structure with tag information for the Input (see 
+readBamFile())}
 
-\item{chip_b.characteristics}{binding.characteristics of the ChIP. 
-Is a data-structure containing binding information for binding preak
-separation distance and cross-correlation profile 
-(see spp::get.binding.characteristics)}
+\item{chip_b.characteristics}{binding.characteristics of the ChIP. Is a 
+data-structure containing binding information for binding peak separation 
+distance and cross-correlation profile (see get.binding.characteristics)}
 
-\item{input_b.characteristics, }{binding.characteristics of the Input. 
-Is a data-structure containing binding information for binding preak
-separation distance and cross-correlation profile 
-(see spp::get.binding.characteristics)}
+\item{input_b.characteristics, }{binding.characteristics of the Input. Is a 
+data-structure containing binding information for binding preak separation 
+distance and cross-correlation profile (see get.binding.characteristics)}
 }
 \value{
 result A list containing filtered data structure for ChIP and Input
 }
 \description{
-The removeLocalTagAnomalies function removes tags from regions 
-with extremely high tag counts compared to the
-neighbourhood.
+The removeLocalTagAnomalies function removes tags from regions with 
+extremely high tag counts compared to the neighbourhood.
 
 removeLocalTagAnomalies
 }
@@ -38,12 +35,12 @@ removeLocalTagAnomalies
 
 ## This command is time intensive to run
 ##
-## To run the example code the user must provide two bam files, 
-## (one for the ChIP and one for the input) and read them 
-## using readBamFile() function. To make it easier for the user 
-## to run the example code we provide a subset of chromosomes for 
-## chip and input in our ChIC.data package that have 
-## already been loaded with the readBamFile() function. 
+## To run the example code the user must provide two bam files for the ChIP
+## and the input and read them with the readBamFile() function. To make it
+## easier for the user to run the example code we provide tow bam examples 
+## (chip and input) in our ChIC.data package that have already been loaded 
+##with the readBamFile() function.
+
 mc=4
 \dontrun{
 

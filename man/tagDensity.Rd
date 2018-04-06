@@ -9,18 +9,17 @@ tagDensity(data, tag.shift, annotationID = "hg19", mc = 1)
 \arguments{
 \item{data, }{data-structure with tag information (see readBamFile())}
 
-\item{tag.shift, }{Integer containing the value of the tag shif, 
-calculated by getCrossCorrelationScores()}
+\item{tag.shift, }{Integer containing the value of the tag shif, calculated 
+by getCrossCorrelationScores()}
 
-\item{annotationID}{String, indicating the genome assembly 
-(Default="hg19")}
+\item{annotationID}{String, indicating the genome assembly (Default="hg19")}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
 \value{
 smoothed.density A list of lists, each list corresponds to a 
-chromosome and contains a 
-vector of coordinates of the 5' ends of the aligned tags
+chromosome and contains a vector of coordinates of the 5' ends of the 
+aligned tags
 }
 \description{
 Calculates the smoothed tag density using spp::get.smoothed.tag.density
@@ -31,12 +30,12 @@ tagDensity
 
 ## This command is time intensive to run
 ##
-## To run the example code the user must provide two bam files, 
-## (one for the ChIP and one for the input) and read them 
-## using readBamFile() function. To make it easier for the user 
-## to run the example code we provide a subset of chromosomes for 
-## chip and input in our ChIC.data package that have 
-## already been loaded with the readBamFile() function. 
+## To run the example code the user must provide two bam files for the ChIP
+## and the input and read them with the readBamFile() function. To make it
+## easier for the user to run the example code we provide tow bam examples 
+## (chip and input) in our ChIC.data package that have already been loaded 
+## with the readBamFile() function.
+
 mc=4
 finalTagShift=98
 \dontrun{
@@ -50,9 +49,9 @@ data("inputSubset", package = "ChIC.data", envir = environment())
 inputBam=inputSubset
 
 chip_binding.characteristics<-spp::get.binding.characteristics(
-   chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 input_binding.characteristics<-spp::get.binding.characteristics(
-   inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 
 ##get chromosome information and order chip and input by it
 chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))

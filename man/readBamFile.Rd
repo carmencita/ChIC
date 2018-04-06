@@ -10,8 +10,8 @@ readBamFile(filename)
 \item{filename, }{name/path of the bam file to be read (without extension)}
 }
 \value{
-result list of lists, every list corresponds to a chromosome 
-and contains a vector of coordinates of the 5' ends of the aligned tags
+result list of lists, every list corresponds to a chromosome and 
+contains a vector of coordinates of the 5' ends of the aligned tags.
 }
 \description{
 Reading bam file format
@@ -20,9 +20,8 @@ readBamFile
 }
 \examples{
 
-## To run this example code the user MUST provide a bam file: 
-## The user can download a ChIP-seq bam file for example 
-## from ENCODE:
+## To run this example code the user MUST provide a bam file: The user can 
+## download a ChIP-seq bam file for example from ENCODE:
 ## https://www.encodeproject.org/files/ENCFF000BFX/
 ## and save it in the working directory 
 
@@ -30,7 +29,8 @@ bamID="ENCFF000BFX"
 \dontrun{
 filepath=tempdir()
 setwd(filepath)
-system("wget https://www.encodeproject.org/files/ENCFF000BFX/@download/ENCFF000BFX.bam")
+system("wget 
+https://www.encodeproject.org/files/ENCFF000BFX/@download/ENCFF000BFX.bam")
 
 bamName=file.path(filepath,bamID)
 chipBam=readBamFile(bamName)

@@ -1,36 +1,31 @@
-#'@title Function to create metage plots for comparison
+#' @title Function to create metage plots for comparison
 #'
 #' @description
-#' QC-metrics of newly analysed ChIP-seq samples can be compared with 
-#' the reference values of the compendium and enrichment profiles 
-#' can be plotted against pre-computed profiles of published 
-#' datasets. The metagene profiles show the problematic samples signal 
-#' (red line) for the ChIP, for the input and their relative 
-#' enrichment when compared to the compendium’s mean signal 
-#' (black line) and its 2 x standard error (blue shadow). 
-#' Additionally the function plots the desired QC-metric
-#' as a red dashed line for the sample plotted against the 
-#' reference distribution (density plots) of the 
-#' compendium values stratified by chromatin marks.
+#' QC-metrics of newly analysed ChIP-seq samples can be compared with the 
+#' reference values of the compendium and enrichment profiles can be 
+#' plotted against pre-computed profiles of published datasets. The metagene
+#' profiles show the problematic samples signal (red line) for the ChIP, for
+#' the input and their relative enrichment when compared to the compendium’s 
+#' mean signal (black line) and its 2 x standard error (blue shadow). 
+#' Additionally the function plots the desired QC-metric as a red dashed line 
+#' for the sample plotted against the reference distribution (density plots) 
+#' of the compendium values stratified by chromatin marks.
 #'
 #' metagenePlotsForComparison
-#' @param chrommark String, chromatin mark to be analysed. 
-#' Has to be one of the following: H3K36me3, H3K4me3, 
-#' H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3,H3K27ac,
-#' POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1,
-#' H3K79me1, H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac,
-#' H4K91ac, H4K8ac, H3K18ac, H2BK12ac, H3K56ac, 
-#' H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, 
-#' H2A.Z, H3K23me2, H2AK9ac, H3T11ph. 
-#' For RNAPOL2 different variants are available: POLR2A 
-#' (for RNAPol2), POLR3G and POLR2AphosphoS2
-#' @param data metagene-object of metagene profile by 
-#' createMetageneProfile() containing 
-#' input and chip profile
-#' @param tag indicating the kind of profile to plot. 
-#' Can be either: 'geneBody', 'TES' or 'TSS'.
-#' @param savePlotPath if set the plot will be saved under 
-#' 'savePlotPath'. Default=NULL and plot will be forwarded to stdout. 
+#' @param chrommark String, chromatin mark to be analysed. Has to be one of the
+#' following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3, 
+#' H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, 
+#' H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
+#' H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, 
+#' H3K23me2, H2AK9ac, H3T11ph. 
+#' For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G 
+#' and POLR2AphosphoS2
+#' @param data metagene-object of metagene profile by createMetageneProfile() 
+#' containing input and chip profile
+#' @param tag indicating the kind of profile to plot. Can be either: 
+#' geneBody, TES or TSS.
+#' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
+#' Default=NULL and plot will be forwarded to stdout. 
 #'
 #' @return nothing, creates a figure under 'savePlotPath'
 #'
@@ -38,14 +33,15 @@
 #'
 #' @examples
 #'
+#'
 #' ## This command is time intensive to run
 #' ##
-#' ## To run the example code the user must provide two bam files 
-#' ## for the ChIP and the input and read them with the readBamFile() function.
-#' ## To make it easier for the user to run the example code we 
-#' ## provide a subset of chromosomes for chip and input in our ChIC.data 
-#' ## package that have already been loaded with the readBamFile() function.
-#' ## 
+#' ## To run the example code the user must provide two bam files for the ChIP
+#' ## and the input and read them with the readBamFile() function. To make it
+#' ## easier for the user to run the example code we provide tow bam examples 
+#' ## (chip and input) in our ChIC.data package that have already been loaded 
+#' ## with the readBamFile() function.
+#'
 #' mc=4
 #' finalTagShift=98
 #'
@@ -62,9 +58,9 @@
 #' ## calculate binding characteristics 
 #'
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
-#'    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #' input_binding.characteristics<-spp::get.binding.characteristics(
-#'    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
@@ -83,19 +79,19 @@
 #'
 #' ##smooth input and chip tags
 #' smoothedChip <- tagDensity(chipBamSelected, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     tag.shift = finalTagShift, mc = mc)
 #' smoothedInput <- tagDensity(inputBamSelected, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     tag.shift = finalTagShift, mc = mc)
 #'
 #' ##calculate metagene profiles
 #' Meta_Result <- createMetageneProfile(
-#'    smoothed.densityChip = smoothedChip, 
-#'    smoothed.densityInput = smoothedInput, 
-#'    tag.shift = finalTagShift, mc = mc)
+#'     smoothed.densityChip = smoothedChip, 
+#'     smoothed.densityInput = smoothedInput, 
+#'     tag.shift = finalTagShift, mc = mc)
 #'
 #' ##compare metagene features of the geneBody with the compendium
 #' metagenePlotsForComparison(data = Meta_Result$geneBody,
-#'    chrommark = "H3K4me3", tag = "geneBody")
+#'     chrommark = "H3K4me3", tag = "geneBody")
 #'}
 
 metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
@@ -182,31 +178,31 @@ metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
 #'
 #' plotReferenceDistribution
 #'
-#' @param chrommark String, chromatin mark to be analysed. Has to be one 
-#' of the following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, 
-#' H3K9me3,H3K27ac, 
-#' POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, H3K4ac, 
-#' H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
+#' @param chrommark String, chromatin mark to be analysed. Has to be one of the
+#' following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3, 
+#' H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, 
+#' H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
 #' H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, 
-#' H3K23me2,
-#' H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: POLR2A 
-#' (for RNAPol2), POLR3G and POLR2AphosphoS2
+#' H3K23me2, H2AK9ac, H3T11ph. 
+#' For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G 
+#' and POLR2AphosphoS2
 #' @param metricToBePlotted The metric to be plotted (Default='RSC')
 #' @param currentValue The value of the current sample
-#' @param savePlotPath if set the plot will be saved under 
-#' 'savePlotPath'. Default=NULL and plot will be forwarded to stdout. 
+#' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
+#' Default=NULL and plot will be forwarded to stdout. 
 #'
 #' @export
 #'
 #' @return nothing, creates a figure under 'savePlotPath'
-#'@examples
+#' 
+#' @examples
 #' print ('Plot distribution of RSC')
 #' \dontrun{
 #' filepath=tempdir()
 #' setwd(filepath)
 #'
 #' plotReferenceDistribution(chrommark="H3K4me1", 
-#'    metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
+#'     metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
 #'}
 
 plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC", 
@@ -257,17 +253,15 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #'  
 #' predictionScore
 #'
-#' @param chrommark String, chromatin mark to be analysed. Has to be 
-#' one of the following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,
-#' H3K27me3, H3K9me3,H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1,
-#' H3K4me1, H3K79me1, H3K4ac, 
-#' H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
-#' H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, 
-#' H2A.Z, H3K23me2,
-#' H2AK9ac, H3T11ph. For RNAPOL2 different variants are available: 
-#' POLR2A (for RNAPol2), POLR3G and POLR2AphosphoS2
-#' @param features_cc list, with QC-metrics returned from 
-#' qualityScores_EM()
+#' @param chrommark String, chromatin mark to be analysed. Has to be one of the
+#' following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3, 
+#' H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, 
+#' H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
+#' H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, 
+#' H3K23me2, H2AK9ac, H3T11ph. 
+#' For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G 
+#' and POLR2AphosphoS2
+#' @param features_cc list, with QC-metrics returned from qualityScores_EM()
 #' @param features_global list, list with QC-metrics returned from 
 #' qualityScores_GM()
 #' @param features_TSS list, list with QC-metrics returned from 
@@ -286,14 +280,13 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' ## To execute this command the user has to run the entire pipeline
 #' ## (time intensive to run)
 #'
-#' ## To run this example code the user MUST provide 2 bam files: 
-#' ## one for ChIP and one for the input". Here we used ChIP-seq 
-#' ## data from ENCODE. Two example files can be downloaded using the 
-#' ## following link:
+#' ## To run this example code the user MUST provide 2 bam files: one for ChIP 
+#' ## and one for the input". Here we used ChIP-seq data from ENCODE. Two 
+#' ## example files can be downloaded using the following link:
 #' ## https://www.encodeproject.org/files/ENCFF000BFX/
 #' ## https://www.encodeproject.org/files/ENCFF000BDQ/
-#' ## and save them in the working directory (here given in the 
-#' ## temporary directory "filepath"
+#' ## and save them in the working directory (here given in the temporary 
+#' ## directory "filepath"
 #'
 #' mc=4
 #'
@@ -301,8 +294,11 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' filepath=tempdir()
 #' setwd(filepath)
 #'
-#' system("wget https://www.encodeproject.org/files/ENCFF000BFX/@@@download/ENCFF000BFX.bam")
-#' system("wget https://www.encodeproject.org/files/ENCFF000BDQ/@@@download/ENCFF000BDQ.bam")
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BFX/@@@download/ENCFF000BFX.bam")
+#' 
+#' system("wget 
+#' https://www.encodeproject.org/files/ENCFF000BDQ/@@@download/ENCFF000BDQ.bam")
 #'
 #' chipName=file.path(filepath,"ENCFF000BFX")
 #' inputName=file.path(filepath,"ENCFF000BDQ")

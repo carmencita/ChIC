@@ -176,6 +176,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
     return(smoothed.density)
 }
 
+#' @keywords internal 
 # Author: Koustav Pal, Contact: koustav.pal@ifom.eu, Affiliation: IFOM - FIRC
 # Institute of Molecular Oncology Why use this function and not the 
 # GenomicRanges
@@ -215,6 +216,7 @@ MakeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL,
 }
 # Author: Koustav Pal, Contact: koustav.pal@ifom.eu, Affiliation: IFOM - FIRC
 # Institute of Molecular Oncology Creates non-overlapping regions from
+#' @keywords internal 
 ReduceOverlappingRegions <- function(Ranges = NULL) 
 {
     # Try it out.
@@ -225,8 +227,10 @@ ReduceOverlappingRegions <- function(Ranges = NULL)
         Q.name <- "Queries"
         S.name <- "Subject"
         HitsObject <- findOverlaps(query = My.Range, subject = My.Range)
-        PairList.hits <- HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
-        PairList <- data.frame(queryHits(PairList.hits), subjectHits(PairList.hits))
+        PairList.hits <- HitsObject[
+            queryHits(HitsObject) != subjectHits(HitsObject)]
+        PairList <- data.frame(queryHits(PairList.hits), 
+            subjectHits(PairList.hits))
         colnames(PairList) <- c(Q.name,S.name)
         No.overlaps <- My.Range[!(seq_along(My.Range) %in% PairList[,Q.name])]
         if (nrow(PairList) == 0) {
@@ -242,8 +246,10 @@ ReduceOverlappingRegions <- function(Ranges = NULL)
         unique.queries <- unique(PairList[,Q.name])
         unique.subjects <- unique(PairList[,S.name])
 
-        Which.q <- unique.queries[which(!(unique.queries %in% unique.subjects))]
-        Which.s <- unique.subjects[which(!(unique.subjects %in% unique.queries))]
+        Which.q <- unique.queries[which(
+            !(unique.queries %in% unique.subjects))]
+        Which.s <- unique.subjects[which(
+            !(unique.subjects %in% unique.queries))]
 
         if(length(Which.q)!=length(Which.s)){
             stop("Cannot resolve overlaps. Contact the writer of the function
@@ -256,12 +262,15 @@ ReduceOverlappingRegions <- function(Ranges = NULL)
             max(end(My.Range[Index]))
         })
 
-        NewRanges <- MakeGRangesObject(Chrom=rep(Chrom,length(Starts)),Start= Starts, End= Ends)
+        NewRanges <- MakeGRangesObject(Chrom=rep(Chrom,length(Starts)), 
+            Start= Starts, End= Ends)
         return(c(No.overlaps,NewRanges))
     })
-    Non.overlapping.ranges <- do.call(c, unlist(Non.overlapping.ranges.list,use.names = FALSE))
+    Non.overlapping.ranges <- do.call(c, 
+        unlist(Non.overlapping.ranges.list,use.names = FALSE))
     return(Non.overlapping.ranges)
-}# overlapping regions in the SAME ranges object.
+}
+# overlapping regions in the SAME ranges object.
 
 # ReduceOverlappingRegions <- function(Ranges = NULL) 
 # {
@@ -301,7 +310,8 @@ ReduceOverlappingRegions <- function(Ranges = NULL)
 #                 MakeGRangesObject(Chrom = Chrom, Start = Start, End = End)
 #         }
 #     }
-#     NewRanges <- unique(do.call(c, unlist(NewRanges.list, use.names = FALSE)))
+#     NewRanges <- unique(do.call(c, unlist(NewRanges.list, 
+# use.names = FALSE)))
 #     return(c(NewRanges, No.overlaps))
 # }
 

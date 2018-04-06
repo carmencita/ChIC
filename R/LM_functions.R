@@ -1,26 +1,23 @@
-#'@title Wrapper function to plot the scaled metagene- profile  
-#' and to collect the QC-metrics
+#' @title Wrapper function to plot the scaled metagene- profile and to 
+#' collect the QC-metrics
 #'
-#'@description The scaled metagene profile that includes the gene body, 
-#' the signal is captured on a real scale from the TSS and an upstream 
-#' region of 2KB. From the TSS, the gene body is constructed with 0.5KB 
-#' in real scale at the gene start (TSS + 0.5KB) and the gene end 
-#' (TES - 0.5KB), whereas the remaining gene body is 
-#' scaled to a virtual length of 2000. Considering the length 
-#' of these regions, the minimum gene length required is 3KB and 
-#' shorter genes are filtered out. From the profile, we take enrichment 
-#' values at different coordinates: at 
-#' -2KB, at the TSS, inner margin (0.5KB), gene body 
-#' (2KB + 2 * inner margin), 
-#' gene body+1KB. We collect in total 42 QC-metrics from the ChIP and 
-#' normalized profile. 
+#' @description The scaled metagene profile that includes the gene body, the 
+#' signal is captured on a real scale from the TSS and an upstream region of 
+#' 2KB. From the TSS, the gene body is constructed with 0.5KB in real scale 
+#' at the gene start (TSS + 0.5KB) and the gene end (TES - 0.5KB), whereas 
+#' the remaining gene body is scaled to a virtual length of 2000. Considering 
+#' the length of these regions, the minimum gene length required is 3KB and 
+#' shorter genes are filtered out. From the profile, we take enrichment values 
+#' at different coordinates: at -2KB, at the TSS, inner margin (0.5KB), gene 
+#' body (2KB + 2 * inner margin), gene body+1KB. We collect in total 42 
+#' QC-metrics from the ChIP and normalized profile. 
 #'
 #' qualityScores_LMgenebody
 #'
-#' @param data metagene-list for input and chip sample 
-#' of the genebody profile returned by createMetageneProfile()
-#' @param savePlotPath if set the plot will be saved under 
-#' 'savePlotPath'. Default=NULL and plot will be forwarded to stdout. 
+#' @param data metagene-list for input and chip sample of the genebody profile
+#' returned by createMetageneProfile()
+#' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
+#' Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
 #' @export
@@ -31,28 +28,28 @@
 #'
 #' ## This command is time intensive to run
 #' ##
-#' ## To run the example code the user must provide two bam files 
-#' ## for the ChIP and the input and read them with the readBamFile() function.
-#' ## To make it easier for the user to run the example code we 
-#' ## provide a subset of chromosomes for chip and input in our ChIC.data 
-#' ## package that have already been loaded with the readBamFile() function.
-#'  
+#' ## To run the example code the user must provide two bam files for the ChIP
+#' ## and the input and read them with the readBamFile() function. To make it
+#' ## easier for the user to run the example code we provide tow bam examples 
+#' ## (chip and input) in our ChIC.data package that have already been loaded 
+#' ## with the readBamFile() function.
+#'
 #' mc=4
 #' finalTagShift=82
 #' \dontrun{
 #'
 #' filepath=tempdir()
 #' setwd(filepath)
-#' 
+#'
 #' data("chipBam", package = "ChIC.data", envir = environment())
 #' data("inputBam", package = "ChIC.data", envir = environment())
-#' 
+#'
 #' ## calculate binding characteristics 
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
-#'    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' input_binding.characteristics<-spp::get.binding.characteristics(
-#'    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))
@@ -203,63 +200,62 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
 
 
 
-#'@title Wrapper function that plots non-scaled profiles for 
-#' TSS or TES and to collects the QC-metrics
+#' @title Wrapper function that plots non-scaled profiles for TSS of TES and 
+#' to collect the QC-metrics
 #'
-#'@description 
-#' The non-scaled profile is constructed around the TSS/TES,
-#' with 2KB up- and downstream regions respectively. Different values 
-#' are taken at the TSS/TES and surroundings with +/-2KB, +/-1KB 
-#' and +/-500 sizes. For all the genomic 
-#' positions, we kept the values for the ChIP and the normalized profile,
-#' as the normalization already contains information from the input. 
-#' Additionally, we calculated for all of the intervals between 
-#' the predefined positions the area under the profile, 
-#' the local maxima (x, y coordinates), the variance, 
-#' the standard deviation and the quantiles at 0%, 25%, 
-#' 50% and 75%. In total the function returns 43 QC-metrics.
+#' @description 
+#' The non-scaled profile is constructed around the TSS/TES, with 2KB up- and 
+#' downstream regions respectively. Different values are taken at the TSS/TES 
+#' and surroundings with +/-2KB, +/-1KB and +/-500 sizes. For all the genomic 
+#' positions, we kept the values for the ChIP and the normalized profile, as 
+#' the normalization already contains information from the input. Additionally,
+#' we calculated for all of the intervals between the predefined positions the
+#' area under the profile, the local maxima (x, y coordinates), the variance, 
+#' the standard deviation and the quantiles at 0%, 25%, 50% and 75%. In total 
+#' the function returns 43 QC-metrics.
 #'
 #' qualityScores_LM
 #'
-#' @param data metagene-list for input and chip sample for
-#' TSS or TES returned by createMetageneProfile()
-#' @param tag String that can be 'TSS' or 'TES',indicating if the TSS or 
-#' the TES profile should be calcualted (Default='TSS')
-#' @param savePlotPath if set the plot will be saved under 
-#' 'savePlotPath'. Default=NULL and plot will be forwarded to stdout. 
+#' @param data metagene-list for input and chip sample for TSS or TES returned 
+#' by createMetageneProfile()
+#' @param tag String that can be 'TSS' or 'TES',indicating if the TSS or the 
+#' TES profile should be calcualted (Default='TSS')
+#' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
+#' Default=NULL and plot will be forwarded to stdout. 
 #' @param debug Boolean to enter in debugging mode (default= FALSE)
 #'
 #' @export
 #'
-#' @return result Dataframe with QC-values for chip, input and 
-#' normalized metagene profile
+#' @return result Dataframe with QC-values for chip, input and normalized 
+#' metagene profile
 #'
 #' @examples
 #'
+#'
 #' ## This command is time intensive to run
 #' ##
-#' ## To run the example code the user must provide two bam files 
-#' ## for the ChIP and the input and read them with the readBamFile() function.
-#' ## To make it easier for the user to run the example code we 
-#' ## provide a subset of chromosomes for chip and input in our ChIC.data 
-#' ## package that have already been loaded with the readBamFile() function.
-#' 
+#' ## To run the example code the user must provide two bam files for the ChIP
+#' ## and the input and read them with the readBamFile() function. To make it
+#' ## easier for the user to run the example code we provide tow bam examples 
+#' ## (chip and input) in our ChIC.data package that have already been loaded 
+#' ## with the readBamFile() function.
+#'
 #' mc=4
 #' finalTagShift=82
 #' \dontrun{
 #'
 #' filepath=tempdir()
 #' setwd(filepath)
-#' 
+#'
 #' data("chipBam", package = "ChIC.data", envir = environment())
 #' data("inputBam", package = "ChIC.data", envir = environment())
-#' 
+#'
 #' ## calculate binding characteristics 
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
-#'    chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' input_binding.characteristics<-spp::get.binding.characteristics(
-#'    inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
+#'     inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags), names(inputBam$tags))
