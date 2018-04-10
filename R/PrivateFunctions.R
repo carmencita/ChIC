@@ -420,7 +420,8 @@ f_feature.bin.averages <- function(dat, feat, nu.feat.omit = FALSE,
             scaling <- f_two.point.scaling(dat$x, feat, ...)
             
         } else {
-            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, m = m, ...)
+            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, 
+                m = m, ...)
         }
         ## clean up
         if (nu.feat.omit) {
