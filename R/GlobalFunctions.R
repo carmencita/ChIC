@@ -536,13 +536,13 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
         })))
         
     } else {
-        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, 
+        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, #6053517
             FUN = function(x) {
             return(length(unique(sample(dataNRF, 
                 size = 1e+07, replace = TRUE))))
         })))
     }
-    
+
     NRF_LibSizeadjusted <- UNIQUE_TAGS_LibSizeadjusted/1e+07
     STATS_NRF <- list(CC_ALL_TAGS = ALL_TAGS, 
         CC_UNIQUE_TAGS = UNIQUE_TAGS, 
@@ -683,7 +683,8 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     
     ## for simplicity we use currently a shorter chromosome 
     ## frame to avoid problems
-    chrorder <- paste("chr", c(1:19, "X", "Y"), sep = "")
+    #chrorder <- paste("chr", c(1:19, "X", "Y"), sep = "")
+    chrorder <- paste("chr", c(seq_len(19), "X", "Y"), sep = "")
     
     ## 5 broadRegions 6 enrichment broad regions zthresh_list<-c(3,4)
     current_window_size <- 1000

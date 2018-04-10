@@ -492,8 +492,11 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
     spi <- spp::points_withinFunction(x, seg$s - ml, seg$e + mr, 
         return.list = TRUE)
     lspi <- unlist(lapply(spi, length))
-    df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
+    #df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
+    #    nu = rep(lspi, lspi))
+    df <- data.frame(i = rep(seq_along(x), lspi), si = unlist(spi), 
         nu = rep(lspi, lspi))
+
     df$r5x <- (x[df$i] - sg5[df$si]) * sstrand[df$si]
     df$r3x <- (x[df$i] - sg3[df$si]) * sstrand[df$si]
     
@@ -532,8 +535,9 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
 ## { f_one.point.scaling <- function(x, pos,
 ## strand=NULL,m=4020/2, lm=m, rm=m, nbins=301/2) {
 
-f_one.point.scaling <- function(x, pos, strand = NULL, m=4020/2, nbins=301/2)
+f_one.point.scaling <- function(x, pos, strand = NULL,  nbins=301/2)#m=4020/2,
 {
+    m=4020/2
     lm <- m
     rm <- m
     
@@ -558,7 +562,9 @@ f_one.point.scaling <- function(x, pos, strand = NULL, m=4020/2, nbins=301/2)
     spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
         return.list = TRUE)
     lspi <- unlist(lapply(spi, length))
-    df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
+    #df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
+    #    nu = rep(lspi, lspi))
+    df <- data.frame(i = rep(seq_along(x), lspi), si = unlist(spi), 
         nu = rep(lspi, lspi))
     df$rx <- (x[df$i] - pos[df$si]) * sstrand[df$si]
     if (!is.null(nbins)) {
@@ -689,14 +695,16 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
     if (tag == "TSS") {
         result <- f_t.get.gene.av.density_TSS(tl_current = smoothed.density, 
             gdl = gdl, 
-            m = settings$up_downStream, nbins = settings$predefnum_bins_1P, 
+            #m = settings$up_downStream, 
+            nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
         message("TSS")
     } else {
         result <- f_t.get.gene.av.density_TES(tl_current = smoothed.density, 
             gdl = gdl, 
-            m = settings$up_downStream, nbins = settings$predefnum_bins_1P, 
+            #m = settings$up_downStream, 
+            nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
         message("TES")
@@ -775,7 +783,7 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
 ## f_t.get.gene.av.density_TSS <- function(tl_current,
 ## gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,
 ## separate.strands=F,mc=1) {###binning of the frame
-f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020, 
+f_t.get.gene.av.density_TSS <- function(tl_current, gdl, #m = 4020, 
     nbins = 201, separate.strands = FALSE, mc = 1) 
 {
     ## binning of the frame
@@ -798,7 +806,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
                 ## nbins=nbins,nu.point.omit=FALSE)
                 px <- f_feature.bin.averages(tl_current$td[[chr]], 
                     data.frame(x = gdl[[chr]]$txStart[!nsi]), 
-                m = m, nbins = nbins, nu.point.omit = FALSE)
+                #m = m, 
+                nbins = nbins, nu.point.omit = FALSE)
                 rownames(px) <- current_gene_names[!nsi]
             } else {
                 px <- NULL
@@ -813,7 +822,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
                 ## nu.point.omit=FALSE)
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(x = -1 * gdl[[chr]]$txEnd[nsi]), 
-                m = m, nbins = nbins, nu.point.omit = FALSE)
+                #m = m, 
+                nbins = nbins, nu.point.omit = FALSE)
                 rownames(nx) <- current_gene_names[nsi]
             } else {
                 nx <- NULL
@@ -832,7 +842,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
 ## bin-averaged profiles for individual genes TES ONE.POINT
 ## f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,
 ## m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) {
-f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020, nbins = 201, 
+f_t.get.gene.av.density_TES <- function(tl_current, gdl, #m = 4020, 
+    nbins = 201, 
     separate.strands = FALSE, mc = 1) 
 {
     
@@ -856,7 +867,8 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020, nbins = 201,
                 ## min.feature.size=NULL, ... ) {
                 px <- f_feature.bin.averages(tl_current$td[[chr]], 
                     data.frame(x = gdl[[chr]]$txEnd[!nsi]), 
-                m = m, nbins = nbins, nu.point.omit = FALSE)
+                #m = m, 
+                nbins = nbins, nu.point.omit = FALSE)
                 rownames(px) <- current_gene_names[!nsi]
             } else {
                 px <- NULL
@@ -867,7 +879,8 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020, nbins = 201,
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(x = -1 * gdl[[chr]]$txStart[nsi]), 
-                m = m, nbins = nbins, nu.point.omit = FALSE)
+                #m = m, 
+                nbins = nbins, nu.point.omit = FALSE)
                 rownames(nx) <- current_gene_names[nsi]
             } else {
                 nx <- NULL
@@ -1022,8 +1035,8 @@ f_maximaAucfunctionNorm <- function(dframe, breaks, estBinSize, tag)
 ## calculating variance, sd and qartiles of the value ditribution in different
 ## intervals
 f_variabilityValues <- function(dframe, breaks, tag) {
-    variabilityValues <- lapply(breaks[1:3], FUN = function(start) {
-        
+    #variabilityValues <- lapply(breaks[1:3], FUN = function(start) {
+    variabilityValues <- lapply(breaks[seq_len(3)], FUN = function(start) {
         #print(start)
         end <- abs(start)
         sub_set <- dframe[which((as.numeric(rownames(dframe)) <= end) & 
@@ -1035,9 +1048,11 @@ f_variabilityValues <- function(dframe, breaks, tag) {
         name <- c(name, paste("dispersion", tag, start, "sd", sep = "_"))
         sdI <- sd(sub_set$Input)
         sdC <- sd(sub_set$Chip)
-        valueFrameI <- data.frame(quantile(sub_set$Input)[1:4])
+        #valueFrameI <- data.frame(quantile(sub_set$Input)[1:4])
+        valueFrameI <- data.frame(quantile(sub_set$Input)[seq_len(4)])
         colnames(valueFrameI) <- c("value")
-        valueFrameC <- data.frame(quantile(sub_set$Chip)[1:4])
+        #valueFrameC <- data.frame(quantile(sub_set$Chip)[1:4])
+        valueFrameC <- data.frame(quantile(sub_set$Chip)[seq_len(4)])
         colnames(valueFrameC) <- c("value")
         name <- c(name, paste("dispersion", tag, start, 
             rownames(valueFrameI), sep = "_"))
@@ -1060,7 +1075,8 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
     newframe <- as.data.frame(dframe)
     newframe$x <- rownames(newframe)
     colnames(newframe) <- c("Norm", "break")
-    variabilityValues <- lapply(breaks[1:3], FUN = function(start) {
+    #variabilityValues <- lapply(breaks[1:3], FUN = function(start) {
+    variabilityValues <- lapply(breaks[seq_len(3)], FUN = function(start) {
         #print(start)
         end <- abs(start)
         sub_set <- newframe[which((as.numeric(rownames(newframe)) <= end) & 
@@ -1071,7 +1087,8 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
         name <- c(name, paste("dispersion", tag, start, "sd", sep = "_"))
         sd <- sd(sub_set$Norm)
         
-        valueFrame <- data.frame(quantile(sub_set$Norm)[1:4])
+        #valueFrame <- data.frame(quantile(sub_set$Norm)[1:4])
+        valueFrame <- data.frame(quantile(sub_set$Norm)[seq_len(4)])
         colnames(valueFrame) <- c("value")
         name <- c(name, paste("dispersion", tag, start, 
             rownames(valueFrame), sep = "_"))
