@@ -404,7 +404,7 @@ f_fingerPrintPlot <- function(cumChip, cumInput, savePlotPath = NULL) {
 ## mapping for further use
 f_feature.bin.averages <- function(dat, feat, nu.feat.omit = FALSE, 
     nu.point.omit = TRUE, scaling = NULL, return.scaling = FALSE, 
-    trim = 0, min.feature.size = NULL, ...) 
+    trim = 0, min.feature.size = NULL, m=4020/2, ...) 
 {
     if (is.null(feat)) {
         return(NULL)
@@ -420,7 +420,7 @@ f_feature.bin.averages <- function(dat, feat, nu.feat.omit = FALSE,
             scaling <- f_two.point.scaling(dat$x, feat, ...)
             
         } else {
-            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, ...)
+            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, m=m, ...)
         }
         ## clean up
         if (nu.feat.omit) {
@@ -535,9 +535,8 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
 ## { f_one.point.scaling <- function(x, pos,
 ## strand=NULL,m=4020/2, lm=m, rm=m, nbins=301/2) {
 
-f_one.point.scaling <- function(x, pos, strand = NULL,  nbins=301/2)#m=4020/2,
+f_one.point.scaling <- function(x, pos, strand = NULL,  nbins=201, m=4020/2)
 {
-    m=4020/2
     lm <- m
     rm <- m
     
@@ -695,7 +694,7 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
     if (tag == "TSS") {
         result <- f_t.get.gene.av.density_TSS(tl_current = smoothed.density, 
             gdl = gdl, 
-            #m = settings$up_downStream, 
+            m = (settings$up_downStream/2), 
             nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
@@ -703,7 +702,7 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
     } else {
         result <- f_t.get.gene.av.density_TES(tl_current = smoothed.density, 
             gdl = gdl, 
-            #m = settings$up_downStream, 
+            m = (settings$up_downStream/2), 
             nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
@@ -783,7 +782,7 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
 ## f_t.get.gene.av.density_TSS <- function(tl_current,
 ## gdl=annotatedGenesPerChr,m=up_downStream, nbins=predefnum_bins_1P,
 ## separate.strands=F,mc=1) {###binning of the frame
-f_t.get.gene.av.density_TSS <- function(tl_current, gdl, #m = 4020, 
+f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020, 
     nbins = 201, separate.strands = FALSE, mc = 1) 
 {
     ## binning of the frame
@@ -806,7 +805,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, #m = 4020,
                 ## nbins=nbins,nu.point.omit=FALSE)
                 px <- f_feature.bin.averages(tl_current$td[[chr]], 
                     data.frame(x = gdl[[chr]]$txStart[!nsi]), 
-                #m = m, 
+                m = m,
+                min.feature.size=NULL,
                 nbins = nbins, nu.point.omit = FALSE)
                 rownames(px) <- current_gene_names[!nsi]
             } else {
@@ -822,7 +822,8 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, #m = 4020,
                 ## nu.point.omit=FALSE)
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(x = -1 * gdl[[chr]]$txEnd[nsi]), 
-                #m = m, 
+                m = m, 
+                min.feature.size=NULL,
                 nbins = nbins, nu.point.omit = FALSE)
                 rownames(nx) <- current_gene_names[nsi]
             } else {
@@ -842,7 +843,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, #m = 4020,
 ## bin-averaged profiles for individual genes TES ONE.POINT
 ## f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,
 ## m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) {
-f_t.get.gene.av.density_TES <- function(tl_current, gdl, #m = 4020, 
+f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020, 
     nbins = 201, 
     separate.strands = FALSE, mc = 1) 
 {
@@ -867,7 +868,8 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, #m = 4020,
                 ## min.feature.size=NULL, ... ) {
                 px <- f_feature.bin.averages(tl_current$td[[chr]], 
                     data.frame(x = gdl[[chr]]$txEnd[!nsi]), 
-                #m = m, 
+                m = m, 
+                min.feature.size=NULL,
                 nbins = nbins, nu.point.omit = FALSE)
                 rownames(px) <- current_gene_names[!nsi]
             } else {
@@ -879,7 +881,8 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, #m = 4020,
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(x = -1 * gdl[[chr]]$txStart[nsi]), 
-                #m = m, 
+                m = m, 
+                min.feature.size=NULL,
                 nbins = nbins, nu.point.omit = FALSE)
                 rownames(nx) <- current_gene_names[nsi]
             } else {
