@@ -404,7 +404,7 @@ f_fingerPrintPlot <- function(cumChip, cumInput, savePlotPath = NULL) {
 ## mapping for further use
 f_feature.bin.averages <- function(dat, feat, nu.feat.omit = FALSE, 
     nu.point.omit = TRUE, scaling = NULL, return.scaling = FALSE, 
-    trim = 0, min.feature.size = NULL, m=4020/2, ...) 
+    trim = 0, min.feature.size = NULL, m = 4020/2, ...) 
 {
     if (is.null(feat)) {
         return(NULL)
@@ -420,7 +420,7 @@ f_feature.bin.averages <- function(dat, feat, nu.feat.omit = FALSE,
             scaling <- f_two.point.scaling(dat$x, feat, ...)
             
         } else {
-            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, m=m, ...)
+            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, m = m, ...)
         }
         ## clean up
         if (nu.feat.omit) {
@@ -535,7 +535,7 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
 ## { f_one.point.scaling <- function(x, pos,
 ## strand=NULL,m=4020/2, lm=m, rm=m, nbins=301/2) {
 
-f_one.point.scaling <- function(x, pos, strand = NULL,  nbins=201, m=4020/2)
+f_one.point.scaling <- function(x, pos, strand = NULL,  nbins = 201, m = 4020/2)
 {
     lm <- m
     rm <- m
@@ -694,7 +694,7 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
     if (tag == "TSS") {
         result <- f_t.get.gene.av.density_TSS(tl_current = smoothed.density, 
             gdl = gdl, 
-            m = (settings$up_downStream/2), 
+            m = (settings$up_downStream / 2), 
             nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
@@ -702,7 +702,7 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
     } else {
         result <- f_t.get.gene.av.density_TES(tl_current = smoothed.density, 
             gdl = gdl, 
-            m = (settings$up_downStream/2), 
+            m = (settings$up_downStream / 2), 
             nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
@@ -844,8 +844,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
 ## f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,
 ## m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) {
 f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020, 
-    nbins = 201, 
-    separate.strands = FALSE, mc = 1) 
+    nbins = 201, separate.strands = FALSE, mc = 1) 
 {
     
     chrl <- names(gdl)
