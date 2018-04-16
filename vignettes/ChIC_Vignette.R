@@ -1,4 +1,4 @@
-### R code from vignette source '/lustre/data/FF/Carmen/BitBucket/Bioc_submission/FinalVignette/vignettes/ChIC_Vignette.Rnw'
+### R code from vignette source '/lustre/data/FF/Carmen/BitBucket/Bioc_submission/ChIC/vignettes/ChIC_Vignette.Rnw'
 ### Encoding: UTF-8
 
 ###################################################
@@ -55,7 +55,7 @@ inputBam=inputSubset
 ### code chunk number 4: ChIC_Vignette.Rnw:149-153
 ###################################################
 
-mc=20
+mc=3
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 #tagshift=98
 
@@ -178,7 +178,7 @@ Meta_Result <- createMetageneProfile(
 
 
 ###################################################
-### code chunk number 17: ChIC_Vignette.Rnw:337-341 (eval = FALSE)
+### code chunk number 17: ChIC_Vignette.Rnw:338-342 (eval = FALSE)
 ###################################################
 ## TSS_Scores <- qualityScores_LM(data = Meta_Result$TSS, tag = "TSS",
 ##     savePlotPath = filepath)
@@ -187,14 +187,14 @@ Meta_Result <- createMetageneProfile(
 
 
 ###################################################
-### code chunk number 18: ChIC_Vignette.Rnw:344-346
+### code chunk number 18: ChIC_Vignette.Rnw:345-347
 ###################################################
 TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS")
 TES_Scores=qualityScores_LM(data=Meta_Result$TES, tag="TES")
 
 
 ###################################################
-### code chunk number 19: ChIC_Vignette.Rnw:352-355 (eval = FALSE)
+### code chunk number 19: ChIC_Vignette.Rnw:353-356 (eval = FALSE)
 ###################################################
 ## #create scaled metagene profile
 ## geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody,
@@ -216,7 +216,7 @@ geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 
 
 ###################################################
-### code chunk number 22: ChIC_Vignette.Rnw:407-416 (eval = FALSE)
+### code chunk number 22: ChIC_Vignette.Rnw:410-419 (eval = FALSE)
 ###################################################
 ## metagenePlotsForComparison(data = Meta_Result$geneBody,
 ##     chrommark = "H3K4me3", 
@@ -244,7 +244,7 @@ metagenePlotsForComparison(data = Meta_Result$geneBody,
 
 
 ###################################################
-### code chunk number 25: ChIC_Vignette.Rnw:463-467 (eval = FALSE)
+### code chunk number 25: ChIC_Vignette.Rnw:466-470 (eval = FALSE)
 ###################################################
 ## plotReferenceDistribution(chrommark = "H3K4me3", 
 ##     metricToBePlotted = "RSC", 
@@ -267,7 +267,7 @@ plotReferenceDistribution(chrommark = "H3K4me3",
 
 
 ###################################################
-### code chunk number 28: ChIC_Vignette.Rnw:492-501
+### code chunk number 28: ChIC_Vignette.Rnw:495-504
 ###################################################
 EM_scoresNew=NULL
 
@@ -281,7 +281,7 @@ CC_Result=EM_scoresNew
 
 
 ###################################################
-### code chunk number 29: ChIC_Vignette.Rnw:504-511
+### code chunk number 29: ChIC_Vignette.Rnw:507-514
 ###################################################
 te <- predictionScore(chrommark = "H3K4me3", 
     features_cc = CC_Result,

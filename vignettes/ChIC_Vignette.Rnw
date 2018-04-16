@@ -148,7 +148,7 @@ see \cite{Kharchenko2008}).
 
 <<eval=TRUE, echo=FALSE >>=
 
-mc=5
+mc=3
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 #tagshift=98
 @
