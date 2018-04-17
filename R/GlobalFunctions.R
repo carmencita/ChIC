@@ -113,7 +113,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         warning("mc set to 1")
         mc <- 1
     }
-    
+    cluster=NULL
     ########## 
 
     message("reading bam files")
@@ -328,6 +328,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
         stop("tag.shift must be > 0")
     
     ########## 
+    cluster=NULL
     
     ## cross_correlation_customShift_withSmoothing parameters
     ## ccRangeSubset=cross_correlation_range_subset
@@ -680,7 +681,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     if (tag.shift < 1) 
         stop("tag.shift must be > 0")
     ########## 
-    
+    cluster=NULL
     ## for simplicity we use currently a shorter chromosome 
     ## frame to avoid problems
     #chrorder <- paste("chr", c(1:19, "X", "Y"), sep = "")
