@@ -72,7 +72,8 @@ f_readFile <- function(filename, reads.aligner.type) {
     }
     
     ## readCount=sum(sapply(data$tags, length))
-    readCount <- sum(unlist(lapply(data$tags, length)))
+    ## readCount <- sum(unlist(lapply(data$tags, length)))
+    readCount <- sum(lengths(data$tags))
     message(readCount)
     
     return(data)
@@ -143,7 +144,8 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
     ## density distribution for data
     message("Smooth tag density")
     ## tag smoothing, (sum of tags in all chr)/1e6
-    ts <- sum(unlist(lapply(data, length)))/1e+06
+    ## ts <- sum(unlist(lapply(data, length)))/1e+06
+    ts <- sum(lengths(data)) / 1e6
     ### parallelisation
     chromosomes_list <- names(data)
     ### creates a list of lists
