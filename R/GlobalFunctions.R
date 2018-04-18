@@ -11,9 +11,9 @@
 #' @importFrom grDevices dev.off pdf rainbow
 #' @importFrom stats density na.omit predict quantile sd var
 #' @importFrom utils str write.table data
-#' @importFrom BiocParallel bplapply
+# @importFrom BiocParallel bplapply
 #' @importFrom methods new
-#' @importFrom parallel makeCluster stopCluster
+#' @importFrom parallel makeCluster stopCluster mclapply
 
 #######################################################################
 ###############                                         ###############  
@@ -138,7 +138,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     #switch cluster on
     if (mc > 1) {
-        cluster <- parallel::makeCluster( mc )
+        cluster <- makeCluster( mc )
     }
 
     chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
@@ -148,7 +148,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     
     #switch cluster off   
     if (mc > 1) {
-        parallel::stopCluster( cluster )
+        stopCluster( cluster )
     }
     message("calculate cross correlation QC-metrics for the Chip")
     crossvalues_Chip <- getCrossCorrelationScores(chip.data, 
@@ -166,7 +166,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         
     #switch cluster on
     if (mc > 1) {
-        cluster <- parallel::makeCluster( mc )
+        cluster <- makeCluster( mc )
     }
 
     input_binding.characteristics<-spp::get.binding.characteristics(input.data,
@@ -176,7 +176,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     
     #switch cluster off   
     if (mc > 1) {
-        parallel::stopCluster( cluster )
+        stopCluster( cluster )
     }
 
     #message("calculate cross correlation QC-metrics for the Input")
@@ -340,7 +340,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
     
     ## step 1.2: Phantom peak and cross-correlation
     if (mc > 1) {
-        cluster <- parallel::makeCluster( mc )
+        cluster <- makeCluster( mc )
     }
 
     message("Phantom peak and cross-correlation")
@@ -350,7 +350,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
         cluster = cluster)
 
     if (mc>1) {
-        parallel::stopCluster( cluster )
+        stopCluster( cluster )
     }
 
     ph_peakidx <- which(
@@ -712,7 +712,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
     
     if (mc > 1) {
-        cluster <- parallel::makeCluster( mc )
+        cluster <- makeCluster( mc )
     }
 
     message("Binding sites detection fdr")
@@ -734,7 +734,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     eval_detect <- sum(unlist(lapply(bp_eval$npl, function(d) length(d$x))))
     
     if (mc > 1) {
-        parallel::stopCluster( cluster )
+        stopCluster( cluster )
     }
     
     ## output detected binding positions output.binding.results(results=bp,

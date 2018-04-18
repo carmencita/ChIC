@@ -151,10 +151,11 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
         return(data[x])
     })
     
-    # smoothed.density<-mclapply(data, FUN=function(current_chr_list)
-    smoothed.density <- BiocParallel::bplapply(data, 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
-        #BPPARAM = BiocParallel::SnowParam(workers = mc,type = "SOCK"), 
+    #smoothed.density <- BiocParallel::bplapply(data, 
+    #    BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    smoothed.density<-mclapply(data, 
+        mc.preschedule = FALSE, 
+        mc.cores  = mc,   
         FUN = function(current_chr_list) {
             current_chr <- names(current_chr_list)
             str(current_chr_list)
@@ -166,7 +167,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
                 step = smoothingStep, tag.shift = tag.shift, 
                 rngl = chromDef[current_chr])
         })
-    # }, mc.preschedule = FALSE,mc.cores=mc)
+
     smoothed.density <- (unlist(smoothed.density, recursive = FALSE))
     ## normalizing smoothed tag density by library size
     smoothed.density <- lapply(smoothed.density, function(d) {
@@ -732,10 +733,11 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
     chrl <- names(gdl)
     names(chrl) <- chrl
     ## lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
-    ## mclapply(chrl[chrl %in% names(chipTags_current$td)], mc.preschedule =
-    ## FALSE,mc.cores=mc, FUN=function(chr)
-    BiocParallel::bplapply(chrl[chrl %in% names(chipTags_current$td)], 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    ## BiocParallel::bplapply(chrl[chrl %in% names(chipTags_current$td)], 
+    ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    mclapply(chrl[chrl %in% names(chipTags_current$td)], 
+        mc.preschedule = FALSE, 
+        mc.cores = mc, 
         FUN = function(chr) {
             # print(chr)
             nsi <- gdl[[chr]]$strand == "-"
@@ -790,11 +792,12 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
     chrl <- names(gdl)
     names(chrl) <- chrl
     ## lapply(chrl[chrl %in% names(tl_current$td)],function(chr) 
-    ## { mclapply(chrl[chrl
-    ## %in% names(tl_current$td)], mc.preschedule=FALSE,mc.cores=mc, 
-    ## FUN=function(chr)
-    BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
+    ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    
+    mclapply(chrl[chrl %in% names(tl_current$td)], 
+        mc.preschedule = FALSE, 
+        mc.cores = mc,     
         FUN = function(chr) {
             nsi <- gdl[[chr]]$strand == "-"
             current_gene_names <- gdl[[chr]]$geneSymbol
@@ -851,11 +854,12 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
     chrl <- names(gdl)
     names(chrl) <- chrl
     ## lapply(chrl[chrl %in% names(tl_current$td)],function(chr) 
-    ## { mclapply(chrl[chrl
-    ## %in% names(tl_current$td)], mc.preschedule = FALSE, mc.cores=mc,
-    ## FUN=function(chr)
-    BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
+    ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    
+    mclapply(chrl[chrl %in% names(tl_current$td)], 
+        mc.preschedule = FALSE, 
+        mc.cores = mc,
         FUN = function(chr) {
             nsi <- gdl[[chr]]$strand == "-"
             current_gene_names <- gdl[[chr]]$geneSymbol
