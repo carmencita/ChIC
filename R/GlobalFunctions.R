@@ -521,7 +521,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
     NRF_nostrand <- UNIQUE_TAGS_nostrand/ALL_TAGS
     
     ## to compensate for lib size differences
-    message("compensate for lib size differences")
+    message("calculate different QC values... might take a few minutes")
     ## nomi<-rep(names(data$tags), sapply(data$tags, length))
     nomi <- rep(names(data$tags), lapply(data$tags, length))
     
