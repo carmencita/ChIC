@@ -83,7 +83,7 @@ and from peak-calling. We will refer to this measures as ENCODE Metrics (EM).
 
 <<eval=FALSE, echo=TRUE >>=
 ##caluclate first set of QC-metrics: EM 
-mc=4
+mc=3
 
 filepath=tempdir()
 setwd(filepath)
@@ -148,19 +148,7 @@ see \cite{Kharchenko2008}).
 
 <<eval=TRUE, echo=FALSE >>=
 
-data("chipSubset", package = "ChIC.data", envir = environment())
-new=list(tags=list(chr17=chipSubset$tags$chr17),
-    quality= list(chr17=chipSubset$quality$chr17))
-chipBam=new
-
-data("inputSubset", package = "ChIC.data", envir = environment())
-new=list(tags=list(chr17=inputSubset$tags$chr17),
-    quality= list(chr17=inputSubset$quality$chr17))
-
-inputBam=new
-
-
-mc=1
+mc=3
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 #tagshift=98
 @

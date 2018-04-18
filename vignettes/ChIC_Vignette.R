@@ -24,7 +24,7 @@ inputBam=inputSubset
 ### code chunk number 2: ChIC_Vignette.Rnw:84-101 (eval = FALSE)
 ###################################################
 ## ##caluclate first set of QC-metrics: EM 
-## mc=4
+## mc=3
 ## 
 ## filepath=tempdir()
 ## setwd(filepath)
@@ -52,28 +52,16 @@ inputBam=inputSubset
 
 
 ###################################################
-### code chunk number 4: ChIC_Vignette.Rnw:149-165
+### code chunk number 4: ChIC_Vignette.Rnw:149-153
 ###################################################
 
-data("chipSubset", package = "ChIC.data", envir = environment())
-new=list(tags=list(chr17=chipSubset$tags$chr17),
-    quality= list(chr17=chipSubset$quality$chr17))
-chipBam=new
-
-data("inputSubset", package = "ChIC.data", envir = environment())
-new=list(tags=list(chr17=inputSubset$tags$chr17),
-    quality= list(chr17=inputSubset$quality$chr17))
-
-inputBam=new
-
-
-mc=1
+mc=3
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 #tagshift=98
 
 
 ###################################################
-### code chunk number 5: ChIC_Vignette.Rnw:169-183
+### code chunk number 5: ChIC_Vignette.Rnw:157-171
 ###################################################
 cluster <- parallel::makeCluster( mc )
 
@@ -92,7 +80,7 @@ parallel::stopCluster( cluster )
 
 
 ###################################################
-### code chunk number 6: ChIC_Vignette.Rnw:186-190 (eval = FALSE)
+### code chunk number 6: ChIC_Vignette.Rnw:174-178 (eval = FALSE)
 ###################################################
 ## ## calculate cross correlation QC-metrics
 ## crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
@@ -101,7 +89,7 @@ parallel::stopCluster( cluster )
 
 
 ###################################################
-### code chunk number 7: ChIC_Vignette.Rnw:196-199
+### code chunk number 7: ChIC_Vignette.Rnw:184-187
 ###################################################
 str(crossvalues_Chip)
 
@@ -109,7 +97,7 @@ finalTagShift <- crossvalues_Chip$tag.shift
 
 
 ###################################################
-### code chunk number 8: ChIC_Vignette.Rnw:205-209 (eval = FALSE)
+### code chunk number 8: ChIC_Vignette.Rnw:193-197 (eval = FALSE)
 ###################################################
 ## ## calculate cross correlation QC-metrics for input
 ## crossvalues_input <- getCrossCorrelationScores(inputBam, 
@@ -118,7 +106,7 @@ finalTagShift <- crossvalues_Chip$tag.shift
 
 
 ###################################################
-### code chunk number 9: ChIC_Vignette.Rnw:234-240
+### code chunk number 9: ChIC_Vignette.Rnw:222-228
 ###################################################
 ##get chromosome information and order chip and input by it
 chrl_final <- intersect(names(chipBam$tags), names(inputBam$tags))
@@ -129,7 +117,7 @@ inputBam$quality <- inputBam$quality[chrl_final]
 
 
 ###################################################
-### code chunk number 10: ChIC_Vignette.Rnw:243-250
+### code chunk number 10: ChIC_Vignette.Rnw:231-238
 ###################################################
 ##remove sigular positions with extremely high read counts with 
 ##respect to the neighbourhood
@@ -141,7 +129,7 @@ chipBamSelected <- selectedTags$chip.dataSelected
 
 
 ###################################################
-### code chunk number 11: ChIC_Vignette.Rnw:259-264
+### code chunk number 11: ChIC_Vignette.Rnw:247-252
 ###################################################
 ##Finally run function
 bindingScores <- getPeakCallingScores(chip = chipBam, 
@@ -151,7 +139,7 @@ bindingScores <- getPeakCallingScores(chip = chipBam,
 
 
 ###################################################
-### code chunk number 12: ChIC_Vignette.Rnw:276-280
+### code chunk number 12: ChIC_Vignette.Rnw:264-268
 ###################################################
 smoothedChip <- tagDensity(chipBamSelected, 
     tag.shift = finalTagShift, mc = mc)
@@ -160,7 +148,7 @@ smoothedInput <- tagDensity(inputBamSelected,
 
 
 ###################################################
-### code chunk number 13: ChIC_Vignette.Rnw:296-298 (eval = FALSE)
+### code chunk number 13: ChIC_Vignette.Rnw:284-286 (eval = FALSE)
 ###################################################
 ## Ch_Results <- qualityScores_GM(densityChip = smoothedChip,
 ##     densityInput = smoothedInput, savePlotPath = filepath)
@@ -181,7 +169,7 @@ densityInput=smoothedInput)
 
 
 ###################################################
-### code chunk number 16: ChIC_Vignette.Rnw:339-343
+### code chunk number 16: ChIC_Vignette.Rnw:327-331
 ###################################################
 Meta_Result <- createMetageneProfile(
     smoothed.densityChip = smoothedChip, 
@@ -190,7 +178,7 @@ Meta_Result <- createMetageneProfile(
 
 
 ###################################################
-### code chunk number 17: ChIC_Vignette.Rnw:350-354 (eval = FALSE)
+### code chunk number 17: ChIC_Vignette.Rnw:338-342 (eval = FALSE)
 ###################################################
 ## TSS_Scores <- qualityScores_LM(data = Meta_Result$TSS, tag = "TSS",
 ##     savePlotPath = filepath)
@@ -199,14 +187,14 @@ Meta_Result <- createMetageneProfile(
 
 
 ###################################################
-### code chunk number 18: ChIC_Vignette.Rnw:357-359
+### code chunk number 18: ChIC_Vignette.Rnw:345-347
 ###################################################
 TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS")
 TES_Scores=qualityScores_LM(data=Meta_Result$TES, tag="TES")
 
 
 ###################################################
-### code chunk number 19: ChIC_Vignette.Rnw:365-368 (eval = FALSE)
+### code chunk number 19: ChIC_Vignette.Rnw:353-356 (eval = FALSE)
 ###################################################
 ## #create scaled metagene profile
 ## geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody,
@@ -228,7 +216,7 @@ geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 
 
 ###################################################
-### code chunk number 22: ChIC_Vignette.Rnw:422-431 (eval = FALSE)
+### code chunk number 22: ChIC_Vignette.Rnw:410-419 (eval = FALSE)
 ###################################################
 ## metagenePlotsForComparison(data = Meta_Result$geneBody,
 ##     chrommark = "H3K4me3", 
@@ -256,7 +244,7 @@ metagenePlotsForComparison(data = Meta_Result$geneBody,
 
 
 ###################################################
-### code chunk number 25: ChIC_Vignette.Rnw:478-482 (eval = FALSE)
+### code chunk number 25: ChIC_Vignette.Rnw:466-470 (eval = FALSE)
 ###################################################
 ## plotReferenceDistribution(chrommark = "H3K4me3", 
 ##     metricToBePlotted = "RSC", 
@@ -279,7 +267,7 @@ plotReferenceDistribution(chrommark = "H3K4me3",
 
 
 ###################################################
-### code chunk number 28: ChIC_Vignette.Rnw:507-516
+### code chunk number 28: ChIC_Vignette.Rnw:495-504
 ###################################################
 EM_scoresNew=NULL
 
@@ -293,7 +281,7 @@ CC_Result=EM_scoresNew
 
 
 ###################################################
-### code chunk number 29: ChIC_Vignette.Rnw:519-526
+### code chunk number 29: ChIC_Vignette.Rnw:507-514
 ###################################################
 te <- predictionScore(chrommark = "H3K4me3", 
     features_cc = CC_Result,
