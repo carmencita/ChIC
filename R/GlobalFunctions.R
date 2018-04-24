@@ -272,6 +272,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #' @param plotname Name of the crossCorrelation plot (pdf). Available only 
 #' if savePlotPath is set
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @param annotationID String, indicating the genome assembly (Default="hg19")
 #'
 #' @return finalList List with QC-metrics 
 #'
@@ -301,6 +302,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #'
 #' crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
 #'     chip_binding.characteristics, read_length = 36, 
+#'     annotationID="hg19",
 #'     savePlotPath = filepath, mc = mc)
 #'}
 
