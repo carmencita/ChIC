@@ -176,7 +176,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         parallel::stopCluster( cluster )
     }
 
-  
+
     if (debug) {
         save(chip_binding.characteristics, input_binding.characteristics, 
             file = "bindingCharacteristics.RData")
