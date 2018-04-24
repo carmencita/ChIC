@@ -17,19 +17,23 @@ A short introduction}
 \begin{abstract}
 The \textbf{ChI}P-seq quality \textbf{C}ontrol package (ChIC) provides 
 functions and data structures to assess the quality of ChIP-seq data. 
-The tool computes three different categories of QC metrics: QC-metrics 
-designed for narrow-peak profiles and general metrics, 
-QC-metrics based on global read distribution 
-and QC-metrics from local signal enrichments around annotated genes. 
-User-friendly functions allow to perform the analysis with a single command, 
-whereas step by step functions are also available 
+The tool computes a comprehensive set of quality control (QC) metrics 
+based on specific characteristics of ChIP-seq global and local read 
+distribution. More specifically ChIC computes previously published ENCODE metrics (EM), 
+global enrichment profile metrics (GM) and newly introduced 
+local enrichment profile metrics (LM). The latter are derived from 
+meta-gene profiles taking into account the local ChIP-seq enrichment profile. 
+
+
+ChIC allows to calculate QC-metrics and to perform quality control analysis 
+with a single command, whereas step by step functions are also available 
 for more experienced users. The package comes with a large reference 
 compendium of precomputed QC-metrics from public ChIP-seq samples. 
 Key features of the package are functions for calculating, visualizing and 
-creating summary plots of QC-metrics, 
-tools for the comparison of metagene profiles against reference profiles, 
-tools for the comparison of single QC-metrics with the compendium values and 
-finally a random forestl model to compute the single value quality score.
+creating summary plots of QC-metrics, tools for the comparison of metagene 
+profiles against the precomputed reference profiles, tools for the 
+comparison of single QC-metrics with the compendium values and 
+finally a random forest model to compute a single value quality score.
 \end{abstract} 
 
 \newpage

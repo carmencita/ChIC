@@ -96,13 +96,9 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     if (!is.numeric(read_length)) 
         stop("read_length must be numeric")
     if (read_length < 1) 
-        stop("tag.shift must be > 0")
+        stop("read_length must be > 0")
     
-    if (!(is.character(annotationID) & (annotationID == "hg19"))) {
-        warning("Invalid annotationID. Setting back to default value. 
-        (Currently only hg19 is supported)")
-        annotationID <- "hg19"
-    }
+    annotationID=f_annotationCheck(annotationID)
     
     if (!is.numeric(mc)) {
         warning("mc must be numeric")
@@ -138,7 +134,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     #switch cluster on
     if (mc > 1) {
-        cluster <- makeCluster( mc )
+        cluster <- parallel::makeCluster( mc )
     }
 
     chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
@@ -148,7 +144,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     
     #switch cluster off   
     if (mc > 1) {
-        stopCluster( cluster )
+        parallel::stopCluster( cluster )
     }
     message("calculate cross correlation QC-metrics for the Chip")
     crossvalues_Chip <- getCrossCorrelationScores(chip.data, 
@@ -156,6 +152,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         read_length = read_length, 
         savePlotPath = savePlotPath, 
         mc = mc,
+        annotationID = annotationID,
         plotname = "ChIP")
     ## save the tag.shift
     final.tag.shift <- crossvalues_Chip$tag.shift
@@ -166,7 +163,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         
     #switch cluster on
     if (mc > 1) {
-        cluster <- makeCluster( mc )
+        cluster <- parallel::makeCluster( mc )
     }
 
     input_binding.characteristics<-spp::get.binding.characteristics(input.data,
@@ -176,15 +173,10 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     
     #switch cluster off   
     if (mc > 1) {
-        stopCluster( cluster )
+        parallel::stopCluster( cluster )
     }
 
-    #message("calculate cross correlation QC-metrics for the Input")
-    #crossvalues_Input <- getCrossCorrelationScores(input.data, 
-    #    input_binding.characteristics, 
-    #    read_length = read_length, 
-    #    savePlotPath = savePlotPath, plotname = "Input")
-    
+  
     if (debug) {
         save(chip_binding.characteristics, input_binding.characteristics, 
             file = "bindingCharacteristics.RData")
@@ -312,8 +304,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #'     savePlotPath = filepath, mc = mc)
 #'}
 
-getCrossCorrelationScores <- function(data, bchar, read_length, 
-    savePlotPath = NULL, plotname = "phantom", mc=1) 
+getCrossCorrelationScores <- function(data, bchar, annotationID="hg19", 
+    read_length, savePlotPath = NULL, plotname = "phantom", mc=1) 
 {
     ########## check if input format is ok
     if (!(is.list(data) & (length(data) == 2L))) 
@@ -325,11 +317,19 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
     if (!is.numeric(read_length)) 
         stop("read_length must be numeric")
     if (read_length < 1) 
-        stop("tag.shift must be > 0")
+        stop("read_length must be > 0")
     
+    annotationID=f_annotationCheck(annotationID)
     ########## 
     cluster=NULL
     
+    chromInfo=f_chromInfoLoad(annotationID)
+    
+    ##filter for standard chromosomes
+    standardChroms = names(data$tags)[names(data$tags) %in%  names(chromInfo)]
+    data$tags=data$tags[standardChroms]
+    data$quality=data$quality[standardChroms]
+
     ## cross_correlation_customShift_withSmoothing parameters
     ## ccRangeSubset=cross_correlation_range_subset
     ccRangeSubset <- 100:500
@@ -340,7 +340,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
     
     ## step 1.2: Phantom peak and cross-correlation
     if (mc > 1) {
-        cluster <- makeCluster( mc )
+        cluster <- parallel::makeCluster( mc )
     }
 
     message("Phantom peak and cross-correlation")
@@ -350,7 +350,7 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
         cluster = cluster)
 
     if (mc>1) {
-        stopCluster( cluster )
+        parallel::stopCluster( cluster )
     }
 
     ph_peakidx <- which(
@@ -545,11 +545,13 @@ getCrossCorrelationScores <- function(data, bchar, read_length,
     }
 
     NRF_LibSizeadjusted <- UNIQUE_TAGS_LibSizeadjusted/1e+07
+
     STATS_NRF <- list(CC_ALL_TAGS = ALL_TAGS, 
         CC_UNIQUE_TAGS = UNIQUE_TAGS, 
         CC_UNIQUE_TAGS_nostrand = UNIQUE_TAGS_nostrand, 
-        CC_NRF = NRF, CC_NRF_nostrand = NRF_nostrand, 
-        CC_NRF_LibSizeadjusted = NRF_LibSizeadjusted)
+        CC_NRF = round(NRF,3), 
+        CC_NRF_nostrand = round(NRF_nostrand,3), 
+        CC_NRF_LibSizeadjusted = round(NRF_LibSizeadjusted,3))
     
     ## N1= number of genomic locations to which EXACTLY one 
     ## unique mapping read maps
@@ -1082,11 +1084,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     if (tag.shift < 1) 
         stop("tag.shift must be > 0")
     
-    if (!(is.character(annotationID) & (annotationID == "hg19"))) {
-        warning("Invalid annotationID. Setting back to default value. 
-        (Currently only hg19 is supported)")
-        annotationID <- "hg19"
-    }
+    annotationID=f_annotationCheck(annotationID)
     
     if (!is.numeric(mc)) {
         warning("mc must be numeric")
@@ -1099,30 +1097,8 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     }
     ########## 
     
-    message("Load gene annotation")
-    ## require(ChIC.data)
-    if (annotationID == "hg19") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("hg19_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- hg19_refseq_genes_filtered_granges
-    }
-    ## geneAnnotations_file=
-    ## paste(annotationID,'_refseq_genes_filtered_granges',sep='')
-    ## annotObject=current_annotations_object 
-    ##annotObject=get(geneAnnotations_file)
-    ## annotObject=get(hg19_refseq_genes_filtered_granges)
-    ## current_annotations_object=refseq_genes_filtered_granges 
-    ## format annotations as chromosome lists
-    
-    # annotObject<-data.frame(annotObject@.Data,
-    # genomeIntervals::annotation(annotObject), stringsAsFactors=FALSE)
-    # annotObject$interval_starts<-as.integer(annotObject$interval_starts)
-    # annotObject$interval_ends<-as.integer(annotObject$interval_ends)
-    # annotObject$seq_name<-as.character(annotObject$seq_name) 
-    # annotatedGenesPerChr
-    # <-split(annotObject, f=annotObject$seq_name)
-    
+    annotObject <- f_annotationLoad(annotationID)
+        
     annotObjectNew <- data.frame(annotObject@.Data, annotObject@annotation, 
         stringsAsFactors = FALSE)
     annotObjectNew$interval_starts <-as.integer(annotObjectNew$interval_starts)
@@ -1389,11 +1365,7 @@ tagDensity <- function(data, tag.shift, annotationID = "hg19", mc = 1) {
     if (tag.shift < 1) 
         stop("tag.shift must be > 0")
     
-    if (!(is.character(annotationID) & (annotationID == "hg19"))) {
-        warning("Invalid annotationID. Setting back to default value. 
-        (Currently only hg19 is supported)")
-        annotationID <- "hg19"
-    }
+    annotationID=f_annotationCheck(annotationID)
     
     if (!is.numeric(mc)) {
         warning("mc must be numeric")
@@ -1405,13 +1377,8 @@ tagDensity <- function(data, tag.shift, annotationID = "hg19", mc = 1) {
         mc <- 1
     }
     ########## 
-    
-    ## load chrom_info
-    if (annotationID == "hg19") {
-        # hg19_chrom_info=NULL
-        data("hg19_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- hg19_chrom_info
-    }
+    chromInfo=f_chromInfoLoad(annotationID)
+
     smoothed.density <- f_tagDensity(data = data, 
         tag.shift = tag.shift, 
         chromDef = chromInfo, 
