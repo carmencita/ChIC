@@ -12,14 +12,8 @@
 #' of the compendium values stratified by chromatin marks.
 #'
 #' metagenePlotsForComparison
-#' @param chrommark String, chromatin mark to be analysed. Has to be one of the
-#' following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3, 
-#' H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, 
-#' H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
-#' H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, 
-#' H3K23me2, H2AK9ac, H3T11ph. 
-#' For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G 
-#' and POLR2AphosphoS2
+#' @param target String, chromatin mark or transcription factor to be analysed. 
+#' Use listAvailableElements() function to check availability.
 #' @param data metagene-object of metagene profile by createMetageneProfile() 
 #' containing input and chip profile
 #' @param tag indicating the kind of profile to plot. Can be either: 
@@ -91,24 +85,21 @@
 #'
 #' ##compare metagene features of the geneBody with the compendium
 #' metagenePlotsForComparison(data = Meta_Result$geneBody,
-#'     chrommark = "H3K4me3", tag = "geneBody")
+#'     target = "H3K4me3", tag = "geneBody")
 #'}
 
-metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
+metagenePlotsForComparison <- function(data, target, tag, savePlotPath=NULL)
 {
-    
-    Hlist <- f_metaGeneDefinition("Hlist")
     # pseudocount, required to avoid log2 of 0
     psc <- 1
     
     ########## check if input format is ok 
-    ##stopifnot(tag %in% c('geneBody','TES','TSS'))
-    ########## stopifnot(length(data) == 2L)
     if (!(is.list(data) & (length(data) == 2L))) 
         stop("Invalid format for data")
-    # stopifnot(chrommark %in% Hlist)
-    if (!(chrommark %in% Hlist)) 
-        stop("Chromatin mark not valid. Check manual for valid options.")
+    # stopifnot(target %in% Hlist)
+    if ((!(target %in% f_metaGeneDefinition("Hlist"))) &  
+        (!(target %in% f_metaGeneDefinition("TFlist"))))
+        stop("Chromatin mark or TF not valid. Check manual for valid options.")
     if (!(tag %in% c("geneBody", "TES", "TSS"))) 
         stop("tag not valid! Please use: geneBody, TES or TSS")
     ########## 
@@ -118,17 +109,17 @@ metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
     
     # load average dataframe normalized
     n_mean <- f_loadDataCompendium(endung = "norm", 
-        chrommark = chrommark, tag = tag)
+        target = target, tag = tag)
     normMin <- min(n_mean$mean - n_mean$sderr)
     normMax <- max(n_mean$mean + n_mean$sderr)
     ## load average dataframe chip
     c_mean <- f_loadDataCompendium(endung = "chip", 
-        chrommark = chrommark, tag = tag)
+        target = target, tag = tag)
     absoluteMin <- min(c_mean$mean - c_mean$sderr)
     absoluteMax <- max(c_mean$mean + c_mean$sderr)
     ## load average dataframe input
     i_mean <- f_loadDataCompendium(endung = "input", 
-        chrommark = chrommark, tag = tag)
+        target = target, tag = tag)
     ## get the range for x-y axis fro the final plot
     if ((min(i_mean$mean - i_mean$sderr)) < absoluteMin) {
         absoluteMin <- min(i_mean$mean - i_mean$sderr)
@@ -155,15 +146,15 @@ metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
     
     # create comparison plots
     f_plotProfiles(i_mean, iframe, tag, c(newMin - 0.001, newMax + 0.001), 
-        maintitel = paste(chrommark, tag, "Input", sep = "_"), 
+        maintitel = paste(target, tag, "Input", sep = "_"), 
         savePlotPath = savePlotPath)
     
     f_plotProfiles(c_mean, cframe, tag, c(newMin - 0.001, newMax + 0.001), 
-        maintitel = paste(chrommark, tag, "Chip", sep = "_"), 
+        maintitel = paste(target, tag, "Chip", sep = "_"), 
         savePlotPath = savePlotPath)
     
     f_plotProfiles(n_mean, nframe, tag, c(normMin - 0.001, normMax + 0.001), 
-        maintitel = paste(chrommark, tag, "norm", sep = "_"), 
+        maintitel = paste(target, tag, "norm", sep = "_"), 
         ylab = "mean log2 enrichment (signal/input)", 
         savePlotPath = savePlotPath)
 }
@@ -178,14 +169,8 @@ metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
 #'
 #' plotReferenceDistribution
 #'
-#' @param chrommark String, chromatin mark to be analysed. Has to be one of the
-#' following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3, 
-#' H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, 
-#' H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
-#' H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, 
-#' H3K23me2, H2AK9ac, H3T11ph. 
-#' For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G 
-#' and POLR2AphosphoS2
+#' @param target String, chromatin mark or transcription factor to be analysed.
+#' Use listAvailableElements() function to check availability.
 #' @param metricToBePlotted The metric to be plotted (Default='RSC')
 #' @param currentValue The value of the current sample
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
@@ -201,48 +186,61 @@ metagenePlotsForComparison <- function(data, chrommark, tag, savePlotPath=NULL)
 #' filepath=tempdir()
 #' setwd(filepath)
 #'
-#' plotReferenceDistribution(chrommark="H3K4me1", 
+#' plotReferenceDistribution(target="H3K4me1", 
 #'     metricToBePlotted="RSC", currentValue=0.49, savePlotPath=filepath)
 #'}
 
-plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC", 
-    currentValue, savePlotPath = NULL) {
-    Hlist <- f_metaGeneDefinition("Hlist")
-    
-    ########## check if input format is ok stopifnot(chrommark %in% Hlist)
-    if (!(chrommark %in% Hlist)) 
-        stop("Chromatin mark not valid! (Check manual for valid options)")
+plotReferenceDistribution <- function(target, metricToBePlotted = "RSC", 
+    currentValue, savePlotPath = NULL) 
+{
+    ########## check if input format is ok stopifnot(target %in% Hlist)
+    if ((!(target %in% f_metaGeneDefinition("Hlist"))) &  
+        (!(target %in% f_metaGeneDefinition("TFlist"))))
+        stop("Chromatin mark or transcription factor not valid. 
+            Check manual for valid options.")
     if (!is.numeric(currentValue)) 
         stop("currentValue is not numeric!")
-    
+
+    profileInfo=NULL
     ########## 
-    
-    allChrom <- f_metaGeneDefinition("Classes")
-    ## reading compendium compendium_db=NULL
-    data("compendium_db", package = "ChIC.data", envir = environment())
-    # compendium_db=ChIC.data::compendium_db select the class for the 
-    # respective chromatin mark load('data/compendium_db.rda')
-    profileInfo <- f_getBindingClass(chrommark)
-    
-    message(profileInfo$tag)
-    # get values for chrommark alias=paste('CC',metricToBePlotted,sep='_')
+    if (target %in% f_metaGeneDefinition("TFlist"))
+    {
+        data("compendium_db_tf", package = "ChIC.data", envir = environment())
+        finalCompendium=compendium_db_tf
+    }else{
+        #allChrom <- f_metaGeneDefinition("Classes")
+        ## reading compendium compendium_db=NULL
+        data("compendium_db", package = "ChIC.data", envir = environment())
+        finalCompendium=compendium_db
+        profileInfo <- f_getBindingClass(target) 
+        message(profileInfo$tag)
+        tag=profileInfo$tag
+    }
+
+    # get values for target alias=paste('CC',metricToBePlotted,sep='_')
     alias <- NULL
-    if (paste("CC", metricToBePlotted, sep = "_") %in% colnames(compendium_db))
+    if (paste("CC", metricToBePlotted, sep = "_") %in% 
+        colnames(finalCompendium))
     {
         alias <- paste("CC", metricToBePlotted, sep = "_")
     } else {
         helpi <- paste("Ch", metricToBePlotted, sep = "_")
-        if (helpi %in% colnames(compendium_db)) {
+        if (helpi %in% colnames(finalCompendium)) {
             alias <- paste("Ch", metricToBePlotted, sep = "_")
         }
     }
-    ## get the values of respective set
-    subset <- compendium_db[
-        which(compendium_db$CC_TF %in% profileInfo$profileSet), alias]
+
+    if(target %in% f_metaGeneDefinition("TFlist")){
+        subset=finalCompendium[,alias]
+    }else{
+        ## get the values of respective set
+        subset <- finalCompendium[
+            which(finalCompendium$CC_TF %in% profileInfo$profileSet), alias]
+    }
     ## plot distribution
     f_plotValueDistribution(subset, 
         title = paste(metricToBePlotted, "\n", 
-            chrommark, profileInfo$tag, set = " "),
+            target, profileInfo$tag, set = " "),
         currentValue, savePlotPath)
 }
 
@@ -253,14 +251,10 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #'  
 #' predictionScore
 #'
-#' @param chrommark String, chromatin mark to be analysed. Has to be one of the
-#' following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3, 
-#' H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, 
-#' H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
-#' H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, 
-#' H3K23me2, H2AK9ac, H3T11ph. 
-#' For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G 
-#' and POLR2AphosphoS2
+#' @param target String, chromatin mark or transcription factor 
+#' to be analysed. Use listAvailableElements() function to check availability.
+#' If the specific transcription factor is not available the 
+#' keyword "TF" can be used to call the TF-model.
 #' @param features_cc list, with QC-metrics returned from qualityScores_EM()
 #' @param features_global list, list with QC-metrics returned from 
 #' qualityScores_GM()
@@ -273,7 +267,7 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #'
 #' @export
 #'
-#' @return something something
+#' @return prediction
 #'
 #' @examples
 #'
@@ -328,69 +322,75 @@ plotReferenceDistribution <- function(chrommark, metricToBePlotted = "RSC",
 #' savePlotPath=filepath)
 #'
 #' ##Finally use all calculated QC-metrics to predict the final score
-#' predictionScore(chrommark="H3K4me3", features_cc=CC_Result,
+#' ##example for chromatin mark H3K4me3
+#' predictionScore(target="H3K4me3", features_cc=CC_Result,
+#' features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
+#' features_scaled=geneBody_Plot)
+#'
+#' ##example for TF
+#' predictionScore(target="TF", features_cc=CC_Result,
 #' features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
 #' features_scaled=geneBody_Plot)
 #'}
 
-predictionScore <- function(chrommark, features_cc, features_global, 
+predictionScore <- function(target, features_cc, features_global, 
     features_TSS, features_TES, features_scaled) 
 {
-    Hlist <- f_metaGeneDefinition("Hlist")
-    # stopifnot((chrommark %in% Hlist)&)
-    
+
     ########## check if input format is ok
-    if (!(chrommark %in% Hlist)) 
-        stop("Chromatin mark not valid. Check manual for valid options.")
-    if (!(is.list(features_cc) & (length(features_cc) == 4L))) 
+    if ((!(target %in% f_metaGeneDefinition("Hlist"))) &
+        (!(target %in% f_metaGeneDefinition("TFlist"))))
+        stop("Chromatin mark or transcription factor not valid.
+            Check manual for valid options.")
+    if (!(is.list(features_cc) & (length(features_cc) == 4L)))
         stop("Invalid format for features_cc")
-    if (!(is.list(features_global) & (length(features_global) == 9L))) 
+    if (!(is.list(features_global) & (length(features_global) == 9L)))
         stop("Invalid format for features_global")
     if (!(is.list(features_TSS) & (length(features_TSS) == 3L))) 
         stop("Invalid format for features_TSS")
     if (!(is.list(features_TES) & (length(features_TES) == 3L))) 
         stop("Invalid format for features_TES")
-    if (!(is.list(features_scaled) & (length(features_scaled) == 3L))) 
+    if (!(is.list(features_scaled) & (length(features_scaled) == 3L)))
         stop("Invalid format for features_scaled")
     ########## 
-    
+
     message("load prediction models...")
-    
+
     ## loaad prediction model
-    pmodel <- f_getPredictionModel(chrommark = chrommark, histList = Hlist)
+    pmodel <- f_getPredictionModel(id = target)
     ## get features
     selectedFeat <- c(colnames(pmodel$trainingData))
     selectedFeat <- selectedFeat[-(which(selectedFeat == ".outcome"))]
-    
+
     TSS <- f_convertframe(features_TSS)
     TES <- f_convertframe(features_TES)
     geneBody <- f_convertframe(features_scaled)
-    
+
     p1 <- c(features_cc$QCscores_ChIP, 
         features_cc$QCscores_binding, 
         features_global)
     fframe <- data.frame(matrix(p1), nrow = 35, byrow = TRUE)
     rownames(fframe) <- names(p1)
-    
+
     fframe$nrow <- NULL
     fframe$byrow <- NULL
     colnames(fframe) <- "values"
-    
+
     helper <- rbind(TSS, TES, geneBody, fframe)
-    
+
     a <- lapply(as.list(rownames(helper)), function(element) {
         word <- strsplit(element, "-")[[1]]
         if (length(word) > 1) {
             new <- paste(word[1], word[2], sep = ".")
             word <- new
         }
-        
+
         if (length(grep("%", word)) > 0) {
             word <- strsplit(word, "%")[[1]]
             new <- paste(word, ".", sep = "")
             word <- new
         }
-        
+
         ## Remove this part once featuresname 'twopoint' is 
         ## substitued by 'geneBody' in
         ## the prediction modeds
@@ -402,7 +402,12 @@ predictionScore <- function(chrommark, features_cc, features_global,
                 new <- strsplit(word, "twopoint")[[1]]
                 word <- paste(new[1], "twopoints", new[2], sep = "")
             }
+            if (length(grep("norm_auc", word)) > 0) {
+                new <- strsplit(word, "twopoint")[[1]]
+                word <- paste(new[1], "twopoints", new[2], sep = "")
+            }
         }
+
         return(word)
     })
     rownames(helper) <- a

@@ -5,7 +5,7 @@
 \title{Metrics taken from global read distribution}
 \usage{
 qualityScores_GM(densityChip, densityInput, savePlotPath = NULL,
-    debug = FALSE)
+    debug = NULL)
 }
 \arguments{
 \item{densityChip}{Smoothed tag-density object for ChIP (returned by
@@ -17,7 +17,8 @@ qualityScores_EM)}
 \item{savePlotPath}{if set the plot will be saved under "savePlotPath". 
 Default=NULL and plot will be forwarded to stdout.}
 
-\item{debug}{Boolean to enter debugging mode (default= FALSE)}
+\item{debug}{String, to enter debugging mode. If path is set then 
+intermediate files are saved (default= NULL)}
 }
 \value{
 finalList List with 9 QC-values

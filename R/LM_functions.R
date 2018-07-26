@@ -18,7 +18,8 @@
 #' returned by createMetageneProfile()
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param debug Boolean to enter in debugging mode (default= FALSE)
+#' @param debug String, to enter debugging mode. If path is set then 
+#' intermediate files are saved (default= NULL)
 #'
 #' @export
 #'
@@ -80,7 +81,7 @@
 #'}
 
 
-qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
+qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = NULL)
 {
     stopifnot(length(data) == 2L)
     
@@ -187,9 +188,9 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
     p3 <- rbind(hotSpotsValuesNorm, maxAucValuesNorm)
     result <- data.frame(cbind(p1, p3))
     
-    if (debug) {
+    if (!is.null(debug)) {
         message("Debugging mode ON")
-        outname <- file.path(getwd(), "geneBody.result")
+        outname <- file.path(debug, "geneBody.result")
         file.remove(outname)
         write.table(result, file = outname, row.names = TRUE, 
             col.names = TRUE, quote = FALSE)
@@ -222,7 +223,8 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
 #' TES profile should be calcualted (Default='TSS')
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param debug Boolean to enter in debugging mode (default= FALSE)
+#' @param debug String, to enter debugging mode. If path is set then 
+#' intermediate files are saved (default= NULL)
 #'
 #' @export
 #'
@@ -285,7 +287,7 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
 #' savePlotPath=filepath))
 #'}
 
-qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE) 
+qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = NULL) 
 {
     stopifnot(tag %in% c("TES", "TSS"))
     stopifnot(length(data) == 2L)
@@ -415,9 +417,9 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE)
         variabilityValuesNorm[[3]])
     result <- data.frame(cbind(rbind(p1, p2), rbind(p3, p4)))
     
-    if (debug) {
+    if (!is.null(debug)) {
         message("Debugging mode ON")
-        outname <- file.path(getwd(), 
+        outname <- file.path(debug, 
             paste(tag, "onepoints.result", sep = "_"))
         file.remove(outname)
         write.table(result, file = outname, 

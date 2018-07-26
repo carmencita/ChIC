@@ -5,7 +5,7 @@
 \title{Wrapper function that plots non-scaled profiles for TSS of TES and 
 to collect the QC-metrics}
 \usage{
-qualityScores_LM(data, tag, savePlotPath = NULL, debug = FALSE)
+qualityScores_LM(data, tag, savePlotPath = NULL, debug = NULL)
 }
 \arguments{
 \item{data}{metagene-list for input and chip sample for TSS or TES returned 
@@ -17,7 +17,8 @@ TES profile should be calcualted (Default='TSS')}
 \item{savePlotPath}{if set the plot will be saved under 'savePlotPath'. 
 Default=NULL and plot will be forwarded to stdout.}
 
-\item{debug}{Boolean to enter in debugging mode (default= FALSE)}
+\item{debug}{String, to enter debugging mode. If path is set then 
+intermediate files are saved (default= NULL)}
 }
 \value{
 result Dataframe with QC-values for chip, input and normalized 

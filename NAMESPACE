@@ -3,6 +3,7 @@
 export(createMetageneProfile)
 export(getCrossCorrelationScores)
 export(getPeakCallingScores)
+export(listAvailableElements)
 export(metagenePlotsForComparison)
 export(plotReferenceDistribution)
 export(predictionScore)

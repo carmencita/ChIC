@@ -6,7 +6,7 @@
 analysis, QC-metrics designed for TFs and QC-metrics from peak-calls}
 \usage{
 qualityScores_EM(chipName, inputName, read_length, annotationID = "hg19",
-    mc = 1, savePlotPath = NULL, debug = FALSE)
+    mc = 1, savePlotPath = NULL, debug = NULL)
 }
 \arguments{
 \item{chipName}{String, filename and path to the ChIP bam file 
@@ -22,9 +22,10 @@ qualityScores_EM(chipName, inputName, read_length, annotationID = "hg19",
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 
 \item{savePlotPath, }{set if Cross-correlation plot should be saved under 
-"savePlotPath". Default=NULL and plot will be forwarded to stdout.}
+"savePlotPath". Default=NULL and plot will be forwarded to stdout}
 
-\item{debug}{Boolean, to enter debugging mode (default= FALSE)}
+\item{debug}{String, to enter debugging mode. If path is set then 
+intermediate files are saved (default= NULL)}
 }
 \value{
 returnList, contains
@@ -36,7 +37,7 @@ TagDensityInput Tag density-profile, smoothed by the Gaussian kernel
 (for further details see "spp" package)
 }
 \description{
-Wrapper function that reads input bam files and provides QC-metrics from 
+Wrapper function that reads bam files and provides QC-metrics from 
 cross-correlation analysis, from peak calling and general metrics like 
 read-length or NRF. In total 22 features are calculated.
 
@@ -56,7 +57,6 @@ qualityScores_EM
 
 mc=4
 \dontrun{
-mc=4
 
 filepath=tempdir()
 setwd(filepath)
@@ -70,6 +70,6 @@ chipName=file.path(filepath,"ENCFF000BFX")
 inputName=file.path(filepath,"ENCFF000BDQ")
 
 CC_Result=qualityScores_EM(chipName=chipName, inputName=inputName, 
-read_length=36, mc=mc)
+read_length=36, mc=mc, annotationID = "hg19")
 }
 }

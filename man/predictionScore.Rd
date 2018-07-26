@@ -4,18 +4,14 @@
 \alias{predictionScore}
 \title{Predict score}
 \usage{
-predictionScore(chrommark, features_cc, features_global, features_TSS,
+predictionScore(target, features_cc, features_global, features_TSS,
     features_TES, features_scaled)
 }
 \arguments{
-\item{chrommark}{String, chromatin mark to be analysed. Has to be one of the
-following: H3K36me3, H3K4me3, H3K79me2, H4K20me1,H2AFZ,H3K27me3, H3K9me3, 
-H3K27ac, POLR2AphosphoS5, H3K9ac, H3K4me2, H3K9me1, H3K4me1, H3K79me1, 
-H3K4ac, H3K14ac, H2BK5ac, H2BK120ac, H2BK15ac, H4K91ac, H4K8ac, H3K18ac, 
-H2BK12ac, H3K56ac, H3K23ac, H2AK5ac, H2BK20ac, H4K5ac, H4K12ac, H2A.Z, 
-H3K23me2, H2AK9ac, H3T11ph. 
-For RNAPOL2 different variants are available: POLR2A (for RNAPol2), POLR3G 
-and POLR2AphosphoS2}
+\item{target}{String, chromatin mark or transcription factor 
+to be analysed. Use listAvailableElements() function to check availability.
+If the specific transcription factor is not available the 
+keyword "TF" can be used to call the TF-model.}
 
 \item{features_cc}{list, with QC-metrics returned from qualityScores_EM()}
 
@@ -32,7 +28,7 @@ qualityScores_LM() with option TES}
 qualityScores_LMgenebody()}
 }
 \value{
-something something
+prediction
 }
 \description{
 predictionScore
@@ -90,7 +86,13 @@ geneBody_Plot=qualityScores_LMgenebody(Meta_Result$geneBody,
 savePlotPath=filepath)
 
 ##Finally use all calculated QC-metrics to predict the final score
-predictionScore(chrommark="H3K4me3", features_cc=CC_Result,
+##example for chromatin mark H3K4me3
+predictionScore(target="H3K4me3", features_cc=CC_Result,
+features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
+features_scaled=geneBody_Plot)
+
+##example for TF
+predictionScore(target="TF", features_cc=CC_Result,
 features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
 features_scaled=geneBody_Plot)
 }

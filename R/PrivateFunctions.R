@@ -79,6 +79,42 @@ f_readFile <- function(filename, reads.aligner.type) {
     return(data)
 }
 
+
+#' @keywords internal 
+## filters canonical chromosomes 
+f_clearChromStructure <- function(structure, annotationID) {
+    ##delete empty chromosomes
+    chInf <- f_chromInfoLoad(annotationID)
+    dCheck <- NULL
+    ##check on regulare chromosomes
+    ss=structure
+    if (is.null(ss$tags)){
+        dCheck <- structure[ which( names(ss) %in%  names(chInf) )]
+        #if (sum(sapply(dCheck, is.null ))>0){
+        if (sum ( unlist (lapply(dCheck, is.null )))>0){
+            #dCheck<- dCheck[ -which( sapply(dCheck, is.null ))]
+            dCheck<- dCheck[ -which( unlist (lapply(dCheck, is.null )))]
+        }
+    }else{
+        dCheck$tags <- ss$tags[ which( names(ss$tags) %in%  names(chInf) )]
+        dCheck$quality <- 
+            ss$quality[ which( names(ss$quality) %in%  names(chInf) )]
+        #if (sum(sapply(dCheck$tags, is.null ))>0) {
+        if (sum (unlist (lapply (dCheck$tags, is.null )))>0) {
+            #dCheck$tags <- 
+            #dCheck$tags[ -which( sapply(dCheck$tags, is.null ))]
+            dCheck$tags <- 
+                dCheck$tags[ -which( unlist(lapply(dCheck$tags, is.null )))]
+            dCheck$quality <- 
+                dCheck$quality[ -which(  
+                    unlist(lapply(dCheck$quality, is.null )))]
+                #dCheck$quality[ -which( sapply(dCheck$quality, is.null ))]
+        }
+    }
+    return(dCheck)
+}
+
+
 #' @keywords internal 
 ## caluclate QC tag
 f_qflag <- function(RSC) {
@@ -202,7 +238,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
 # construct. While this behaviour is helpful, it needlessly uses two additional
 # steps to circumvent a probable bug.  MakeGRangesObject does no such thing and
 # will return an error as IRanges does not accept factor values.
-MakeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL, 
+f_makeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL, 
     Strand = NULL, Names = NULL, Sep = ":") 
 {
     # require(GenomicRanges)
@@ -220,22 +256,24 @@ MakeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL,
 # Author: Koustav Pal, Contact: koustav.pal@ifom.eu, Affiliation: IFOM - FIRC
 # Institute of Molecular Oncology Creates non-overlapping regions from
 #' @keywords internal 
-ReduceOverlappingRegions <- function(Ranges = NULL) 
+f_reduceOverlappingRegions <- function(ranges = NULL) 
 {
     # Try it out.
-    Ranges.split <- split(Ranges,seqnames(Ranges))
-    Non.overlapping.ranges.list <- lapply(Ranges.split,function(Range){
-        My.Range <- Range[order(start(Range))]
-        Chrom <- unique(as.vector(seqnames(My.Range)))
+    rangesByChrom <- split(ranges,seqnames(ranges))
+    ##loop over chromosomes
+    nonOverlappingRanges <- lapply(rangesByChrom,function(chromFrame){
+        myRange <- chromFrame[order(start(chromFrame))]
+        Chrom <- unique(as.vector(seqnames(myRange)))
+        #print(Chrom)
         Q.name <- "Queries"
         S.name <- "Subject"
-        HitsObject <- findOverlaps(query = My.Range, subject = My.Range)
+        HitsObject <- findOverlaps(query = myRange, subject = myRange)
         PairList.hits <- HitsObject[
             queryHits(HitsObject) != subjectHits(HitsObject)]
         PairList <- data.frame(queryHits(PairList.hits), 
             subjectHits(PairList.hits))
         colnames(PairList) <- c(Q.name,S.name)
-        No.overlaps <- My.Range[!(seq_along(My.Range) %in% PairList[,Q.name])]
+        No.overlaps <- myRange[!(seq_along(myRange) %in% PairList[,Q.name])]
         if (nrow(PairList) == 0) {
             return(No.overlaps)
         }
@@ -254,24 +292,27 @@ ReduceOverlappingRegions <- function(Ranges = NULL)
         Which.s <- unique.subjects[which(
             !(unique.subjects %in% unique.queries))]
 
+        #if(length(Which.q)!=length(Which.s)){
+        #    stop("Cannot resolve overlaps. Contact the writer of the function
+        #        to deconvolute the logic!\n")
+        #}
         if(length(Which.q)!=length(Which.s)){
-            stop("Cannot resolve overlaps. Contact the writer of the function
-                to deconvolute the logic!\n")
+            message("Skipping for overlapping analysis ",Chrom)
+        }else{
+            Starts <- start(myRange[Which.q])
+            Ends <- sapply(seq_along(Which.s),function(x){
+                Index <- Which.q[x]:Which.s[x]
+                max(end(myRange[Index]))
+            })
+
+            NewRanges <- f_makeGRangesObject(Chrom=rep(Chrom,length(Starts)), 
+                Start= Starts, End= Ends)
+            return(c(No.overlaps,NewRanges))
         }
-
-        Starts <- start(My.Range[Which.q])
-        Ends <- sapply(seq_along(Which.s),function(x){
-            Index <- Which.q[x]:Which.s[x]
-            max(end(My.Range[Index]))
-        })
-
-        NewRanges <- MakeGRangesObject(Chrom=rep(Chrom,length(Starts)), 
-            Start= Starts, End= Ends)
-        return(c(No.overlaps,NewRanges))
     })
-    Non.overlapping.ranges <- do.call(c, 
-        unlist(Non.overlapping.ranges.list,use.names = FALSE))
-    return(Non.overlapping.ranges)
+    nonOverlappingRangesFinal <- do.call(c, 
+        unlist(nonOverlappingRanges,use.names = FALSE))
+    return(nonOverlappingRangesFinal)
 }
 # overlapping regions in the SAME ranges object.
 
@@ -622,7 +663,6 @@ f_metaGeneDefinition <- function(selection = "Settings")
     ### %%% need to use this for one point scaling estimated bin size....
     estimated_bin_size_1P <- up_downStream/predefnum_bins_1P
     
-    message("Selection ", selection)
     if (selection == "Settings") {
         settings <- NULL
         settings$break_points_2P <- break_points_2P
@@ -638,29 +678,48 @@ f_metaGeneDefinition <- function(selection = "Settings")
         settings$predefnum_bins_1P <- predefnum_bins_1P
         return(settings)
     }
-    
+    data(classesDefList, package = "ChIC.data", envir = environment())
+
     if (selection == "Hlist") {
         ## GLOBAL VARIABLES
-        Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
-            "H2AFZ", "H3K27me3", "H3K9me3", "H3K27ac", "POLR2AphosphoS5", 
-            "H3K9ac", "H3K4me2", "H3K9me1", "H3K4me1", "POLR2AphosphoS2", 
-            "H3K79me1", "H3K4ac", "H3K14ac", "H2BK5ac", "H2BK120ac", 
-            "H2BK15ac", "H4K91ac", "H4K8ac", "H3K18ac", "H2BK12ac", 
-            "H3K56ac", "H3K23ac", "H2AK5ac", "H2BK20ac", "H4K5ac", 
-            "H4K12ac", "H2A.Z", "H3K23me2", "H2AK9ac", "H3T11ph")
+        #Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
+        #    "H2AFZ", "H3K27me3", "H3K9me3", "H3K27ac", "POLR2AphosphoS5", 
+        #    "H3K9ac", "H3K4me2", "H3K9me1", "H3K4me1", "POLR2AphosphoS2", 
+        #    "H3K79me1", "H3K4ac", "H3K14ac", "H2BK5ac", "H2BK120ac", 
+        #    "H2BK15ac", "H4K91ac", "H4K8ac", "H3K18ac", "H2BK12ac", 
+        #    "H3K56ac", "H3K23ac", "H2AK5ac", "H2BK20ac", "H4K5ac", 
+        #    "H4K12ac", "H2A.Z", "H3K23me2", "H2AK9ac", "H3T11ph")
         ##'POLR3G'
+        Hlist <- classesDefList$Hlist
         return(Hlist)
     }
+
+    if (selection == "TFlist") {
+        ## GLOBAL VARIABLES
+        #Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
+        #    "H2AFZ", "H3K27me3", "H3K9me3", "H3K27ac", "POLR2AphosphoS5", 
+        #    "H3K9ac", "H3K4me2", "H3K9me1", "H3K4me1", "POLR2AphosphoS2", 
+        #    "H3K79me1", "H3K4ac", "H3K14ac", "H2BK5ac", "H2BK120ac", 
+        #    "H2BK15ac", "H4K91ac", "H4K8ac", "H3K18ac", "H2BK12ac", 
+        #    "H3K56ac", "H3K23ac", "H2AK5ac", "H2BK20ac", "H4K5ac", 
+        #    "H4K12ac", "H2A.Z", "H3K23me2", "H2AK9ac", "H3T11ph")
+        ##'POLR3G'
+        TFlist <- classesDefList$TF
+        return(TFlist)
+    }
+
     if (selection == "Classes") {
         ## helper functions to define chromating
-        allSharp <- c("H3K27ac", "H3K9ac", "H3K14ac", "H2BK5ac", "H4K91ac", 
-            "H3K18ac", "H3K23ac", "H2AK9ac", "H3K4me3", "H3K4me2", "H3K79me1", 
-            "H2AFZ", "H2A.Z", "H4K12ac", "H4K8ac", "H3K4ac", "H2BK12ac", 
-            "H4K5ac", "H2BK20ac", "H2BK120ac", "H2AK5ac", "H2BK15ac")
-        allBroad <- c("H3K23me2", "H3K9me2", "H3K9me3", "H3K27me3", "H4K20me1",
-            "H3K36me3", "H3K56ac", "H3K9me1", "H3K79me2", "H3K4me1", "H3T11ph")
+        allSharp <- classesDefList$allSharp
+        # c("H3K27ac", "H3K9ac", "H3K14ac", "H2BK5ac", "H4K91ac", 
+        #    "H3K18ac", "H3K23ac", "H2AK9ac", "H3K4me3", "H3K4me2", "H3K79me1", 
+        #    "H2AFZ", "H2A.Z", "H4K12ac", "H4K8ac", "H3K4ac", "H2BK12ac", 
+        #    "H4K5ac", "H2BK20ac", "H2BK120ac", "H2AK5ac", "H2BK15ac")
+        allBroad <- classesDefList$allBroad
+        #c("H3K23me2", "H3K9me2", "H3K9me3", "H3K27me3", "H4K20me1",
+        #    "H3K36me3", "H3K56ac", "H3K9me1", "H3K79me2", "H3K4me1", "H3T11ph")
         ## USE ONLY POLR2A for Pol2 class
-        RNAPol2 <- "POLR2A"
+        RNAPol2 <- classesDefList$RNAPol2
         final <- list(allSharp = allSharp, 
             allBroad = allBroad, 
             RNAPol2 = RNAPol2)
@@ -1175,17 +1234,26 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
 
 #' @keywords internal 
 ## helper function to load profiles from ChIC.data
-f_loadDataCompendium <- function(endung, chrommark, tag) 
+f_loadDataCompendium <- function(endung, target, tag) 
 {
-    # load dataframe compendium_profiles=NULL
-    data("compendium_profiles", package = "ChIC.data", envir = environment())
     # compendium_profiles=ChIC.data::compendium_profiles
     if (tag == "geneBody") {
-        name <- paste(chrommark, "_", "TWO", endung, sep = "")
+        name <- paste(target, "_", "TWO", endung, sep = "")
     } else {
-        name <- paste(chrommark, "_", tag, endung, sep = "")
+        name <- paste(target, "_", tag, endung, sep = "")
     }
-    frame <- compendium_profiles[[name]]
+    #load profiles
+    if (target %in% f_metaGeneDefinition("Hlist")){
+        data("compendium_profiles", 
+            package = "ChIC.data", 
+            envir = environment())
+        frame=compendium_profiles[[name]]
+    }else{
+        data("compendium_profiles_TF", 
+            package = "ChIC.data", 
+            envir = environment())
+        frame=compendium_profiles_TF[[name]]
+    }
     return(frame)
 }
 
@@ -1272,20 +1340,21 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
 
 #' @keywords internal 
 ## helper function to get binding class
-f_getBindingClass <- function(chrommark) {
+f_getBindingClass <- function(target) {
     allChrom <- f_metaGeneDefinition("Classes")
-    if (chrommark %in% allChrom$allSharp) {
+    if (target %in% allChrom$allSharp) {
         profileSet <- allChrom$allSharp
         tag <- "(Sharp class)"
     }
-    if (chrommark %in% allChrom$allBroad) {
+    if (target %in% allChrom$allBroad) {
         profileSet <- allChrom$allBroad
         tag <- "(Broad class)"
     }
-    if (chrommark %in% allChrom$RNAPol2) {
+    if (target %in% allChrom$RNAPol2) {
         profileSet <- allChrom$RNAPol2
         tag <- "(RNAPol2 class)"
     }
+
     return(list(profileSet = profileSet, tag = tag))
 }
 
@@ -1338,38 +1407,44 @@ f_plotValueDistribution <- function(compendium, title, coordinateLine,
 
 #' @keywords internal 
 ## helper function to select the random forest model for the respective
-## chromatinmark
-f_getPredictionModel <- function(chrommark, histList) {
+## chromatinmark or TF
+f_getPredictionModel <- function(id) {
     # library(randomForest)
     allChrom <- f_metaGeneDefinition("Classes")
     data("rf_models", package = "ChIC.data", envir = environment())
     
-    if (chrommark %in% histList) {
-        if (chrommark %in% allChrom$allSharp) {
+    if (id %in% f_metaGeneDefinition("Hlist")) {
+        message("Load chromatinmark model")
+        if (id %in% allChrom$allSharp) {
             model <- rf_models[["sharpEncode"]]
         }
         
-        if (chrommark %in% allChrom$allBroad) {
+        if (id %in% allChrom$allBroad) {
             model <- rf_models[["broadEncode"]]
         }
         
-        if (chrommark %in% allChrom$RNAPol2) {
+        if (id %in% allChrom$RNAPol2) {
             model <- rf_models[["RNAPol2Encode"]]
         }
         
-        if (chrommark == "H3K9me3") {
+        if (id == "H3K9me3") {
             model <- rf_models[["H3K9Encode"]]
         }
         
-        if (chrommark == "H3K27me3") {
+        if (id == "H3K27me3") {
             model <- rf_models[["H3K27Encode"]]
         }
         
-        if (chrommark == "H3K36me3") {
+        if (id == "H3K36me3") {
             model <- rf_models[["H3K36Encode"]]
         }
-    } else {
+    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
+    {
+        message("Load TF model")
         model <- rf_models$TFmodel
+    } else {
+        message(id, "not found")
+        model=NULL
     }
     return(model)
 }

@@ -5,7 +5,7 @@
 \title{Wrapper function to create scaled and non-scaled metageneprofiles}
 \usage{
 createMetageneProfile(smoothed.densityChip, smoothed.densityInput, tag.shift,
-    annotationID = "hg19", debug = FALSE, mc = 1)
+    annotationID = "hg19", debug = NULL, mc = 1)
 }
 \arguments{
 \item{smoothed.densityChip}{Smoothed tag-density object for ChIP (returned 
@@ -19,7 +19,8 @@ getCrossCorrelationScores()}
 
 \item{annotationID}{String indicating the genome assembly (Default="hg19")}
 
-\item{debug}{Boolean to enter debugging mode (default= FALSE)}
+\item{debug}{String, to enter debugging mode. If path is set then 
+intermediate files are saved (default= NULL)}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
