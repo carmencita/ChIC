@@ -854,7 +854,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         FRiP_broadPeak <- outcountsBroadPeak/TOTAL_reads
         
         ## Frip sharp peaks 14
-        ###ERROR IS HERE SOMEWHERE
+
         sharpPeakRangesObject<-f_reduceOverlappingRegions(sharpPeakRangesObject)
         
         regions_data_list <- split(as.data.frame(sharpPeakRangesObject), 
