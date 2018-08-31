@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt]{article}
+\documentclass[a4paper,11pt]{article}
 
 \usepackage[margin=1.5in]{geometry}
 %\usepackage[left=3cm, right=3cm, top=3cm]{geometry}
@@ -21,24 +21,16 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage{sectsty}
 \sectionfont{\color{RoyalBlue}}  % sets colour of subsection
-\subsectionfont{\color{BlueGreen}}  % sets colour of sections
+\subsectionfont{\color{RoyalBlue}}  % sets colour of sections
 \usepackage{PTSerif} % Use the Paratype Serif font
 
 \usepackage{Sweave}
-\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.3em, 
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.2em, 
 frame=single}%, label=Input, labelposition=topline}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.3em,
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.2em,
 frame=single}%, label=Output}
 
-
-
-
 %\VignetteIndexEntry{ChIC}
-
-%\newcommand*{\plogo}{\fbox{$\mathcal{PL}$}} % Generic dummy publisher logo
-
-
-
 
 \begin{document}
 
@@ -63,15 +55,16 @@ frame=single}%, label=Output}
     {\Large Carmen M. Livi} % Author name
     \vspace*{0.167\textheight} % Whitespace before the title
 
-    \textbf{\LARGE ChIP-seq quality Control}\\[\baselineskip] % First title line
+    \textbf{\LARGE ChIP-seq quality Control}\\[\baselineskip] % First line
     %\textbf{\LARGE }\\[\baselineskip] % First title line
-    {\textcolor{RoyalBlue}{\Huge \textbf{ChIC} }}\\[\baselineskip] % Main title line which draws the focus of the reader
+    {\textcolor{RoyalBlue}{\Huge \textbf{ChIC} }}\\[\baselineskip] 
+    % Main title line which draws the focus of the reader
 
     {\Large \textit{A short introduction}} % Subtitle
 
     \vfill % Whitespace between the titles and the publisher
     %{\large The Publisher~~\plogo} % Publisher and logo
-    \includegraphics[width = 40mm]{ChIC_Logo}
+    \includegraphics[width = 50mm]{ChIC_Logo}
     \vspace*{3\baselineskip} % Whitespace at the bottom of the page
 \end{titlepage}
 
@@ -130,6 +123,7 @@ cross-correlation analysis and peak-calling. We will refer to
 the output measures as ENCODE Metrics.
 
 <<eval=FALSE, echo=TRUE >>=
+
 ##calculating EM
 
 mc=4 #for parallelization
@@ -139,6 +133,7 @@ setwd(filepath)
 system("wget 
 https://www.encodeproject.org/files/
     ENCFF000BFX/@@download/ENCFF000BFX.bam")
+
 system("wget 
 https://www.encodeproject.org/files/
     ENCFF000BDQ/@@download/ENCFF000BDQ.bam")
@@ -156,7 +151,8 @@ finalTagShift <- CC_Result$QCscores_ChIP$tag.shift
 @
 
 \noindent The function expects two bam files: one for the immunoprecipitation 
-(ChIP) and one for the control (Input). The read length (read\_length parameter) 
+(ChIP) and one for the control (Input). The read length 
+(read\_length parameter) 
 can be taken from the bam file itself. The 'mc' parameter is set to 1 
 per default, when changed it triggers the parallelization of a few processes 
 and speeds up the calculations. 'annotationID' refers to the 
@@ -164,7 +160,6 @@ genome annotation used. ChIC currently supports hg19 and mm9.
 qualityScores\_EM() returns a number of QC-metrics, 
 amongst others the tag.shift value which represents an input parameter for 
 further steps (i.e. peak-calling and metagene calculation). 
-
 qualityScores\_EM() executes the following steps:
 \begin{enumerate}
     \item Reading BAM files (readBamFile)
@@ -192,8 +187,10 @@ reads ChIP-seq data in .bam file format. The function
 expects the filename, that can also contain the pathname.
 
 <<eval=FALSE, echo=TRUE >>=
+
 chipName <- file.path(filepath,"ENCFF000BFX")
 inputName <- file.path(filepath,"ENCFF000BDQ")
+
 chipBam <- readBamFile(chipName)
 inputBam <- readBamFile(inputName)
 @
@@ -204,14 +201,18 @@ Input and chip data are therefore loaded
 from our datapackage "ChIC.data":
 
 <<eval=TRUE, echo=TRUE >>=
+
 library(ChIC)
 ## set path for working directory
 filepath=getwd()
 
 #load tag-list with reads aligned to a subset of chromosomes
-data("chipSubset", package = "ChIC.data", envir = environment())
+data("chipSubset", package = "ChIC.data", 
+    envir = environment())
 chipBam <- chipSubset
-data("inputSubset", package = "ChIC.data", envir = environment())
+
+data("inputSubset", package = "ChIC.data", 
+    envir = environment())
 inputBam <- inputSubset
 @
 
@@ -232,22 +233,30 @@ data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 @
 
 <<eval=TRUE, echo=TRUE >>=
+
 cluster <- parallel::makeCluster( mc )
 
 ## calculate binding characteristics 
 
-chip_binding.characteristics <- spp::get.binding.characteristics(
-    chipBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE, 
+chip_binding.characteristics <- get.binding.characteristics(
+    chipBam, 
+    srange=c(0,500), 
+    bin = 5, 
+    accept.all.tags = TRUE, 
     cluster = cluster)
 
-input_binding.characteristics <- spp::get.binding.characteristics(
-    inputBam, srange=c(0,500), bin = 5, accept.all.tags = TRUE,
+input_binding.characteristics <- get.binding.characteristics(
+    inputBam, 
+    srange=c(0,500), 
+    bin = 5, 
+    accept.all.tags = TRUE,
     cluster = cluster)
 
 parallel::stopCluster( cluster )
 @
 
 <<eval=FALSE, echo=TRUE >>=
+
 ## calculate cross correlation QC-metrics
 crossvalues_Chip <- getCrossCorrelationScores( chipBam , 
     chip_binding.characteristics, 
@@ -287,8 +296,10 @@ counts compared to the neighborhood
 (for more details see \cite{Kharchenko2008}). 
 
 <<eval=TRUE, echo=TRUE >>=
+
 ##get chromosome information and order chip and input by it
-chrl_final <- intersect(names(chipBam$tags), names(inputBam$tags))
+chrl_final <- intersect(names(chipBam$tags), 
+    names(inputBam$tags))
 chipBam$tags <- chipBam$tags[chrl_final]
 chipBam$quality <- chipBam$quality[chrl_final]
 inputBam$tags <- inputBam$tags[chrl_final]
@@ -296,7 +307,7 @@ inputBam$quality <- inputBam$quality[chrl_final]
 @
 
 <<eval=TRUE, echo=TRUE >>=
-##remove sigular positions with extremely high read counts with 
+##remove positions with extremely high read counts with 
 ##respect to the neighbourhood
 selectedTags <- removeLocalTagAnomalies(chipBam, 
     inputBam, 
