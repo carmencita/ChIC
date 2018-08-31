@@ -71,6 +71,11 @@ frame=single}%, label=Output}
 %A short introduction}
 
 
+\tableofcontents
+
+\newpage
+
+
 \section{Introduction}
 \textbf{ChI}P-seq quality \textbf{C}ontrol package (ChIC) provides 
 functions and data structures to assess the quality of ChIP-seq data. 
@@ -90,9 +95,6 @@ single QC-metrics against the compendium values and
 finally a random forest model to compute a single score for quality control.
 
 
-\newpage
-
-\tableofcontents
 
 \newpage
 \noindent To run ChIC the user has to provide two bam files: one for ChIP and 
