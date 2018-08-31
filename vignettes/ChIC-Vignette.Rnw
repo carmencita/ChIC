@@ -1,28 +1,26 @@
 \documentclass[a4paper,11pt]{article}
 
 \usepackage[margin=1.5in]{geometry}
-%\usepackage[left=3cm, right=3cm, top=3cm]{geometry}
-%\usepackage[left= 2cm, righttextwidth=10cm]{geometry}
+%%%%\usepackage[left=3cm, right=3cm, top=3cm]{geometry}
+%%%%%\usepackage[left= 2cm, righttextwidth=10cm]{geometry}
 
-%\usepackage[latin1]{inputenc}
 
 %\VignetteIndexEntry{HiCLegos}
 
-\usepackage[utf8]{inputenc} % Required for inputting international characters
-\usepackage[T1]{fontenc} % Output font encoding for international characters
+\usepackage[utf8]{inputenc} %%%%  international characters
+\usepackage[T1]{fontenc} %%%% Output font for international characters
 
 \usepackage[english]{babel}
-\usepackage{fontenc}
 \usepackage{graphicx}
-%\usepackage[colorlinks=false, linktocpage=true]{hyperref}
+%%%%%\usepackage[colorlinks=false, linktocpage=true]{hyperref}
 \usepackage[hidelinks]{hyperref}
 
 
 \usepackage[dvipsnames]{xcolor}
 \usepackage{sectsty}
-\sectionfont{\color{RoyalBlue}}  % sets colour of subsection
-\subsectionfont{\color{RoyalBlue}}  % sets colour of sections
-\usepackage{PTSerif} % Use the Paratype Serif font
+\sectionfont{\color{RoyalBlue}}  
+\subsectionfont{\color{RoyalBlue}}  
+\usepackage{PTSerif} %%%%% Use the Paratype Serif font
 
 \usepackage{Sweave}
 \DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.2em, 
