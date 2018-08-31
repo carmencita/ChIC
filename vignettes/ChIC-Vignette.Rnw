@@ -1,20 +1,86 @@
 \documentclass[a4paper,10pt]{article}
 
-\usepackage[latin1]{inputenc}
+\usepackage[margin=1.5in]{geometry}
+%\usepackage[left=3cm, right=3cm, top=3cm]{geometry}
+%\usepackage[left= 2cm, righttextwidth=10cm]{geometry}
+
+%\usepackage[latin1]{inputenc}
+
+%\VignetteIndexEntry{HiCLegos}
+
+\usepackage[utf8]{inputenc} % Required for inputting international characters
+\usepackage[T1]{fontenc} % Output font encoding for international characters
+
 \usepackage[english]{babel}
 \usepackage{fontenc}
 \usepackage{graphicx}
-\usepackage{hyperref}
+%\usepackage[colorlinks=false, linktocpage=true]{hyperref}
+\usepackage[hidelinks]{hyperref}
+
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage{sectsty}
+\sectionfont{\color{RoyalBlue}}  % sets colour of subsection
+\subsectionfont{\color{BlueGreen}}  % sets colour of sections
+\usepackage{PTSerif} % Use the Paratype Serif font
+
+\usepackage{Sweave}
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.3em, 
+frame=single}%, label=Input, labelposition=topline}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.3em,
+frame=single}%, label=Output}
+
+
+
 
 %\VignetteIndexEntry{ChIC}
 
-\title{ChIP-seq quality Control package \textbf{ChIC}: 
-A short introduction}
+%\newcommand*{\plogo}{\fbox{$\mathcal{PL}$}} % Generic dummy publisher logo
+
+
+
 
 \begin{document}
-\maketitle
 
-\begin{abstract}
+\begin{titlepage} % Suppresses headers and footers on the title page
+    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Minimalist Book Title Page
+% LaTeX Template
+% Version 2.0 (21/7/17)
+%
+% This template was downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Peter Wilson (herries.press@earthlink.net) with modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+    \raggedleft % Right align everything
+    \vspace*{\baselineskip} % Whitespace at the top of the page
+    {\Large Carmen M. Livi} % Author name
+    \vspace*{0.167\textheight} % Whitespace before the title
+
+    \textbf{\LARGE ChIP-seq quality Control}\\[\baselineskip] % First title line
+    %\textbf{\LARGE }\\[\baselineskip] % First title line
+    {\textcolor{RoyalBlue}{\Huge \textbf{ChIC} }}\\[\baselineskip] % Main title line which draws the focus of the reader
+
+    {\Large \textit{A short introduction}} % Subtitle
+
+    \vfill % Whitespace between the titles and the publisher
+    %{\large The Publisher~~\plogo} % Publisher and logo
+    \includegraphics[width = 40mm]{ChIC_Logo}
+    \vspace*{3\baselineskip} % Whitespace at the bottom of the page
+\end{titlepage}
+
+
+%\title{ChIP-seq quality Control package \textbf{ChIC}: 
+%A short introduction}
+
+
+\section{Introduction}
 \textbf{ChI}P-seq quality \textbf{C}ontrol package (ChIC) provides 
 functions and data structures to assess the quality of ChIP-seq data. 
 The tool computes three different categories of quality control (QC) 
@@ -24,21 +90,21 @@ from local signal enrichment around annotated genes. The user-friendly
 functions allow to perform the analysis with a single command, 
 whereas step by step functions are also available for more experienced users. 
 
-The package comes with a large reference 
+\noindent The package comes with a large reference 
 compendium of precomputed QC-metrics from public ChIP-seq samples. 
 Key features are the calculation, visualization and creation of summary 
 plots for QC-metrics, tools for the comparison of metagene profiles 
 against reference profiles, tools for the comparison of 
 single QC-metrics against the compendium values and 
 finally a random forest model to compute a single score for quality control.
-\end{abstract} 
+
 
 \newpage
 
 \tableofcontents
 
 \newpage
-To run ChIC the user has to provide two bam files: one for ChIP and 
+\noindent To run ChIC the user has to provide two bam files: one for ChIP and 
 one for the input. In this tutorial we illustrate ChIC functions 
 using a H3K36me3 ChIP-seq dataset from ENCODE (ID: ENCFF000BFX) 
 and its input (ID: ENCFF000BDQ). The data can can be downloaded from:
@@ -50,15 +116,15 @@ https://www.encodeproject.org/files/ENCFF000BFX/}
 \hyperref[ENCFF000BDQ]{
 https://www.encodeproject.org/files/ENCFF000BDQ/}
 
-ChIC provides three wrapper functions that are used to calculate 
-a comprehensive set of metrics: \textit{qualityScores\_EM()}, 
-\textit{qualityScores\_GM()} and \textit{qualityScores\_LM()}.
+\noindent ChIC provides three wrapper functions that are used to calculate 
+a comprehensive set of metrics: qualityScores\_EM(), 
+qualityScores\_GM() and qualityScores\_LM().
 
 
 \section{ENCODE Metrics (EM) based on sharp-peak profiles and 
 cross-correlation analysis}
 
-\textit{qualityScores\_EM()} is a wrapper function that reads the 
+\noindent qualityScores\_EM() is a wrapper function that reads the 
 provided bam files and calculates a number of QC-metrics from 
 cross-correlation analysis and peak-calling. We will refer to 
 the output measures as ENCODE Metrics.
@@ -89,18 +155,17 @@ CC_Result <- qualityScores_EM(chipName=chipName,
 finalTagShift <- CC_Result$QCscores_ChIP$tag.shift
 @
 
-The function expects two bam files: one for the immunoprecipitation (ChIP) 
-and one for the control (Input). The read length (read\_length parameter) 
+\noindent The function expects two bam files: one for the immunoprecipitation 
+(ChIP) and one for the control (Input). The read length (read\_length parameter) 
 can be taken from the bam file itself. The 'mc' parameter is set to 1 
 per default, when changed it triggers the parallelization of a few processes 
 and speeds up the calculations. 'annotationID' refers to the 
-genome annotation 
-used. ChIC currently supports hg19 and mm9. \textit{qualityScores\_EM()} 
-returns a number of QC-metrics, 
+genome annotation used. ChIC currently supports hg19 and mm9. 
+qualityScores\_EM() returns a number of QC-metrics, 
 amongst others the tag.shift value which represents an input parameter for 
 further steps (i.e. peak-calling and metagene calculation). 
 
-\textit{qualityScores\_EM()} executes the following steps:
+qualityScores\_EM() executes the following steps:
 \begin{enumerate}
     \item Reading BAM files (readBamFile)
     \item Calculatig QC-metrics from CrossCorrelation analysis 
@@ -110,19 +175,19 @@ further steps (i.e. peak-calling and metagene calculation).
     \item Profile smoothing for further analysis steps (tagDensity)
 \end{enumerate} 
 
-For more details about the individual steps see the "Useful functions" 
-section.
+\noindent For more details about the individual steps see the 
+"Useful functions" section.
 
 \newpage
 \section{Useful functions}
 The following code chunks are automatically 
-executed by the \textit{qualityScores\_EM()} wrapper function. 
+executed by the qualityScores\_EM() wrapper function. 
 Nevertheless each listed function is available for single 
 use if the user starts from the bam file 
 and wants to perform all the steps individually.
 
 \subsection{Reading BAM files}
-The first step in the \textit{qualityScores\_EM()} function 
+The first step in the qualityScores\_EM() function 
 reads ChIP-seq data in .bam file format. The function 
 expects the filename, that can also contain the pathname.
 
@@ -151,12 +216,12 @@ inputBam <- inputSubset
 @
 
 \subsection{Calculate QC-metrics from CrossCorrelation analysis}
-\textit{getCrossCorrelationScores} takes QC-metrics from 
+getCrossCorrelationScores() takes QC-metrics from 
 the cross-correlation analysis and other general metrics, e.g. the 
 non-redundant fractions of mapped reads. An important parameter 
-required by \textit{getCrossCorrelationScores} 
+required by getCrossCorrelationScores() 
 is the binding-characteristics, calculated using 
-\textit{spp::get.binding.characteristics} function. The 
+spp::get.binding.characteristics() function. The 
 binding-characteristics structure provides information about the 
 peak separation distance and the cross-correlation profile (for more details 
 see \cite{Kharchenko2008}).
@@ -192,12 +257,12 @@ crossvalues_Chip <- getCrossCorrelationScores( chipBam ,
     mc = mc)
 @
 
-savePlotPath sets the path in which the cross-correlation plot (as pdf) 
-should be saved. If not provided the plot will be forwarded to default 
-DISPLAY. An example of a cross-correlation profile is shown 
-in Figure \ref{fig:1}.
+\noindent "savePlotPath" sets the path in which the cross-correlation 
+plot (as pdf) should be saved. If not provided the plot will be 
+forwarded to default DISPLAY. An example of a cross-correlation profile 
+is shown in Figure \ref{fig:1}.
 
-The output of the \textit{getCrossCorrelationScores} function is 
+\noindent The output of getCrossCorrelationScores() is 
 a list with calculated QC-metrics, from which we have to save 
 tag.shift value for further steps:
 
@@ -216,7 +281,7 @@ finalTagShift <- crossvalues_Chip$tag.shift
 
 
 \subsection{Remove anomalies in the read distrbution}
-The data is processed further by using \textit{removeLocalTagAnomalies} 
+The data is processed further by using removeLocalTagAnomalies() 
 that removes local read anomalies like regions with extremely high read 
 counts compared to the neighborhood 
 (for more details see \cite{Kharchenko2008}). 
@@ -244,9 +309,9 @@ chipBamSelected <- selectedTags$chip.dataSelected
 
 
 \subsection{Calculate QC-metrics from peak calls}
-The last set of QC-metrics calculated by \textit{qualityScores\_EM()} 
+The last set of QC-metrics calculated by qualityScores\_EM() 
 are based on the number of called peaks using 
-\textit{getPeakCallingScores}
+getPeakCallingScores()
 
 <<eval=TRUE, echo=TRUE >>=
 bindingScores <- getPeakCallingScores(chip = chipBam, 
@@ -260,7 +325,7 @@ bindingScores <- getPeakCallingScores(chip = chipBam,
 
 
 \subsection{Profile smoothing}
-The last step executed in \textit{qualityScores\_EM()} 
+The last step executed in qualityScores\_EM() 
 is the smoothing (using a Gaussian kernel) of the read 
 profile to obtain the tag density profile (for more details see 
 \cite{Kharchenko2008}). The read density profile is needed to 
@@ -282,9 +347,8 @@ smoothedInput <- tagDensity(inputBamSelected,
 \subsection{Available chromatin marks and factors}
 This usefull function lists all chromatin marks and 
 transcription factors that are available for the comparison analysis 
-in the fuctions 
-\textit{metagenePlotsForComparison}, \textit{plotReferenceDistribution} 
-and \textit{predictionScore}.
+in the fuctions metagenePlotsForComparison(), plotReferenceDistribution() 
+and predictionScore().
 With the keywords "mark" and "TF" the respective lists with the available 
 elements are listed.
 
@@ -294,9 +358,10 @@ listAvailableElements(target="H3K36me3")
 
 \newpage
 \section{Global enrichment profile Metrics (GM) and Fingerprint-plot}
+
 This category of QC-metrics is based on the global read distribution along 
 the genome for ChIP and Input \cite{Diaz2012}. 
-The  function \textit{qualityScores\_GM()} reproduces the so-called 
+The  function qualityScores\_GM() reproduces the so-called 
 Fingerprint plot (Figure \ref{fig:Fingerprint}) and returns a list 
 of 9 QC-metrics that are taken from the cumulative distribution of 
 the plot. Examples of these metrics are the (a) fraction of bins without 
@@ -344,8 +409,7 @@ is calculated as the signal enrichment (immunoprecipitation over the input)
 and plotted on the y-axis, whereas the genomic coordinates of the genes like 
 the TSS or regions up- and downstream are shown on the x-axis. 
 
-
-\textit{createMetageneProfile} creates the metagene profiles for scaled 
+\noindent createMetageneProfile() creates the metagene profiles for scaled 
 and non-scaled profiles and returns a list with three items: 
 "geneBody", "TSS" and "TES". Each item is again a list with the 
 metagene-profiles for ChIP and input.
@@ -359,9 +423,9 @@ Meta_Result <- createMetageneProfile(
     mc = mc)
 @
 
-The objects in "Meta\_Result" can be used to create the final metagene plots 
-and to get the respective LM QC-values for the non-scaled profiles 
-around the TSS and TES.
+\noindent The objects in "Meta\_Result" can be used to create the final 
+metagene plots and to get the respective LM QC-values for the 
+non-scaled profiles around the TSS and TES.
 
 <<eval=FALSE, echo=TRUE >>=
 TSS_Scores <- qualityScores_LM(data = Meta_Result$TSS, 
@@ -379,8 +443,8 @@ TES_Scores=qualityScores_LM(data=Meta_Result$TES,
     tag="TES")
 @
 
-The "geneBody" object can be used to plot the scaled metagene profile 
-and to get its respective LM QC-values:
+\noindent The "geneBody" object can be used to plot the scaled metagene 
+profile and to get its respective LM QC-values:
 
 <<eval=FALSE, echo=TRUE >>=
 #create scaled metagene profile
@@ -399,9 +463,9 @@ geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 <<eval=TRUE,label=geneBody, fig=TRUE, echo=FALSE>>=
 <<geneBody>>
 @
-    \caption{Metagene profiles: Signal enrichment for ChIP and Input along 
+\caption{Metagene profiles: Signal enrichment for ChIP and Input along 
     the gene body.}
-    \label{fig:MetaGenePlots}
+\label{fig:MetaGenePlots}
 \end{figure}
 
 
@@ -431,7 +495,7 @@ for that:
 
 
 \subsection{Comparing local enrichment profiles}
-The \textit{metagenePlotsForComparison} function is used to compare the 
+The metagenePlotsForComparison() function is used to compare the 
 local enrichment profile to the reference compendium by plotting the 
 metagene profile against the expected metagene for the same type of 
 chromatin mark. The expected metagene profile is 
@@ -564,5 +628,11 @@ of ChIP-seq data.}
 
 
 \end{thebibliography}
+
+\end{document}
+
+
+
+
 
 \end{document}
