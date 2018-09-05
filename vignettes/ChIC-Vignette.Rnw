@@ -5,7 +5,7 @@
 %%%%%\usepackage[left= 2cm, righttextwidth=10cm]{geometry}
 
 
-%\VignetteIndexEntry{HiCLegos}
+%\VignetteIndexEntry{ChIC}
 
 \usepackage[utf8]{inputenc} %%%%  international characters
 \usepackage[T1]{fontenc} %%%% Output font for international characters
@@ -28,7 +28,6 @@ frame=single}%, label=Input, labelposition=topline}
 \DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.2em,
 frame=single}%, label=Output}
 
-%\VignetteIndexEntry{ChIC}
 
 \begin{document}
 
