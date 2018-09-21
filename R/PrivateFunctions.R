@@ -3,7 +3,7 @@
 ##################################################################### 
 
 #' @keywords internal 
-## format conversion (Koustav)
+## format conversion (spp; Koustav)
 f_convertFormatBroadPeak <- function(given.clusters) {
     chrl <- names(given.clusters)
     names(chrl) <- chrl
@@ -22,7 +22,7 @@ f_convertFormatBroadPeak <- function(given.clusters) {
 
 
 #' @keywords internal 
-## format conversion (Koustav)
+## format conversion (spp;Koustav)
 f_converNarrowPeakFormat <- function(bd, margin = bd$whs) {
     if (is.null(margin)) {
         margin <- 50
@@ -59,6 +59,62 @@ f_converNarrowPeakFormat <- function(bd, margin = bd$whs) {
     md.minimal <- md[, c(1, 2, 3)]
     return(md.minimal)
 }
+
+
+
+
+
+#' @keywords internal 
+## writing wig files 
+## writewig function of spp with different track type header
+f_writewig <- function (dat, fname, feature, threshold = 5, zip = FALSE) 
+{
+    chrl <- names(dat)
+    names(chrl) <- chrl
+    invisible(lapply(chrl, function(chr) {
+        bdiff <- dat[[chr]]
+        ind <- seq(1, length(bdiff$x))
+        ind <- ind[!is.na(bdiff$y[ind])]
+        header <- chr == chrl[1]
+        f_write.probe.wig(chr, bdiff$x[ind], bdiff$y[ind], fname, 
+            append = !header, feature = feature, header = header)
+    }))
+    if (zip) {
+    zf <- paste(fname, "zip", sep = ".")
+        system(paste("zip \"", zf, "\" \"", fname, "\"", sep = ""))
+        system(paste("rm \"", fname, "\"", sep = ""))
+        return(zf)
+    } else {
+        return(fname)
+    }
+}
+
+
+#' @keywords internal 
+## function used by writewig function 
+##Here I am using a slightly changed version of write.probe.wig from spp.
+##This version changes the track type in the header to "bedGraph"
+##ORIGINAL Version can be found in spp package!!!
+f_write.probe.wig <- function(chr, pos, val, fname, append=FALSE, feature="M", 
+    probe.length=35, header=TRUE) 
+{
+    min.dist <- min(diff(pos));
+    if(probe.length>=min.dist) {
+        probe.length <- min.dist-1;
+        cat("warning: adjusted down wig segment length to", probe.length,"\n");
+    }
+    mdat <- data.frame(chr, as.integer(pos), as.integer(pos+probe.length), val)
+
+    if(header) {
+        write(paste("track type=bedGraph name=\"Bed Format\" description=\"",feature,"\" visibility=dense color=200,100,0 altColor=0,100,200 priority=20",sep=""),file=fname,append=append)
+        write.table(mdat, file=fname, col.names=FALSE, row.names=FALSE, 
+            quote=FALSE, sep=" ", append=TRUE);
+    } else {
+        write.table(mdat, file=fname, col.names=FALSE, row.names=FALSE, 
+        quote=FALSE, sep=" ", append=append);
+    }
+}
+
 
 #' @keywords internal 
 ## reads bam file or tagalign file

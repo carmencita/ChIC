@@ -226,9 +226,9 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     if ((!is.null(debug)) )
     {
         message("saving tracks as wig...")
-        spp::writewig(smoothed.densityChip, 
+        f_writewig(smoothed.densityChip, 
             file.path(debug, "chip.wig"),"track chip")
-        spp::writewig(smoothed.densityInput, 
+        f_writewig(smoothed.densityInput, 
             file.path(debug,"input.wig"),"track input")
     }
 
