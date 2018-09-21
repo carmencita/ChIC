@@ -394,19 +394,19 @@ predictionScore <- function(target, features_cc, features_global,
         ## Remove this part once featuresname 'twopoint' is 
         ## substitued by 'geneBody' in
         ## the prediction modeds
-        if (length(grep("geneBody", element)) > 0) {
-            word <- strsplit(element, "geneBody")[[1]]
-            new <- paste(word[1], "twopoint", word[2], sep = "")
-            word <- new
-            if (length(grep("norm_localMax", word)) > 0) {
-                new <- strsplit(word, "twopoint")[[1]]
-                word <- paste(new[1], "twopoints", new[2], sep = "")
-            }
-            if (length(grep("norm_auc", word)) > 0) {
-                new <- strsplit(word, "twopoint")[[1]]
-                word <- paste(new[1], "twopoints", new[2], sep = "")
-            }
-        }
+        #if (length(grep("geneBody", element)) > 0) {
+        #    word <- strsplit(element, "geneBody")[[1]]
+        #    new <- paste(word[1], "twopoint", word[2], sep = "")
+        #    word <- new
+        #    if (length(grep("norm_localMax", word)) > 0) {
+        #        new <- strsplit(word, "twopoint")[[1]]
+        #        word <- paste(new[1], "twopoints", new[2], sep = "")
+        #    }
+        #    if (length(grep("norm_auc", word)) > 0) {
+        #        new <- strsplit(word, "twopoint")[[1]]
+        #        word <- paste(new[1], "twopoints", new[2], sep = "")
+        #    }
+        #}
 
         return(word)
     })
