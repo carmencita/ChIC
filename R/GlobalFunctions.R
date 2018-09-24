@@ -1530,6 +1530,58 @@ listAvailableElements <- function(target)
         message("Chromatin mark available for comparison analysis")
     }else if (target %in% f_metaGeneDefinition("TFlist")) { 
         message("transcription factor available for comparison analysis")
+    }else{
+        stop("No match found.")
     }
 }
+
+
+#'@title Lists the IDs of samples included in the compendium
+#'
+#' @description
+#' Shows the IDs of all analysed ChIP-seq samples 
+#' included in the compendium from ENCODE and Roadmap. 
+#' 
+#' listDatasets
+#'
+#' @param dataset String, to specify the dataset for which the IDs 
+#' have to be returned. Valid keywords are "ENCODE" and "Roadmap".
+#'
+#' @return "ENCODE" returns a vecor of transcription factor, chromatin mark and 
+#' RNAPol2 sample IDs from ENCODE, "Roadmap" returns a vector of 
+#' chromatin mark IDs from Roadmap that have been included in the compendium.  
+#'
+#' @export
+#'
+#' @examples
+#'
+#' listDatasets(dataset="ENCODE")
+#' listDatasets(dataset="Roadmap")
+#'
+
+listDatasets <- function(dataset)
+{
+
+    EIDs <- rownames(ChIC.data::compendium_db)[
+        grep("ENC",rownames(ChIC.data::compendium_db))]
+
+    if (dataset=="ENCODE") {
+        message("ENCODE IDs ")
+        c(EIDs,rownames(ChIC.data::compendium_db_tf))
+
+    }else if (dataset=="Roadmap") { 
+
+        message("Roadmap IDs ")
+        rownames(ChIC.data::compendium_db)[
+            ! rownames(ChIC.data::compendium_db) %in% EIDs ]
+
+    }else{
+        stop("No match found. Please use the keywords: 
+            \"ENCODE\" or \"Roadmap\"")
+    }
+}
+
+
+
+
 
