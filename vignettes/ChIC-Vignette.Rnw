@@ -26,9 +26,9 @@
 \usepackage{PTSerif} %%%%% Use the Paratype Serif font
 
 \usepackage{Sweave}
-\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.2em, 
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.3em, 
 frame=single}%, label=Input, labelposition=topline}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.2em,
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.3em,
 frame=single}%, label=Output}
 
 
