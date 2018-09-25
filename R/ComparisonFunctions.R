@@ -147,7 +147,7 @@ metagenePlotsForComparison <- function(data, target, tag,
     normMax <- max(nframe$mean, normMax)
     
     # create comparison plots
-    message("Creating comparison plots...")
+    message ("Creating comparison plots...")
     f_plotProfiles(i_mean, iframe, tag, c(newMin - 0.001, newMax + 0.001), 
         maintitel = paste(target, tag, "Input", sep = "_"), 
         savePlotPath = savePlotPath)
@@ -161,9 +161,9 @@ metagenePlotsForComparison <- function(data, target, tag,
         ylab = "mean log2 enrichment (signal/input)", 
         savePlotPath = savePlotPath)
     
-    if (!is.null(savePlotPath))
+    if ( !is.null(savePlotPath) )
     {
-        message("Plots have been saved under ",savePlotPath)
+        message("Plots have been saved under ", savePlotPath)
     }
 }
 
@@ -214,15 +214,15 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
     if (target %in% f_metaGeneDefinition("TFlist"))
     {
         data("compendium_db_tf", package = "ChIC.data", envir = environment())
-        finalCompendium=compendium_db_tf
+        finalCompendium <- compendium_db_tf
     }else{
         #allChrom <- f_metaGeneDefinition("Classes")
         ## reading compendium compendium_db=NULL
         data("compendium_db", package = "ChIC.data", envir = environment())
-        finalCompendium=compendium_db
-        profileInfo <- f_getBindingClass(target) 
-        message(profileInfo$tag)
-        tag=profileInfo$tag
+        finalCompendium <- compendium_db
+        profileInfo <- f_getBindingClass( target ) 
+        message( profileInfo$tag )
+        tag <- profileInfo$tag
     }
 
     # get values for target alias=paste('CC',metricToBePlotted,sep='_')
@@ -239,7 +239,7 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
     }
 
     if(target %in% f_metaGeneDefinition("TFlist")){
-        subset=finalCompendium[,alias]
+        subset <- finalCompendium[ ,alias]
     }else{
         ## get the values of respective set
         subset <- finalCompendium[

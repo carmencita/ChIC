@@ -106,7 +106,9 @@ f_write.probe.wig <- function(chr, pos, val, fname, append=FALSE, feature="M",
     mdat <- data.frame(chr, as.integer(pos), as.integer(pos+probe.length), val)
 
     if(header) {
-        write(paste("track type=bedGraph name=\"Bed Format\" description=\"",feature,"\" visibility=dense color=200,100,0 altColor=0,100,200 priority=20",sep=""),file=fname,append=append)
+        write(paste("track type=bedGraph name=\"Bed Format\" description=\"", 
+            feature,"\" visibility=dense color=200,100,0 altColor=0,100,200 
+            priority=20",sep=""),file=fname,append=append)
         write.table(mdat, file=fname, col.names=FALSE, row.names=FALSE, 
             quote=FALSE, sep=" ", append=TRUE);
     } else {
@@ -130,7 +132,7 @@ f_readFile <- function(filename, reads.aligner.type) {
     ## readCount=sum(sapply(data$tags, length))
     ## readCount <- sum(unlist(lapply(data$tags, length)))
     readCount <- sum(lengths(data$tags))
-    message(readCount)
+    message(readCount," reads")
     return(data)
 }
 

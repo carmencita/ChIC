@@ -11,8 +11,8 @@ listDatasets(dataset)
 have to be returned. Valid keywords are "ENCODE" and "Roadmap".}
 }
 \value{
-"ENCODE" returns a vecor of transcription factor, chromatin mark and 
-RNAPol2 sample IDs from ENCODE, "Roadmap" returns a vector of 
+"ENCODE" returns a vecor of transcription factor, chromatin mark  
+and RNAPol2 sample IDs from ENCODE, "Roadmap" returns a vector of 
 chromatin mark IDs from Roadmap that have been included in the compendium.
 }
 \description{

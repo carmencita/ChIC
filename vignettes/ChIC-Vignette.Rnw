@@ -167,7 +167,8 @@ options(width=60)
 \section{ENCODE Metrics (EM) based on sharp-peak profiles and 
 cross-correlation analysis}
 
-\noindent \textcolor{airforceblue}{qualityScores\_EM()} is a wrapper function that reads the 
+\noindent \textcolor{airforceblue}{qualityScores\_EM()} is a wrapper 
+function that reads the 
 provided bam files and calculates a number of QC-metrics from 
 cross-correlation analysis and peak-calling. We will refer to 
 the output measures as ENCODE Metrics EM.
@@ -194,12 +195,13 @@ can be taken from the bam file itself. The 'mc' parameter is set to 1
 per default, when changed it triggers the parallelization of a few processes 
 and speeds up the calculations. 'annotationID' refers to the 
 genome annotation used. ChIC currently supports hg19 and mm9. 
-\textcolor{airforceblue}{qualityScores\_EM()} produces the Cross-correlation plot 
-(see Figure \ref{fig:1}) and returns a number of 
+\textcolor{airforceblue}{qualityScores\_EM()} produces the Cross-correlation 
+plot (see Figure \ref{fig:1}) and returns a number of 
 QC-metrics (see: \ref{Appendix} Appendix). 
 Amongst others the tag.shift value which represents an input parameter for 
 further steps (i.e. peak-calling and metagene calculation). 
-\textcolor{airforceblue}{qualityScores\_EM()} executes the following single steps:
+\textcolor{airforceblue}{qualityScores\_EM()} executes the following single 
+steps:
 \begin{enumerate}
     \item Reading BAM files (readBamFile)
     \item Calculatig QC-metrics from CrossCorrelation analysis 
@@ -211,7 +213,8 @@ further steps (i.e. peak-calling and metagene calculation).
 
 
 \noindent \textbf{PLEASE NOTE:} The following code chunks are automatically 
-executed within the \textcolor{airforceblue}{qualityScores\_EM()} wrapper function. 
+executed within the \textcolor{airforceblue}{qualityScores\_EM()} wrapper 
+function. 
 Nevertheless each listed function is available for single 
 use if the user starts from the bam file 
 and wants to perform all the steps individually.
@@ -231,8 +234,8 @@ inputBam <- readBamFile(inputName)
 
 
 \subsection{Calculate QC-metrics from CrossCorrelation analysis}
-\textcolor{airforceblue}{getCrossCorrelationScores()} calculates QC-metrics from 
-the cross-correlation analysis and other general metrics, e.g. the 
+\textcolor{airforceblue}{getCrossCorrelationScores()} calculates QC-metrics 
+from the cross-correlation analysis and other general metrics, e.g. the 
 non-redundant fractions of mapped reads. An important parameter 
 required by \textcolor{airforceblue}{getCrossCorrelationScores()} 
 is the binding-characteristics, calculated using 
@@ -375,7 +378,8 @@ local enrichment profile metrics (LM) (see \ref{Appendix} Appendix).
 
 This category of QC-metrics is based on the global read distribution along 
 the genome for ChIP and Input \cite{Diaz2012}. 
-The wrapper \textcolor{airforceblue}{qualityScores\_GM()} reproduces the so-called 
+The wrapper \textcolor{airforceblue}{qualityScores\_GM()} reproduces the 
+so-called 
 Fingerprint plot (Figure \ref{fig:Fingerprint}) and returns a list 
 of 9 QC-metrics that are taken from the cumulative distribution of 
 the plot. Examples of these metrics are the (a) fraction of bins without 
@@ -419,7 +423,8 @@ str(Ch_Results)
 
 \section{Local enrichment profile metrics (LM) and metagene profiles}
 
-\textcolor{airforceblue}{createMetageneProfile()} creates the unscaled single-point and 
+\textcolor{airforceblue}{createMetageneProfile()} creates the 
+unscaled single-point and 
 a scaled whole gene metagene profile and returns a list with 
 three items: "TSS", "TES" and "geneBody". 
 Each item is again a list with the 
@@ -443,7 +448,8 @@ metagene plots and to extract the LMs for the different profiles.
 \noindent Metagene profiles show the signal enrichment around a region of 
 interest like the transcription start site (TSS) or over the gene body. 
 ChIC creates two types of metagene profiles: an unscaled single-point profile 
-for the TSS and transcription end site, and a scaled whole gene metagene profile 
+for the TSS and transcription end site, and a scaled whole gene metagene 
+profile 
 including the gene body like in Figure \ref{fig:MetaGenePlots}. 
 For the metagene profiles the tag density of the immunoprecipitation is 
 taken over all RefSeq annotated human genes, 
@@ -683,8 +689,8 @@ of ChIP-seq data.}
 
 %%\includepdf[pages=-,pagecommand={},width=\textwidth]{ListOfFeatures.pdf}
 %%\includepdf[pages=-,picturecommand*={%
-  %%  \put (133,660) {%
-   %% \parbox{\textwidth}]{QC-metrics.pdf}
+%%  \put (133,660) {%
+%% \parbox{\textwidth}]{QC-metrics.pdf}
 %\includepdf[pages=-, noautoscale=true, pagecommand={}]{QC-metrics.pdf}
 
 

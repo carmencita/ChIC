@@ -5,7 +5,7 @@
 \title{Wrapper function to create scaled and non-scaled metageneprofiles}
 \usage{
 createMetageneProfile(smoothed.densityChip, smoothed.densityInput,
-  tag.shift, annotationID = "hg19", debug = FALSE, mc = 1)
+    tag.shift, annotationID = "hg19", debug = FALSE, mc = 1)
 }
 \arguments{
 \item{smoothed.densityChip}{Smoothed tag-density object for ChIP (returned 

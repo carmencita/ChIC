@@ -14,6 +14,8 @@
 # @importFrom BiocParallel bplapply
 #' @importFrom methods new
 #' @importFrom parallel makeCluster stopCluster mclapply
+#' @importFrom progress progress_bar
+
 
 #######################################################################
 ###############                                         ###############  
@@ -88,6 +90,10 @@
 qualityScores_EM <- function(chipName, inputName, read_length, 
     annotationID = "hg19", mc = 1, savePlotPath = NULL, debug = FALSE) 
 {
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
+        clear = FALSE, width = 60, incomplete = " ")
+    pb$tick()
+
     ########## check if input format is ok
     if (!(is.character(chipName) & is.character(inputName))) 
         stop("Invalid chipName or inputName (String required)")
@@ -110,8 +116,14 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     }
     cluster=NULL
     ########## 
+    pb$tick()
+
     message("reading bam files")
+    message("...for ChIP")
     chip.data <- readBamFile(chipName)
+    pb$tick()
+
+    message("\n...for Input")
     input.data <- readBamFile(inputName)
 
     if ( debug ) {
@@ -120,10 +132,12 @@ qualityScores_EM <- function(chipName, inputName, read_length,
             file = file.path(getwd(), "bamFiles.RData"))
     }
 
+    pb$tick()
+
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the ChIP
-    message("calculating binding characteristics for ChIP... ")
-    ## cross_correlation parameters
+    message("\ncalculating binding characteristics for ChIP... ")
+
     estimating_fragment_length_range <- c(0, 500)
     estimating_fragment_length_bin <- 5
     
@@ -132,22 +146,27 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     ## bin=estimating_fragment_length_bin,
     ## accept.all.tags=T)
 
+
     #switch cluster on
     if (mc > 1) {
         cluster <- parallel::makeCluster( mc )
     }
+    pb$tick()
 
     chip_binding.characteristics<-spp::get.binding.characteristics(chip.data, 
         srange = estimating_fragment_length_range, 
         bin = estimating_fragment_length_bin, 
         accept.all.tags = TRUE, cluster = cluster)
     
+    pb$tick()
+
     #switch cluster off   
     if (mc > 1) {
         parallel::stopCluster( cluster )
     }
 
-    message("calculating cross correlation QC-metrics for Chip...")
+    message("\ncalculating cross correlation QC-metrics for Chip...")
+    message("=======================================================")
     crossvalues_Chip <- getCrossCorrelationScores(chip.data, 
         chip_binding.characteristics, 
         read_length = read_length, 
@@ -160,7 +179,10 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the input
     message("calculating binding characteristics for Input...")
-        
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
+        clear = FALSE, width = 60, incomplete = " ")
+    pb$tick()
+
     #switch cluster on
     if (mc > 1) {
         cluster <- parallel::makeCluster( mc )
@@ -170,7 +192,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         srange = estimating_fragment_length_range, 
         bin = estimating_fragment_length_bin, 
         accept.all.tags = TRUE, cluster = cluster)
-    
+    pb$tick()
+
     #switch cluster off   
     if (mc > 1) {
         parallel::stopCluster( cluster )
@@ -181,8 +204,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         save(chip_binding.characteristics, input_binding.characteristics, 
             file = file.path(getwd(),"bindingCharacteristics.RData"))
     }
-    
-    message("sorting chromosomes")
+
     ## get chromosome information and order chip and input by it
     chrl_final <- intersect(names(chip.data$tags), names(input.data$tags))
     chip.data$tags <- chip.data$tags[chrl_final]
@@ -192,10 +214,12 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     
     ## remove sigular positions with extremely high tag counts with respect 
     ## to the neighbourhood
+    message("\nremoving loval tag anomalies...")
     selectedTags <- removeLocalTagAnomalies(chip.data, input.data, 
         chip_binding.characteristics, 
         input_binding.characteristics)
-    
+    pb$tick()
+
     input.dataSelected <- selectedTags$input.dataSelected
     chip.dataSelected <- selectedTags$chip.dataSelected
     
@@ -205,7 +229,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     }
     
     ## get QC-values from peak calling
-    message("Peakcalling...")
+    message("\ncalculating QC-metrics from peak-calling...")
+    message("=======================================================")
     bindingScores <- getPeakCallingScores(chip.data, 
         input.data, 
         chip.dataSelected, 
@@ -215,12 +240,20 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         annotationID=annotationID,
         debug=debug)
     
-    message("tag smoothing...")    
+    message("\nTag smooting...")
+    message("=================")
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
+        clear = FALSE, width = 60, incomplete = " ")
+    pb$tick()
+
     ## objects of smoothed tag density for ChIP and Input
     smoothed.densityChip <- tagDensity(chip.dataSelected, final.tag.shift, 
         annotationID = annotationID, mc = mc)
+    pb$tick()
+
     smoothed.densityInput <- tagDensity(input.dataSelected, final.tag.shift, 
         annotationID = annotationID, mc = mc)
+    pb$tick()
     
     if ( debug )
     {
@@ -242,9 +275,9 @@ qualityScores_EM <- function(chipName, inputName, read_length,
             #QCscores_Input = crossvalues_Input, 
             QCscores_binding = bindingScores)
         filename <- file.path(getwd(), "CC.results")
-        file.remove(filename)
         write.table(writeout, file = filename,
-            row.names = TRUE, col.names = TRUE, quote = FALSE)
+            row.names = TRUE, col.names = TRUE, 
+            append = FALSE, quote = FALSE)
         save(smoothed.densityChip, smoothed.densityInput, 
             file = file.path(getwd(), "smoothed.RData"))
     }
@@ -325,6 +358,9 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 getCrossCorrelationScores <- function(data, bchar, annotationID="hg19", 
     read_length, savePlotPath = NULL, mc=1) 
 {
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 12, 
+        clear = FALSE, width = 60, incomplete = " ")
+
     ########## check if input format is ok
     if (!(is.list(data) & (length(data) == 2L))) 
         stop("Invalid format for data")
@@ -336,11 +372,11 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         stop("read_length must be numeric")
     if (read_length < 1) 
         stop("read_length must be > 0")
-    
+
     annotationID=f_annotationCheck(annotationID)
     ########## 
     cluster=NULL
-    
+        
     #chromInfo=f_chromInfoLoad(annotationID)
     
     ##filter for standard chromosomes
@@ -348,7 +384,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     #data$tags=data$tags[standardChroms]
     #data$quality=data$quality[standardChroms]
     data=f_clearChromStructure(data,annotationID)
-    
+    pb$tick()
 
     ## cross_correlation_customShift_withSmoothing parameters
     ## ccRangeSubset=cross_correlation_range_subset
@@ -358,12 +394,14 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     PhantomPeak_range <- c(-500, 1500)
     PhPeakbin <- 5
     
-    ## step 1.2: Phantom peak and cross-correlationBroad regions of enrichm
+    ## step 1.2: Phantom peak and cross-correlation
     if (mc > 1) {
         cluster <- parallel::makeCluster( mc )
     }
 
-    message("Phantom peak and cross-correlation...")
+    pb$tick()
+    message("\nPhantom peak and cross-correlation...")
+
     phChar <- spp::get.binding.characteristics(data, 
         srange = PhantomPeak_range, 
         bin = PhPeakbin, accept.all.tags = TRUE,
@@ -373,13 +411,15 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         parallel::stopCluster( cluster )
     }
 
+    pb$tick()
     ph_peakidx <- which(
         (phChar$cross.correlation$x >= (read_length - round(2 * PhPeakbin))) & 
         (phChar$cross.correlation$x <= (read_length + round(1.5 * PhPeakbin))))
     
     ph_peakidx <- ph_peakidx[which.max(phChar$cross.correlation$y[ph_peakidx])]
     phantom_cc <- phChar$cross.correlation[ph_peakidx, ]
-    
+
+
     ## Minimum value of cross correlation in srange
     min_cc <- phChar$cross.correlation[which.min(phChar$cross.correlation$y), ]
     ## Normalized Strand cross-correlation coefficient (NSC)
@@ -394,7 +434,8 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         NSC = NSC, RSC = RSC, quality_flag = qflag, 
         min_cc = min_cc, peak = phChar$peak, read_length = read_length)
     
-    message("smooting...")
+    pb$tick()
+    message("\nsmooting...")
     ## 2.0 smoothed cross correlation ss is subset selection
     ss <- which(bchar$cross.correlation$x %in% ccRangeSubset)
     bchar$cross.correlation <- bchar$cross.correlation[ss, ]
@@ -409,6 +450,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     ## plot cross correlation curve with smoothing
     
     strandShift <- bchar$peak$x
+
     message("Check strandshift...")
     
     a <- tryCatch({
@@ -428,13 +470,13 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     if (newShift != strandShift) {
         oldShift <- strandShift
         strandShift <- newShift
-        message("Strandshift is substituted")
+        message("Strandshift is adjusted")
     } else {
-        message("strandshift remains the same...")
+        message("strandshift not adjusted...")
     }
-    
+    pb$tick()
     ## 2.2 phantom peak with smoothing
-    message("Phantom peak with smoothing...")
+    message("\nPhantom peak with smoothing...")
     ## phantom.characteristics<-phantom.characteristics select a subset of 
     ## cross correlation profile where we expect the peak
     ss_forPeakcheck <- which(phChar$cross.correlation$x %in% ccRangeSubset)
@@ -476,7 +518,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         ## <-max(phantom.characteristics_cross.correlation_y_smoothed)
         phChar$peak$x
     }
-    
+
     if (!is.null(savePlotPath)) {
         message("Crosscorrelation plot saved under ",savePlotPath)
         filename <- file.path(savePlotPath, "CrossCorrelation.pdf")
@@ -528,8 +570,9 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         CC_B. = round(phScores$phantom_cc$y, 3), 
         CC_C. = round(phScores$min_cc$y, 3))
     
+    pb$tick()
     ## 4 NRF calculation
-    message("NRF calculation")
+    message("\nNRF calculation")
     
     ALL_TAGS <- sum(lengths(data$tags))
     UNIQUE_TAGS <- sum(lengths(lapply(data$tags, unique)))
@@ -541,14 +584,15 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     NRF_nostrand <- UNIQUE_TAGS_nostrand/ALL_TAGS
     
     ## to compensate for lib size differences
-    message("calculate different QC values... might take a few minutes")
+    pb$tick()
+    message("\ncalculate different QC values...")
     ## nomi<-rep(names(data$tags), sapply(data$tags, length))
     nomi <- rep(names(data$tags), lapply(data$tags, length))
     
     dataNRF <- unlist(data$tags)
     names(dataNRF) <- NULL
     dataNRF <- paste(nomi, dataNRF, sep = "")
-    
+    pb$tick()
     if (ALL_TAGS > 1e+07) {
         
         UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, 
@@ -563,7 +607,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
                 size = 1e+07, replace = TRUE))))
         })))
     }
-
+    pb$tick()
     NRF_LibSizeadjusted <- UNIQUE_TAGS_LibSizeadjusted/1e+07
 
     STATS_NRF <- list(CC_ALL_TAGS = ALL_TAGS, 
@@ -572,6 +616,8 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         CC_NRF = round(NRF,3), 
         CC_NRF_nostrand = round(NRF_nostrand,3), 
         CC_NRF_LibSizeadjusted = round(NRF_LibSizeadjusted,3))
+    
+    pb$tick()
     
     ## N1= number of genomic locations to which EXACTLY one 
     ## unique mapping read maps
@@ -588,6 +634,8 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         OUT <- x[!(x %in% duplicated_positions)]
         return(length(OUT))
     })))
+
+    pb$tick()
     
     ## Nd<-sum(sapply(lapply(data$tags, unique), length))
     Nd <- sum(unlist(lapply(data$tags, FUN = function(x) {
@@ -596,7 +644,6 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     
     PBC <- N1/Nd
     tag.shift <- round(strandShift/2)
-    
     finalList <- append(append(list(CC_StrandShift = strandShift, 
         tag.shift = tag.shift, 
         N1 = round(N1, 3), 
@@ -606,6 +653,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         CC_UNIQUE_TAGS_LibSizeadjusted = UNIQUE_TAGS_LibSizeadjusted), 
         phantomScores), 
         STATS_NRF)
+    pb$tick()
     return(finalList)
 }
 
@@ -693,6 +741,10 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     tag.shift = 75, mc=1, chrorder = NULL,
     debug = FALSE) 
 {
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
+        clear = FALSE, width = 60, incomplete = " ")
+    pb$tick()
+
     ########## check if input format is ok
     if (!(is.list(chip) & (length(chip) == 2L))) 
         stop("Invalid format for data")
@@ -717,14 +769,16 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     
     ## 5 broadRegions 6 enrichment broad regions zthresh_list<-c(3,4)
     current_window_size <- 1000
-    message("Broad regions of enrichment")
+    pb$tick()
+
+    message("\nBroad regions of enrichment")
     ## for (current_window_size in window_sizes_list) { for (current_zthresh in
     ## zthresh_list) {
     current_zthresh <- 4
 
     message("checking chromosomes")
     chip.dataSelected  <- f_clearChromStructure(chip.dataSelected,annotationID)
-    input.dataSelected <- f_clearChromStructure(input.dataSelected,annotationID)
+    input.dataSelected <-f_clearChromStructure(input.dataSelected,annotationID)
 
 
     broad.clusters <- spp::get.broad.enrichment.clusters(chip.dataSelected, 
@@ -739,6 +793,8 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         filename=file.path(getwd(),"broadEncirhmentCluster.broadPeak")
         spp::write.broadpeak.info(broad.clusters,filename)
     }
+    pb$tick()
+
     ### start end logE znrichment write.broadpeak.info(broad.clusters,
     ### paste('broadRegions', chip.data.samplename,
     ## input,input.data.samplename, 'window', current_window_size, 'zthresh',
@@ -750,13 +806,14 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     
     ## 12 get binding sites with FDR and eval
     chip.data12 <- chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
-    input.data12<- input.dataSelected[(names(input.dataSelected) %in% chrorder)]
+    input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
     
     if (mc > 1) {
         cluster <- makeCluster( mc )
     }
+    pb$tick()
 
-    message("Binding sites detection fdr")
+    message("\nBinding sites detection fdr")
     fdr <- 0.01
     detection.window.halfsize <- tag.shift
     message("Window Tag Density method - WTD")
@@ -767,8 +824,8 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         cluster = cluster)
     FDR_detect <- sum(unlist(lapply(bp_FDR$npl, function(d) length(d$x))))
     
-
-    message("Binding sites detection evalue")
+    pb$tick()
+    message("\nBinding sites detection evalue")
     eval <- 10
     bp_eval <- spp::find.binding.positions(signal.data = chip.data12, 
         control.data = input.data12, 
@@ -779,7 +836,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         stopCluster( cluster )
     }
 
-
+    pb$tick()
     if ( debug )
     {
         ## output detected binding positions
@@ -794,6 +851,9 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     ## filename=paste('WTC.binding.positions.evalue',
     ## chip.data.samplename,'input',input.data.samplename, 'txt', sep='.'))
     if (length(bp_eval$npl) > 1) {
+        pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
+            clear = FALSE, width = 60, incomplete = " ")
+        pb$tick()
         ## 14 get precise binding position using escore LARGE PEAKS
         bp_broadpeak <- spp::add.broad.peak.regions(chip.data12, 
             input.data12, 
@@ -808,6 +868,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
                 file.path(getwd(),".peaks.narrowPeak"))
         }
 
+        pb$tick()
         md <- f_converNarrowPeakFormat(bp_broadpeak)
         sharpPeakRangesObject <- f_makeGRangesObject(Chrom = md[, 1], 
             Start = md[, 2], End = md[, 3])
@@ -826,14 +887,17 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         
         if ( debug )
         {        
-            file.remove(file.path(getwd(),"broadPeakRanges.bed"),
-            showWarnings = FALSE)
+            if ( file.exists( file.path (getwd(),"broadPeakRanges.bed" )))
+            {
+                file.remove( file.path (getwd(),"broadPeakRanges.bed" ))
+            }
             list=lapply(regions_data_list,function(chr){
                 #print(chr)
                 text <- cbind(as.character(chr$seqnames), 
                     as.numeric(chr$start),
                     as.numeric(chr$end))
-                write.table(text, file = file.path(getwd(),"broadPeakRanges.bed"),
+                write.table(text, 
+                    file = file.path(getwd(),"broadPeakRanges.bed"),
                 append =TRUE, 
                 quote = FALSE, 
                 row.names = FALSE,
@@ -843,7 +907,9 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 
         chrl <- names(regions_data_list)
         names(chrl) <- chrl
-        
+
+        pb$tick()
+
         outcountsBroadPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
             sum(spp::points_withinFunction(x = abs(chip.test[[chr]]), 
                 fs = regions_data_list[[chr]]$start, 
@@ -861,8 +927,10 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 
         if ( debug )
         {        
-            file.remove(file.path(getwd(),"sharpPeakRanges.bed"),
-                showWarnings = FALSE)
+            if ( file.exists( file.path (getwd(),"sharpPeakRanges.bed" )))
+            {
+                file.remove( file.path (getwd(),"sharpPeakRanges.bed" ))
+            }
             list <- lapply(regions_data_list, function(chr){
                 #print(chr)
                 text <- cbind(as.character(chr$seqnames), 
@@ -878,6 +946,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
             })
         }
 
+        pb$tick()
 
         chrl <- names(regions_data_list)
         names(chrl) <- chrl
@@ -897,7 +966,9 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         FRiP_sharpPeak <- 0
         outcountsSharpPeak <- 0
     }
-    
+
+    pb$tick()
+
     QCscoreList <- list(CC_FDRpeaks = round(FDR_detect, 3), 
         CC_evalpeaks = round(eval_detect, 3), 
         CC_FRiP_broadPeak = round(FRiP_broadPeak, 3), 
@@ -1005,6 +1076,13 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL, 
     debug = FALSE) 
 {
+    message("Calculating GM...")
+    message("=======================================================")
+
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
+        clear = FALSE, width = 60, incomplete = " ")
+    pb$tick()
+
     ########## check if input format is ok
     if (!is.list(densityChip)) 
         stop("Invalid format for densityChip")
@@ -1026,18 +1104,20 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
         FUN = function(list_element) {
         return(list_element$y)
     }))
+    pb$tick()
     
     ## create cumulative function for chip and input
     cumSumChip <- f_sortAndBinning(chip)
     cumSumInput <- f_sortAndBinning(input)
     
     ## caluclate QCvalues for chip
-    message("Calculate GM for ChIP ...")
+    message("\nCalculate GM for ChIP ...")
     chipFracTopPercent <- (1-cumSumChip[(which(cumSumChip$x >= 0.99)[1]),"pj"])
     chipFracOfBinsWithoutReads <- cumSumChip$x[(which(cumSumChip$pj > 0)[1])]
-    
+    pb$tick()
+
     ## caluclate QCvalues for input
-    message("Calculate GM for Input ...")
+    message("\nCalculate GM for Input ...")
     inputFracTopPercent <- (1-
         cumSumInput[(which(cumSumInput$x >= 0.99)[1]),"pj"])
     inputFracWithoutReads <- cumSumInput$x[(which(cumSumInput$pj > 0)[1])]
@@ -1046,7 +1126,8 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
     ##  and the sign of the distance
     sign_sign <- sign(max(cumSumInput$pj - cumSumChip$pj))  ###input-chip
     arrowx <- cumSumChip[which.max(abs(cumSumInput$pj - cumSumChip$pj)), ]$x
-    
+    pb$tick()
+
     ## get the distance between the curves
     yIn <- round(
         cumSumInput[which.max(abs(cumSumInput$pj - cumSumChip$pj)), ]$pj, 3)
@@ -1075,6 +1156,8 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
             col.names = TRUE, quote = FALSE, append=FALSE)
     }
     ## return QC values
+    pb$tick()
+
     message("Calculation of GM done!")
     return(finalList)
 }
@@ -1204,6 +1287,9 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     }
     ########## 
     
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
+        clear = FALSE, width = 60, incomplete = " ")
+
     annotObject <- f_annotationLoad(annotationID)
         
     annotObjectNew <- data.frame(annotObject@.Data, annotObject@annotation, 
@@ -1216,19 +1302,25 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     
     ## two.point.scaling create scaled metageneprofile input
     message("Calculating scaled metageneprofile ...")
+
     smoothed.densityInput <- list(td = smoothed.densityInput)
     message("process input")
+    pb$tick()
     
     binned_Input <- masked_t.get.gene.av.density(smoothed.densityInput, 
         gdl = annotatedGenesPerChr, 
         mc = mc)
+    pb$tick()
     
     ## Chip
     smoothed.densityChip <- list(td = smoothed.densityChip)
     message("process ChIP")
+    pb$tick()
+
     binned_Chip <- masked_t.get.gene.av.density(smoothed.densityChip, 
         gdl = annotatedGenesPerChr, 
         mc = mc)
+    pb$tick()
     
     geneBody <- list(chip = binned_Chip, input = binned_Input)
     
@@ -1243,7 +1335,8 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
         gdl = annotatedGenesPerChr, 
         mc = mc, tag = "TSS")
     onepointTSS <- list(chip = binnedChip_TSS, input = binnedInput_TSS)
-    
+    pb$tick()
+
     ## one.point.scaling create non-scaled metageneprofile for TES
     message("...TES")
     binnedInput_TES <- masked_getGeneAvDensity_TES_TSS(smoothed.densityInput, 
@@ -1253,7 +1346,8 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
         gdl = annotatedGenesPerChr, 
         mc = mc, tag = "TES")
     onepointTES <- list(chip = binnedChip_TES, input = binnedInput_TES)
-    
+    pb$tick()
+
     if ( debug ) {
         message("Debuggin mode ON...")
         message("writing metageneprofiles Rdata objects")
@@ -1306,7 +1400,6 @@ readBamFile <- function(filename) {
         stop("Invalid filename (String required)")
     ######### 
     result <- f_readFile(filename = filename, reads.aligner.type = "bam")
-    meassage("bam file read!")
     return(result)
 }
 
@@ -1467,34 +1560,34 @@ removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
 
 tagDensity <- function(data, tag.shift, annotationID = "hg19", mc = 1) {
     ########## check if input format is ok
-    if (!is.list(data)) 
-        stop("Invalid format for data")
+    if ( !is.list(data) ) 
+        stop( "Invalid format for data" )
     
-    if (!is.numeric(tag.shift)) 
-        stop("tag.shift must be numeric")
-    if (tag.shift < 1) 
-        stop("tag.shift must be > 0")
+    if ( !is.numeric(tag.shift) ) 
+        stop( "tag.shift must be numeric" )
+    if ( tag.shift < 1 ) 
+        stop( "tag.shift must be > 0" )
     
-    annotationID=f_annotationCheck(annotationID)
+    annotationID <- f_annotationCheck( annotationID )
     
-    if (!is.numeric(mc)) {
-        warning("mc must be numeric")
+    if ( !is.numeric(mc) ) {
+        warning( "mc must be numeric" )
         mc <- 1
     }
     
-    if (mc < 1) {
-        warning("mc set to 1")
+    if ( mc < 1 ) {
+        warning( "mc set to 1" )
         mc <- 1
     }
     ########## 
-    message("load chrom_info")
-    chromInfo=f_chromInfoLoad(annotationID)
-    data=f_clearChromStructure(data,annotationID)
-    smoothed.density <- f_tagDensity(data = data, 
+    message( "load chrom_info" )
+    chromInfo <- f_chromInfoLoad( annotationID )
+    data <- f_clearChromStructure( data,annotationID )
+    smoothed.density <- f_tagDensity( data = data, 
         tag.shift = tag.shift, 
         chromDef = chromInfo, 
         mc = mc)
-    return(smoothed.density)
+    return( smoothed.density )
 }
 
 
@@ -1525,20 +1618,20 @@ tagDensity <- function(data, tag.shift, annotationID = "hg19", mc = 1) {
 #' listAvailableElements(target="mark")
 #'
 
-listAvailableElements <- function(target)
+listAvailableElements <- function( target )
 {
-    if (target=="TF") {
-        message("The following TF are available:")
-        f_metaGeneDefinition("TFlist")
-    }else if (target =="mark") { 
-        message("The following chromatin marks are available:")
-        f_metaGeneDefinition("Hlist")
-    }else if (target %in% f_metaGeneDefinition("Hlist")) { 
-        message("Chromatin mark available for comparison analysis")
-    }else if (target %in% f_metaGeneDefinition("TFlist")) { 
-        message("transcription factor available for comparison analysis")
-    }else{
-        stop("No match found.")
+    if ( target == "TF" ) {
+        message( "The following TF are available:" )
+        f_metaGeneDefinition( "TFlist" )
+    } else if ( target == "mark" ) { 
+        message( "The following chromatin marks are available:" )
+        f_metaGeneDefinition( "Hlist" )
+    } else if ( target %in% f_metaGeneDefinition("Hlist") ) { 
+        message( "Chromatin mark available for comparison analysis" )
+    } else if ( target %in% f_metaGeneDefinition( "TFlist" )) { 
+        message( "transcription factor available for comparison analysis" )
+    } else {
+        stop( "No match found." )
     }
 }
 
@@ -1554,9 +1647,9 @@ listAvailableElements <- function(target)
 #' @param dataset String, to specify the dataset for which the IDs 
 #' have to be returned. Valid keywords are "ENCODE" and "Roadmap".
 #'
-#' @return "ENCODE" returns a vecor of transcription factor, chromatin mark and 
-#' RNAPol2 sample IDs from ENCODE, "Roadmap" returns a vector of 
-#' chromatin mark IDs from Roadmap that have been included in the compendium.  
+#' @return "ENCODE" returns a vecor of transcription factor, chromatin mark  
+#' and RNAPol2 sample IDs from ENCODE, "Roadmap" returns a vector of 
+#' chromatin mark IDs from Roadmap that have been included in the compendium.
 #'
 #' @export
 #'
@@ -1566,25 +1659,25 @@ listAvailableElements <- function(target)
 #' listDatasets(dataset="Roadmap")
 #'
 
-listDatasets <- function(dataset)
+listDatasets <- function( dataset )
 {
 
-    EIDs <- rownames(ChIC.data::compendium_db)[
-        grep("ENC",rownames(ChIC.data::compendium_db))]
+    EIDs <- rownames( ChIC.data::compendium_db )[
+        grep( "ENC", rownames( ChIC.data::compendium_db ))]
 
-    if (dataset=="ENCODE") {
-        message("ENCODE IDs ")
-        c(EIDs,rownames(ChIC.data::compendium_db_tf))
+    if ( dataset == "ENCODE" ) {
+        message( "ENCODE IDs: " )
+        c( EIDs, rownames(ChIC.data::compendium_db_tf) )
 
-    }else if (dataset=="Roadmap") { 
+    } else if ( dataset == "Roadmap" ) { 
 
-        message("Roadmap IDs ")
-        rownames(ChIC.data::compendium_db)[
-            ! rownames(ChIC.data::compendium_db) %in% EIDs ]
+        message( "Roadmap IDs: " )
+        rownames( ChIC.data::compendium_db ) [
+            ! rownames (ChIC.data::compendium_db) %in% EIDs ]
 
-    }else{
-        stop("No match found. Please use the keywords: 
-            \"ENCODE\" or \"Roadmap\"")
+    } else {
+        stop( "No match found. Please use the keywords: 
+            \"ENCODE\" or \"Roadmap\"" )
     }
 }
 

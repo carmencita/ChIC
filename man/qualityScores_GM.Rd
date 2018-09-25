@@ -5,7 +5,7 @@
 \title{Wrapper function to calculate GM metrics from global read distribution}
 \usage{
 qualityScores_GM(densityChip, densityInput, savePlotPath = NULL,
-  debug = FALSE)
+    debug = FALSE)
 }
 \arguments{
 \item{densityChip}{Smoothed tag-density object for ChIP (returned by
