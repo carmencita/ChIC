@@ -18,8 +18,8 @@
 #' returned by createMetageneProfile()
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param debug String, to enter debugging mode. If path is set then 
-#' intermediate files are saved (default= NULL)
+#' @param debug Boolean, to enter debugging mode. Intermediate files are 
+#' saved in working directory
 #'
 #' @export
 #'
@@ -81,7 +81,7 @@
 #'}
 
 
-qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = NULL)
+qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
 {
     stopifnot(length(data) == 2L)
     
@@ -188,14 +188,14 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = NULL)
     p3 <- rbind(hotSpotsValuesNorm, maxAucValuesNorm)
     result <- data.frame(cbind(p1, p3))
     
-    if (!is.null(debug)) {
+    if ( debug ) {
         message("Debugging mode ON")
-        outname <- file.path(debug, "geneBody.result")
-        file.remove(outname)
+        outname <- file.path(getwd(), "geneBody.result")
         write.table(result, file = outname, row.names = TRUE, 
-            col.names = TRUE, quote = FALSE)
+            col.names = TRUE, quote = FALSE, append=FALSE)
     }
     
+    message("Calculation of LM for scaled profile done!")
     return(result)
 }
 
@@ -223,8 +223,8 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = NULL)
 #' TES profile should be calcualted (Default='TSS')
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param debug String, to enter debugging mode. If path is set then 
-#' intermediate files are saved (default= NULL)
+#' @param debug Boolean, to enter debugging mode. Intermediate files are 
+#' saved in working directory
 #'
 #' @export
 #'
@@ -287,7 +287,7 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = NULL)
 #' savePlotPath=filepath))
 #'}
 
-qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = NULL) 
+qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE) 
 {
     stopifnot(tag %in% c("TES", "TSS"))
     stopifnot(length(data) == 2L)
@@ -417,13 +417,14 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = NULL)
         variabilityValuesNorm[[3]])
     result <- data.frame(cbind(rbind(p1, p2), rbind(p3, p4)))
     
-    if (!is.null(debug)) {
+    if (debug) {
         message("Debugging mode ON")
-        outname <- file.path(debug, 
+        outname <- file.path(getwd(), 
             paste(tag, "onepoints.result", sep = "_"))
-        file.remove(outname)
         write.table(result, file = outname, 
-            row.names = TRUE, col.names = TRUE, quote = FALSE)
+            row.names = TRUE, col.names = TRUE, 
+            append = FALSE, quote = FALSE)
     }
+    message("Calculation of LM for non-scaled profiles done!")
     return(result)
 }

@@ -21,7 +21,7 @@
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
 #'
-#' @return nothing, creates a figure under 'savePlotPath'
+#' @return Creates a pdf figure under 'savePlotPath'
 #'
 #' @export
 #'
@@ -88,7 +88,8 @@
 #'     target = "H3K4me3", tag = "geneBody")
 #'}
 
-metagenePlotsForComparison <- function(data, target, tag, savePlotPath=NULL)
+metagenePlotsForComparison <- function(data, target, tag, 
+    savePlotPath = NULL)
 {
     # pseudocount, required to avoid log2 of 0
     psc <- 1
@@ -104,6 +105,7 @@ metagenePlotsForComparison <- function(data, target, tag, savePlotPath=NULL)
         stop("tag not valid! Please use: geneBody, TES or TSS")
     ########## 
     
+    message("Calculating metagene profiles...")
     iframe <- log2(do.call(rbind, data$input) + psc)
     cframe <- log2(do.call(rbind, data$chip) + psc)
     
@@ -145,6 +147,7 @@ metagenePlotsForComparison <- function(data, target, tag, savePlotPath=NULL)
     normMax <- max(nframe$mean, normMax)
     
     # create comparison plots
+    message("Creating comparison plots...")
     f_plotProfiles(i_mean, iframe, tag, c(newMin - 0.001, newMax + 0.001), 
         maintitel = paste(target, tag, "Input", sep = "_"), 
         savePlotPath = savePlotPath)
@@ -157,6 +160,11 @@ metagenePlotsForComparison <- function(data, target, tag, savePlotPath=NULL)
         maintitel = paste(target, tag, "norm", sep = "_"), 
         ylab = "mean log2 enrichment (signal/input)", 
         savePlotPath = savePlotPath)
+    
+    if (!is.null(savePlotPath))
+    {
+        message("Plots have been saved under ",savePlotPath)
+    }
 }
 
 
@@ -242,6 +250,11 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
         title = paste(metricToBePlotted, "\n", 
             target, profileInfo$tag, set = " "),
         currentValue, savePlotPath)
+    
+    if (!is.null(savePlotPath))
+    {
+        message("Plots have been saved under ",savePlotPath)
+    }
 }
 
 
@@ -339,9 +352,11 @@ predictionScore <- function(target, features_cc, features_global,
 
     ########## check if input format is ok
     if ((!(target %in% f_metaGeneDefinition("Hlist"))) &
-        (!(target %in% f_metaGeneDefinition("TFlist"))))
-        stop("Chromatin mark or transcription factor not valid.
-            Check manual for valid options.")
+        (!(target %in% f_metaGeneDefinition("TFlist"))) &
+        (!(target == "TF"))) 
+            stop("Chromatin mark or transcription factor not valid.
+                Check \"listAvailableElements()\" function for valid options.")
+
     if (!(is.list(features_cc) & (length(features_cc) == 4L)))
         stop("Invalid format for features_cc")
     if (!(is.list(features_global) & (length(features_global) == 9L)))
@@ -354,7 +369,7 @@ predictionScore <- function(target, features_cc, features_global,
         stop("Invalid format for features_scaled")
     ########## 
 
-    message("load prediction models...")
+    message("loading prediction model for ", target)
 
     ## loaad prediction model
     pmodel <- f_getPredictionModel(id = target)
@@ -411,7 +426,6 @@ predictionScore <- function(target, features_cc, features_global,
         return(word)
     })
     rownames(helper) <- a
-    
     selectedFeat[!(selectedFeat %in% rownames(helper))]
     fVector <- data.frame(values = unlist(
         helper[rownames(helper) %in% selectedFeat, ]))
@@ -420,5 +434,6 @@ predictionScore <- function(target, features_cc, features_global,
     fVector$Class <- as.factor("P")
     
     prediction <- predict(pmodel, newdata = fVector, type = "prob")
+    message("Predicted QC score is ", prediction$P )
     return(prediction$P)
 }

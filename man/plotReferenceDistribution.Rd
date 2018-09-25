@@ -4,8 +4,8 @@
 \alias{plotReferenceDistribution}
 \title{Function to create reference distribution plot for comparison}
 \usage{
-plotReferenceDistribution(target, metricToBePlotted = "RSC", currentValue,
-    savePlotPath = NULL)
+plotReferenceDistribution(target, metricToBePlotted = "RSC",
+  currentValue, savePlotPath = NULL)
 }
 \arguments{
 \item{target}{String, chromatin mark or transcription factor to be analysed.

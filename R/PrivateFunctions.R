@@ -131,7 +131,6 @@ f_readFile <- function(filename, reads.aligner.type) {
     ## readCount <- sum(unlist(lapply(data$tags, length)))
     readCount <- sum(lengths(data$tags))
     message(readCount)
-    
     return(data)
 }
 
@@ -140,6 +139,8 @@ f_readFile <- function(filename, reads.aligner.type) {
 ## filters canonical chromosomes 
 f_clearChromStructure <- function(structure, annotationID) {
     ##delete empty chromosomes
+    message("load chrom_info")
+
     chInf <- f_chromInfoLoad(annotationID)
     dCheck <- NULL
     ##check on regulare chromosomes
@@ -476,9 +477,7 @@ f_fingerPrintPlot <- function(cumChip, cumInput, savePlotPath = NULL) {
     ## abline(v=schneidePunktX,col='cyan',lty=2,lwd=2)
     legend("topleft", legend = c("Input", "ChIP"), fill = c("red", "blue"))
     if (!is.null(savePlotPath)) {
-        dev.off()
-        message("pdf saved under ", filename)
-        
+        dev.off()        
     }
 }
 
@@ -826,7 +825,7 @@ f_annotationLoad <- function(annotationID)
 f_chromInfoLoad <- function(annotationID)
 {
     ## load chrom_info
-    message("load chrom_info")
+    ##message("load chrom_info")
     if (annotationID == "hg19") {
         # hg19_chrom_info=NULL
         data("hg19_chrom_info", package = "ChIC.data", envir = environment())
@@ -1390,7 +1389,6 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
         bg = "white")
     if (!is.null(savePlotPath)) {
         dev.off()
-        message("pdf saved under", filename)
     }
 }
 
@@ -1455,7 +1453,6 @@ f_plotValueDistribution <- function(compendium, title, coordinateLine,
     
     if (!is.null(savePlotPath)) {
         dev.off()
-        message("pdf saved under ", filename)
     }
 }
 

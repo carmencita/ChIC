@@ -23,13 +23,12 @@
 
 
 
-#' @title Wrapper function to calculate QC-metrics from cross-correlation 
-#' analysis, QC-metrics designed for TFs and QC-metrics from peak-calls
+#' @title Wrapper function to calculate EM metrics
 #'
 #' @description
-#' Wrapper function that reads bam files and provides QC-metrics from 
-#' cross-correlation analysis, from peak calling and general metrics like 
-#' read-length or NRF. In total 22 features are calculated.
+#' Wrapper that reads bam files and provides EM QC-metrics from 
+#' cross-correlation analysis, peak calling and general metrics like 
+#' for example the read-length or NRF. In total 22 features are calculated.
 #'
 #' qualityScores_EM
 #'
@@ -42,8 +41,8 @@
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param savePlotPath, set if Cross-correlation plot should be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout
-#' @param debug String, to enter debugging mode. If path is set then 
-#' intermediate files are saved (default= NULL)
+#' @param debug Boolean, to enter debugging mode. Intermediate files are 
+#' saved in working directory
 #'
 #' @return returnList, contains
 #' QCscores_ChIP List of QC-metrics with crosscorrelation values for the ChIP
@@ -87,7 +86,7 @@
 
 
 qualityScores_EM <- function(chipName, inputName, read_length, 
-    annotationID = "hg19", mc = 1, savePlotPath = NULL, debug = NULL) 
+    annotationID = "hg19", mc = 1, savePlotPath = NULL, debug = FALSE) 
 {
     ########## check if input format is ok
     if (!(is.character(chipName) & is.character(inputName))) 
@@ -115,15 +114,15 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     chip.data <- readBamFile(chipName)
     input.data <- readBamFile(inputName)
 
-    if (!is.null(debug)) {
+    if ( debug ) {
         message("Debugging mode ON")
         save(chip.data, input.data, 
-            file = file.path(debug, "bamFiles.RData"))
+            file = file.path(getwd(), "bamFiles.RData"))
     }
 
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the ChIP
-    message("calculate binding characteristics ChIP")
+    message("calculating binding characteristics for ChIP... ")
     ## cross_correlation parameters
     estimating_fragment_length_range <- c(0, 500)
     estimating_fragment_length_bin <- 5
@@ -148,20 +147,19 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         parallel::stopCluster( cluster )
     }
 
-    message("calculate cross correlation QC-metrics for the Chip")
+    message("calculating cross correlation QC-metrics for Chip...")
     crossvalues_Chip <- getCrossCorrelationScores(chip.data, 
         chip_binding.characteristics, 
         read_length = read_length, 
         savePlotPath = savePlotPath, 
         mc = mc,
-        annotationID = annotationID,
-        plotname = "ChIP")
+        annotationID = annotationID)
     ## save the tag.shift
     final.tag.shift <- crossvalues_Chip$tag.shift
     
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the input
-    message("calculate binding characteristics Input")
+    message("calculating binding characteristics for Input...")
         
     #switch cluster on
     if (mc > 1) {
@@ -179,12 +177,12 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     }
 
 
-    if ((!is.null(debug)) ) {
+    if ( debug ) {
         save(chip_binding.characteristics, input_binding.characteristics, 
-            file = file.path(debug,"bindingCharacteristics.RData"))
+            file = file.path(getwd(),"bindingCharacteristics.RData"))
     }
     
-    message("sort chromosomes")
+    message("sorting chromosomes")
     ## get chromosome information and order chip and input by it
     chrl_final <- intersect(names(chip.data$tags), names(input.data$tags))
     chip.data$tags <- chip.data$tags[chrl_final]
@@ -201,12 +199,13 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     input.dataSelected <- selectedTags$input.dataSelected
     chip.dataSelected <- selectedTags$chip.dataSelected
     
-    if ((!is.null(debug)) ) {
+    if ( debug) {
         save(chip.dataSelected, input.dataSelected, 
-            file = file.path(debug,"dataSelected.RData"))
+            file = file.path(getwd(),"dataSelected.RData"))
     }
     
     ## get QC-values from peak calling
+    message("Peakcalling...")
     bindingScores <- getPeakCallingScores(chip.data, 
         input.data, 
         chip.dataSelected, 
@@ -216,20 +215,20 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         annotationID=annotationID,
         debug=debug)
     
-    message("tag smoothing")    
+    message("tag smoothing...")    
     ## objects of smoothed tag density for ChIP and Input
     smoothed.densityChip <- tagDensity(chip.dataSelected, final.tag.shift, 
         annotationID = annotationID, mc = mc)
     smoothed.densityInput <- tagDensity(input.dataSelected, final.tag.shift, 
         annotationID = annotationID, mc = mc)
     
-    if ((!is.null(debug)) )
+    if ( debug )
     {
         message("saving tracks as wig...")
         f_writewig(smoothed.densityChip, 
-            file.path(debug, "chip.wig"),"track chip")
+            file.path(getwd(), "chip.wig"),"track chip")
         f_writewig(smoothed.densityInput, 
-            file.path(debug,"input.wig"),"track input")
+            file.path(getwd(),"input.wig"),"track input")
     }
 
     returnList <- list(QCscores_ChIP = crossvalues_Chip, 
@@ -238,21 +237,21 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         TagDensityChip = smoothed.densityChip, 
         TagDensityInput = smoothed.densityInput)
     
-    if ((!is.null(debug)) ) {
+    if ( debug ) {
         writeout <- list(QCscores_ChIP = crossvalues_Chip, 
             #QCscores_Input = crossvalues_Input, 
             QCscores_binding = bindingScores)
-        filename <- file.path(debug, "CC.results")
+        filename <- file.path(getwd(), "CC.results")
         file.remove(filename)
         write.table(writeout, file = filename,
             row.names = TRUE, col.names = TRUE, quote = FALSE)
         save(smoothed.densityChip, smoothed.densityInput, 
-            file = file.path(debug,"smoothed.RData"))
+            file = file.path(getwd(), "smoothed.RData"))
     }
+    message("Calculation of EM done!")
     return(returnList)
     
 }
-
 
 
 #' @title QC-metrics from cross-correlation profile, phantom peak and 
@@ -288,8 +287,6 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #' @param read_length Integer, read length of "data" (Defaul="36") 
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param plotname Name of the crossCorrelation plot (pdf). Available only 
-#' if savePlotPath is set
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #'
@@ -326,7 +323,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 #'}
 
 getCrossCorrelationScores <- function(data, bchar, annotationID="hg19", 
-    read_length, savePlotPath = NULL, plotname = "phantom", mc=1) 
+    read_length, savePlotPath = NULL, mc=1) 
 {
     ########## check if input format is ok
     if (!(is.list(data) & (length(data) == 2L))) 
@@ -366,7 +363,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         cluster <- parallel::makeCluster( mc )
     }
 
-    message("Phantom peak and cross-correlation")
+    message("Phantom peak and cross-correlation...")
     phChar <- spp::get.binding.characteristics(data, 
         srange = PhantomPeak_range, 
         bin = PhPeakbin, accept.all.tags = TRUE,
@@ -437,7 +434,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     }
     
     ## 2.2 phantom peak with smoothing
-    message("Phantom peak with smoothing")
+    message("Phantom peak with smoothing...")
     ## phantom.characteristics<-phantom.characteristics select a subset of 
     ## cross correlation profile where we expect the peak
     ss_forPeakcheck <- which(phChar$cross.correlation$x %in% ccRangeSubset)
@@ -481,8 +478,8 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     }
     
     if (!is.null(savePlotPath)) {
-        filename <- file.path(savePlotPath, 
-            paste(plotname, "CrossCorrelation.pdf", sep = "_"))
+        message("Crosscorrelation plot saved under ",savePlotPath)
+        filename <- file.path(savePlotPath, "CrossCorrelation.pdf")
         pdf(file = filename)
     }
     
@@ -638,8 +635,8 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
 #' @param annotationID String indicating the genome assembly (Default="hg19")
 #' @param chrorder chromosome order (default=NULL) 
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
-#' @param debug String, to enter debugging mode. If path is set then 
-#' intermediate files are saved (default= NULL)
+#' @param debug Boolean, to enter debugging mode. Intermediate files are 
+#' saved in working directory
 #'
 #' @return QCscoreList List with 6 QC-values
 #'
@@ -694,7 +691,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
 getPeakCallingScores <- function(chip, input, chip.dataSelected, 
     input.dataSelected, annotationID="hg19",
     tag.shift = 75, mc=1, chrorder = NULL,
-    debug=NULL) 
+    debug = FALSE) 
 {
     ########## check if input format is ok
     if (!(is.list(chip) & (length(chip) == 2L))) 
@@ -736,10 +733,10 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         z.thr = current_zthresh, 
         tag.shift = tag.shift)
 
-    if (!is.null(debug)) 
+    if (debug)
     {
         message("Debugging mode ON")
-        filename=file.path(debug,"broadEncirhmentCluster.broadPeak")
+        filename=file.path(getwd(),"broadEncirhmentCluster.broadPeak")
         spp::write.broadpeak.info(broad.clusters,filename)
     }
     ### start end logE znrichment write.broadpeak.info(broad.clusters,
@@ -783,14 +780,14 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     }
 
 
-    if (!is.null(debug))
+    if ( debug )
     {
         ## output detected binding positions
-
+        message("writing detected binding positions to workingdirectory")
         spp::output.binding.results(bp_FDR, 
-            file.path(debug,"FDR_bindingPositions.txt"))
+            file.path(getwd(),"FDR_bindingPositions.txt"))
         spp::output.binding.results(bp_eval, 
-            file.path(debug,"eval_bindingPositions.txt"))
+            file.path(getwd(),"eval_bindingPositions.txt"))
     }
     
     ## output detected binding positions output.binding.results(results=bp,
@@ -803,11 +800,12 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
             bp_eval, 
             window.size = 1000, z.thr = 3)
         
-        if (!is.null(debug))
+        if (debug)
         {
+            message("writing output in narrowpead format...")
             ## output using narrowpeak format
             spp::write.narrowpeak.binding(bp_broadpeak, 
-                file.path(debug,".peaks.narrowPeak"))
+                file.path(getwd(),".peaks.narrowPeak"))
         }
 
         md <- f_converNarrowPeakFormat(bp_broadpeak)
@@ -826,15 +824,16 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         regions_data_list <- split(as.data.frame(broadPeakRangesObject), 
             f = seqnames(broadPeakRangesObject))
         
-        if ((!is.null(debug)) )
+        if ( debug )
         {        
-            file.remove(file.path(debug,"broadPeakRanges.bed"))
+            file.remove(file.path(getwd(),"broadPeakRanges.bed"),
+            showWarnings = FALSE)
             list=lapply(regions_data_list,function(chr){
                 #print(chr)
                 text <- cbind(as.character(chr$seqnames), 
                     as.numeric(chr$start),
                     as.numeric(chr$end))
-                write.table(text, file = file.path(debug,"broadPeakRanges.bed"),
+                write.table(text, file = file.path(getwd(),"broadPeakRanges.bed"),
                 append =TRUE, 
                 quote = FALSE, 
                 row.names = FALSE,
@@ -860,9 +859,10 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         regions_data_list <- split(as.data.frame(sharpPeakRangesObject), 
             f = seqnames(sharpPeakRangesObject))
 
-        if ((!is.null(debug)) )
+        if ( debug )
         {        
-            file.remove(file.path(debug,"sharpPeakRanges.bed"))
+            file.remove(file.path(getwd(),"sharpPeakRanges.bed"),
+                showWarnings = FALSE)
             list <- lapply(regions_data_list, function(chr){
                 #print(chr)
                 text <- cbind(as.character(chr$seqnames), 
@@ -870,7 +870,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
                     as.numeric(chr$end))
 
                 write.table(text, 
-                    file = file.path(debug,"sharpPeakRanges.bed"), 
+                    file = file.path(getwd(),"sharpPeakRanges.bed"), 
                     append =TRUE, 
                     quote = FALSE, 
                     row.names = FALSE,
@@ -916,7 +916,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 #####                                                      ####################
 ###############################################################################
 
-#'@title Metrics taken from global read distribution
+#'@title Wrapper function to calculate GM metrics from global read distribution
 #'
 #' @description
 #' This set of values is based on the global read distribution along the genome 
@@ -941,8 +941,8 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 #' qualityScores_EM)
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
-#' @param debug String, to enter debugging mode. If path is set then 
-#' intermediate files are saved (default= NULL)
+#' @param debug Boolean, to enter debugging mode. Intermediate files are 
+#' saved in working directory
 #'
 #' @return finalList List with 9 QC-values
 #'
@@ -1003,7 +1003,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 #'}
 
 qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL, 
-    debug = NULL) 
+    debug = FALSE) 
 {
     ########## check if input format is ok
     if (!is.list(densityChip)) 
@@ -1013,7 +1013,7 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
     ########## 
     
     ## shorten frame and reduce resolution
-    message("shorten frame")
+    message("shorten frame...")
     chip.smoothed.density <- f_shortenFrame(densityChip)
     input.smoothed.density <- f_shortenFrame(densityInput)
     
@@ -1028,15 +1028,16 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
     }))
     
     ## create cumulative function for chip and input
-    message("Calculate cumsum")
     cumSumChip <- f_sortAndBinning(chip)
     cumSumInput <- f_sortAndBinning(input)
     
     ## caluclate QCvalues for chip
+    message("Calculate GM for ChIP ...")
     chipFracTopPercent <- (1-cumSumChip[(which(cumSumChip$x >= 0.99)[1]),"pj"])
     chipFracOfBinsWithoutReads <- cumSumChip$x[(which(cumSumChip$pj > 0)[1])]
     
     ## caluclate QCvalues for input
+    message("Calculate GM for Input ...")
     inputFracTopPercent <- (1-
         cumSumInput[(which(cumSumInput$x >= 0.99)[1]),"pj"])
     inputFracWithoutReads <- cumSumInput$x[(which(cumSumInput$pj > 0)[1])]
@@ -1061,18 +1062,20 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
         Ch_Fractions_without_reads_chip = round(chipFracOfBinsWithoutReads, 3),
         Ch_Fractions_without_reads_input = round(inputFracWithoutReads, 3), 
         Ch_DistanceInputChip = dist)
+
     ## create Fingerprint plot
     f_fingerPrintPlot(cumSumChip, cumSumInput, savePlotPath = savePlotPath)
-    
-    if ((!is.null(debug)) ) {
+    if (!is.null(savePlotPath))    
+        message("pdf saved under ", savePlotPath)
+
+    if ( debug ) {
         message("Debugging mode ON")
-        outname <- file.path(debug, "Chance.result")
-        file.remove(outname)
-        
+        outname <- file.path(getwd(), "Chance.result")        
         write.table(finalList, file = outname, row.names = TRUE, 
-            col.names = TRUE, quote = FALSE)
+            col.names = TRUE, quote = FALSE, append=FALSE)
     }
     ## return QC values
+    message("Calculation of GM done!")
     return(finalList)
 }
 
@@ -1107,8 +1110,8 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
 #' @param tag.shift Integer containing the value of the tag shif, calculated by
 #' getCrossCorrelationScores()
 #' @param annotationID String indicating the genome assembly (Default="hg19")
-#' @param debug String, to enter debugging mode. If path is set then 
-#' intermediate files are saved (default= NULL)
+#' @param debug Boolean, to enter debugging mode. Intermediate files are 
+#' saved in working directory
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #'
 #' @return list with 3 objects: scaled profile ("geneBody"), non-scaled profile
@@ -1175,7 +1178,7 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
 #'}
 
 createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput, 
-    tag.shift, annotationID = "hg19", debug = NULL, mc = 1) 
+    tag.shift, annotationID = "hg19", debug = FALSE, mc = 1) 
 {
     ########## check if input format is ok
     if (!is.list(smoothed.densityChip)) 
@@ -1251,15 +1254,17 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
         mc = mc, tag = "TES")
     onepointTES <- list(chip = binnedChip_TES, input = binnedInput_TES)
     
-    if ((!is.null(debug)) ) {
-        save(binned_Chip, binned_Input, file = file.path(debug, 
+    if ( debug ) {
+        message("Debuggin mode ON...")
+        message("writing metageneprofiles Rdata objects")
+        save(binned_Chip, binned_Input, file = file.path(getwd(), 
             paste("geneBody.RData", sep = "_")))
-        save(binnedChip_TSS, binnedInput_TSS, file = file.path(debug, 
+        save(binnedChip_TSS, binnedInput_TSS, file = file.path(getwd(), 
             paste("OnePointTSS.RData", sep = "_")))
-        save(binnedChip_TES, binnedInput_TES, file = file.path(debug, 
+        save(binnedChip_TES, binnedInput_TES, file = file.path(getwd(), 
             paste("OnePointTES.RData", sep = "_")))
     }
-    
+    message("Metageneprofile objects created!")
     return(list(geneBody = geneBody, TSS = onepointTSS, TES = onepointTES))
 }
 
@@ -1301,6 +1306,7 @@ readBamFile <- function(filename) {
         stop("Invalid filename (String required)")
     ######### 
     result <- f_readFile(filename = filename, reads.aligner.type = "bam")
+    meassage("bam file read!")
     return(result)
 }
 
@@ -1481,6 +1487,7 @@ tagDensity <- function(data, tag.shift, annotationID = "hg19", mc = 1) {
         mc <- 1
     }
     ########## 
+    message("load chrom_info")
     chromInfo=f_chromInfoLoad(annotationID)
     data=f_clearChromStructure(data,annotationID)
     smoothed.density <- f_tagDensity(data = data, 

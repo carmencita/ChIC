@@ -2,10 +2,10 @@
 % Please edit documentation in R/GlobalFunctions.R
 \name{qualityScores_GM}
 \alias{qualityScores_GM}
-\title{Metrics taken from global read distribution}
+\title{Wrapper function to calculate GM metrics from global read distribution}
 \usage{
 qualityScores_GM(densityChip, densityInput, savePlotPath = NULL,
-    debug = NULL)
+  debug = FALSE)
 }
 \arguments{
 \item{densityChip}{Smoothed tag-density object for ChIP (returned by
@@ -17,8 +17,8 @@ qualityScores_EM)}
 \item{savePlotPath}{if set the plot will be saved under "savePlotPath". 
 Default=NULL and plot will be forwarded to stdout.}
 
-\item{debug}{String, to enter debugging mode. If path is set then 
-intermediate files are saved (default= NULL)}
+\item{debug}{Boolean, to enter debugging mode. Intermediate files are 
+saved in working directory}
 }
 \value{
 finalList List with 9 QC-values

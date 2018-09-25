@@ -242,7 +242,7 @@ peak separation distance and the cross-correlation profile (for more details
 see \cite{Kharchenko2008}).
 
 <<eval=TRUE, echo=FALSE >>=
-mc=5
+mc=2
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 @
 

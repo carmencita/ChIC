@@ -5,8 +5,8 @@
 \title{QC-metrics from cross-correlation profile, phantom peak and 
 general QC-metrics}
 \usage{
-getCrossCorrelationScores(data, bchar, annotationID = "hg19", read_length,
-    savePlotPath = NULL, plotname = "phantom", mc = 1)
+getCrossCorrelationScores(data, bchar, annotationID = "hg19",
+  read_length, savePlotPath = NULL, mc = 1)
 }
 \arguments{
 \item{data}{data-structure with tag information read from bam file 
@@ -22,9 +22,6 @@ profile (see spp::get.binding.characteristics).}
 
 \item{savePlotPath}{if set the plot will be saved under "savePlotPath". 
 Default=NULL and plot will be forwarded to stdout.}
-
-\item{plotname}{Name of the crossCorrelation plot (pdf). Available only 
-if savePlotPath is set}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }

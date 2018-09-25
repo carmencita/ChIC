@@ -5,8 +5,8 @@
 \title{Calculating QC-values from peak calling procedure}
 \usage{
 getPeakCallingScores(chip, input, chip.dataSelected, input.dataSelected,
-    annotationID = "hg19", tag.shift = 75, mc = 1, chrorder = NULL,
-    debug = NULL)
+  annotationID = "hg19", tag.shift = 75, mc = 1, chrorder = NULL,
+  debug = FALSE)
 }
 \arguments{
 \item{chip}{data-structure with tag information for the ChIP 
@@ -30,8 +30,8 @@ calculated by getCrossCorrelationScores(). Default=75}
 
 \item{chrorder}{chromosome order (default=NULL)}
 
-\item{debug}{String, to enter debugging mode. If path is set then 
-intermediate files are saved (default= NULL)}
+\item{debug}{Boolean, to enter debugging mode. Intermediate files are 
+saved in working directory}
 }
 \value{
 QCscoreList List with 6 QC-values

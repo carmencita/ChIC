@@ -20,7 +20,7 @@ geneBody, TES or TSS.}
 Default=NULL and plot will be forwarded to stdout.}
 }
 \value{
-nothing, creates a figure under 'savePlotPath'
+Creates a pdf figure under 'savePlotPath'
 }
 \description{
 QC-metrics of newly analysed ChIP-seq samples can be compared with the 

@@ -2,11 +2,10 @@
 % Please edit documentation in R/GlobalFunctions.R
 \name{qualityScores_EM}
 \alias{qualityScores_EM}
-\title{Wrapper function to calculate QC-metrics from cross-correlation 
-analysis, QC-metrics designed for TFs and QC-metrics from peak-calls}
+\title{Wrapper function to calculate EM metrics}
 \usage{
 qualityScores_EM(chipName, inputName, read_length, annotationID = "hg19",
-    mc = 1, savePlotPath = NULL, debug = NULL)
+  mc = 1, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
 \item{chipName}{String, filename and path to the ChIP bam file 
@@ -24,8 +23,8 @@ qualityScores_EM(chipName, inputName, read_length, annotationID = "hg19",
 \item{savePlotPath, }{set if Cross-correlation plot should be saved under 
 "savePlotPath". Default=NULL and plot will be forwarded to stdout}
 
-\item{debug}{String, to enter debugging mode. If path is set then 
-intermediate files are saved (default= NULL)}
+\item{debug}{Boolean, to enter debugging mode. Intermediate files are 
+saved in working directory}
 }
 \value{
 returnList, contains
@@ -37,9 +36,9 @@ TagDensityInput Tag density-profile, smoothed by the Gaussian kernel
 (for further details see "spp" package)
 }
 \description{
-Wrapper function that reads bam files and provides QC-metrics from 
-cross-correlation analysis, from peak calling and general metrics like 
-read-length or NRF. In total 22 features are calculated.
+Wrapper that reads bam files and provides EM QC-metrics from 
+cross-correlation analysis, peak calling and general metrics like 
+for example the read-length or NRF. In total 22 features are calculated.
 
 qualityScores_EM
 }
