@@ -797,7 +797,7 @@ f_annotationCheck <- function(annotationID)
     checkMe <- ((annotationID == "hg19") | (annotationID == "mm9"))
     if (is.character(annotationID) & checkMe)
     {
-            message(annotationID, " valid annotation...")
+            message("\n",annotationID, " valid annotation...")
     }else{
         warning("annotationID not valid. Setting it back to default value 
             (hg19). Currently supported annotations are hg19 and mm9.")
