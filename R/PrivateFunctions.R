@@ -133,6 +133,12 @@ f_readFile <- function(filename, reads.aligner.type) {
     ## readCount <- sum(unlist(lapply(data$tags, length)))
     readCount <- sum(lengths(data$tags))
     message(readCount," reads")
+    ##double check data structure to make sure the structure contains
+    ##two lists called $tags and $quality
+    helper=data
+    data=NULL
+    data$tags=helper$tags
+    data$quality=helper$quality
     return(data)
 }
 
@@ -848,7 +854,7 @@ masked_t.get.gene.av.density <- function(chipTags_current, gdl, mc = 1)
 {
     settings <- NULL
     settings <- f_metaGeneDefinition(selection = "Settings")
-    message("loading metaGene settings")
+    message("\nloading metaGene settings")
     ## print(str(settings))
     result <- f_t.get.gene.av.density(chipTags_current, 
         gdl = gdl, im = settings$inner_margin, 
@@ -866,7 +872,7 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
 {
     settings <- NULL
     settings <- f_metaGeneDefinition(selection = "Settings")
-    message("loading metaGene settings")
+    message("\nloading metaGene settings")
     ## print(str(settings))
     if (tag == "TSS") {
         result <- f_t.get.gene.av.density_TSS(tl_current = smoothed.density, 

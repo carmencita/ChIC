@@ -91,7 +91,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     annotationID = "hg19", mc = 1, savePlotPath = NULL, debug = FALSE) 
 {
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
-        clear = FALSE, width = 60, incomplete = " ")
+        clear = FALSE, width = 60)
     pb$tick()
 
     ########## check if input format is ok
@@ -141,12 +141,6 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     estimating_fragment_length_range <- c(0, 500)
     estimating_fragment_length_bin <- 5
     
-    ## chip_binding.characteristics<-get.binding.characteristics(chip.data,
-    ## srange=estimating_fragment_length_range, 
-    ## bin=estimating_fragment_length_bin,
-    ## accept.all.tags=T)
-
-
     #switch cluster on
     if (mc > 1) {
         cluster <- parallel::makeCluster( mc )
@@ -165,8 +159,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         parallel::stopCluster( cluster )
     }
 
-    message("\ncalculating cross correlation QC-metrics for Chip...")
-    message("=======================================================")
+    message("\n***Calculating cross correlation QC-metrics for Chip...***")
+
     crossvalues_Chip <- getCrossCorrelationScores(chip.data, 
         chip_binding.characteristics, 
         read_length = read_length, 
@@ -180,7 +174,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     ## characteristics for the input
     message("calculating binding characteristics for Input...")
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
-        clear = FALSE, width = 60, incomplete = " ")
+        clear = FALSE, width = 60)
     pb$tick()
 
     #switch cluster on
@@ -229,8 +223,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     }
     
     ## get QC-values from peak calling
-    message("\ncalculating QC-metrics from peak-calling...")
-    message("=======================================================")
+    message("\n***Calculating QC-metrics from peak-calling...***")
     bindingScores <- getPeakCallingScores(chip.data, 
         input.data, 
         chip.dataSelected, 
@@ -240,10 +233,10 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         annotationID=annotationID,
         debug=debug)
     
-    message("\nTag smooting...")
-    message("=================")
+    message("\n***Tag smooting...***")
+    
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
-        clear = FALSE, width = 60, incomplete = " ")
+        clear = FALSE, width = 60)
     pb$tick()
 
     ## objects of smoothed tag density for ChIP and Input
@@ -359,7 +352,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     read_length, savePlotPath = NULL, mc=1) 
 {
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 12, 
-        clear = FALSE, width = 60, incomplete = " ")
+        clear = FALSE, width = 60)
 
     ########## check if input format is ok
     if (!(is.list(data) & (length(data) == 2L))) 
@@ -742,7 +735,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     debug = FALSE) 
 {
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
-        clear = FALSE, width = 60, incomplete = " ")
+        clear = FALSE, width = 60)
     pb$tick()
 
     ########## check if input format is ok
@@ -852,7 +845,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     ## chip.data.samplename,'input',input.data.samplename, 'txt', sep='.'))
     if (length(bp_eval$npl) > 1) {
         pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
-            clear = FALSE, width = 60, incomplete = " ")
+            clear = FALSE, width = 60)
         pb$tick()
         ## 14 get precise binding position using escore LARGE PEAKS
         bp_broadpeak <- spp::add.broad.peak.regions(chip.data12, 
@@ -1076,11 +1069,10 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL, 
     debug = FALSE) 
 {
-    message("Calculating GM...")
-    message("=======================================================")
+    message("***Calculating GM...***")
 
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
-        clear = FALSE, width = 60, incomplete = " ")
+        clear = FALSE, width = 60)
     pb$tick()
 
     ########## check if input format is ok
@@ -1288,7 +1280,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     ########## 
     
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
-        clear = FALSE, width = 60, incomplete = " ")
+        clear = FALSE, width = 60)
 
     annotObject <- f_annotationLoad(annotationID)
         
@@ -1314,7 +1306,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     
     ## Chip
     smoothed.densityChip <- list(td = smoothed.densityChip)
-    message("process ChIP")
+    message("\nprocess ChIP")
     pb$tick()
 
     binned_Chip <- masked_t.get.gene.av.density(smoothed.densityChip, 
@@ -1325,7 +1317,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     geneBody <- list(chip = binned_Chip, input = binned_Input)
     
     ## one.point.scaling create non-scaled metageneprofile for TSS
-    message("Creating non-scaled metageneprofiles...")
+    message("\nCreating non-scaled metageneprofiles...")
     message("...TSS")
     
     binnedInput_TSS <- masked_getGeneAvDensity_TES_TSS(smoothed.densityInput, 
