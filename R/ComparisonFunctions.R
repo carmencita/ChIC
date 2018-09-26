@@ -340,10 +340,17 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
 #' features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
 #' features_scaled=geneBody_Plot)
 #'
-#' ##example for TF
+#' ##example for TF not available in compendium
 #' predictionScore(target="TF", features_cc=CC_Result,
 #' features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
 #' features_scaled=geneBody_Plot)
+#'
+#' ##example for CTCF
+#' predictionScore(target="CTCF", features_cc=CC_Result,
+#' features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
+#' features_scaled=geneBody_Plot)
+
+
 #'}
 
 predictionScore <- function(target, features_cc, features_global, 
