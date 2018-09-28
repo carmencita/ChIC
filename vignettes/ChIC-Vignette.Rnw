@@ -26,9 +26,9 @@
 \usepackage{PTSerif} %%%%% Use the Paratype Serif font
 
 \usepackage{Sweave}
-\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.3em, 
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.1em, 
 frame=single}%, label=Input, labelposition=topline}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.3em,
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.1em,
 frame=single}%, label=Output}
 
 
@@ -89,16 +89,17 @@ The tool computes three different categories of quality control (QC)
 metrics: QC-metrics designed for narrow-peak profiles and general metrics, 
 QC-metrics based on the global read distribution and QC-metrics
 from local signal enrichment around annotated genes. The user-friendly 
-functions allow to perform the analysis with a single command, 
+functions allow performing the analysis with a single command, 
 whereas step by step functions are also available for more experienced users. 
 
 \noindent The package comes with a large reference 
 compendium of precomputed QC-metrics from public ChIP-seq samples. 
-Key features are the calculation, visualization and creation of summary 
+Key features are the calculation, visualisation and creation of summary 
 plots for QC-metrics, tools for the comparison of metagene profiles 
 against reference profiles, tools for the comparison of 
 single QC-metrics against the compendium values and 
-finally a random forest model to compute a single score for quality control.
+finally a random forest model to compute a single score 
+summarising quality control.
 
 \noindent ChIC provides three wrapper functions that are used to calculate 
 a comprehensive set of metrics: \textcolor{airforceblue}{qualityScores\_EM()}, 
@@ -113,24 +114,20 @@ one for the input. In this tutorial we illustrate ChIC functions
 using a H3K36me3 ChIP-seq dataset from ENCODE (ID: ENCFF000BFX) 
 and its input (ID: ENCFF000BDQ). The data can can be downloaded from:
 
-\hyperref[ENCFF000BFX]{
-https://www.encodeproject.org/files/ENCFF000BFX/}
-
-
-\hyperref[ENCFF000BDQ]{
-https://www.encodeproject.org/files/ENCFF000BDQ/}
+\noindent \url{https://www.encodeproject.org/files/ENCFF000BFX/}\\
+\url{https://www.encodeproject.org/files/ENCFF000BDQ/}
 
 
 
 <<eval=FALSE, echo=TRUE >>=
 
 system("wget 
-https://www.encodeproject.org/files/
-    ENCFF000BFX/@@download/ENCFF000BFX.bam")
+https://www.encodeproject.org/files/ENCFF000BFX/
+    @@download/ENCFF000BFX.bam")
 
 system("wget 
-https://www.encodeproject.org/files/
-    ENCFF000BDQ/@@download/ENCFF000BDQ.bam")
+https://www.encodeproject.org/files/ENCFF000BDQ/
+    @@download/ENCFF000BDQ.bam")
 
 chipName <- "ENCFF000BFX"
 inputName <- "ENCFF000BDQ"
@@ -164,20 +161,20 @@ options(width=60)
 @ 
 
 \newpage
-\section{ENCODE Metrics (EM) based on sharp-peak profiles and 
-cross-correlation analysis}
+\section{ENCODE Metrics (EM)}
 
 \noindent \textcolor{airforceblue}{qualityScores\_EM()} is a wrapper 
 function that reads the 
 provided bam files and calculates a number of QC-metrics from 
 cross-correlation analysis and peak-calling. We will refer to 
-the output measures as ENCODE Metrics EM.
+the output measures as ENCODE Metrics EM, as originally proposed 
+by ENCODE consortium \cite{Landt}.
 
 <<eval=FALSE, echo=TRUE >>=
 
 ##calculating EM
 
-mc=4 ##for parallelization
+mc=4 ##for parallelisation
 
 CC_Result <- qualityScores_EM(chipName=chipName, 
     inputName=inputName, 
@@ -192,13 +189,14 @@ finalTagShift <- CC_Result$QCscores_ChIP$tag.shift
 (ChIP) and one for the control (Input). The read length 
 (read\_length parameter) 
 can be taken from the bam file itself. The 'mc' parameter is set to 1 
-per default, when changed it triggers the parallelization of a few processes 
-and speeds up the calculations. 'annotationID' refers to the 
+by default, when changed it triggers the parallelisation and 
+speeds up the calculations of a few analysis steps
+that allow using multiple computing cores. 'annotationID' refers to the 
 genome annotation used. ChIC currently supports hg19 and mm9. 
 \textcolor{airforceblue}{qualityScores\_EM()} produces the Cross-correlation 
 plot (see Figure \ref{fig:1}) and returns a number of 
 QC-metrics (see: \ref{Appendix} Appendix). 
-Amongst others the tag.shift value which represents an input parameter for 
+Amongst others the tag.shift value, which represents an input parameter for 
 further steps (i.e. peak-calling and metagene calculation). 
 \textcolor{airforceblue}{qualityScores\_EM()} executes the following single 
 steps:
@@ -225,12 +223,9 @@ reads ChIP-seq data in .bam file format. The function
 expects the filename, that can also contain the pathname.
 
 <<eval=FALSE, echo=TRUE >>=
-
 chipBam <- readBamFile(chipName)
 inputBam <- readBamFile(inputName)
 @
-
-
 
 
 \subsection{Calculate QC-metrics from CrossCorrelation analysis}
@@ -292,11 +287,9 @@ is shown in Figure \ref{fig:1}. Along with the visual output,
 (see \ref{Appendix} Appendix), from which 
 we have to save tag.shift value for further steps:
 
-
 <<eval=TRUE, echo=TRUE >>=
 finalTagShift <- crossvalues_Chip$tag.shift
 @
-
 
 \begin{figure}
 \centering
@@ -380,9 +373,9 @@ This category of QC-metrics is based on the global read distribution along
 the genome for ChIP and Input \cite{Diaz2012}. 
 The wrapper \textcolor{airforceblue}{qualityScores\_GM()} reproduces the 
 so-called 
-Fingerprint plot (Figure \ref{fig:Fingerprint}) and returns a list 
-of 9 QC-metrics that are taken from the cumulative distribution of 
-the plot. Examples of these metrics are the (a) fraction of bins without 
+Fingerprint plot (Figure \ref{fig:Fingerprint}), i.e. the cumulative read 
+distribution plot, from which 9 quantitative QC-metrics are derived. 
+Examples of these metrics are the (a) fraction of bins without 
 reads for ChIP and input, (b) the point of maximum distance between 
 the ChIP and input (x-coordinate, y-coordinate for ChIP and input, 
 the distance calculated as absolute difference between the 
@@ -428,7 +421,7 @@ unscaled single-point and
 a scaled whole gene metagene profile and returns a list with 
 three items: "TSS", "TES" and "geneBody". 
 Each item is again a list with the 
-metagene-profiles for ChIP and input.
+metagene profiles for ChIP and input.
 
 
 <<eval=TRUE, echo=TRUE>>=
@@ -444,7 +437,6 @@ Meta_Result <- createMetageneProfile(
 \noindent The objects in "Meta\_Result" are needed to create the 
 metagene plots and to extract the LMs for the different profiles.
 
-
 \noindent Metagene profiles show the signal enrichment around a region of 
 interest like the transcription start site (TSS) or over the gene body. 
 ChIC creates two types of metagene profiles: an unscaled single-point profile 
@@ -454,25 +446,15 @@ including the gene body like in Figure \ref{fig:MetaGenePlots}.
 For the metagene profiles the tag density of the immunoprecipitation is 
 taken over all RefSeq annotated human genes, 
 averaged and log2 transformed. The same is done for the input.
-The normalized profile (Figure \ref{fig:MetaGenePlotNorm}) 
+The normalised profile (Figure \ref{fig:MetaGenePlotNorm}) 
 is calculated as the signal enrichment (immunoprecipitation over the input) 
 and plotted on the y-axis, whereas the genomic coordinates of the genes like 
 the TSS or regions up- and downstream are shown on the x-axis. 
 
 
-
 \subsection{Plotting an unscaled single-point metagene profile}
 
-<<eval=FALSE, echo=TRUE >>=
-TSS_Scores <- qualityScores_LM(data = Meta_Result$TSS, 
-    tag = "TSS",
-    savePlotPath = filepath)
-TES_Scores <- qualityScores_LM(data = Meta_Result$TES, 
-    tag = "TES",
-    savePlotPath = filepath)
-@
-
-<<eval=TRUE, echo=FALSE >>=
+<<eval=TRUE, echo=TRUE >>=
 TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, 
     tag="TSS")
 TES_Scores=qualityScores_LM(data=Meta_Result$TES, 
@@ -482,24 +464,12 @@ TES_Scores=qualityScores_LM(data=Meta_Result$TES,
 \subsection{Plotting a scaled whole gene metagene profile}
 The "geneBody" object and the 
 \textcolor{airforceblue}{qualityScores\_LMgenebody()} function 
-are used to plot the scaled profile and returns the respective LM values:
-
-<<eval=FALSE, echo=TRUE >>=
-#create scaled metagene profile
-geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody,
-    savePlotPath = filepath)
-@
-
-
-<<eval=FALSE, label=geneBody, include=FALSE, echo=FALSE>>=
-#create scaled metagene profile
-geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
-@
+are used to plot the scaled profile and return the respective LM values:
 
 \begin{figure}[htbp]
     \centering
-<<eval=TRUE,label=geneBody, fig=TRUE, echo=FALSE>>=
-<<geneBody>>
+<<eval=TRUE, label=geneBody, fig=TRUE, echo=TRUE>>=
+geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 @
 \caption{Scaled whole gene metagene profile: Signal enrichment for 
     ChIP and Input along the gene body.}
@@ -525,21 +495,35 @@ for that:
 \begin{itemize}
     \item \textit{metagenePlotsForComparison} to compare the metagene plots 
     with the compendium
-    \item \textit{plotReferenceDistribution} to compare a singl QC-metric 
+    \item \textit{plotReferenceDistribution} to compare a single QC-metric 
     with the compendium values
     \item \textit{predictionScore} to obtain a single quality score from 
-    the previously computed QC-metrics 
+    the random forest models trained on the previously computed QC-metrics 
 \end{itemize}
 
 
 \subsection{Available chromatin marks and factors}
-This usefull function lists all chromatin marks and 
+This useful function lists all chromatin marks and 
 transcription factors that are available for the comparison analysis.
 With the keywords "mark" and "TF" the respective lists with the available 
 elements are listed.
 
 <<eval=TRUE, echo=TRUE >>=
 listAvailableElements(target="H3K36me3")
+@
+
+
+
+\subsection{List the sample IDs of the compendium}
+
+Shows the IDs of all analysed ChIP-seq samples 
+from ENCODE and Roadmap that have been included 
+in the compendium by providing the keyword 
+"ENCODE" or "Roadmap".
+
+<<eval=TRUE, echo=TRUE >>=
+head(listDatasets(dataset="ENCODE"))
+tail(listDatasets(dataset="Roadmap"))
 @
 
 
@@ -550,19 +534,16 @@ local enrichment profile to the reference compendium by plotting the
 metagene profile against the expected metagene for the same type of 
 chromatin mark. The expected metagene profile is 
 provided by the compendium mean (black line) and standard error 
-(blue shadow). Examples are shown in Figures \ref{fig:MetaProfileComparison} 
-and \ref{fig:MetaProfileComparisonInput}.
+(blue shadow). Examples are shown in Figure \ref{fig:MetaProfileComparison}.
 
 <<eval=FALSE, echo=TRUE >>=
 metagenePlotsForComparison(data = Meta_Result$geneBody,
     target = "H3K4me3", 
-    tag = "geneBody", 
-    savePlotPath = filepath)
-
+    tag = "geneBody")
+    
 metagenePlotsForComparison(data = Meta_Result$TSS,
     target = "H3K4me3", 
-    tag = "TSS", 
-    savePlotPath = filepath)
+    tag = "TSS")
 @
 
 
@@ -579,24 +560,20 @@ error (blue shadow).}
 
 
 
-<<eval=FALSE, label=ComparisonInput, include=FALSE, echo=FALSE>>=
-metagenePlotsForComparison(data = Meta_Result$geneBody,
-    target = "H3K4me3", tag = "geneBody")
-@
+%<<eval=FALSE, label=ComparisonInput, include=FALSE, echo=FALSE>>=
+%metagenePlotsForComparison(data = Meta_Result$geneBody,
+ %   target = "H3K4me3", tag = "geneBody")
+%@
 
-
-\begin{figure}[htbp]
-\centering
-<<eval=TRUE,label=ComparisonInput, fig=TRUE, echo=FALSE>>=
-<<ComparisonInput>>
-@
-\caption{The metagene profile shows the signal (red line) 
-of the input compared to the compendium.}
-\label{fig:MetaProfileComparisonInput}
-\end{figure}
-
-
-
+%\begin{figure}[htbp]
+%\centering
+%<<eval=TRUE,label=ComparisonInput, fig=TRUE, echo=FALSE>>=
+%<<ComparisonInput>>
+%@
+%\caption{The metagene profile shows the signal (red line) 
+%of the input compared to the compendium.}
+%\label{fig:MetaProfileComparisonInput}
+%\end{figure}
 
 
 \subsection{Comparing QC-metrics to the reference values of the compendium}
@@ -605,23 +582,14 @@ number of already published data, adds an extra level of
 information that can be easily used by less experienced users. 
 An example is shown in Figure \ref{fig:ValueComparison}.
 
-<<eval=FALSE, echo=TRUE >>=
-plotReferenceDistribution(target = "H3K4me3", 
-    metricToBePlotted = "RSC", 
-    currentValue = crossvalues_Chip$CC_RSC, 
-    savePlotPath = filepath)
-@
-
-<<eval=FALSE, label=ReferenceDistr, include=FALSE, echo=FALSE>>=
-plotReferenceDistribution(target = "H3K4me3", 
-    metricToBePlotted = "RSC", currentValue = crossvalues_Chip$CC_RSC )
-@
-
 \begin{figure}[htbp]
 \centering
-<<eval=TRUE, label=ReferenceDistr, fig=TRUE, echo=FALSE>>=
-<<ReferenceDistr>>
+<<eval=TRUE, label=ReferenceDistr, fig=TRUE, echo=TRUE>>=
+plotReferenceDistribution(target = "H3K4me3", 
+    metricToBePlotted = "RSC", 
+    currentValue = crossvalues_Chip$CC_RSC )
 @
+
 \caption{The QC-metric of a newly analysed ChIP-seq sample can be 
 compared to the reference values of the compendium. The density plot shows 
 the QC-metric RSC (red dashed line) of the sample versus the distribution 
@@ -667,10 +635,17 @@ print(te)
 
 \begin{thebibliography}{10}
 
+\bibitem{Landt}
+Landt, Stephen G.
+\newblock{ChIP-seq guidelines and practices of the ENCODE
+and modENCODE consortia.}
+\newblock {Genome Research 2012}
+
+
 \bibitem{Kharchenko2008}
 Kharchenko, Peter V and Tolstorukov, Michael Y and Park, Peter J.
 \newblock{Design and analysis of ChIP-seq experiments for 
-DNA-binding proteins}
+DNA-binding proteins.}
 \newblock {Nat. Biotechnol. 2008},
 
 

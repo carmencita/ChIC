@@ -121,8 +121,8 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
     matplot(x = as.numeric(rownames(all.noNorm)), 
         y = all.noNorm, type = "l", lwd = 2, 
         lty = 1, col = colori, xlab = "metagene coordinates", 
-        ylab = "mean of log2 tag density", 
-        main = "metagene", xaxt = "n")
+        ylab = "mean of log2 read density", 
+        main = "scaled metagene profile", xaxt = "n")
     
     currBreak_points <- break_points_2P[c(-2, -5)]
     abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
@@ -164,8 +164,8 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
         type = "l", 
         lwd = 2, lty = 1, col = "orange", 
         xlab = "metagene coordinates", 
-        ylab = "mean log2 enrichment (signal/input)", 
-        main = "normalized metagene", xaxt = "n")  #,cex.axis=1.3,cex.lab=1.3)
+        ylab = "mean of log2 enrichment (signal/input)", 
+        main = "normalized scaled metagene profile", xaxt = "n")  #,cex.axis=1.3,cex.lab=1.3)
     
     currBreak_points <- break_points_2P[c(-2, -5)]  ##c(-2000,500,2500,4000)
     abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
@@ -340,7 +340,7 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE)
     matplot(x = as.numeric(rownames(all.noNorm)), y = all.noNorm, 
         type = "l", lwd = 2, 
         lty = 1, col = colori, xlab = "metagene coordinates", 
-        ylab = "mean of log2 tag density", 
+        ylab = "mean of log2 read density", 
         main = tag, xaxt = "n")
     
     
@@ -390,7 +390,7 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE)
     plot(x = as.numeric(names(all.Norm)), y = all.Norm, 
         type = "l", lwd = 2, lty = 1, 
         col = "orange", xlab = "metagene coordinates", 
-        ylab = "mean log2 enrichment (signal/input)", 
+        ylab = "mean of log2 enrichment (signal/input)", 
         main = paste("normalized", tag, sep = " "), xaxt = "n")
     
     abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)

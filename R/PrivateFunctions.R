@@ -474,8 +474,8 @@ f_fingerPrintPlot <- function(cumChip, cumInput, savePlotPath = NULL) {
         pdf(file = filename, width = 7, height = 7)
     }
     plot(cumChip, type = "l", col = "blue", lwd = 2, 
-        xlab = "Percentage of bins", 
-        ylab = "Percentage of tags", 
+        xlab = "Fraction of bins", 
+        ylab = "Fr. of total reads coverage", 
         main = "Fingerprint: global read distribution")
     
     lines(cumInput, col = "red", lwd = 2)
@@ -1336,7 +1336,7 @@ f_prepareData <- function(fmean, frame)
 #' @keywords internal 
 ## plot profiles compendium versus current dataset
 f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody", 
-    absoluteMinMax, maintitel = "title", ylab = "mean of log2 tag density", 
+    absoluteMinMax, maintitel = "title", ylab = "mean of log2 read density", 
     savePlotPath = NULL) 
 {
     message("Load settings")
