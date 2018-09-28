@@ -523,7 +523,6 @@ in the compendium by providing the keyword
 
 <<eval=TRUE, echo=TRUE >>=
 head(listDatasets(dataset="ENCODE"))
-tail(listDatasets(dataset="Roadmap"))
 @
 
 
@@ -534,29 +533,61 @@ local enrichment profile to the reference compendium by plotting the
 metagene profile against the expected metagene for the same type of 
 chromatin mark. The expected metagene profile is 
 provided by the compendium mean (black line) and standard error 
-(blue shadow). Examples are shown in Figure \ref{fig:MetaProfileComparison}.
+(blue shadow). Examples are shown in Figures 
+\ref{fig:MetaProfileComparisonGeneBody} and 
+\ref{fig:MetaProfileComparisonTSS}.
 
-<<eval=FALSE, echo=TRUE >>=
+
+
+\begin{figure}[htbp]
+    \centering
+<<eval=TRUE, label=aba, fig=TRUE, echo=TRUE>>=
+
 metagenePlotsForComparison(data = Meta_Result$geneBody,
     target = "H3K4me3", 
     tag = "geneBody")
     
+#metagenePlotsForComparison(data = Meta_Result$TSS,
+#    target = "H3K4me3", 
+#    tag = "TSS")
+@
+
+\caption{Enrichment profile plotted against the pre-computed 
+profiles of the compendium. The metagene profile shows the sample signal 
+(red line) for the ChIP compared to the compendium mean 
+signal (black line) and the 2x standard error (blue shadow).}
+\label{fig:MetaProfileComparisonGeneBody}
+\end{figure}
+
+
+
+\begin{figure}[htbp]
+    \centering
+<<eval=TRUE, label=aba, fig=TRUE, echo=TRUE>>=
+ 
 metagenePlotsForComparison(data = Meta_Result$TSS,
     target = "H3K4me3", 
     tag = "TSS")
 @
 
-
-\begin{figure}[htbp]
-\centering
-.\includegraphics{Comparison.pdf}
-\caption{Enrichment profile plotted against the pre-computed 
-profiles of the compendium. The metagene profiles show the sample signal 
-(red line) for the ChIP (A) and the enrichment (chip over input) (B) 
-when compared to the compendium mean signal (black line) and its 2x standard 
-error (blue shadow).}
-\label{fig:MetaProfileComparison}
+\caption{The metagene profile shows the enrichment (chip over input) 
+(red line) compared to the compendium mean 
+signal (black line) and the 2x standard error (blue shadow).}
+\label{fig:MetaProfileComparisonTSS}
 \end{figure}
+
+
+
+%\begin{figure}[htbp]
+%\centering
+%.\includegraphics{Comparison.pdf}
+%\caption{Enrichment profile plotted against the pre-computed 
+%profiles of the compendium. The metagene profiles show the sample signal 
+%(red line) for the ChIP (A) and the enrichment (chip over input) (B) 
+%when compared to the compendium mean signal (black line) and its 2x standard 
+%error (blue shadow).}
+%\label{fig:MetaProfileComparison}
+%\end{figure}
 
 
 
