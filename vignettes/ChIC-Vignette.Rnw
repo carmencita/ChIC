@@ -458,6 +458,11 @@ The "TSS" or "TES" object and the
 are used to plot the unscaled profile (see Figure \ref{fig:TSS})
 and return the respective LM values.
 
+<<eval=TRUE, echo=TRUE>>=
+TES_Scores=qualityScores_LM(data=Meta_Result$TES,
++ tag="TES")
+@
+
 \begin{figure}[htbp]
     \centering
 <<eval=TRUE, label=TSS, fig=TRUE, echo=TRUE>>=
