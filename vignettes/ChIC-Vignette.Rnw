@@ -460,7 +460,7 @@ and return the respective LM values.
 
 <<eval=TRUE, echo=TRUE>>=
 TES_Scores=qualityScores_LM(data=Meta_Result$TES,
-+ tag="TES")
+    tag="TES")
 @
 
 \begin{figure}[htbp]
