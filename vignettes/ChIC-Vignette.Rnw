@@ -453,18 +453,28 @@ the TSS or regions up- and downstream are shown on the x-axis.
 
 
 \subsection{Plotting an unscaled single-point metagene profile}
+The "TSS" or "TES" object and the 
+\textcolor{airforceblue}{qualityScores\_LMgenebody()} function 
+are used to plot the unscaled profile (see Figure \ref{fig:TSS})
+and return the respective LM values.
 
-<<eval=TRUE, echo=TRUE >>=
+\begin{figure}[htbp]
+    \centering
+<<eval=TRUE, label=TSS, fig=TRUE, echo=TRUE>>=
 TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, 
     tag="TSS")
-TES_Scores=qualityScores_LM(data=Meta_Result$TES, 
-    tag="TES")
 @
+\caption{Unscaled single-point metagene profile: Signal enrichment for 
+    ChIP and Input at the TSS.}
+\label{fig:TSS}
+\end{figure}
+
 
 \subsection{Plotting a scaled whole gene metagene profile}
 The "geneBody" object and the 
 \textcolor{airforceblue}{qualityScores\_LMgenebody()} function 
-are used to plot the scaled profile and return the respective LM values:
+are used to plot the scaled profile (see Figure \ref{fig:MetaGenePlots})
+and return the respective LM values:
 
 \begin{figure}[htbp]
     \centering
@@ -541,15 +551,12 @@ provided by the compendium mean (black line) and standard error
 
 \begin{figure}[htbp]
     \centering
-<<eval=TRUE, label=aba, fig=TRUE, echo=TRUE>>=
+<<eval=TRUE, label=geneBodyComparison, fig=TRUE, echo=TRUE>>=
 
 metagenePlotsForComparison(data = Meta_Result$geneBody,
     target = "H3K4me3", 
     tag = "geneBody")
     
-#metagenePlotsForComparison(data = Meta_Result$TSS,
-#    target = "H3K4me3", 
-#    tag = "TSS")
 @
 
 \caption{Enrichment profile plotted against the pre-computed 
@@ -563,15 +570,15 @@ signal (black line) and the 2x standard error (blue shadow).}
 
 \begin{figure}[htbp]
     \centering
-<<eval=TRUE, label=aba, fig=TRUE, echo=TRUE>>=
+<<eval=TRUE, label=TSSComparison, fig=TRUE, echo=TRUE>>=
  
 metagenePlotsForComparison(data = Meta_Result$TSS,
     target = "H3K4me3", 
     tag = "TSS")
 @
 
-\caption{The metagene profile shows the enrichment (chip over input) 
-(red line) compared to the compendium mean 
+\caption{The metagene profile shows the sample signal 
+for the ChIP (red line) compared to the compendium mean 
 signal (black line) and the 2x standard error (blue shadow).}
 \label{fig:MetaProfileComparisonTSS}
 \end{figure}
