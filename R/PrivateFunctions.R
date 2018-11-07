@@ -794,7 +794,7 @@ f_metaGeneDefinition <- function(selection = "Settings")
 ## helper function to check if annotationID is valid
 f_annotationCheck <- function(annotationID)
 {
-    checkMe <- ((annotationID == "hg19") | (annotationID == "mm9"))
+    checkMe <- ((annotationID == "hg19") | (annotationID == "mm9")| (annotationID == "dm3"))
     if (is.character(annotationID) & checkMe)
     {
             message("\n",annotationID, " valid annotation...")
@@ -824,6 +824,13 @@ f_annotationLoad <- function(annotationID)
             package = "ChIC.data", envir = environment())
         annotObject <- mm9_refseq_genes_filtered_granges
     }
+    if (annotationID == "dm3") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("dm3_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- dm3_refseq_genes_filtered_granges
+    }
+
     return(annotObject)        
 }
 
@@ -844,6 +851,12 @@ f_chromInfoLoad <- function(annotationID)
         data("mm9_chrom_info", package = "ChIC.data", envir = environment())
         chromInfo <- mm9_chrom_info
     }
+    if (annotationID == "dm3") {
+        # hg19_chrom_info=NULL
+        data("dm3_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- dm3_chrom_info
+    }
+
     return(chromInfo)        
 }
 

@@ -192,7 +192,7 @@ can be taken from the bam file itself. The 'mc' parameter is set to 1
 by default, when changed it triggers the parallelisation and 
 speeds up the calculations of a few analysis steps
 that allow using multiple computing cores. 'annotationID' refers to the 
-genome annotation used. ChIC currently supports hg19 and mm9. 
+genome annotation used. ChIC currently supports hg19, mm9, dm3. 
 \textcolor{airforceblue}{qualityScores\_EM()} produces the Cross-correlation 
 plot (see Figure \ref{fig:1}) and returns a number of 
 QC-metrics (see: \ref{Appendix} Appendix). 
