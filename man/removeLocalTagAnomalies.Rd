@@ -5,7 +5,7 @@
 \title{Removes loval anomalies}
 \usage{
 removeLocalTagAnomalies(chip, input, chip_b.characteristics,
-    input_b.characteristics)
+  input_b.characteristics)
 }
 \arguments{
 \item{chip, }{data-structure with tag information for the ChIP (see 

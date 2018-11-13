@@ -121,10 +121,12 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     message("reading bam files")
     message("...for ChIP")
     chip.data <- readBamFile(chipName)
+    
     pb$tick()
 
     message("\n...for Input")
     input.data <- readBamFile(inputName)
+ 
 
     if ( debug ) {
         message("Debugging mode ON")
@@ -758,7 +760,14 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     ## for simplicity we use currently a shorter chromosome 
     ## frame to avoid problems
     #chrorder <- paste("chr", c(1:19, "X", "Y"), sep = "")
-    chrorder <- paste("chr", c(seq_len(19), "X", "Y"), sep = "")
+    if (annotationID=="dm3")
+    {   
+        chrorder <- names(ChIC.data::dm3_chrom_info)
+        ##without M!! remove M from
+
+    }else{
+        chrorder <- paste("chr", c(seq_len(19), "X", "Y"), sep = "")
+    }
     
     ## 5 broadRegions 6 enrichment broad regions zthresh_list<-c(3,4)
     current_window_size <- 1000
@@ -838,6 +847,8 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
             file.path(getwd(),"FDR_bindingPositions.txt"))
         spp::output.binding.results(bp_eval, 
             file.path(getwd(),"eval_bindingPositions.txt"))
+        save(bp_eval, file = file.path(getwd(), 
+            paste("bp_eval.RData", sep = "_")))
     }
     
     ## output detected binding positions output.binding.results(results=bp,
@@ -914,7 +925,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         ## Frip sharp peaks 14
 
         sharpPeakRangesObject<-f_reduceOverlappingRegions(sharpPeakRangesObject)
-        
+    
         regions_data_list <- split(as.data.frame(sharpPeakRangesObject), 
             f = seqnames(sharpPeakRangesObject))
 
@@ -1391,7 +1402,8 @@ readBamFile <- function(filename) {
     if (!is.character(filename)) 
         stop("Invalid filename (String required)")
     ######### 
-    result <- f_readFile(filename = filename, reads.aligner.type = "bam")
+    fileContent <- f_readFile(filename = filename, reads.aligner.type = "bam")
+    result=f_checkOfChrNames(fileContent)
     return(result)
 }
 

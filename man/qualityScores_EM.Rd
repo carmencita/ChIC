@@ -5,7 +5,7 @@
 \title{Wrapper function to calculate EM metrics}
 \usage{
 qualityScores_EM(chipName, inputName, read_length, annotationID = "hg19",
-    mc = 1, savePlotPath = NULL, debug = FALSE)
+  mc = 1, savePlotPath = NULL, debug = FALSE)
 }
 \arguments{
 \item{chipName}{String, filename and path to the ChIP bam file 

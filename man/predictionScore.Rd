@@ -5,7 +5,7 @@
 \title{Predict score}
 \usage{
 predictionScore(target, features_cc, features_global, features_TSS,
-    features_TES, features_scaled)
+  features_TES, features_scaled)
 }
 \arguments{
 \item{target}{String, chromatin mark or transcription factor 
