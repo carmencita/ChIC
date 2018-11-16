@@ -395,10 +395,13 @@ f_reduceOverlappingRegions <- function(ranges = NULL)
 #        Q.name <- "Queries"
 #        S.name <- "Subject"
 #        HitsObject <- findOverlaps(query = My.Range, subject = My.Range)
-#        PairList.hits <- HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
-#        PairList <- data.frame(queryHits(PairList.hits), subjectHits(PairList.hits))
+#        PairList.hits <- 
+#        HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
+#        PairList <- data.frame(queryHits(PairList.hits), 
+#            subjectHits(PairList.hits))
 #        colnames(PairList) <- c(Q.name,S.name)
-#        No.overlaps <- My.Range[!(seq_along(My.Range) %in% PairList[,Q.name])]
+#        No.overlaps <- My.Range[!(seq_along(My.Range) 
+#       %in% PairList[,Q.name])]
 #        if (nrow(PairList) == 0) {
 #            return(No.overlaps)
 #        }
@@ -412,8 +415,10 @@ f_reduceOverlappingRegions <- function(ranges = NULL)
 #       unique.queries <- unique(PairList[,Q.name])
 #        unique.subjects <- unique(PairList[,S.name])
 #
-#        Which.q <- unique.queries[which(!(unique.queries %in% unique.subjects))]
-#        Which.s <- unique.subjects[which(!(unique.subjects %in% unique.queries))]
+#        Which.q <- unique.queries[
+#               which(!(unique.queries %in% unique.subjects))]
+#        Which.s <- unique.subjects[
+#               which(!(unique.subjects %in% unique.queries))]
 #
 #        if(length(Which.q)!=length(Which.s)){
 #            stop("Cannot resolve overlaps. Contact the writer of the function
@@ -426,10 +431,12 @@ f_reduceOverlappingRegions <- function(ranges = NULL)
 #            max(end(My.Range[Index]))
 #        })
 #
-#        NewRanges <- MakeGRangesObject(Chrom=rep(Chrom,length(Starts)),Start= Starts, End= Ends)
+#        NewRanges <- MakeGRangesObject(Chrom=
+#               rep(Chrom,length(Starts)),Start= Starts, End= Ends)
 #        return(c(No.overlaps,NewRanges))
 #    })
-#    Non.overlapping.ranges <- do.call(c, unlist(Non.overlapping.ranges.list,use.names = FALSE))
+#    Non.overlapping.ranges <- do.call(c, 
+#       unlist(Non.overlapping.ranges.list,use.names = FALSE))
 #    return(Non.overlapping.ranges)
 #}
 

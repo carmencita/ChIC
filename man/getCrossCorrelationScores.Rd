@@ -6,7 +6,7 @@
 general QC-metrics}
 \usage{
 getCrossCorrelationScores(data, bchar, annotationID = "hg19",
-  read_length, savePlotPath = NULL, mc = 1)
+    read_length, savePlotPath = NULL, mc = 1)
 }
 \arguments{
 \item{data}{data-structure with tag information read from bam file 

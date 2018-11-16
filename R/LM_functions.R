@@ -165,7 +165,8 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
         lwd = 2, lty = 1, col = "orange", 
         xlab = "metagene coordinates", 
         ylab = "mean of log2 enrichment (signal/input)", 
-        main = "normalized scaled metagene profile", xaxt = "n")  #,cex.axis=1.3,cex.lab=1.3)
+        main = "normalized scaled metagene profile", xaxt = "n")  
+            #,cex.axis=1.3,cex.lab=1.3)
     
     currBreak_points <- break_points_2P[c(-2, -5)]  ##c(-2000,500,2500,4000)
     abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
