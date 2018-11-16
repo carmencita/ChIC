@@ -192,7 +192,7 @@ can be taken from the bam file itself. The 'mc' parameter is set to 1
 by default, when changed it triggers the parallelisation and 
 speeds up the calculations of a few analysis steps
 that allow using multiple computing cores. 'annotationID' refers to the 
-genome annotation used.  
+genome annotation used.  Currently hg19, mm9 and dm3 are supported. 
 \textcolor{airforceblue}{qualityScores\_EM()} produces the Cross-correlation 
 plot (see Figure \ref{fig:1}) and returns a number of 
 QC-metrics (see: \ref{Appendix} Appendix). 
@@ -576,7 +576,7 @@ signal (black line) and the 2x standard error (blue shadow).}
 \begin{figure}[htbp]
     \centering
 <<eval=TRUE, label=TSSComparison, fig=TRUE, echo=TRUE>>=
- 
+
 metagenePlotsForComparison(data = Meta_Result$TSS,
     target = "H3K4me3", 
     tag = "TSS")
@@ -605,7 +605,7 @@ signal (black line) and the 2x standard error (blue shadow).}
 
 %<<eval=FALSE, label=ComparisonInput, include=FALSE, echo=FALSE>>=
 %metagenePlotsForComparison(data = Meta_Result$geneBody,
- %   target = "H3K4me3", tag = "geneBody")
+%   target = "H3K4me3", tag = "geneBody")
 %@
 
 %\begin{figure}[htbp]

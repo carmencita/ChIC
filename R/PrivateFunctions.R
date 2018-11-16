@@ -811,7 +811,8 @@ f_metaGeneDefinition <- function(selection = "Settings")
 ## helper function to check if annotationID is valid
 f_annotationCheck <- function(annotationID)
 {
-    checkMe <- ((annotationID == "hg19") | (annotationID == "mm9")| (annotationID == "dm3"))
+    checkMe <- ((annotationID == "hg19") | 
+        (annotationID == "mm9")| (annotationID == "dm3"))
     if (is.character(annotationID) & checkMe)
     {
             message("\n",annotationID, " valid annotation...")

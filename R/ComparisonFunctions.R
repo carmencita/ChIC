@@ -157,8 +157,8 @@ metagenePlotsForComparison <- function(data, target, tag,
     f_plotProfiles(i_mean, iframe, tag, c(newMin - 0.001, newMax + 0.001), 
         maintitel = paste(target, tag, "Input", sep = "_"), 
         savePlotPath = savePlotPath)
-  
-    
+
+
     f_plotProfiles(n_mean, nframe, tag, c(normMin - 0.001, normMax + 0.001), 
         maintitel = paste(target, tag, "norm", sep = "_"), 
         ylab = "mean log2 enrichment (signal/input)", 

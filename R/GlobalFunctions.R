@@ -126,7 +126,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     message("\n...for Input")
     input.data <- readBamFile(inputName)
- 
+
 
     if ( debug ) {
         message("Debugging mode ON")
