@@ -614,8 +614,19 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
         sg3 <- seg$e
         sstrand <- rep(1, length(sg5))
     }
-    spi <- spp::points_withinFunction(x, seg$s - ml, seg$e + mr, 
-        return.list = TRUE)
+    
+    go=tryCatch({
+        spi <- spp::points_within(x, seg$s - ml, seg$e + mr, 
+            return.list = TRUE)
+    }, warning = function(w) {
+        spi <- spp::points_withinFunction(x, seg$s - ml, 
+            seg$e + mr, return.list = TRUE)
+        #print ("warning")
+    })
+
+    #spi <- spp::points_withinFunction(x, seg$s - ml, seg$e + mr, 
+        #return.list = TRUE)
+    
     lspi <- unlist(lapply(spi, length))
     
     #df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
@@ -684,8 +695,21 @@ f_one.point.scaling <- function(x, pos, strand = NULL,  nbins = 201, m = 4020/2)
     } else {
         sstrand <- rep(1, length(pos))
     }
-    spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
+
+    
+    go=tryCatch({
+
+        spi <- spp::points_within(x, pos - ml, pos + mr, 
         return.list = TRUE)
+
+    }, warning = function(w) {
+        spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
+        return.list = TRUE)
+    })
+
+    #spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
+        #return.list = TRUE)
+
     lspi <- unlist(lapply(spi, length))
     #df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
     #    nu = rep(lspi, lspi))
