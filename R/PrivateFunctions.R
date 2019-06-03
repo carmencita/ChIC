@@ -615,14 +615,10 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
         sstrand <- rep(1, length(sg5))
     }
     
-    go=tryCatch({
-        spi <- spp::points_within(x, seg$s - ml, seg$e + mr, 
-            return.list = TRUE)
-    }, warning = function(w) {
-        spi <- spp::points_withinFunction(x, seg$s - ml, 
-            seg$e + mr, return.list = TRUE)
-        #print ("warning")
-    })
+    
+    spi <- spp::points_within(x, seg$s - ml, seg$e + mr, 
+        return.list = TRUE)
+   
 
     #spi <- spp::points_withinFunction(x, seg$s - ml, seg$e + mr, 
         #return.list = TRUE)
@@ -697,15 +693,9 @@ f_one.point.scaling <- function(x, pos, strand = NULL,  nbins = 201, m = 4020/2)
     }
 
     
-    go=tryCatch({
-
-        spi <- spp::points_within(x, pos - ml, pos + mr, 
+    spi <- spp::points_within(x, pos - ml, pos + mr, 
         return.list = TRUE)
 
-    }, warning = function(w) {
-        spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
-        return.list = TRUE)
-    })
 
     #spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
         #return.list = TRUE)

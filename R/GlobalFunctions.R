@@ -916,21 +916,13 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
 
 
 
-        go=tryCatch({
-            outcountsBroadPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
-                sum(spp::points_within(x = abs(chip.test[[chr]]), 
-                    fs = regions_data_list[[chr]]$start, 
-                    fe = regions_data_list[[chr]]$end, 
-                    return.point.counts = TRUE))
-            })))
-        }, warning = function(w) {
-            outcountsBroadPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
-                sum(spp::points_withinFunction(x = abs(chip.test[[chr]]), 
-                    fs = regions_data_list[[chr]]$start, 
-                    fe = regions_data_list[[chr]]$end, 
-                    return.point.counts = TRUE))
-            })))
-        })
+        outcountsBroadPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
+            sum(spp::points_within(x = abs(chip.test[[chr]]), 
+                fs = regions_data_list[[chr]]$start, 
+                fe = regions_data_list[[chr]]$end, 
+                return.point.counts = TRUE))
+        })))
+        
         FRiP_broadPeak <- outcountsBroadPeak/TOTAL_reads
 
 
@@ -968,23 +960,16 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         chrl <- names(regions_data_list)
         names(chrl) <- chrl
         
-        go=tryCatch({
+     
         
-            outcountsSharpPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
-                sum(spp::points_within(x = abs(chip.test[[chr]]), 
-                    fs = regions_data_list[[chr]]$start, 
-                    fe = regions_data_list[[chr]]$end, 
-                    return.point.counts = TRUE))
-            })))
-
-        }, warning = function(w) {
-            outcountsSharpPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
-                sum(spp::points_withinFunction(x = abs(chip.test[[chr]]), 
+        outcountsSharpPeak <- sum(unlist(lapply(chrl, FUN = function(chr) {
+            sum(spp::points_within(x = abs(chip.test[[chr]]), 
                 fs = regions_data_list[[chr]]$start, 
                 fe = regions_data_list[[chr]]$end, 
                 return.point.counts = TRUE))
-            })))
-        })
+        })))
+
+    
         FRiP_sharpPeak <- outcountsSharpPeak/TOTAL_reads
     } else {
         TOTAL_reads <- 0
