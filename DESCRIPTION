@@ -10,6 +10,6 @@ LazyData: TRUE
 Imports:
 	ChIC.data (>= 1.3.3), caTools, methods,GenomicRanges, IRanges, parallel, progress,
 	caret, grDevices, stats, utils, graphics, S4Vectors, BiocGenerics
-Depends: spp, R (>= 3.7)
+Depends: spp, R (>= 3.6)
 biocViews: ChIPSeq, QualityControl
 RoxygenNote: 6.1.0
