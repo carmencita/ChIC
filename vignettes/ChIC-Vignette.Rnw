@@ -192,7 +192,8 @@ can be taken from the bam file itself. The 'mc' parameter is set to 1
 by default, when changed it triggers the parallelisation and 
 speeds up the calculations of a few analysis steps
 that allow using multiple computing cores. 'annotationID' refers to the 
-genome annotation used.  Currently hg19 and mm9 (dm3 in preparation) are supported. 
+genome annotation used.  Currently hg19 and mm9 (dm3 in preparation) are 
+supported. 
 \textcolor{airforceblue}{qualityScores\_EM()} produces the Cross-correlation 
 plot (see Figure \ref{fig:1}) and returns a number of 
 QC-metrics (see: \ref{Appendix} Appendix). 
@@ -669,6 +670,26 @@ te <- predictionScore(target = "H3K4me3",
     features_scaled = geneBody_Scores)
 print(te)
 @
+
+
+
+
+\subsection{Summary report}
+When analysing many differet ChIP-seq samples the user 
+might be interested only in the visualization of the quality 
+assessment. ChIC contains also a function that produces a 
+summary report. The summary report is a single document (pdf 
+format) that contains all the produced analysis plots. 
+The function 
+returns also the predicted sample QC-score.
+
+<<eval=FALSE, echo=TRUE >>=
+prediction=chicWrapper(chipName=chipName, inputName=inputName, 
+    chromMarkToUse= "H3K4me3", read_length=36, mc=mc , 
+    savePlotPath=filepath)
+
+@
+
 
 
 \newpage

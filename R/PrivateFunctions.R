@@ -618,7 +618,6 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
     
     spi <- spp::points_within(x, seg$s - ml, seg$e + mr, 
         return.list = TRUE)
-   
 
     #spi <- spp::points_withinFunction(x, seg$s - ml, seg$e + mr, 
         #return.list = TRUE)
