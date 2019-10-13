@@ -736,9 +736,9 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     tag.shift = 75, mc=1, chrorder = NULL,
     debug = FALSE) 
 {
-    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
-        clear = FALSE, width = 60)
-    pb$tick()
+    ## pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
+    ##     clear = FALSE, width = 60)
+    ## pb$tick()
 
     ########## check if input format is ok
     if (!(is.list(chip) & (length(chip) == 2L))) 
@@ -771,7 +771,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     
     ## 5 broadRegions 6 enrichment broad regions zthresh_list<-c(3,4)
     current_window_size <- 1000
-    pb$tick()
+    ## pb$tick()
 
     message("\nBroad regions of enrichment")
     ## for (current_window_size in window_sizes_list) { for (current_zthresh in
@@ -795,7 +795,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         filename=file.path(getwd(),"broadEncirhmentCluster.broadPeak")
         spp::write.broadpeak.info(broad.clusters,filename)
     }
-    pb$tick()
+    ## pb$tick()
 
     ### start end logE znrichment write.broadpeak.info(broad.clusters,
     ### paste('broadRegions', chip.data.samplename,
@@ -813,7 +813,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     if (mc > 1) {
         cluster <- makeCluster( mc )
     }
-    pb$tick()
+    ## pb$tick()
 
     message("\nBinding sites detection fdr")
     fdr <- 0.01
@@ -826,7 +826,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         cluster = cluster)
     FDR_detect <- sum(unlist(lapply(bp_FDR$npl, function(d) length(d$x))))
     
-    pb$tick()
+    ## pb$tick()
     message("\nBinding sites detection evalue")
     eval <- 10
     bp_eval <- spp::find.binding.positions(signal.data = chip.data12, 
@@ -838,7 +838,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         stopCluster( cluster )
     }
 
-    pb$tick()
+    ## pb$tick()
     if ( debug )
     {
         ## output detected binding positions
@@ -857,7 +857,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     if (length(bp_eval$npl) > 1) {
         pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
             clear = FALSE, width = 60)
-        pb$tick()
+        ## pb$tick()
         ## 14 get precise binding position using escore LARGE PEAKS
         bp_broadpeak <- spp::add.broad.peak.regions(chip.data12, 
             input.data12, 
@@ -872,7 +872,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
                 file.path(getwd(),".peaks.narrowPeak"))
         }
 
-        pb$tick()
+        ## pb$tick()
         md <- f_converNarrowPeakFormat(bp_broadpeak)
         sharpPeakRangesObject <- f_makeGRangesObject(Chrom = md[, 1], 
             Start = md[, 2], End = md[, 3])
@@ -912,7 +912,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         chrl <- names(regions_data_list)
         names(chrl) <- chrl
 
-        pb$tick()
+        ## pb$tick()
 
 
 
@@ -955,7 +955,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
             })
         }
 
-        pb$tick()
+        ## pb$tick()
 
         chrl <- names(regions_data_list)
         names(chrl) <- chrl
@@ -979,7 +979,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         outcountsSharpPeak <- 0
     }
 
-    pb$tick()
+    ## pb$tick()
 
     QCscoreList <- list(CC_FDRpeaks = round(FDR_detect, 3), 
         CC_evalpeaks = round(eval_detect, 3), 
