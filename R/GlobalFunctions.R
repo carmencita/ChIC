@@ -809,7 +809,8 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     ## 12 get binding sites with FDR and eval
     chip.data12 <- chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
     input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
-    
+    chip.data12 <- lapply(chip.data12, as.integer)
+    input.data12 <- lapply(input.data12, as.integer)
     if (mc > 1) {
         cluster <- makeCluster( mc )
     }
