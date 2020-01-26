@@ -555,13 +555,16 @@ provided by the compendium mean (black line) and standard error
 
 
 
-\textbf{PLEASE NOTE:} In the function \textcolor{airforceblue}{metagenePlotsForComparison()}
-as well as in p\textcolor{airforceblue}{mlotReferenceDistribution} and
-\textcolor{airforceblue}{mredictionScore}, it is necessary to specify
-the expected chromatin mark. To call the Transcription Factor Model "TF-model"
-(i.e. iconsidering a generic Transcriptor Factor to be confronted the all the
-Transcription Factors present in the compedium), it is
-possible to specify the keyword "TF" in the "target" argument. 
+\textbf{PLEASE NOTE:} In the function 
+\textcolor{airforceblue}{metagenePlotsForComparison()}
+as well as in \textcolor{airforceblue}{plotReferenceDistribution} and
+\textcolor{airforceblue}{predictionScore}, it is necessary to specify
+the expected chromatin mark or transcription factor. For more details 
+see subsection "Available chromatin marks and factors".
+To use the "predictionScore" function on transcription factors the 
+keyword "TF" in 
+the "target" argument can be used to invoce the generic transcription 
+factor model.
 
 
 \begin{figure}[htbp]
