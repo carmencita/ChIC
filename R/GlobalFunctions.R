@@ -1723,8 +1723,8 @@ listDatasets <- function( dataset )
 #' (without extension)
 #' @param read_length Integer, length of the reads
 #' @param target String, chromatin mark or transcription factor to be 
-#' analysed. With the keywords "mark" and "TF" the respective lists with  
-#' the available elements are listed.
+#' analysed. Using the function "listAvailableElements" with the keywords 
+#' "mark" and "TF" shows a list with the available elements.
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param savePlotPath path, needs to be set to save the summary plot 
@@ -1880,18 +1880,41 @@ chicWrapper<-function(chipName, inputName, read_length,
         currentValue=CC_Result$QCscores_ChIP$CC_RSC,
         savePlotPath=savePlotPath
     )
-    
-    predictedScore=predictionScore(
-        target=target,
-        features_cc=CC_Result,
-        features_global=Ch_Results,
-        features_TSS=TSSProfile,
-        features_TES=TESProfile,
-        features_scaled=geneBody_Plot
-    )
 
-    print("prediction")
-    print(predictedScore)
+    if ( target %in% f_metaGeneDefinition("Hlist") ) { 
+        message( "Chromatin mark available for 
+        prediction..." )
+
+        predictedScore=predictionScore(
+            target=target,
+            features_cc=CC_Result,
+            features_global=Ch_Results,
+            features_TSS=TSSProfile,
+            features_TES=TESProfile,
+            features_scaled=geneBody_Plot
+        )
+        print("prediction")
+        print(predictedScore)
+
+    } else if ( target %in% f_metaGeneDefinition( "TFlist" )) { 
+        message( "transcription factor available for 
+            prediction..." )
+            predictedScore=predictionScore(
+            target="TF",
+            features_cc=CC_Result,
+            features_global=Ch_Results,
+            features_TSS=TSSProfile,
+            features_TES=TESProfile,
+            features_scaled=geneBody_Plot
+        )
+        print("prediction")
+        print(predictedScore)
+    } else {
+        stop( "Histone mark or TF not found. 
+            Could not calculate the prediction score 
+            using chicWrapper(). You might try the 
+            predictionScore() function wihtout the wrapper." )
+    }
 
     dev.off()
     return(predictedScore)
