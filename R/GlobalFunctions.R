@@ -1897,8 +1897,6 @@ chicWrapper<-function(chipName, inputName, read_length,
         print(predictedScore)
 
     } else if ( target %in% f_metaGeneDefinition( "TFlist" )) { 
-        message( "transcription factor available for 
-            prediction..." )
             predictedScore=predictionScore(
             target="TF",
             features_cc=CC_Result,
