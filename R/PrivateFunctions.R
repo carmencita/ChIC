@@ -825,13 +825,15 @@ f_metaGeneDefinition <- function(selection = "Settings")
 f_annotationCheck <- function(annotationID)
 {
     checkMe <- ((annotationID == "hg19") | 
-        (annotationID == "mm9")| (annotationID == "dm3"))
+        (annotationID == "mm9")| (annotationID == "dm3")
+        | (annotationID == "mm10")| (annotationID == "hg38"))
     if (is.character(annotationID) & checkMe)
     {
             message("\n",annotationID, " valid annotation...")
     }else{
         warning("annotationID not valid. Setting it back to default value 
-            (hg19). Currently supported annotations are hg19 and mm9.")
+            (hg19). Currently supported annotations are hg19, 
+            hg38, mm9 and mm10.")
         annotationID <- "hg19"
     }
     return(annotationID)        
@@ -849,11 +851,24 @@ f_annotationLoad <- function(annotationID)
             package = "ChIC.data", envir = environment())
         annotObject <- hg19_refseq_genes_filtered_granges
     }
+    if (annotationID == "hg38") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("hg38_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- hg38_refseq_genes_filtered_granges
+    }
+
     if (annotationID == "mm9") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("mm9_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- mm9_refseq_genes_filtered_granges
+    }
+    if (annotationID == "mm10") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("mm10_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- mm10_refseq_genes_filtered_granges
     }
     if (annotationID == "dm3") {
         # hg19_refseq_genes_filtered_granges=NULL
@@ -877,10 +892,20 @@ f_chromInfoLoad <- function(annotationID)
         data("hg19_chrom_info", package = "ChIC.data", envir = environment())
         chromInfo <- hg19_chrom_info
     }
+    if (annotationID == "hg38") {
+        # hg19_chrom_info=NULL
+        data("hg38_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- hg38_chrom_info
+    }
     if (annotationID == "mm9") {
         # hg19_chrom_info=NULL
         data("mm9_chrom_info", package = "ChIC.data", envir = environment())
         chromInfo <- mm9_chrom_info
+    }
+    if (annotationID == "mm10") {
+        # hg19_chrom_info=NULL
+        data("mm10_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- mm10_chrom_info
     }
     if (annotationID == "dm3") {
         # hg19_chrom_info=NULL
