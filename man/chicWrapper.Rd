@@ -18,12 +18,12 @@ chicWrapper(chipName, inputName, read_length, savePlotPath = NULL,
 \item{read_length}{Integer, length of the reads}
 
 \item{savePlotPath}{path, needs to be set to save the summary plot 
-    under "savePlotPath" (default=NULL). 
+ under "savePlotPath" (default=NULL). 
 If not set the plot will not be produced.}
 
-\item{target}{String, chromatin mark or transcription factor to be analysed.
-With the keywords "mark" and "TF" the respective lists with the available 
-elements are listed.}
+\item{target}{String, chromatin mark or transcription factor to be 
+analysed. Using the function "listAvailableElements" with the keywords 
+"mark" and "TF" shows a list with the available elements.}
 
 \item{annotationID}{String, indicating the genome assembly (Default="hg19")}
 
@@ -33,8 +33,9 @@ elements are listed.}
 saved in working directory}
 }
 \value{
-predictedScore, returns the prediction score of the predictionScore()
-function, produces the summary report and saves it under "savePlotPath".
+predictedScore, returns the prediction score of the 
+predictionScore() function, produces the summary report and saves it 
+under "savePlotPath".
 }
 \description{
 This function creates a single document (in pdf format) containing all 
@@ -48,9 +49,9 @@ chicWrapper
 
 ## This command is time intensive to run
 
-## To run this example code the user MUST provide 2 bam files: one for ChIP 
-## and one for the input. Here we used ChIP-seq data from ENCODE. Two 
-## example files can be downloaded using the following link:
+## To run this example code the user MUST provide 2 bam files: one for 
+## ChIP and one for the input. Here we used ChIP-seq data from ENCODE. 
+## Two example files can be downloaded using the following link:
 ## https://www.encodeproject.org/files/ENCFF000BFX/
 ## https://www.encodeproject.org/files/ENCFF000BDQ/
 ## and save them in the working directory (here given in the temporary 
