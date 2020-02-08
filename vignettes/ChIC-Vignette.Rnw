@@ -518,7 +518,7 @@ for that:
 \end{itemize}
 
 
-\subsection{Available chromatin marks and factors}
+\subsection{Available chromatin marks and transcription factors}
 This useful function lists all chromatin marks and 
 transcription factors that are available for the comparison analysis.
 With the keywords "mark" and "TF" the respective lists with the available 
@@ -528,6 +528,9 @@ elements are listed.
 listAvailableElements(target="H3K36me3")
 @
 
+If the transcription factor of interest is not available in the list, 
+the user could use another factor as a substitute, for example 
+"CTCF".
 
 
 \subsection{List the sample IDs of the compendium}
@@ -543,7 +546,7 @@ head(listDatasets(dataset="ENCODE"))
 
 
 \subsection{Comparing local enrichment profiles}
-The \textcolor{airforceblue}{metagenePlotsForComparison()} 
+The c 
 function is used to compare the 
 local enrichment profile to the reference compendium by plotting the 
 metagene profile against the expected metagene for the same type of 
@@ -554,17 +557,11 @@ provided by the compendium mean (black line) and standard error
 \ref{fig:MetaProfileComparisonTSS}.
 
 
+\textbf{PLEASE NOTE:} In this function the user has to specify
+the name of the chromatin mark or transcription factor. Please see 
+the \textcolor{airforceblue}{listAvailableElements()} function 
+to get a list of available targets. 
 
-\textbf{PLEASE NOTE:} In the function 
-\textcolor{airforceblue}{metagenePlotsForComparison()}
-as well as in \textcolor{airforceblue}{plotReferenceDistribution} and
-\textcolor{airforceblue}{predictionScore}, it is necessary to specify
-the expected chromatin mark or transcription factor. For more details 
-see subsection "Available chromatin marks and factors".
-To use the "predictionScore" function on transcription factors the 
-keyword "TF" in 
-the "target" argument can be used to invoce the generic transcription 
-factor model.
 
 
 \begin{figure}[htbp]
@@ -638,6 +635,11 @@ number of already published data, adds an extra level of
 information that can be easily used by less experienced users. 
 An example is shown in Figure \ref{fig:ValueComparison}.
 
+\textbf{PLEASE NOTE:} To use this function the user has to specify
+the name of the chromatin mark or transcription factor. Please see 
+\textcolor{airforceblue}{listAvailableElements()}  
+to get a list of available targets. 
+
 \begin{figure}[htbp]
 \centering
 <<eval=TRUE, label=ReferenceDistr, fig=TRUE, echo=TRUE>>=
@@ -683,7 +685,12 @@ te <- predictionScore(target = "H3K4me3",
 print(te)
 @
 
-
+\textbf{PLEASE NOTE:} To use this function on 
+transcription factors that are not available in the package 
+(see "Available chromatin marks and 
+transcription factors" section) the user can apply the 
+keyword "TF" in the "target" argument to invoce the transcription 
+factor model. 
 
 
 \subsection{Summary report}
@@ -703,6 +710,11 @@ prediction=chicWrapper(chipName=chipName, inputName=inputName,
 @
 
 
+\textbf{PLEASE NOTE:} This function can only be used on 
+chromatin marks and transcription factors that are present 
+in the package. For more details please see the 
+"Available chromatin marks and transcription factors" 
+subsetion. 
 
 \newpage
 
