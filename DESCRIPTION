@@ -1,6 +1,6 @@
 Package: ChIC
 Title: Quality Control Pipeline for ChIP-Seq Data
-Version: 1.7.1
+Version: 1.7.2
 Author: Carmen Maria Livi
 Maintainer: Carmen Maria Livi <carmen.livi@ifom.eu>
 Description: Quality control (QC) pipeline for ChIP-seq data using a comprehensive set of QC metrics, including previously proposed metrics as well as novel ones, based on local characteristics of the enrichment profile. The package provides functions to calculate a set of QC metrics, a compendium with reference values and machine learning models to score sample quality.
