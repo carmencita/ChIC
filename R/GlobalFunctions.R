@@ -809,7 +809,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     ## 12 get binding sites with FDR and eval
     chip.data12 <- chip.dataSelected[(names(chip.dataSelected) %in% chrorder)]
     input.data12<-input.dataSelected[(names(input.dataSelected) %in% chrorder)]
-    
+
     if (mc > 1) {
         cluster <- makeCluster( mc )
     }
@@ -823,7 +823,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         control.data = input.data12, 
         fdr = fdr, whs = detection.window.halfsize * 2, 
         tag.count.whs = detection.window.halfsize, 
-        cluster = cluster)
+        cluster = NULL)
     FDR_detect <- sum(unlist(lapply(bp_FDR$npl, function(d) length(d$x))))
     
     ## pb$tick()
@@ -831,7 +831,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     eval <- 10
     bp_eval <- spp::find.binding.positions(signal.data = chip.data12, 
         control.data = input.data12, 
-        e.value = eval, whs = detection.window.halfsize * 2, cluster = cluster)
+        e.value = eval, whs = detection.window.halfsize * 2, cluster = NULL)
     eval_detect <- sum(unlist(lapply(bp_eval$npl, function(d) length(d$x))))
     
     if (mc > 1) {
