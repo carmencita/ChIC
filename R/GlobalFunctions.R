@@ -1851,35 +1851,40 @@ chicWrapper<-function(chipName, inputName, read_length,
         debug=debug
     )
 
-    ##additional plots
 
-    metagenePlotsForComparison(
-        target=target,
-        data=Meta_Result$geneBody,
-        tag="geneBody",
-        savePlotPath=savePlotPath
-    )
-    
-    metagenePlotsForComparison(
-        target=target,
-        Meta_Result$TSS,
-        tag="TSS",
-        savePlotPath=savePlotPath
-    )
-    
-    metagenePlotsForComparison(
-        target=target,
-        Meta_Result$TES,
-        tag="TES",
-        savePlotPath=savePlotPath
-    )
-    
-    plotReferenceDistribution(
-        target=target,
-        metricToBePlotted="RSC",
-        currentValue=CC_Result$QCscores_ChIP$CC_RSC,
-        savePlotPath=savePlotPath
-    )
+    if(target != "TF"){
+        ##additional plots
+        
+        metagenePlotsForComparison(
+            target=target,
+            data=Meta_Result$geneBody,
+            tag="geneBody",
+            savePlotPath=savePlotPath
+        )
+        
+        metagenePlotsForComparison(
+            target=target,
+            Meta_Result$TSS,
+            tag="TSS",
+            savePlotPath=savePlotPath
+        )
+        
+        metagenePlotsForComparison(
+            target=target,
+            Meta_Result$TES,
+            tag="TES",
+            savePlotPath=savePlotPath
+        )
+        
+        plotReferenceDistribution(
+            target=target,
+            metricToBePlotted="RSC",
+            currentValue=CC_Result$QCscores_ChIP$CC_RSC,
+            savePlotPath=savePlotPath
+        )
+    }else{
+        message("The production of comparison plots is not supported for the \"TF\" target.")
+    }
 
     if ( target %in% f_metaGeneDefinition("Hlist") ) { 
         message( "Chromatin mark available for 
