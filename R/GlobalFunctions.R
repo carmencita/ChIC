@@ -1772,25 +1772,32 @@ listDatasets <- function( dataset )
 #'}
 
 
-
 chicWrapper<-function(chipName, inputName, read_length, 
     savePlotPath=NULL, target, annotationID="hg19", 
     mc=1, debug=FALSE)
 {
 
-    if (is.null(savePlotPath) || !(dir.exists(savePlotPath)))
-    ## { 
-    ##     stop("Please provide a path to save the summary 
-    ##         plot (String required)")
-    ## }else{
+    if (!is.null(savePlotPath))
     {
+        tryCatch(
+        {
+            pdf(savePlotPath,onefile=TRUE)
+        },
+        error = function(e){
+            message("Creating an overall pdf report in 
+                    the working directory (ChIC_report.pdf)")
+            savePlotPath <- paste(getwd(),"ChIC_report.pdf",sep="/")
+            pdf(savePlotPath,onefile=TRUE)
+        }
+        )
+    }else{
         message("Creating an overall pdf report in 
-            the working directory (ChIC_report.pdf)")
-        report_file <- paste(getwd(),"ChIC_report.pdf",sep="/")        
+                    the working directory (ChIC_report.pdf)")
+        savePlotPath <- paste(getwd(),"ChIC_report.pdf",sep="/")
+        pdf(savePlotPath,onefile=TRUE)
     }
 
-    pdf(report_file,onefile=TRUE)
-    # get Encode Metrics
+    ## get Encode Metrics
     CC_Result=qualityScores_EM(
         chipName=chipName,
         inputName=inputName,
@@ -1887,9 +1894,9 @@ chicWrapper<-function(chipName, inputName, read_length,
     }
 
     if(target %in% listAvailableElements("mark") || target %in% listAvailableElements("TF") || target == "TF")
-
-    { message("Calculating the prediction score...")
-
+    {
+        message("Calculating the prediction score...")
+        
         predictedScore=predictionScore(
             target=target,
             features_cc=CC_Result,
@@ -1898,15 +1905,17 @@ chicWrapper<-function(chipName, inputName, read_length,
             features_TES=TESProfile,
             features_scaled=geneBody_Plot
         )
+
         print("prediction")
         print(predictedScore)
+
     } else {
         stop( "Histone mark or TF not found. 
             Could not calculate the prediction score 
             using chicWrapper(). You might try the 
             predictionScore() function wihtout the wrapper." )
     }
-
+    
     dev.off()
     return(predictedScore)
 }
