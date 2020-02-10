@@ -1779,17 +1779,17 @@ chicWrapper<-function(chipName, inputName, read_length,
 {
 
     if (is.null(savePlotPath) || !(dir.exists(savePlotPath)))
-    { 
-        stop("Please provide a path to save the summary 
-            plot (String required)")
-    }else{
-
+    ## { 
+    ##     stop("Please provide a path to save the summary 
+    ##         plot (String required)")
+    ## }else{
+    {
         message("Creating an overall pdf report in 
             the working directory (ChIC_report.pdf)")
         report_file <- paste(getwd(),"ChIC_report.pdf",sep="/")        
-        pdf(report_file,onefile=TRUE)
     }
-    
+
+    pdf(report_file,onefile=TRUE)
     # get Encode Metrics
     CC_Result=qualityScores_EM(
         chipName=chipName,
@@ -1886,24 +1886,12 @@ chicWrapper<-function(chipName, inputName, read_length,
         message("The production of comparison plots is not supported for the \"TF\" target.")
     }
 
-    if ( target %in% f_metaGeneDefinition("Hlist") ) { 
-        message( "Chromatin mark available for 
-        prediction..." )
+    if(target %in% listAvailableElements("mark") || target %in% listAvailableElements("TF") || target == "TF")
+
+    { message("Calculating the prediction score...")
 
         predictedScore=predictionScore(
             target=target,
-            features_cc=CC_Result,
-            features_global=Ch_Results,
-            features_TSS=TSSProfile,
-            features_TES=TESProfile,
-            features_scaled=geneBody_Plot
-        )
-        print("prediction")
-        print(predictedScore)
-
-    } else if ( target %in% f_metaGeneDefinition( "TFlist" )) { 
-            predictedScore=predictionScore(
-            target="TF",
             features_cc=CC_Result,
             features_global=Ch_Results,
             features_TSS=TSSProfile,
