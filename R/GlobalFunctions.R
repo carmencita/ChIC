@@ -1805,7 +1805,7 @@ chicWrapper<-function(chipName, inputName, read_length,
         debug=debug,
         mc=mc,
         annotationID=annotationID,
-        savePlotPath=savePlotPath
+        savePlotPath=NULL
     )
     
     ##save the tagshift as it is needed later
@@ -1821,7 +1821,7 @@ chicWrapper<-function(chipName, inputName, read_length,
     Ch_Results=qualityScores_GM(
         densityChip=smoothedDensityChip,
         densityInput=smoothedDensityInput,
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
     
@@ -1841,20 +1841,20 @@ chicWrapper<-function(chipName, inputName, read_length,
     TSSProfile=qualityScores_LM(
         Meta_Result$TSS,
         tag="TSS",
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
     
     TESProfile=qualityScores_LM(
         Meta_Result$TES,
         tag="TES",
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
     
     geneBody_Plot=qualityScores_LMgenebody(
         Meta_Result$geneBody,
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
 
@@ -1866,28 +1866,28 @@ chicWrapper<-function(chipName, inputName, read_length,
             target=target,
             data=Meta_Result$geneBody,
             tag="geneBody",
-            savePlotPath=savePlotPath
+            savePlotPath=NULL
         )
         
         metagenePlotsForComparison(
             target=target,
             Meta_Result$TSS,
             tag="TSS",
-            savePlotPath=savePlotPath
+            savePlotPath=NULL
         )
         
         metagenePlotsForComparison(
             target=target,
             Meta_Result$TES,
             tag="TES",
-            savePlotPath=savePlotPath
+            savePlotPath=NULL
         )
         
         plotReferenceDistribution(
             target=target,
             metricToBePlotted="RSC",
             currentValue=CC_Result$QCscores_ChIP$CC_RSC,
-            savePlotPath=savePlotPath
+            savePlotPath=NULL
         )
     }else{
         message("The production of comparison plots is not supported for the \"TF\" target.")
