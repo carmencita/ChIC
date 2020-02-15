@@ -528,9 +528,6 @@ elements are listed.
 listAvailableElements(target="H3K36me3")
 @
 
-If the transcription factor of interest is not available in the list, 
-the user could use another factor as a substitute, for example 
-"CTCF".
 
 
 \subsection{List the sample IDs of the compendium}
@@ -709,12 +706,15 @@ prediction=chicWrapper(chipName=chipName, inputName=inputName,
 
 @
 
-
-\textbf{PLEASE NOTE:} This function can only be used on 
-chromatin marks and transcription factors that are present 
-in the package. For more details please see the 
+\textbf{PLEASE NOTE:} If the target is not present 
+in the package not all plots will be produced. 
+To know which targets are available we refer to the 
 "Available chromatin marks and transcription factors" 
-subsetion. 
+subsetion. The keyword "TF" (target="TF") allows 
+the user to force the calculation of 
+the predictionScore() even if a particular 
+transcription 
+factor is not present in the package. 
 
 \newpage
 

@@ -1890,10 +1890,12 @@ chicWrapper<-function(chipName, inputName, read_length,
             savePlotPath=NULL
         )
     }else{
-        message("The production of comparison plots is not supported for the \"TF\" target.")
+        message("The production of comparison plots is not 
+            supported for the \"TF\" target.")
     }
 
-    if(target %in% listAvailableElements("mark") || target %in% listAvailableElements("TF") || target == "TF")
+    if(target %in% listAvailableElements("mark") || 
+        target %in% listAvailableElements("TF") || target == "TF")
     {
         message("Calculating the prediction score...")
         
