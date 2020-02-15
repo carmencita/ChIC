@@ -1772,25 +1772,32 @@ listDatasets <- function( dataset )
 #'}
 
 
-
 chicWrapper<-function(chipName, inputName, read_length, 
     savePlotPath=NULL, target, annotationID="hg19", 
     mc=1, debug=FALSE)
 {
 
-    if (is.null(savePlotPath) || !(dir.exists(savePlotPath)))
-    { 
-        stop("Please provide a path to save the summary 
-            plot (String required)")
+    if (!is.null(savePlotPath))
+    {
+        tryCatch(
+        {
+            pdf(savePlotPath,onefile=TRUE)
+        },
+        error = function(e){
+            message("Creating an overall pdf report in 
+                    the working directory (ChIC_report.pdf)")
+            savePlotPath <- paste(getwd(),"ChIC_report.pdf",sep="/")
+            pdf(savePlotPath,onefile=TRUE)
+        }
+        )
     }else{
-
         message("Creating an overall pdf report in 
-            the working directory (ChIC_report.pdf)")
-        report_file <- paste(getwd(),"ChIC_report.pdf",sep="/")        
-        pdf(report_file,onefile=TRUE)
+                    the working directory (ChIC_report.pdf)")
+        savePlotPath <- paste(getwd(),"ChIC_report.pdf",sep="/")
+        pdf(savePlotPath,onefile=TRUE)
     }
-    
-    # get Encode Metrics
+
+    ## get Encode Metrics
     CC_Result=qualityScores_EM(
         chipName=chipName,
         inputName=inputName,
@@ -1798,7 +1805,7 @@ chicWrapper<-function(chipName, inputName, read_length,
         debug=debug,
         mc=mc,
         annotationID=annotationID,
-        savePlotPath=savePlotPath
+        savePlotPath=NULL
     )
     
     ##save the tagshift as it is needed later
@@ -1814,7 +1821,7 @@ chicWrapper<-function(chipName, inputName, read_length,
     Ch_Results=qualityScores_GM(
         densityChip=smoothedDensityChip,
         densityInput=smoothedDensityInput,
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
     
@@ -1834,57 +1841,62 @@ chicWrapper<-function(chipName, inputName, read_length,
     TSSProfile=qualityScores_LM(
         Meta_Result$TSS,
         tag="TSS",
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
     
     TESProfile=qualityScores_LM(
         Meta_Result$TES,
         tag="TES",
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
     
     geneBody_Plot=qualityScores_LMgenebody(
         Meta_Result$geneBody,
-        savePlotPath=savePlotPath,
+        savePlotPath=NULL,
         debug=debug
     )
 
-    ##additional plots
 
-    metagenePlotsForComparison(
-        target=target,
-        data=Meta_Result$geneBody,
-        tag="geneBody",
-        savePlotPath=savePlotPath
-    )
-    
-    metagenePlotsForComparison(
-        target=target,
-        Meta_Result$TSS,
-        tag="TSS",
-        savePlotPath=savePlotPath
-    )
-    
-    metagenePlotsForComparison(
-        target=target,
-        Meta_Result$TES,
-        tag="TES",
-        savePlotPath=savePlotPath
-    )
-    
-    plotReferenceDistribution(
-        target=target,
-        metricToBePlotted="RSC",
-        currentValue=CC_Result$QCscores_ChIP$CC_RSC,
-        savePlotPath=savePlotPath
-    )
+    if(target != "TF"){
+        ##additional plots
+        
+        metagenePlotsForComparison(
+            target=target,
+            data=Meta_Result$geneBody,
+            tag="geneBody",
+            savePlotPath=NULL
+        )
+        
+        metagenePlotsForComparison(
+            target=target,
+            Meta_Result$TSS,
+            tag="TSS",
+            savePlotPath=NULL
+        )
+        
+        metagenePlotsForComparison(
+            target=target,
+            Meta_Result$TES,
+            tag="TES",
+            savePlotPath=NULL
+        )
+        
+        plotReferenceDistribution(
+            target=target,
+            metricToBePlotted="RSC",
+            currentValue=CC_Result$QCscores_ChIP$CC_RSC,
+            savePlotPath=NULL
+        )
+    }else{
+        message("The production of comparison plots is not supported for the \"TF\" target.")
+    }
 
-    if ( target %in% f_metaGeneDefinition("Hlist") ) { 
-        message( "Chromatin mark available for 
-        prediction..." )
-
+    if(target %in% listAvailableElements("mark") || target %in% listAvailableElements("TF") || target == "TF")
+    {
+        message("Calculating the prediction score...")
+        
         predictedScore=predictionScore(
             target=target,
             features_cc=CC_Result,
@@ -1893,27 +1905,17 @@ chicWrapper<-function(chipName, inputName, read_length,
             features_TES=TESProfile,
             features_scaled=geneBody_Plot
         )
+
         print("prediction")
         print(predictedScore)
 
-    } else if ( target %in% f_metaGeneDefinition( "TFlist" )) { 
-            predictedScore=predictionScore(
-            target="TF",
-            features_cc=CC_Result,
-            features_global=Ch_Results,
-            features_TSS=TSSProfile,
-            features_TES=TESProfile,
-            features_scaled=geneBody_Plot
-        )
-        print("prediction")
-        print(predictedScore)
     } else {
         stop( "Histone mark or TF not found. 
             Could not calculate the prediction score 
             using chicWrapper(). You might try the 
             predictionScore() function wihtout the wrapper." )
     }
-
+    
     dev.off()
     return(predictedScore)
 }
