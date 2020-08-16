@@ -112,7 +112,8 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         ##without M!! remove M from
 
     }else{
-        chrorder <- paste("chr", c(seq_len(19), "X", "Y"), sep = "")
+        #chrorder <- paste("chr", c(seq_len(19), "X", "Y"), sep = "")
+        chrorder <- paste("chr", c(seq_len(22), "X", "Y"), sep = "")
     }
     
     ## 5 broadRegions 6 enrichment broad regions zthresh_list<-c(3,4)
