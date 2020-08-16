@@ -66,8 +66,8 @@
 #' chip_binding.characteristics, input_binding.characteristics)
 #' }
 
-removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics, 
-    input_b.characteristics) 
+removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics) 
+    #input_b.characteristics) 
 {
     ########## check if input format is ok
     if (!(is.list(chip) & (length(chip) == 2L))) 
@@ -78,13 +78,13 @@ removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
     
     if (!(is.list(input) & (length(input) == 2L))) 
         stop("Invalid format for input")
-    if (!(is.list(input_b.characteristics) & 
-        (length(input_b.characteristics) == 3L))) 
-        stop("Invalid format for input_b.characteristics")
+    # if (!(is.list(input_b.characteristics) & 
+    #     (length(input_b.characteristics) == 3L))) 
+    #     stop("Invalid format for input_b.characteristics")
     ######### 
     
     result <- f_removeLocalTagAnomalies(chip, input, chip_b.characteristics, 
-        input_b.characteristics, 
+        #input_b.characteristics, 
         remove.local.tag.anomalies = TRUE, select.informative.tags = FALSE)
     return(result)
 }
