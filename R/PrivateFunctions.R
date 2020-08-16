@@ -202,8 +202,8 @@ f_qflag <- function(RSC) {
 #' @keywords internal 
 ## selet informative tags
 f_removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics, 
-    input_b.characteristics, remove.local.tag.anomalies, 
-    select.informative.tags) 
+    #input_b.characteristics,
+    remove.local.tag.anomalies, select.informative.tags) 
 {
     message("Filter tags")
     
@@ -211,8 +211,11 @@ f_removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
         message("select.informative.tags filter")
         chipSelected <- select.informative.tags(chip, 
             chip_b.characteristics)
+        #inputSelected <- select.informative.tags(input, 
+        #    input_b.characteristics)
         inputSelected <- select.informative.tags(input, 
-            input_b.characteristics)
+            chip_b.characteristics)
+
     } else {
         message("SKIP select.informative.tags filter")
         chipSelected <- chip$tags
