@@ -41,6 +41,9 @@
 #' @param read_length Integer, length of the reads
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @param crossCorrelation_Input Boolean, calculates cross-correlation and 
+#' and EM metrics for the input. The default=FALSE as the running time 
+#' increases and the metrics are not used in quality prediction. 
 #' @param savePlotPath, set if Cross-correlation plot should be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
@@ -48,6 +51,8 @@
 #'
 #' @return returnList, contains
 #' QCscores_ChIP List of QC-metrics with crosscorrelation values for the ChIP
+#' QCscores_Input List of QC-metrics with crosscorrelation values for the Input 
+#' if "crossCorrelation_Input" parameter was set to TRUE, NULL otherwise
 #' QCscores_binding List of QCscores from peak calls
 #' TagDensityChip Tag-density profile, smoothed by the Gaussian kernel 
 #' (for further details see "spp" package)
@@ -89,7 +94,8 @@
 
 
 qualityScores_EM <- function(chipName, inputName, read_length, 
-    annotationID = "hg19", mc = 1, savePlotPath = NULL, debug = FALSE) 
+    annotationID = "hg19", mc = 1, crossCorrelation_Input=FALSE,
+    savePlotPath = NULL, debug = FALSE) 
 {
     start_time <- Sys.time()
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
@@ -104,7 +110,11 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         stop("read_length must be numeric")
     if (read_length < 1) 
         stop("read_length must be > 0")
-    
+    if(crossCorrelation_Input)
+    {
+        message("Calculating the cross-correlation of the Input 
+            will increase running time significantly! ")
+    }
     annotationID=f_annotationCheck(annotationID)
     
     if (!is.numeric(mc)) {
@@ -174,35 +184,43 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     ## save the tag.shift
     final.tag.shift <- crossvalues_Chip$tag.shift
     
-    ## plot and calculate cross correlation and phantom 
-    ## characteristics for the input
-    # message("calculating binding characteristics for Input...")
-    # pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
-    #     clear = FALSE, width = 60)
-    # pb$tick()
 
-    # #switch cluster on
-    # if (mc > 1) {
-    #     cluster <- parallel::makeCluster( mc )
-    # }
+    crossvalues_Input=NULL
+    if (crossCorrelation_Input){
+        # plot and calculate cross correlation and phantom 
+        # characteristics for the input
+        message("calculating cross-correlation for Input...")
+        pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
+            clear = FALSE, width = 60)
+        pb$tick()
 
-    # input_binding.characteristics<-spp::get.binding.characteristics(input.data,
-    #     srange = estimating_fragment_length_range, 
-    #     bin = estimating_fragment_length_bin, 
-    #     accept.all.tags = TRUE, cluster = cluster)
-    # pb$tick()
+        #switch cluster on
+        if (mc > 1) {
+            cluster <- parallel::makeCluster( mc )
+        }
 
-    # #switch cluster off   
-    # if (mc > 1) {
-    #     parallel::stopCluster( cluster )
-    # }
+        input_binding.characteristics<-spp::get.binding.characteristics(input.data,
+            srange = estimating_fragment_length_range, 
+            bin = estimating_fragment_length_bin, 
+            accept.all.tags = TRUE, cluster = cluster)
+        pb$tick()
 
+        #switch cluster off   
+        if (mc > 1) {
+            parallel::stopCluster( cluster )
+        }
+        crossvalues_Input <- getCrossCorrelationScores(input.data, 
+            input_binding.characteristics, 
+            read_length = read_length, 
+            savePlotPath = savePlotPath, 
+            mc = mc,
+            annotationID = annotationID)
 
-    # if ( debug ) {
-    #     save(chip_binding.characteristics, input_binding.characteristics, 
-    #         file = file.path(getwd(),"bindingCharacteristics.RData"))
-    # }
-
+        if ( debug ) {
+            save(input_binding.characteristics, 
+                file = file.path(getwd(),"bindingCharacteristicsInput.RData"))
+        }
+    }
     if ( debug ) {
         save(chip_binding.characteristics, 
             file = file.path(getwd(),"bindingCharacteristics.RData"))
@@ -272,14 +290,14 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     }
 
     returnList <- list(QCscores_ChIP = crossvalues_Chip, 
-        #QCscores_Input = crossvalues_Input, 
+        QCscores_Input = crossvalues_Input, 
         QCscores_binding = bindingScores, 
         TagDensityChip = smoothed.densityChip, 
         TagDensityInput = smoothed.densityInput)
     
     if ( debug ) {
         writeout <- list(QCscores_ChIP = crossvalues_Chip, 
-            #QCscores_Input = crossvalues_Input, 
+            QCscores_Input = crossvalues_Input, 
             QCscores_binding = bindingScores)
         filename <- file.path(getwd(), "CC.results")
         write.table(writeout, file = filename,

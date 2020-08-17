@@ -15,9 +15,6 @@
 #' @param chip_b.characteristics binding.characteristics of the ChIP. Is a 
 #' data-structure containing binding information for binding peak separation 
 #' distance and cross-correlation profile (see get.binding.characteristics)
-#' @param input_b.characteristics, binding.characteristics of the Input. Is a 
-#' data-structure containing binding information for binding preak separation 
-#' distance and cross-correlation profile (see get.binding.characteristics)
 #'
 #' @return result A list containing filtered data structure for ChIP and Input
 #'
@@ -50,9 +47,6 @@
 #' chip_binding.characteristics<-spp::get.binding.characteristics(
 #' chipBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
 #' 
-#' input_binding.characteristics<-spp::get.binding.characteristics(
-#' inputBam, srange=c(0,500), bin=5,accept.all.tags=TRUE)
-#'
 #' ##get chromosome information and order chip and input by it
 #' chrl_final=intersect(names(chipBam$tags),names(inputBam$tags))
 #' chipBam$tags=chipBam$tags[chrl_final]
@@ -60,14 +54,13 @@
 #' inputBam$tags=inputBam$tags[chrl_final]
 #' inputBam$quality=inputBam$quality[chrl_final]
 #'
-#' ##remove sigular positions with extremely high read counts with 
+#' ##remove singular positions with extremely high read counts with 
 #' ##respect to the neighbourhood
 #' selectedTags=removeLocalTagAnomalies(chipBam, inputBam, 
-#' chip_binding.characteristics, input_binding.characteristics)
+#' chip_binding.characteristics)
 #' }
 
 removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics) 
-    #input_b.characteristics) 
 {
     ########## check if input format is ok
     if (!(is.list(chip) & (length(chip) == 2L))) 
@@ -84,7 +77,6 @@ removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics)
     ######### 
     
     result <- f_removeLocalTagAnomalies(chip, input, chip_b.characteristics, 
-        #input_b.characteristics, 
         remove.local.tag.anomalies = TRUE, select.informative.tags = FALSE)
     return(result)
 }

@@ -139,7 +139,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     if (debug)
     {
         message("Debugging mode ON")
-        filename=file.path(getwd(),"broadEncirhmentCluster.broadPeak")
+        filename=file.path(getwd(),"broadEnrichmentCluster.broadPeak")
         spp::write.broadpeak.info(broad.clusters,filename)
     }
     ## pb$tick()
@@ -213,7 +213,7 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
         
         if (debug)
         {
-            message("writing output in narrowpead format...")
+            message("writing output in narrowpeak format...")
             ## output using narrowpeak format
             spp::write.narrowpeak.binding(bp_broadpeak, 
                 file.path(getwd(),".peaks.narrowPeak"))
