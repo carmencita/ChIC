@@ -4,28 +4,21 @@
 #' @description
 #' Function to downsample bam files: reads ChIP and Input 
 #' bam files, calles peaks and removes randomly 60percent 
-#' of the reads from the peaks.
-#' Returns a downsampled dataframe.
+#' of the reads from the peaks. Returns a downsampled ChIP dataframe.
 #'
 #' downsample_ChIPpeaks
 #'
-#' @param chip.data dataframe, filename and path to the ChIP bam file 
-#' (without extension)
-#' @param input.data String, filename and path to the Input bam file
-#' (without extension)
+#' @param chip.data data-structure with tag information reads from bam file 
+#' (see readBamFile())
+#' @param input.data data-structure with tag information reads from bam file 
+#' (see readBamFile())
 #' @param read_length Integer, length of the reads
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
 #'
-#' @return returnList, contains
-#' QCscores_ChIP List of QC-metrics with crosscorrelation values for the ChIP
-#' QCscores_binding List of QCscores from peak calls
-#' TagDensityChip Tag-density profile, smoothed by the Gaussian kernel 
-#' (for further details see "spp" package)
-#' TagDensityInput Tag density-profile, smoothed by the Gaussian kernel 
-#' (for further details see "spp" package)
+#' @return chip.dataDownSampeld, data-structure with downsampled tags 
 #'
 #' @export
 #'
@@ -44,7 +37,19 @@
 #' mc=4
 #' \dontrun{
 #' 
-#' 
+#' filepath=tempdir()
+#' setwd(filepath)
+#'
+#' data("chipSubset", package = "ChIC.data", envir = environment())
+#' chipBam=chipSubset
+#' data("inputSubset", package = "ChIC.data", envir = environment())
+#' inputBam=inputSubset
+#' chip.dataNew=downsample_ChIPpeaks(chip.data=chipBam, 
+#'    input.data=inputBa, read_length=read_length,
+#'    annotationID="hg19", mc=mc, debug=FALSE)
+#'
+#' message(" downsampling from", sum(unlist(lapply(chipBam$tags,length)))," to ",
+#' sum(unlist(lapply(chip.dataNew$tags,length))))'
 #'}
 
 
