@@ -19,7 +19,7 @@
 
 #######################################################################
 ###############                                         ###############  
-############### FUNCTIONS QC-metrics for narrow binding PROFILES ######
+############### FUNCTION QC-metrics for narrow binding PROFILES ######
 ###############                                         ###############
 #######################################################################
 
@@ -95,10 +95,11 @@
 
 qualityScores_EM <- function(chipName, inputName, read_length, 
     annotationID = "hg19", mc = 1, crossCorrelation_Input=FALSE,
+    downSamplingChIP=FALSE,
     savePlotPath = NULL, debug = FALSE) 
 {
     start_time <- Sys.time()
-    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 8, 
         clear = FALSE, width = 60)
     pb$tick()
 
@@ -148,6 +149,22 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     pb$tick()
 
+    if (downSamplingChIP){
+        message("downsampling ChIP data. This can take
+            a while!")
+        chip.dataNew=downsample_ChIPpeaks(chip.data=chip.data, input.data=input.data,
+            read_length=read_length,
+            annotationID=annotationID,mc=mc,debug=debug)
+        chip.data=chip.dataNew
+
+        if ( debug ) 
+        {
+            save(chip.dataNew, 
+                file = file.path(getwd(),"ChIP_downsampledBam.RData"))
+        }
+
+    }
+
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the ChIP
     message("\ncalculating binding characteristics for ChIP... ")
@@ -166,6 +183,12 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         bin = estimating_fragment_length_bin, 
         accept.all.tags = TRUE, cluster = cluster)
     
+    
+    if ( debug ) {
+        save(chip_binding.characteristics, 
+            file = file.path(getwd(),"bindingCharacteristics.RData"))
+    }
+
     pb$tick()
 
     #switch cluster off   
@@ -183,47 +206,44 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         annotationID = annotationID)
     ## save the tag.shift
     final.tag.shift <- crossvalues_Chip$tag.shift
-    
+
+    pb$tick()
 
     crossvalues_Input=NULL
     if (crossCorrelation_Input){
-        # plot and calculate cross correlation and phantom 
-        # characteristics for the input
-        message("calculating cross-correlation for Input...")
-        pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
-            clear = FALSE, width = 60)
-        pb$tick()
+        message("\n***Calculating cross correlation QC-metrics for Input...***")
 
+        # plot and calculate cross correlation and phantom 
+        # characteristics for the input        
         #switch cluster on
         if (mc > 1) {
             cluster <- parallel::makeCluster( mc )
         }
-
+        message("calculating binding characteristics...")
         input_binding.characteristics<-spp::get.binding.characteristics(input.data,
             srange = estimating_fragment_length_range, 
             bin = estimating_fragment_length_bin, 
             accept.all.tags = TRUE, cluster = cluster)
-        pb$tick()
 
         #switch cluster off   
         if (mc > 1) {
             parallel::stopCluster( cluster )
         }
+        message("calculating cross-correlation scores...")
         crossvalues_Input <- getCrossCorrelationScores(input.data, 
             input_binding.characteristics, 
             read_length = read_length, 
             savePlotPath = savePlotPath, 
             mc = mc,
+            tag="Input",
             annotationID = annotationID)
 
         if ( debug ) {
             save(input_binding.characteristics, 
                 file = file.path(getwd(),"bindingCharacteristicsInput.RData"))
         }
-    }
-    if ( debug ) {
-        save(chip_binding.characteristics, 
-            file = file.path(getwd(),"bindingCharacteristics.RData"))
+        message("calculating cross-correlation scores for Input... done!")
+
     }
 
 
@@ -240,7 +260,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     selectedTags <- removeLocalTagAnomalies(chip.data, input.data, 
         chip_binding.characteristics)
         #input_binding.characteristics)
-    pb$tick()
+    pb$tick() 
 
     #cleaning up memory space
     remove(chip_binding.characteristics)

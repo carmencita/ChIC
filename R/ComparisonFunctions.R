@@ -367,7 +367,7 @@ predictionScore <- function(target, features_cc, features_global,
             stop("Chromatin mark or transcription factor not valid.
                 Check \"listAvailableElements()\" function for valid options.")
 
-    if (!(is.list(features_cc) & (length(features_cc) == 4L)))
+    if (!(is.list(features_cc) & (length(features_cc) == 5L)))
         stop("Invalid format for features_cc")
     if (!(is.list(features_global) & (length(features_global) == 9L)))
         stop("Invalid format for features_global")

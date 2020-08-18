@@ -31,9 +31,12 @@
 #' profile (see spp::get.binding.characteristics).
 #' @param read_length Integer, read length of "data" (Defaul="36") 
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
-#' Default=NULL and plot will be forwarded to stdout. 
+#' Default=NULL and plot will be omitted. 
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
+#' @param tag String,can be used to personalize the prefix of the filename 
+#' for the cross- correltion plot (default="ChIP" and "Input" in case of 
+#' cross-correlation plot for the input')
 #'
 #' @return finalList List with QC-metrics 
 #'
@@ -68,7 +71,7 @@
 #'}
 
 getCrossCorrelationScores <- function(data, bchar, annotationID="hg19", 
-    read_length, savePlotPath = NULL, mc=1) 
+    read_length, savePlotPath = NULL, mc=1,tag="ChIP") 
 {
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 12, 
         clear = FALSE, width = 60)
@@ -147,7 +150,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         min_cc = min_cc, peak = phChar$peak, read_length = read_length)
     
     pb$tick()
-    message("\nsmooting...")
+    message("\nsmoothing...")
     ## 2.0 smoothed cross correlation ss is subset selection
     ss <- which(bchar$cross.correlation$x %in% ccRangeSubset)
     bchar$cross.correlation <- bchar$cross.correlation[ss, ]
@@ -233,43 +236,42 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
 
     if (!is.null(savePlotPath)) {
         message("Crosscorrelation plot saved under ",savePlotPath)
-        filename <- file.path(savePlotPath, "CrossCorrelation.pdf")
+        filename <- file.path(savePlotPath, paste0(tag,"CrossCorrelation.pdf"))
         pdf(file = filename)
-    }
     
-    ## plot cross correlation curve with smoothing
-    message("plot cross correlation curve with smoothing")
-    par(mar = c(3.5, 3.5, 1, 0.5), mgp = c(2, 0.65, 0), cex = 0.8)
-    plot(phChar$cross.correlation, type = "l", xlab = "strand shift", 
-        ylab = "cross-correlation", 
-        main = "CrossCorrelation Profile")
-    lines(x = phChar$cross.correlation$x, y = phantomSmoothing, 
-        lwd = 2, col = "blue")
-    lines(x = rep(phScores$peak$x, times = 2), 
-        y = c(0, phScores$peak$y), lty = 2, 
-        lwd = 2, col = "red")
-    lines(x = rep(phScores$phantom_cc$x, times = 2), 
-        y = c(0, phScores$phantom_cc$y), 
-        lty = 2, lwd = 2, col = "orange")
-    abline(h = phScores$min_cc$y, lty = 2, lwd = 2, col = "grey")
-    text(x = phScores$peak$x, y = phScores$peak$y, 
-        labels = paste("A =", signif(phScores$peak$y, 3)), 
-        col = "red", pos = 3)
-    text(x = phScores$phantom_cc$x, y = phScores$phantom_cc$y, 
-        labels = paste("B =", signif(phScores$phantom_cc$y, 3)), 
-        col = "orange", pos = 2)
-    text(x = min(phChar$cross.correlation$x), 
-        y = phScores$min_cc$y, 
-        labels = paste("C =", signif(phScores$min_cc$y, 3)), 
-        col = "grey", adj = c(0, -1))
-    legend(x = "topright", 
-        legend = c(paste("NSC = A/C =", signif(phScores$NSC, 3)), 
-        paste("RSC = (A-C)/(B-C) =", signif(phScores$RSC, 3)), 
-        paste("Quality flag =", phScores$quality_flag), "", 
-        paste("Shift =", (phScores$peak$x)), 
-        paste("Read length =", (read_length))))
-    
-    if (!is.null(savePlotPath)) {
+        ## plot cross correlation curve with smoothing
+        message("plot cross correlation curve with smoothing")
+        par(mar = c(3.5, 3.5, 1, 0.5), mgp = c(2, 0.65, 0), cex = 0.8)
+        plot(phChar$cross.correlation, type = "l", xlab = "strand shift", 
+            ylab = "cross-correlation", 
+            main = "CrossCorrelation Profile")
+        lines(x = phChar$cross.correlation$x, y = phantomSmoothing, 
+            lwd = 2, col = "blue")
+        lines(x = rep(phScores$peak$x, times = 2), 
+            y = c(0, phScores$peak$y), lty = 2, 
+            lwd = 2, col = "red")
+        lines(x = rep(phScores$phantom_cc$x, times = 2), 
+            y = c(0, phScores$phantom_cc$y), 
+            lty = 2, lwd = 2, col = "orange")
+        abline(h = phScores$min_cc$y, lty = 2, lwd = 2, col = "grey")
+        text(x = phScores$peak$x, y = phScores$peak$y, 
+            labels = paste("A =", signif(phScores$peak$y, 3)), 
+            col = "red", pos = 3)
+        text(x = phScores$phantom_cc$x, y = phScores$phantom_cc$y, 
+            labels = paste("B =", signif(phScores$phantom_cc$y, 3)), 
+            col = "orange", pos = 2)
+        text(x = min(phChar$cross.correlation$x), 
+            y = phScores$min_cc$y, 
+            labels = paste("C =", signif(phScores$min_cc$y, 3)), 
+            col = "grey", adj = c(0, -1))
+        legend(x = "topright", 
+            legend = c(paste("NSC = A/C =", signif(phScores$NSC, 3)), 
+            paste("RSC = (A-C)/(B-C) =", signif(phScores$RSC, 3)), 
+            paste("Quality flag =", phScores$quality_flag), "", 
+            paste("Shift =", (phScores$peak$x)), 
+            paste("Read length =", (read_length))))
+        
+        
         dev.off()
         message("pdf saved under", filename)
     }
