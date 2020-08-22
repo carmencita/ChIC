@@ -48,6 +48,8 @@
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
+#' @param writeWig Boolean, saves smoothed tag density in  
+#' wig format in working directory for Input and ChIP
 #'
 #' @return returnList, contains
 #' QCscores_ChIP List of QC-metrics with crosscorrelation values for the ChIP
@@ -95,7 +97,7 @@
 
 qualityScores_EM <- function(chipName, inputName, read_length, 
     annotationID = "hg19", mc = 1, crossCorrelation_Input=FALSE,
-    downSamplingChIP=FALSE,
+    downSamplingChIP=FALSE, writeWig=FALSE,
     savePlotPath = NULL, debug = FALSE) 
 {
     start_time <- Sys.time()
@@ -266,11 +268,11 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     remove(chip_binding.characteristics)
     #remove(input_binding.characteristics)
 
-    input.dataSelected <- selectedTags$input.dataSelected
-    chip.dataSelected <- selectedTags$chip.dataSelected
+    input.tagsSelected <- selectedTags$input.dataSelected
+    chip.tagsSelected <- selectedTags$chip.dataSelected
     
     if ( debug) {
-        save(chip.dataSelected, input.dataSelected, 
+        save(chip.tagsSelected, input.tagsSelected, 
             file = file.path(getwd(),"dataSelected.RData"))
     }
     
@@ -278,29 +280,21 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     message("\n***Calculating QC-metrics from peak-calling...***")
     bindingScores <- getPeakCallingScores(chip.data, 
         input.data, 
-        chip.dataSelected, 
-        input.dataSelected, 
+        chip.tagsSelected, 
+        input.tagsSelected, 
         final.tag.shift, 
         mc=mc,
         annotationID=annotationID,
         debug=debug)
     
-    message("\n***Tag smooting...***")
-    
-    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
-        clear = FALSE, width = 60)
-    pb$tick()
+    returnList <- list(QCscores_ChIP = crossvalues_Chip, 
+        QCscores_Input = crossvalues_Input, 
+        QCscores_binding = bindingScores, 
+        SelectedTagsChip = chip.tagsSelected, 
+        SelectedTagsInput = input.tagsSelected,
+        )
 
-    ## objects of smoothed tag density for ChIP and Input
-    smoothed.densityChip <- tagDensity(chip.dataSelected, final.tag.shift, 
-        annotationID = annotationID, mc = mc)
-    pb$tick()
-
-    smoothed.densityInput <- tagDensity(input.dataSelected, final.tag.shift, 
-        annotationID = annotationID, mc = mc)
-    pb$tick()
-    
-    if ( debug )
+    if ( writeWig )
     {
         message("saving tracks as wig...")
         f_writewig(smoothed.densityChip, 
@@ -309,12 +303,6 @@ qualityScores_EM <- function(chipName, inputName, read_length,
             file.path(getwd(),"input.wig"),"track input")
     }
 
-    returnList <- list(QCscores_ChIP = crossvalues_Chip, 
-        QCscores_Input = crossvalues_Input, 
-        QCscores_binding = bindingScores, 
-        TagDensityChip = smoothed.densityChip, 
-        TagDensityInput = smoothed.densityInput)
-    
     if ( debug ) {
 
         writeout = data.frame( cc_binding_valuesChIP= 
@@ -332,9 +320,9 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         write.table(writeout, file = filename,
             row.names = TRUE, col.names = TRUE, 
             append = FALSE, quote = FALSE)
-        save(smoothed.densityChip, smoothed.densityInput, 
-            file = file.path(getwd(), "smoothed.RData"))
+  
     }
+    
     message("Calculation of EM done!")
     end_time <- Sys.time()
     message("Time used: ")
