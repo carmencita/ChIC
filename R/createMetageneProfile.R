@@ -138,7 +138,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     ## two.point.scaling create scaled metageneprofile input
     message("Calculating scaled metageneprofile ...")
 
-    smoothed.densityInput <- list(td = smoothed.densityInput)
+    #smoothed.densityInput <- list(td = smoothed.densityInput)
     message("process input")
     pb$tick()
     
@@ -148,7 +148,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     pb$tick()
     
     ## Chip
-    smoothed.densityChip <- list(td = smoothed.densityChip)
+    #smoothed.densityChip <- list(td = smoothed.densityChip)
     message("\nprocess ChIP")
     pb$tick()
 

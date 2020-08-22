@@ -1003,7 +1003,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
     ## lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
     ## BiocParallel::bplapply(chrl[chrl %in% names(chipTags_current$td)], 
     ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
-    mclapply(chrl[chrl %in% names(chipTags_current$td)], 
+    #mclapply(chrl[chrl %in% names(chipTags_current$td)], 
+    mclapply(chrl[chrl %in% names(chipTags_current)], 
         mc.preschedule = FALSE, 
         mc.cores = mc, 
         FUN = function(chr) {
@@ -1013,7 +1014,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
             current_gene_names <- gdl[[chr]]$geneSymbol
             if ((sum(!nsi) > 0)) {
                 ## if ((sum(!nsi)>1)) {
-                px <- f_feature.bin.averages(chipTags_current$td[[chr]], 
+                #px <- f_feature.bin.averages(chipTags_current$td[[chr]], 
+                px <- f_feature.bin.averages(chipTags_current[[chr]], 
                     data.frame(s = gdl[[chr]]$txStart[!nsi], 
                         e = gdl[[chr]]$txEnd[!nsi]), 
                     lom = lom, rom = rom, im = im, bs = bs, 
@@ -1025,7 +1027,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
             }
             if ((sum(nsi) > 0)) {
                 ## if ((sum(nsi)>1)) {
-                nd <- chipTags_current$td[[chr]]
+                #nd <- chipTags_current$td[[chr]]
+                nd <- chipTags_current[[chr]]
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(s = -1 * gdl[[chr]]$txEnd[nsi], 
@@ -1063,7 +1066,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
     ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
     ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
     
-    mclapply(chrl[chrl %in% names(tl_current$td)], 
+    mclapply(chrl[chrl %in% names(tl_current)], 
         mc.preschedule = FALSE, 
         mc.cores = mc,     
         FUN = function(chr) {
@@ -1075,7 +1078,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
                 ## px <- f_feature.bin.averages(tl_current$td[[chr]],
                 ## data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m, 
                 ## nbins=nbins,nu.point.omit=FALSE)
-                px <- f_feature.bin.averages(tl_current$td[[chr]], 
+                px <- f_feature.bin.averages(tl_current[[chr]], 
                     data.frame(x = gdl[[chr]]$txStart[!nsi]), 
                 m = m,
                 min.feature.size=NULL,
@@ -1087,7 +1090,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
             
             if ((sum(nsi) > 0)) {
                 ## if ((sum(nsi)>0)) {
-                nd <- tl_current$td[[chr]]
+                nd <- tl_current[[chr]]
                 nd$x <- -1 * nd$x
                 ## nx <- f_feature.bin.averages(nd,data.frame
                 ## (x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,
@@ -1125,7 +1128,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
     ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
     ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
     
-    mclapply(chrl[chrl %in% names(tl_current$td)], 
+    mclapply(chrl[chrl %in% names(tl_current)], 
         mc.preschedule = FALSE, 
         mc.cores = mc,
         FUN = function(chr) {
@@ -1138,7 +1141,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
                 ##function(dat,feat,nu.feat.omit=F, nu.point.omit=T,
                 ## scaling=NULL, return.scaling=F, trim=0,
                 ## min.feature.size=NULL, ... ) {
-                px <- f_feature.bin.averages(tl_current$td[[chr]], 
+                px <- f_feature.bin.averages(tl_current[[chr]], 
                     data.frame(x = gdl[[chr]]$txEnd[!nsi]), 
                 m = m, 
                 min.feature.size=NULL,
@@ -1149,7 +1152,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
             }
             ## if ((sum(nsi)>1)) {
             if ((sum(nsi) > 0)) {
-                nd <- tl_current$td[[chr]]
+                nd <- tl_current[[chr]]
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(x = -1 * gdl[[chr]]$txStart[nsi]), 
