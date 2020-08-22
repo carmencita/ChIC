@@ -223,7 +223,7 @@ createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
         save(binnedChip_TSS, binnedInput_TSS, binnedNorm_TSS, 
             file = file.path(getwd(), "OnePointTSS.RData"))
         save(binnedChip_TES, binnedInput_TES, binnedNorm_TSS,
-            file = file.path(getwd(), paste("OnePointTES.RData"))
+            file = file.path(getwd(), "OnePointTES.RData"))
     }
     message("Metageneprofile objects created!")
     return(list(geneBody = geneBody, TSS = onepointTSS, TES = onepointTES))
