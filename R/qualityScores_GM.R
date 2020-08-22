@@ -25,10 +25,13 @@
 
 #' qualityScores_GM
 #'
-#' @param densityChip Smoothed tag-density object for ChIP (returned by
-#' qualityScores_EM). 
-#' @param densityInput Smoothed tag density object for Input (returned by
-#' qualityScores_EM)
+#' @param selectedTagsChip Data-structure with selected tag information for ChIP 
+#' (returned by qualityScores_EM). 
+#' @param selectedTagsInput Data-structure with selected tag information for Input 
+#' (returned by qualityScores_EM)
+#' @param tag.shift, Integer containing the value of the tag shif, calculated 
+#' by getCrossCorrelationScores()
+#' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
@@ -92,8 +95,8 @@
 #'     densityInput = smoothedInput, savePlotPath = filepath)
 #'}
 
-qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL, 
-    debug = FALSE) 
+qualityScores_GM <- function(SelectedTagsChip, selectedTagsInput, tag.shift,
+    annotationID="hg19", savePlotPath = NULL, debug = FALSE) 
 {
     message("***Calculating GM...***")
 
@@ -102,11 +105,24 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
     pb$tick()
 
     ########## check if input format is ok
-    if (!is.list(densityChip)) 
-        stop("Invalid format for densityChip")
-    if (!is.list(densityInput)) 
-        stop("Invalid format for densityInput")
+    if (!is.list(selectedTagsChip)) 
+        stop("Invalid format for selectedChip")
+    if (!is.list(selectedTagsInput)) 
+        stop("Invalid format for selectedInput")
+
+    if ( !is.numeric(tag.shift) ) 
+        stop( "tag.shift must be numeric" )
+    if ( tag.shift < 1 ) 
+        stop( "tag.shift must be > 0" )
+
     ########## 
+    
+    ## objects of smoothed tag density for ChIP and Input
+    densityChip <- tagDensity(selectedTagsChip, tag.shift, 
+        annotationID = annotationID, mc = mc)
+
+    densityInput <- tagDensity(selectedTagsInput, tag.shift, 
+        annotationID = annotationID, mc = mc)
     
     ## shorten frame and reduce resolution
     message("shorten frame...")
