@@ -890,32 +890,30 @@ f_chromInfoLoad <- function(annotationID)
 {
     ## load chrom_info
     ##message("load chrom_info")
-    chrorder <- paste("chr", c(seq_len(22)), sep = "")
     if (annotationID == "hg19") {
         # hg19_chrom_info=NULL
         data("hg19_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- hg19_chrom_info[chrorder]
+        chromInfo <- hg19_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
     }
     if (annotationID == "hg38") {
         # hg19_chrom_info=NULL
         data("hg38_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- hg38_chrom_info[chrorder]
+        chromInfo <- hg38_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
     }
     if (annotationID == "mm9") {
         # hg19_chrom_info=NULL
         data("mm9_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- mm9_chrom_info[chrorder]
+        chromInfo <- mm9_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
     }
     if (annotationID == "mm10") {
         # hg19_chrom_info=NULL
         data("mm10_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- mm10_chrom_info[chrorder]
+        chromInfo <- mm10_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
     }
     if (annotationID == "dm3") {
         # hg19_chrom_info=NULL
-        chrorder=c("chr2L","chr2R","chr3L","chr3R","chr4")
         data("dm3_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- dm3_chrom_info[chrorder]
+        chromInfo <- dm3_chrom_info[c("chr2L","chr2R","chr3L","chr3R","chr4")]
     }
 
     return(chromInfo)        
