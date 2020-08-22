@@ -145,6 +145,13 @@ createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
 
     smoothed.densityInput <- tagDensity(selectedTagsInput, tag.shift, 
         annotationID = annotationID, mc = mc)
+
+    smoothingBandwidth <- 50
+    smoothingStep <- 20 
+    normalizedProfile= spp::get.smoothed.enrichment.mle(
+        selectedTagsChip, selectedTagsInput,background.density.scaling = T, bandwidth=smoothingBandwidth, 
+        step=smoothingStep,tag.shift=tag.shift)
+
     #smoothed.densityInput <- list(td = smoothed.densityInput)
     
     ## Chip
@@ -167,11 +174,7 @@ createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
         
 
     message("\nprocess ChIP over Input")
-    smoothingBandwidth <- 50
-    smoothingStep <- 20 
-    normalizedProfile= spp::get.smoothed.enrichment.mle(
-        selectedTagsChip, selectedTagsInput, bandwidth=smoothingBandwidth, 
-        step=smoothingStep,tag.shift=tag.shift)
+   
 
     binned_Norm <- masked_t.get.gene.av.density(normalizedProfile, 
         gdl = annotatedGenesPerChr, 
@@ -209,18 +212,18 @@ createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
         gdl = annotatedGenesPerChr, 
         mc = mc, tag = "TES")
     onepointTES <- list(chip = binnedChip_TES, input = binnedInput_TES, 
-        norm=binnedInput_TES)
+        norm=binnedNorm_TES)
     pb$tick()
 
     if ( debug ) {
         message("Debuggin mode ON...")
         message("writing metageneprofiles Rdata objects")
-        save(binned_Chip, binned_Input, file = file.path(getwd(), 
-            paste("geneBody.RData", sep = "_")))
-        save(binnedChip_TSS, binnedInput_TSS, file = file.path(getwd(), 
-            paste("OnePointTSS.RData", sep = "_")))
-        save(binnedChip_TES, binnedInput_TES, file = file.path(getwd(), 
-            paste("OnePointTES.RData", sep = "_")))
+        save(binned_Chip, binned_Input, binned_Norm, 
+            file = file.path(getwd(), "geneBody.RData"))
+        save(binnedChip_TSS, binnedInput_TSS, binnedNorm_TSS, 
+            file = file.path(getwd(), "OnePointTSS.RData"))
+        save(binnedChip_TES, binnedInput_TES, binnedNorm_TSS,
+            file = file.path(getwd(), paste("OnePointTES.RData"))
     }
     message("Metageneprofile objects created!")
     return(list(geneBody = geneBody, TSS = onepointTSS, TES = onepointTES))

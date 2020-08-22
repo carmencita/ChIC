@@ -291,7 +291,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         QCscores_Input = crossvalues_Input, 
         QCscores_binding = bindingScores, 
         SelectedTagsChip = chip.tagsSelected, 
-        SelectedTagsInput = input.tagsSelected,
+        SelectedTagsInput = input.tagsSelected
         )
 
     if ( writeWig )
@@ -320,6 +320,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         write.table(writeout, file = filename,
             row.names = TRUE, col.names = TRUE, 
             append = FALSE, quote = FALSE)
+        
   
     }
     
