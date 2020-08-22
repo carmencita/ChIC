@@ -95,7 +95,7 @@ metagenePlotsForComparison <- function(data, target, tag,
     psc <- 1
     
     ########## check if input format is ok 
-    if (!(is.list(data) & (length(data) == 2L))) 
+    if (!(is.list(data) & (length(data) == 3L))) 
         stop("Invalid format for data")
     # stopifnot(target %in% Hlist)
     if ((!(target %in% f_metaGeneDefinition("Hlist"))) &  
@@ -108,7 +108,8 @@ metagenePlotsForComparison <- function(data, target, tag,
     message("Calculating metagene profiles...")
     iframe <- log2(do.call(rbind, data$input) + psc)
     cframe <- log2(do.call(rbind, data$chip) + psc)
-    
+    norm <- do.call(rbind, data$norm)
+
     # load average dataframe normalized
     n_mean <- f_loadDataCompendium(endung = "norm", 
         target = target, tag = tag)
@@ -130,7 +131,8 @@ metagenePlotsForComparison <- function(data, target, tag,
         absoluteMax <- max(i_mean$mean + i_mean$sderr)
     }
     
-    nframe <- colMeans(t(t(cframe) - t(iframe)), na.rm = TRUE)
+    #nframe <- colMeans(t(t(cframe) - t(iframe)), na.rm = TRUE)
+    nframe <- colMeans(norm, na.rm = TRUE)
     iframe <- colMeans(iframe, na.rm = TRUE)
     cframe <- colMeans(cframe, na.rm = TRUE)
     

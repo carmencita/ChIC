@@ -95,7 +95,7 @@
 #'     densityInput = smoothedInput, savePlotPath = filepath)
 #'}
 
-qualityScores_GM <- function(SelectedTagsChip, selectedTagsInput, tag.shift,
+qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
     annotationID="hg19", savePlotPath = NULL, debug = FALSE) 
 {
     message("***Calculating GM...***")
