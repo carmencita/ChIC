@@ -34,8 +34,6 @@
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
-#' @param debug Boolean, to enter debugging mode. Intermediate files are 
-#' saved in working directory
 #'
 #' @return finalList List with 9 QC-values
 #'
@@ -96,7 +94,7 @@
 #'}
 
 qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
-    annotationID="hg19", savePlotPath = NULL, debug = FALSE) 
+    annotationID="hg19", savePlotPath = NULL) 
 {
     message("***Calculating GM...***")
 
@@ -183,12 +181,7 @@ qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
     if (!is.null(savePlotPath))    
         message("pdf saved under ", savePlotPath)
 
-    if ( debug ) {
-        message("Debugging mode ON")
-        outname <- file.path(getwd(), "Chance.result")        
-        write.table(finalList, file = outname, row.names = TRUE, 
-            col.names = TRUE, quote = FALSE, append=FALSE)
-    }
+    
     ## return QC values
     pb$tick()
 
