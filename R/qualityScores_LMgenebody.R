@@ -18,8 +18,6 @@
 #' returned by createMetageneProfile()
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param debug Boolean, to enter debugging mode. Intermediate files are 
-#' saved in working directory
 #'
 #' @export
 #'
@@ -81,7 +79,7 @@
 #'}
 
 
-qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
+qualityScores_LMgenebody <- function(data, savePlotPath = NULL)
 {
     stopifnot(length(data) == 3L)
     
@@ -190,17 +188,9 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, debug = FALSE)
     }
     
     result=data.frame(rbind(
-        cbind(hotSpotsValues,hotSpotsValuesNorm),
-        cbind(maxAucValues,maxAucValuesNorm)))
+        cbind(round(hotSpotsValues,3),round(hotSpotsValuesNorm,3)),
+        cbind(round(maxAucValues,3),round(maxAucValuesNorm,3))))
 
-    
-    if ( debug ) {
-        message("Debugging mode ON")
-        outname <- file.path(getwd(), "geneBody.result")
-        write.table(result, file = outname, row.names = TRUE, 
-            col.names = TRUE, quote = FALSE, append=FALSE)
-    }
-    
     message("Calculation of LM for scaled profile done!")
     return(result)
 }

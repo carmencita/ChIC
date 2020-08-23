@@ -21,8 +21,6 @@
 #' TES profile should be calcualted (Default='TSS')
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param debug Boolean, to enter debugging mode. Intermediate files are 
-#' saved in working directory
 #'
 #' @export
 #'
@@ -85,7 +83,7 @@
 #' savePlotPath=filepath))
 #'}
 
-qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE) 
+qualityScores_LM <- function(data, tag, savePlotPath = NULL) 
 {
     stopifnot(tag %in% c("TES", "TSS"))
     stopifnot(length(data) == 3L)
@@ -213,20 +211,12 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, debug = FALSE)
     
     # convert values and features to one frame
     result=data.frame(rbind(
-        cbind(hotSpotsValues,hotSpotsValuesNorm),
-        cbind(variabilityValues[[1]],variabilityValuesNorm[[1]]),
-        cbind(variabilityValues[[2]],variabilityValuesNorm[[2]]),
-        cbind(variabilityValues[[3]],variabilityValuesNorm[[3]]),
-        cbind(maxAucValues,maxAucValuesNorm)))
+        cbind(round(hotSpotsValues,3),round(hotSpotsValuesNorm,3)),
+        cbind(round(variabilityValues[[1]],3),round(variabilityValuesNorm[[1]],3)),
+        cbind(round(variabilityValues[[2]],3),round(variabilityValuesNorm[[2]],3)),
+        cbind(round(variabilityValues[[3]],3),round(variabilityValuesNorm[[3]],3)),
+        cbind(round(maxAucValues,3),round(maxAucValuesNorm,3))))
 
-    if (debug) {
-        message("Debugging mode ON")
-        outname <- file.path(getwd(), 
-            paste(tag, "onepoints.result", sep = "_"))
-        write.table(result, file = outname, 
-            row.names = TRUE, col.names = TRUE, 
-            append = FALSE, quote = FALSE)
-    }
     message("Calculation of LM for non-scaled profiles done!")
     return(result)
 }

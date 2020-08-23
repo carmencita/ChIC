@@ -302,28 +302,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         f_writewig(smoothed.densityInput, 
             file.path(getwd(),"input.wig"),"track input")
     }
-
-    if ( debug ) {
-
-        writeout = data.frame( cc_binding_valuesChIP= 
-            unlist(crossvalues_Chip))
-        writeout=rbind(writeout, data.frame( 
-            cc_binding_valuesChIP=unlist(bindingScores)))
-        writeout$crossvalues_Input="NA"
-        if ( crossCorrelation_Input )
-        {
-            writeout$crossvalues_Input=data.frame( 
-                crossvalues_Input=c(unlist (crossvalues_Chip),
-                 rep("NA",6)))
-        }
-        filename <- file.path(getwd(), "CC.results")
-        write.table(writeout, file = filename,
-            row.names = TRUE, col.names = TRUE, 
-            append = FALSE, quote = FALSE)
-        
-  
-    }
     
+
     message("Calculation of EM done!")
     end_time <- Sys.time()
     message("Time used: ")
