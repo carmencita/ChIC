@@ -37,6 +37,8 @@ readBamFile <- function(filename, readAlignerType = "bam") {
     ########## check if input format is ok
     if (!is.character(filename)) 
         stop("Invalid filename (String required)")
+    if (!(readAlignerType %in% c("bam","tagAlign"))) 
+        stop("Invalid filename (String required)")
     ######### 
     fileContent <- f_readFile(filename = filename, reads.aligner.type = readAlignerType)
     result=f_checkOfChrNames(fileContent)
