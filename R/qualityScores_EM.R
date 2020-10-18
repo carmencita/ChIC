@@ -39,6 +39,7 @@
 #' @param inputName String, filename and path to the Input bam file
 #' (without extension)
 #' @param read_length Integer, length of the reads
+#' @param readAlignerType string, bam (default) tagAlign file format are supported
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param crossCorrelation_Input Boolean, calculates cross-correlation and 
@@ -96,6 +97,7 @@
 
 
 qualityScores_EM <- function(chipName, inputName, read_length, 
+    readAlignerType = "bam",
     annotationID = "hg19", mc = 1, crossCorrelation_Input=FALSE,
     downSamplingChIP=FALSE, writeWig=FALSE,
     savePlotPath = NULL, debug = FALSE) 
@@ -135,12 +137,12 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     message("reading bam files")
     message("...for ChIP")
-    chip.data <- readBamFile(chipName)
+    chip.data <- readBamFile(chipName,readAlignerType = readAlignerType)
     
     pb$tick()
 
     message("\n...for Input")
-    input.data <- readBamFile(inputName)
+    input.data <- readBamFile(inputName,readAlignerType = readAlignerType)
 
 
     if ( debug ) {

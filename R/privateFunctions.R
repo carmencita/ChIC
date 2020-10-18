@@ -121,11 +121,12 @@ f_write.probe.wig <- function(chr, pos, val, fname, append=FALSE, feature="M",
 #' @keywords internal 
 ## reads bam file or tagalign file
 f_readFile <- function(filename, reads.aligner.type) {
-    currentFormat <- get(paste("read", reads.aligner.type, "tags", sep = "."))
     if (reads.aligner.type == "bam") {
+        currentFormat <- get(paste("read", reads.aligner.type, "tags", sep = "."))
         data <- currentFormat(file.path(paste(filename, ".bam", sep = "")))
     }
-    if (reads.aligner.type == "tagalign") {
+    if (reads.aligner.type == "tagAlign") {
+        currentFormat <- get(paste("read", "tagalign", "tags", sep = "."))
         data <- currentFormat(file.path(paste(filename,".tagAlign", sep = "")))
     }
     
