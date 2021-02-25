@@ -17,7 +17,8 @@ TES profile should be calcualted (Default='TSS')}
 \item{savePlotPath}{if set the plot will be saved under 'savePlotPath'. 
 Default=NULL and plot will be forwarded to stdout.}
 
-\item{debug}{Boolean to enter in debugging mode (default= FALSE)}
+\item{debug}{Boolean, to enter debugging mode. Intermediate files are 
+saved in working directory}
 }
 \value{
 result Dataframe with QC-values for chip, input and normalized 

@@ -5,7 +5,8 @@
 \title{Calculating QC-values from peak calling procedure}
 \usage{
 getPeakCallingScores(chip, input, chip.dataSelected, input.dataSelected,
-    tag.shift = 75, mc = 1, chrorder = NULL)
+    annotationID = "hg19", tag.shift = 75, mc = 1, chrorder = NULL,
+    debug = FALSE)
 }
 \arguments{
 \item{chip}{data-structure with tag information for the ChIP 
@@ -20,12 +21,17 @@ removeLocalTagAnomalies() which removes local tag anomalies}
 \item{input.dataSelected}{selected Input tags after running 
 removeLocalTagAnomalies() which removes local tag anomalies}
 
+\item{annotationID}{String indicating the genome assembly (Default="hg19")}
+
 \item{tag.shift}{Integer containing the value of the tag shift, 
 calculated by getCrossCorrelationScores(). Default=75}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 
 \item{chrorder}{chromosome order (default=NULL)}
+
+\item{debug}{Boolean, to enter debugging mode. Intermediate files are 
+saved in working directory}
 }
 \value{
 QCscoreList List with 6 QC-values
@@ -82,6 +88,7 @@ chipBamSelected <- selectedTags$chip.dataSelected
 bindingScores <- getPeakCallingScores(chip = chipBam, 
     input = inputBam, chip.dataSelected = chipBamSelected, 
     input.dataSelected = inputBamSelected, 
+    annotationID="hg19",
     tag.shift = finalTagShift, mc = mc)
 }
 }

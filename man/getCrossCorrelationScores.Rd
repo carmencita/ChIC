@@ -5,8 +5,8 @@
 \title{QC-metrics from cross-correlation profile, phantom peak and 
 general QC-metrics}
 \usage{
-getCrossCorrelationScores(data, bchar, read_length, savePlotPath = NULL,
-    plotname = "phantom", mc = 1)
+getCrossCorrelationScores(data, bchar, annotationID = "hg19",
+    read_length, savePlotPath = NULL, mc = 1)
 }
 \arguments{
 \item{data}{data-structure with tag information read from bam file 
@@ -16,13 +16,12 @@ getCrossCorrelationScores(data, bchar, read_length, savePlotPath = NULL,
 information for binding preak separation distance and cross-correlation 
 profile (see spp::get.binding.characteristics).}
 
+\item{annotationID}{String, indicating the genome assembly (Default="hg19")}
+
 \item{read_length}{Integer, read length of "data" (Defaul="36")}
 
 \item{savePlotPath}{if set the plot will be saved under "savePlotPath". 
 Default=NULL and plot will be forwarded to stdout.}
-
-\item{plotname}{Name of the crossCorrelation plot (pdf). Available only 
-if savePlotPath is set}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 }
@@ -75,6 +74,7 @@ chip_binding.characteristics<-spp::get.binding.characteristics( chipBam,
 
 crossvalues_Chip<-getCrossCorrelationScores( chipBam , 
     chip_binding.characteristics, read_length = 36, 
+    annotationID="hg19",
     savePlotPath = filepath, mc = mc)
 }
 }

@@ -3,7 +3,7 @@
 ##################################################################### 
 
 #' @keywords internal 
-## format conversion (Koustav)
+## format conversion (spp; Koustav)
 f_convertFormatBroadPeak <- function(given.clusters) {
     chrl <- names(given.clusters)
     names(chrl) <- chrl
@@ -22,7 +22,7 @@ f_convertFormatBroadPeak <- function(given.clusters) {
 
 
 #' @keywords internal 
-## format conversion (Koustav)
+## format conversion (spp;Koustav)
 f_converNarrowPeakFormat <- function(bd, margin = bd$whs) {
     if (is.null(margin)) {
         margin <- 50
@@ -60,23 +60,126 @@ f_converNarrowPeakFormat <- function(bd, margin = bd$whs) {
     return(md.minimal)
 }
 
+
+
+
+
+#' @keywords internal 
+## writing wig files 
+## writewig function of spp with different track type header
+f_writewig <- function (dat, fname, feature, threshold = 5, zip = FALSE) 
+{
+    chrl <- names(dat)
+    names(chrl) <- chrl
+    invisible(lapply(chrl, function(chr) {
+        bdiff <- dat[[chr]]
+        ind <- seq(1, length(bdiff$x))
+        ind <- ind[!is.na(bdiff$y[ind])]
+        header <- chr == chrl[1]
+        f_write.probe.wig(chr, bdiff$x[ind], bdiff$y[ind], fname, 
+            append = !header, feature = feature, header = header)
+    }))
+    if (zip) {
+    zf <- paste(fname, "zip", sep = ".")
+        system(paste("zip \"", zf, "\" \"", fname, "\"", sep = ""))
+        system(paste("rm \"", fname, "\"", sep = ""))
+        return(zf)
+    } else {
+        return(fname)
+    }
+}
+
+
+#' @keywords internal 
+## function used by writewig function 
+##Here I am using a slightly changed version of write.probe.wig from spp.
+##This version changes the track type in the header to "bedGraph"
+##ORIGINAL Version can be found in spp package!!!
+f_write.probe.wig <- function(chr, pos, val, fname, append=FALSE, feature="M", 
+    probe.length=35, header=TRUE) 
+{
+    min.dist <- min(diff(pos));
+    if(probe.length>=min.dist) {
+        probe.length <- min.dist-1;
+        cat("warning: adjusted down wig segment length to", probe.length,"\n");
+    }
+    mdat <- data.frame(chr, as.integer(pos), as.integer(pos+probe.length), val)
+
+    if(header) {
+        write(paste("track type=bedGraph name=\"Bed Format\" description=\"", 
+            feature,"\" visibility=dense color=200,100,0 altColor=0,100,200 
+            priority=20",sep=""),file=fname,append=append)
+        write.table(mdat, file=fname, col.names=FALSE, row.names=FALSE, 
+            quote=FALSE, sep=" ", append=TRUE);
+    } else {
+        write.table(mdat, file=fname, col.names=FALSE, row.names=FALSE, 
+        quote=FALSE, sep=" ", append=append);
+    }
+}
+
+
 #' @keywords internal 
 ## reads bam file or tagalign file
 f_readFile <- function(filename, reads.aligner.type) {
-    currentFormat <- get(paste("read", reads.aligner.type, "tags", sep = "."))
     if (reads.aligner.type == "bam") {
+        currentFormat <- get(paste("read", reads.aligner.type, "tags", sep = "."))
         data <- currentFormat(file.path(paste(filename, ".bam", sep = "")))
     }
-    if (reads.aligner.type == "tagalign") {
+    if (reads.aligner.type == "tagAlign") {
+        currentFormat <- get(paste("read", "tagalign", "tags", sep = "."))
         data <- currentFormat(file.path(paste(filename,".tagAlign", sep = "")))
     }
     
     ## readCount=sum(sapply(data$tags, length))
-    readCount <- sum(unlist(lapply(data$tags, length)))
-    message(readCount)
-    
+    ## readCount <- sum(unlist(lapply(data$tags, length)))
+    readCount <- sum(lengths(data$tags))
+    message(readCount," reads")
+    ##double check data structure to make sure the structure contains
+    ##two lists called $tags and $quality
+    helper=data
+    data=NULL
+    data$tags=helper$tags
+    data$quality=helper$quality
     return(data)
 }
+
+
+#' @keywords internal 
+## filters canonical chromosomes 
+f_clearChromStructure <- function(structure, annotationID) {
+    ##delete empty chromosomes
+    message("load chrom_info")
+
+    chInf <- f_chromInfoLoad(annotationID)
+    dCheck <- NULL
+    ##check on regulare chromosomes
+    ss=structure
+    if (is.null(ss$tags)){
+        dCheck <- structure[ which( names(ss) %in%  names(chInf) )]
+        #if (sum(sapply(dCheck, is.null ))>0){
+        if (sum ( unlist (lapply(dCheck, is.null )))>0){
+            #dCheck<- dCheck[ -which( sapply(dCheck, is.null ))]
+            dCheck<- dCheck[ -which( unlist (lapply(dCheck, is.null )))]
+        }
+    }else{
+        dCheck$tags <- ss$tags[ which( names(ss$tags) %in%  names(chInf) )]
+        dCheck$quality <- 
+            ss$quality[ which( names(ss$quality) %in%  names(chInf) )]
+        #if (sum(sapply(dCheck$tags, is.null ))>0) {
+        if (sum (unlist (lapply (dCheck$tags, is.null )))>0) {
+            #dCheck$tags <- 
+            #dCheck$tags[ -which( sapply(dCheck$tags, is.null ))]
+            dCheck$tags <- 
+                dCheck$tags[ -which( unlist(lapply(dCheck$tags, is.null )))]
+            dCheck$quality <- 
+                dCheck$quality[ -which(  
+                    unlist(lapply(dCheck$quality, is.null )))]
+                #dCheck$quality[ -which( sapply(dCheck$quality, is.null ))]
+        }
+    }
+    return(dCheck)
+}
+
 
 #' @keywords internal 
 ## caluclate QC tag
@@ -100,8 +203,8 @@ f_qflag <- function(RSC) {
 #' @keywords internal 
 ## selet informative tags
 f_removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics, 
-    input_b.characteristics, remove.local.tag.anomalies, 
-    select.informative.tags) 
+    #input_b.characteristics,
+    remove.local.tag.anomalies, select.informative.tags) 
 {
     message("Filter tags")
     
@@ -109,8 +212,11 @@ f_removeLocalTagAnomalies <- function(chip, input, chip_b.characteristics,
         message("select.informative.tags filter")
         chipSelected <- select.informative.tags(chip, 
             chip_b.characteristics)
+        #inputSelected <- select.informative.tags(input, 
+        #    input_b.characteristics)
         inputSelected <- select.informative.tags(input, 
-            input_b.characteristics)
+            chip_b.characteristics)
+
     } else {
         message("SKIP select.informative.tags filter")
         chipSelected <- chip$tags
@@ -143,7 +249,8 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
     ## density distribution for data
     message("Smooth tag density")
     ## tag smoothing, (sum of tags in all chr)/1e6
-    ts <- sum(unlist(lapply(data, length)))/1e+06
+    ## ts <- sum(unlist(lapply(data, length)))/1e+06
+    ts <- sum(lengths(data)) / 1e6
     ### parallelisation
     chromosomes_list <- names(data)
     ### creates a list of lists
@@ -151,10 +258,11 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
         return(data[x])
     })
     
-    # smoothed.density<-mclapply(data, FUN=function(current_chr_list)
-    smoothed.density <- BiocParallel::bplapply(data, 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
-        #BPPARAM = BiocParallel::SnowParam(workers = mc,type = "SOCK"), 
+    #smoothed.density <- BiocParallel::bplapply(data, 
+    #    BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    smoothed.density<-mclapply(data, 
+        mc.preschedule = FALSE, 
+        mc.cores  = mc,   
         FUN = function(current_chr_list) {
             current_chr <- names(current_chr_list)
             str(current_chr_list)
@@ -166,7 +274,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
                 step = smoothingStep, tag.shift = tag.shift, 
                 rngl = chromDef[current_chr])
         })
-    # }, mc.preschedule = FALSE,mc.cores=mc)
+
     smoothed.density <- (unlist(smoothed.density, recursive = FALSE))
     ## normalizing smoothed tag density by library size
     smoothed.density <- lapply(smoothed.density, function(d) {
@@ -199,7 +307,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
 # construct. While this behaviour is helpful, it needlessly uses two additional
 # steps to circumvent a probable bug.  MakeGRangesObject does no such thing and
 # will return an error as IRanges does not accept factor values.
-MakeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL, 
+f_makeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL, 
     Strand = NULL, Names = NULL, Sep = ":") 
 {
     # require(GenomicRanges)
@@ -217,22 +325,26 @@ MakeGRangesObject <- function(Chrom = NULL, Start = NULL, End = NULL,
 # Author: Koustav Pal, Contact: koustav.pal@ifom.eu, Affiliation: IFOM - FIRC
 # Institute of Molecular Oncology Creates non-overlapping regions from
 #' @keywords internal 
-ReduceOverlappingRegions <- function(Ranges = NULL) 
+f_reduceOverlappingRegions <- function(ranges = NULL) 
 {
     # Try it out.
-    Ranges.split <- split(Ranges,seqnames(Ranges))
-    Non.overlapping.ranges.list <- lapply(Ranges.split,function(Range){
-        My.Range <- Range[order(start(Range))]
-        Chrom <- unique(as.vector(seqnames(My.Range)))
+    rangesByChrom <- split(ranges,seqnames(ranges))
+    ##loop over chromosomes
+    nonOverlappingRanges <- lapply(rangesByChrom,function(chromFrame){
+        myRange <- chromFrame[order(start(chromFrame))]
+        Chrom <- unique(as.vector(seqnames(myRange)))
+        #print(Chrom)
         Q.name <- "Queries"
         S.name <- "Subject"
-        HitsObject <- findOverlaps(query = My.Range, subject = My.Range)
+        ##getting overlap object with the hits
+        HitsObject <- findOverlaps(query = myRange, subject = myRange)
         PairList.hits <- HitsObject[
             queryHits(HitsObject) != subjectHits(HitsObject)]
         PairList <- data.frame(queryHits(PairList.hits), 
             subjectHits(PairList.hits))
         colnames(PairList) <- c(Q.name,S.name)
-        No.overlaps <- My.Range[!(seq_along(My.Range) %in% PairList[,Q.name])]
+        #3number of non overlapping reagions
+        No.overlaps <- myRange[!(seq_along(myRange) %in% PairList[,Q.name])]
         if (nrow(PairList) == 0) {
             return(No.overlaps)
         }
@@ -251,69 +363,87 @@ ReduceOverlappingRegions <- function(Ranges = NULL)
         Which.s <- unique.subjects[which(
             !(unique.subjects %in% unique.queries))]
 
+        #if(length(Which.q)!=length(Which.s)){
+        #    stop("Cannot resolve overlaps. Contact the writer of the function
+        #        to deconvolute the logic!\n")
+        #}
         if(length(Which.q)!=length(Which.s)){
-            stop("Cannot resolve overlaps. Contact the writer of the function
-                to deconvolute the logic!\n")
+            message("Skipping for overlapping analysis ",Chrom)
+            return(No.overlaps)
+        }else{
+            Starts <- start(myRange[Which.q])
+            Ends <- sapply(seq_along(Which.s),function(x){
+                Index <- Which.q[x]:Which.s[x]
+                max(end(myRange[Index]))
+            })
+
+            NewRanges <- f_makeGRangesObject(Chrom=rep(Chrom,length(Starts)), 
+                Start= Starts, End= Ends)
+            return(c(No.overlaps,NewRanges))
         }
-
-        Starts <- start(My.Range[Which.q])
-        Ends <- sapply(seq_along(Which.s),function(x){
-            Index <- Which.q[x]:Which.s[x]
-            max(end(My.Range[Index]))
-        })
-
-        NewRanges <- MakeGRangesObject(Chrom=rep(Chrom,length(Starts)), 
-            Start= Starts, End= Ends)
-        return(c(No.overlaps,NewRanges))
     })
-    Non.overlapping.ranges <- do.call(c, 
-        unlist(Non.overlapping.ranges.list,use.names = FALSE))
-    return(Non.overlapping.ranges)
+    nonOverlappingRangesFinal <- do.call(c, 
+        unlist(nonOverlappingRanges,use.names = FALSE))
+    return(nonOverlappingRangesFinal)
 }
-# overlapping regions in the SAME ranges object.
 
-# ReduceOverlappingRegions <- function(Ranges = NULL) 
-# {
-#     HitsObject <- findOverlaps(query = Ranges, subject = Ranges)
-#     PairList <- HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
-#     No.overlaps <- Ranges[!(queryHits(HitsObject) %in% queryHits(PairList))]
-#     if (length(PairList) == 0) {
-#         return(No.overlaps)
-#     }
-#     Done.list <- NULL
-#     All.idx <- NULL
-#     Q.hits <- unique(queryHits(PairList))
-#     NewRanges.list <- list()
-#     for (Q.hit in queryHits) {
-#         if (!(Q.hit %in% Done.list)) {
-#             All.paired <- FALSE
-#             Priori.length <- 0
-#             Priori.query <- 0
-#             Query <- Q.hit
-#             while (!All.paired) {
-#                 Subjects <- PairList[PairList[, 1] %in% Query, 2]
-#                 if (length(Subjects) != Priori.length) {
-#                     Priori.length <- length(Subjects)
-#                     Priori.query <- Query
-#                     Query <- c(Query, Subjects)
-#                 } else {
-#                     All.paired <- TRUE
-#                 }
-#             }
-#             Start <- min(start(Ranges[unique(c(Priori.query, Subjects))]))
-#             End <- max(end(Ranges[unique(c(Priori.query, Subjects))]))
-#             Chrom <- unique(as.vector(seqnames(Ranges[unique(
-#                 c(Priori.query, Subjects))])))
-#             Done.list <- c(Done.list, Priori.query)
-#             All.idx <- unique(c(All.idx, Priori.query, Subjects))
-#             NewRanges.list[[paste("Boo", Q.hit, sep = ".")]] <- 
-#                 MakeGRangesObject(Chrom = Chrom, Start = Start, End = End)
-#         }
-#     }
-#     NewRanges <- unique(do.call(c, unlist(NewRanges.list, 
-# use.names = FALSE)))
-#     return(c(NewRanges, No.overlaps))
-# }
+
+###Orig function
+#ReduceOverlappingRegions <- function(Ranges = NULL) 
+#{
+#    # Try it out.
+#    Ranges.split <- split(Ranges,seqnames(Ranges))
+#    Non.overlapping.ranges.list <- lapply(Ranges.split,function(Range){
+#        My.Range <- Range[order(start(Range))]
+#        Chrom <- unique(as.vector(seqnames(My.Range)))
+#        Q.name <- "Queries"
+#        S.name <- "Subject"
+#        HitsObject <- findOverlaps(query = My.Range, subject = My.Range)
+#        PairList.hits <- 
+#        HitsObject[queryHits(HitsObject) != subjectHits(HitsObject)]
+#        PairList <- data.frame(queryHits(PairList.hits), 
+#            subjectHits(PairList.hits))
+#        colnames(PairList) <- c(Q.name,S.name)
+#        No.overlaps <- My.Range[!(seq_along(My.Range) 
+#       %in% PairList[,Q.name])]
+#        if (nrow(PairList) == 0) {
+#            return(No.overlaps)
+#        }
+#        PairList.gt <- PairList[PairList[,S.name] > PairList[,Q.name],]
+#        PairList.lt <- PairList[PairList[,S.name] < PairList[,Q.name],]
+#        colnames(PairList.lt) <- c(S.name,Q.name)
+#        PairList.lt <- PairList.lt[,c(Q.name,S.name)]
+#        PairList <- rbind(PairList.lt,PairList.gt)
+#        PairList <- PairList[order(PairList[,Q.name]),]
+#
+#       unique.queries <- unique(PairList[,Q.name])
+#        unique.subjects <- unique(PairList[,S.name])
+#
+#        Which.q <- unique.queries[
+#               which(!(unique.queries %in% unique.subjects))]
+#        Which.s <- unique.subjects[
+#               which(!(unique.subjects %in% unique.queries))]
+#
+#        if(length(Which.q)!=length(Which.s)){
+#            stop("Cannot resolve overlaps. Contact the writer of the function
+#                to deconvolute the logic!\n")
+#        }
+#
+#        Starts <- start(My.Range[Which.q])
+#        Ends <- sapply(seq_along(Which.s),function(x){
+#            Index <- Which.q[x]:Which.s[x]
+#            max(end(My.Range[Index]))
+#        })
+#
+#        NewRanges <- MakeGRangesObject(Chrom=
+#               rep(Chrom,length(Starts)),Start= Starts, End= Ends)
+#        return(c(No.overlaps,NewRanges))
+#    })
+#    Non.overlapping.ranges <- do.call(c, 
+#       unlist(Non.overlapping.ranges.list,use.names = FALSE))
+#    return(Non.overlapping.ranges)
+#}
+
 
 ##################################################################### 
 ######### FUNCTIONS QC-metrics for global read distribution ######### 
@@ -365,8 +495,8 @@ f_fingerPrintPlot <- function(cumChip, cumInput, savePlotPath = NULL) {
         pdf(file = filename, width = 7, height = 7)
     }
     plot(cumChip, type = "l", col = "blue", lwd = 2, 
-        xlab = "Percentage of bins", 
-        ylab = "Percentage of tags", 
+        xlab = "Fraction of bins", 
+        ylab = "Fr. of total reads coverage", 
         main = "Fingerprint: global read distribution")
     
     lines(cumInput, col = "red", lwd = 2)
@@ -376,9 +506,7 @@ f_fingerPrintPlot <- function(cumChip, cumInput, savePlotPath = NULL) {
     ## abline(v=schneidePunktX,col='cyan',lty=2,lwd=2)
     legend("topleft", legend = c("Input", "ChIP"), fill = c("red", "blue"))
     if (!is.null(savePlotPath)) {
-        dev.off()
-        message("pdf saved under ", filename)
-        
+        dev.off()        
     }
 }
 
@@ -404,7 +532,7 @@ f_fingerPrintPlot <- function(cumChip, cumInput, savePlotPath = NULL) {
 ## mapping for further use
 f_feature.bin.averages <- function(dat, feat, nu.feat.omit = FALSE, 
     nu.point.omit = TRUE, scaling = NULL, return.scaling = FALSE, 
-    trim = 0, min.feature.size = NULL, m=4020/2, ...) 
+    trim = 0, min.feature.size = NULL, m = 4020/2, ...) 
 {
     if (is.null(feat)) {
         return(NULL)
@@ -420,7 +548,8 @@ f_feature.bin.averages <- function(dat, feat, nu.feat.omit = FALSE,
             scaling <- f_two.point.scaling(dat$x, feat, ...)
             
         } else {
-            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, m=m, ...)
+            scaling <- f_one.point.scaling(dat$x, feat$x, feat$strand, 
+                m = m, ...)
         }
         ## clean up
         if (nu.feat.omit) {
@@ -489,9 +618,16 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
         sg3 <- seg$e
         sstrand <- rep(1, length(sg5))
     }
-    spi <- spp::points_withinFunction(x, seg$s - ml, seg$e + mr, 
+    
+    
+    spi <- spp::points_within(x, seg$s - ml, seg$e + mr, 
         return.list = TRUE)
+
+    #spi <- spp::points_withinFunction(x, seg$s - ml, seg$e + mr, 
+        #return.list = TRUE)
+    
     lspi <- unlist(lapply(spi, length))
+    
     #df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
     #    nu = rep(lspi, lspi))
     df <- data.frame(i = rep(seq_along(x), lspi), si = unlist(spi), 
@@ -535,7 +671,7 @@ f_two.point.scaling <- function(x, seg, bs = 2000, im, rom, lom, nbins = 301)
 ## { f_one.point.scaling <- function(x, pos,
 ## strand=NULL,m=4020/2, lm=m, rm=m, nbins=301/2) {
 
-f_one.point.scaling <- function(x, pos, strand = NULL,  nbins=201, m=4020/2)
+f_one.point.scaling <- function(x, pos, strand = NULL,  nbins = 201, m = 4020/2)
 {
     lm <- m
     rm <- m
@@ -558,8 +694,15 @@ f_one.point.scaling <- function(x, pos, strand = NULL,  nbins=201, m=4020/2)
     } else {
         sstrand <- rep(1, length(pos))
     }
-    spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
+
+    
+    spi <- spp::points_within(x, pos - ml, pos + mr, 
         return.list = TRUE)
+
+
+    #spi <- spp::points_withinFunction(x, pos - ml, pos + mr, 
+        #return.list = TRUE)
+
     lspi <- unlist(lapply(spi, length))
     #df <- data.frame(i = rep(1:length(x), lspi), si = unlist(spi), 
     #    nu = rep(lspi, lspi))
@@ -617,7 +760,6 @@ f_metaGeneDefinition <- function(selection = "Settings")
     ### %%% need to use this for one point scaling estimated bin size....
     estimated_bin_size_1P <- up_downStream/predefnum_bins_1P
     
-    message("Selection ", selection)
     if (selection == "Settings") {
         settings <- NULL
         settings$break_points_2P <- break_points_2P
@@ -633,29 +775,48 @@ f_metaGeneDefinition <- function(selection = "Settings")
         settings$predefnum_bins_1P <- predefnum_bins_1P
         return(settings)
     }
-    
+    data(classesDefList, package = "ChIC.data", envir = environment())
+
     if (selection == "Hlist") {
         ## GLOBAL VARIABLES
-        Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
-            "H2AFZ", "H3K27me3", "H3K9me3", "H3K27ac", "POLR2AphosphoS5", 
-            "H3K9ac", "H3K4me2", "H3K9me1", "H3K4me1", "POLR2AphosphoS2", 
-            "H3K79me1", "H3K4ac", "H3K14ac", "H2BK5ac", "H2BK120ac", 
-            "H2BK15ac", "H4K91ac", "H4K8ac", "H3K18ac", "H2BK12ac", 
-            "H3K56ac", "H3K23ac", "H2AK5ac", "H2BK20ac", "H4K5ac", 
-            "H4K12ac", "H2A.Z", "H3K23me2", "H2AK9ac", "H3T11ph")
+        #Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
+        #    "H2AFZ", "H3K27me3", "H3K9me3", "H3K27ac", "POLR2AphosphoS5", 
+        #    "H3K9ac", "H3K4me2", "H3K9me1", "H3K4me1", "POLR2AphosphoS2", 
+        #    "H3K79me1", "H3K4ac", "H3K14ac", "H2BK5ac", "H2BK120ac", 
+        #    "H2BK15ac", "H4K91ac", "H4K8ac", "H3K18ac", "H2BK12ac", 
+        #    "H3K56ac", "H3K23ac", "H2AK5ac", "H2BK20ac", "H4K5ac", 
+        #    "H4K12ac", "H2A.Z", "H3K23me2", "H2AK9ac", "H3T11ph")
         ##'POLR3G'
+        Hlist <- classesDefList$Hlist
         return(Hlist)
     }
+
+    if (selection == "TFlist") {
+        ## GLOBAL VARIABLES
+        #Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
+        #    "H2AFZ", "H3K27me3", "H3K9me3", "H3K27ac", "POLR2AphosphoS5", 
+        #    "H3K9ac", "H3K4me2", "H3K9me1", "H3K4me1", "POLR2AphosphoS2", 
+        #    "H3K79me1", "H3K4ac", "H3K14ac", "H2BK5ac", "H2BK120ac", 
+        #    "H2BK15ac", "H4K91ac", "H4K8ac", "H3K18ac", "H2BK12ac", 
+        #    "H3K56ac", "H3K23ac", "H2AK5ac", "H2BK20ac", "H4K5ac", 
+        #    "H4K12ac", "H2A.Z", "H3K23me2", "H2AK9ac", "H3T11ph")
+        ##'POLR3G'
+        TFlist <- classesDefList$TF
+        return(TFlist)
+    }
+
     if (selection == "Classes") {
         ## helper functions to define chromating
-        allSharp <- c("H3K27ac", "H3K9ac", "H3K14ac", "H2BK5ac", "H4K91ac", 
-            "H3K18ac", "H3K23ac", "H2AK9ac", "H3K4me3", "H3K4me2", "H3K79me1", 
-            "H2AFZ", "H2A.Z", "H4K12ac", "H4K8ac", "H3K4ac", "H2BK12ac", 
-            "H4K5ac", "H2BK20ac", "H2BK120ac", "H2AK5ac", "H2BK15ac")
-        allBroad <- c("H3K23me2", "H3K9me2", "H3K9me3", "H3K27me3", "H4K20me1",
-            "H3K36me3", "H3K56ac", "H3K9me1", "H3K79me2", "H3K4me1", "H3T11ph")
+        allSharp <- classesDefList$allSharp
+        # c("H3K27ac", "H3K9ac", "H3K14ac", "H2BK5ac", "H4K91ac", 
+        #    "H3K18ac", "H3K23ac", "H2AK9ac", "H3K4me3", "H3K4me2", "H3K79me1", 
+        #    "H2AFZ", "H2A.Z", "H4K12ac", "H4K8ac", "H3K4ac", "H2BK12ac", 
+        #    "H4K5ac", "H2BK20ac", "H2BK120ac", "H2AK5ac", "H2BK15ac")
+        allBroad <- classesDefList$allBroad
+        #c("H3K23me2", "H3K9me2", "H3K9me3", "H3K27me3", "H4K20me1",
+        #    "H3K36me3", "H3K56ac", "H3K9me1", "H3K79me2", "H3K4me1", "H3T11ph")
         ## USE ONLY POLR2A for Pol2 class
-        RNAPol2 <- "POLR2A"
+        RNAPol2 <- classesDefList$RNAPol2
         final <- list(allSharp = allSharp, 
             allBroad = allBroad, 
             RNAPol2 = RNAPol2)
@@ -663,6 +824,116 @@ f_metaGeneDefinition <- function(selection = "Settings")
     }
 }
 
+#' @keywords internal 
+## helper function to check if annotationID is valid
+f_annotationCheck <- function(annotationID)
+{
+    checkMe <- ((annotationID == "hg19") | 
+        (annotationID == "mm9")| (annotationID == "dm3")
+        | (annotationID == "mm10")| (annotationID == "hg38"))
+    if (is.character(annotationID) & checkMe)
+    {
+            message("\n",annotationID, " valid annotation...")
+    }else{
+        warning("annotationID not valid. Setting it back to default value 
+            (hg19). Currently supported annotations are hg19, 
+            hg38, mm9 and mm10.")
+        annotationID <- "hg19"
+    }
+    return(annotationID)        
+}
+
+#' @keywords internal 
+## helper function to check if annotationID is valid
+f_annotationLoad <- function(annotationID)
+{
+    message("Load gene annotation")
+    ## require(ChIC.data)
+    if (annotationID == "hg19") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("hg19_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- hg19_refseq_genes_filtered_granges
+    }
+    if (annotationID == "hg38") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("hg38_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- hg38_refseq_genes_filtered_granges
+    }
+
+    if (annotationID == "mm9") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("mm9_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- mm9_refseq_genes_filtered_granges
+    }
+    if (annotationID == "mm10") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("mm10_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- mm10_refseq_genes_filtered_granges
+    }
+    if (annotationID == "dm3") {
+        # hg19_refseq_genes_filtered_granges=NULL
+        data("dm3_refseq_genes_filtered_granges", 
+            package = "ChIC.data", envir = environment())
+        annotObject <- dm3_refseq_genes_filtered_granges
+    }
+
+    return(annotObject)        
+}
+
+
+#' @keywords internal 
+## helper function to check if annotationID is valid
+f_chromInfoLoad <- function(annotationID)
+{
+    ## load chrom_info
+    ##message("load chrom_info")
+    if (annotationID == "hg19") {
+        # hg19_chrom_info=NULL
+        data("hg19_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- hg19_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
+    }
+    if (annotationID == "hg38") {
+        # hg19_chrom_info=NULL
+        data("hg38_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- hg38_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
+    }
+    if (annotationID == "mm9") {
+        # hg19_chrom_info=NULL
+        data("mm9_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- mm9_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
+    }
+    if (annotationID == "mm10") {
+        # hg19_chrom_info=NULL
+        data("mm10_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- mm10_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
+    }
+    if (annotationID == "dm3") {
+        # hg19_chrom_info=NULL
+        data("dm3_chrom_info", package = "ChIC.data", envir = environment())
+        chromInfo <- dm3_chrom_info[c("chr2L","chr2R","chr3L","chr3R","chr4")]
+    }
+
+    return(chromInfo)        
+}
+
+
+#' @keywords internal 
+##helper function to check if chromosome names contain "chr"
+f_checkOfChrNames = function( data )
+{
+    checkOfChr <- (grep( "chr", names( data$tags )))
+    if ( length(checkOfChr) < 1L)
+    {
+        newnames <- paste("chr", names(data$tags), sep="")
+        names(data$tags) <- newnames
+        names(data$quality) <- newnames
+    }
+    return(data)
+}
 
 #' @keywords internal 
 ## masked_t.get.gene.av.density(smoothed.densityInput,
@@ -671,7 +942,7 @@ masked_t.get.gene.av.density <- function(chipTags_current, gdl, mc = 1)
 {
     settings <- NULL
     settings <- f_metaGeneDefinition(selection = "Settings")
-    message("loading metaGene settings")
+    message("\nloading metaGene settings")
     ## print(str(settings))
     result <- f_t.get.gene.av.density(chipTags_current, 
         gdl = gdl, im = settings$inner_margin, 
@@ -689,12 +960,12 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
 {
     settings <- NULL
     settings <- f_metaGeneDefinition(selection = "Settings")
-    message("loading metaGene settings")
+    message("\nloading metaGene settings")
     ## print(str(settings))
     if (tag == "TSS") {
         result <- f_t.get.gene.av.density_TSS(tl_current = smoothed.density, 
             gdl = gdl, 
-            m = (settings$up_downStream/2), 
+            m = (settings$up_downStream / 2), 
             nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
@@ -702,7 +973,7 @@ masked_getGeneAvDensity_TES_TSS <- function(smoothed.density, gdl,
     } else {
         result <- f_t.get.gene.av.density_TES(tl_current = smoothed.density, 
             gdl = gdl, 
-            m = (settings$up_downStream/2), 
+            m = (settings$up_downStream / 2), 
             nbins = settings$predefnum_bins_1P, 
             separate.strands = FALSE, 
             mc = mc)
@@ -731,10 +1002,12 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
     chrl <- names(gdl)
     names(chrl) <- chrl
     ## lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
-    ## mclapply(chrl[chrl %in% names(chipTags_current$td)], mc.preschedule =
-    ## FALSE,mc.cores=mc, FUN=function(chr)
-    BiocParallel::bplapply(chrl[chrl %in% names(chipTags_current$td)], 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    ## BiocParallel::bplapply(chrl[chrl %in% names(chipTags_current$td)], 
+    ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    #mclapply(chrl[chrl %in% names(chipTags_current$td)], 
+    mclapply(chrl[chrl %in% names(chipTags_current)], 
+        mc.preschedule = FALSE, 
+        mc.cores = mc, 
         FUN = function(chr) {
             # print(chr)
             nsi <- gdl[[chr]]$strand == "-"
@@ -742,7 +1015,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
             current_gene_names <- gdl[[chr]]$geneSymbol
             if ((sum(!nsi) > 0)) {
                 ## if ((sum(!nsi)>1)) {
-                px <- f_feature.bin.averages(chipTags_current$td[[chr]], 
+                #px <- f_feature.bin.averages(chipTags_current$td[[chr]], 
+                px <- f_feature.bin.averages(chipTags_current[[chr]], 
                     data.frame(s = gdl[[chr]]$txStart[!nsi], 
                         e = gdl[[chr]]$txEnd[!nsi]), 
                     lom = lom, rom = rom, im = im, bs = bs, 
@@ -754,7 +1028,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
             }
             if ((sum(nsi) > 0)) {
                 ## if ((sum(nsi)>1)) {
-                nd <- chipTags_current$td[[chr]]
+                #nd <- chipTags_current$td[[chr]]
+                nd <- chipTags_current[[chr]]
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(s = -1 * gdl[[chr]]$txEnd[nsi], 
@@ -789,11 +1064,12 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
     chrl <- names(gdl)
     names(chrl) <- chrl
     ## lapply(chrl[chrl %in% names(tl_current$td)],function(chr) 
-    ## { mclapply(chrl[chrl
-    ## %in% names(tl_current$td)], mc.preschedule=FALSE,mc.cores=mc, 
-    ## FUN=function(chr)
-    BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
+    ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    
+    mclapply(chrl[chrl %in% names(tl_current)], 
+        mc.preschedule = FALSE, 
+        mc.cores = mc,     
         FUN = function(chr) {
             nsi <- gdl[[chr]]$strand == "-"
             current_gene_names <- gdl[[chr]]$geneSymbol
@@ -803,7 +1079,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
                 ## px <- f_feature.bin.averages(tl_current$td[[chr]],
                 ## data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m, 
                 ## nbins=nbins,nu.point.omit=FALSE)
-                px <- f_feature.bin.averages(tl_current$td[[chr]], 
+                px <- f_feature.bin.averages(tl_current[[chr]], 
                     data.frame(x = gdl[[chr]]$txStart[!nsi]), 
                 m = m,
                 min.feature.size=NULL,
@@ -815,7 +1091,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
             
             if ((sum(nsi) > 0)) {
                 ## if ((sum(nsi)>0)) {
-                nd <- tl_current$td[[chr]]
+                nd <- tl_current[[chr]]
                 nd$x <- -1 * nd$x
                 ## nx <- f_feature.bin.averages(nd,data.frame
                 ## (x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,
@@ -844,18 +1120,18 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
 ## f_t.get.gene.av.density_TES <- function(tl_current,gdl=annotatedGenesPerChr,
 ## m=up_downStream, nbins=predefnum_bins_1P,separate.strands=F,mc=1) {
 f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020, 
-    nbins = 201, 
-    separate.strands = FALSE, mc = 1) 
+    nbins = 201, separate.strands = FALSE, mc = 1) 
 {
     
     chrl <- names(gdl)
     names(chrl) <- chrl
     ## lapply(chrl[chrl %in% names(tl_current$td)],function(chr) 
-    ## { mclapply(chrl[chrl
-    ## %in% names(tl_current$td)], mc.preschedule = FALSE, mc.cores=mc,
-    ## FUN=function(chr)
-    BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
-        BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
+    ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
+    
+    mclapply(chrl[chrl %in% names(tl_current)], 
+        mc.preschedule = FALSE, 
+        mc.cores = mc,
         FUN = function(chr) {
             nsi <- gdl[[chr]]$strand == "-"
             current_gene_names <- gdl[[chr]]$geneSymbol
@@ -866,7 +1142,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
                 ##function(dat,feat,nu.feat.omit=F, nu.point.omit=T,
                 ## scaling=NULL, return.scaling=F, trim=0,
                 ## min.feature.size=NULL, ... ) {
-                px <- f_feature.bin.averages(tl_current$td[[chr]], 
+                px <- f_feature.bin.averages(tl_current[[chr]], 
                     data.frame(x = gdl[[chr]]$txEnd[!nsi]), 
                 m = m, 
                 min.feature.size=NULL,
@@ -877,7 +1153,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
             }
             ## if ((sum(nsi)>1)) {
             if ((sum(nsi) > 0)) {
-                nd <- tl_current$td[[chr]]
+                nd <- tl_current[[chr]]
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(x = -1 * gdl[[chr]]$txStart[nsi]), 
@@ -1112,17 +1388,26 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
 
 #' @keywords internal 
 ## helper function to load profiles from ChIC.data
-f_loadDataCompendium <- function(endung, chrommark, tag) 
+f_loadDataCompendium <- function(endung, target, tag) 
 {
-    # load dataframe compendium_profiles=NULL
-    data("compendium_profiles", package = "ChIC.data", envir = environment())
     # compendium_profiles=ChIC.data::compendium_profiles
     if (tag == "geneBody") {
-        name <- paste(chrommark, "_", "TWO", endung, sep = "")
+        name <- paste(target, "_", "TWO", endung, sep = "")
     } else {
-        name <- paste(chrommark, "_", tag, endung, sep = "")
+        name <- paste(target, "_", tag, endung, sep = "")
     }
-    frame <- compendium_profiles[[name]]
+    #load profiles
+    if (target %in% f_metaGeneDefinition("Hlist")){
+        data("compendium_profiles", 
+            package = "ChIC.data", 
+            envir = environment())
+        frame=compendium_profiles[[name]]
+    }else{
+        data("compendium_profiles_TF", 
+            package = "ChIC.data", 
+            envir = environment())
+        frame=compendium_profiles_TF[[name]]
+    }
     return(frame)
 }
 
@@ -1142,7 +1427,7 @@ f_prepareData <- function(fmean, frame)
 #' @keywords internal 
 ## plot profiles compendium versus current dataset
 f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody", 
-    absoluteMinMax, maintitel = "title", ylab = "mean of log2 tag density", 
+    absoluteMinMax, maintitel = "title", ylab = "mean of log2 read density", 
     savePlotPath = NULL) 
 {
     message("Load settings")
@@ -1203,26 +1488,26 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
         bg = "white")
     if (!is.null(savePlotPath)) {
         dev.off()
-        message("pdf saved under", filename)
     }
 }
 
 #' @keywords internal 
 ## helper function to get binding class
-f_getBindingClass <- function(chrommark) {
+f_getBindingClass <- function(target) {
     allChrom <- f_metaGeneDefinition("Classes")
-    if (chrommark %in% allChrom$allSharp) {
+    if (target %in% allChrom$allSharp) {
         profileSet <- allChrom$allSharp
         tag <- "(Sharp class)"
     }
-    if (chrommark %in% allChrom$allBroad) {
+    if (target %in% allChrom$allBroad) {
         profileSet <- allChrom$allBroad
         tag <- "(Broad class)"
     }
-    if (chrommark %in% allChrom$RNAPol2) {
+    if (target %in% allChrom$RNAPol2) {
         profileSet <- allChrom$RNAPol2
         tag <- "(RNAPol2 class)"
     }
+
     return(list(profileSet = profileSet, tag = tag))
 }
 
@@ -1267,7 +1552,6 @@ f_plotValueDistribution <- function(compendium, title, coordinateLine,
     
     if (!is.null(savePlotPath)) {
         dev.off()
-        message("pdf saved under ", filename)
     }
 }
 
@@ -1275,38 +1559,44 @@ f_plotValueDistribution <- function(compendium, title, coordinateLine,
 
 #' @keywords internal 
 ## helper function to select the random forest model for the respective
-## chromatinmark
-f_getPredictionModel <- function(chrommark, histList) {
+## chromatinmark or TF
+f_getPredictionModel <- function(id) {
     # library(randomForest)
     allChrom <- f_metaGeneDefinition("Classes")
     data("rf_models", package = "ChIC.data", envir = environment())
     
-    if (chrommark %in% histList) {
-        if (chrommark %in% allChrom$allSharp) {
+    if (id %in% f_metaGeneDefinition("Hlist")) {
+        message("Load chromatinmark model")
+        if (id %in% allChrom$allSharp) {
             model <- rf_models[["sharpEncode"]]
         }
         
-        if (chrommark %in% allChrom$allBroad) {
+        if (id %in% allChrom$allBroad) {
             model <- rf_models[["broadEncode"]]
         }
         
-        if (chrommark %in% allChrom$RNAPol2) {
+        if (id %in% allChrom$RNAPol2) {
             model <- rf_models[["RNAPol2Encode"]]
         }
         
-        if (chrommark == "H3K9me3") {
+        if (id == "H3K9me3") {
             model <- rf_models[["H3K9Encode"]]
         }
         
-        if (chrommark == "H3K27me3") {
+        if (id == "H3K27me3") {
             model <- rf_models[["H3K27Encode"]]
         }
         
-        if (chrommark == "H3K36me3") {
+        if (id == "H3K36me3") {
             model <- rf_models[["H3K36Encode"]]
         }
-    } else {
+    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
+    {
+        message("Load TF model")
         model <- rf_models$TFmodel
+    } else {
+        message(id, "not found")
+        model=NULL
     }
     return(model)
 }
@@ -1324,3 +1614,6 @@ f_convertframe <- function(oldframe) {
     rownames(newframe) <- nn
     return(newframe)
 }
+
+
+
