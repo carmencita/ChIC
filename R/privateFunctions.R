@@ -122,7 +122,8 @@ f_write.probe.wig <- function(chr, pos, val, fname, append=FALSE, feature="M",
 ## reads bam file or tagalign file
 f_readFile <- function(filename, reads.aligner.type) {
     if (reads.aligner.type == "bam") {
-        currentFormat <- get(paste("read", reads.aligner.type, "tags", sep = "."))
+        #calling our internal f_read.bam.tags instead than spp default one to handle paired end reads BAM files
+        currentFormat <- get(paste("f_read", reads.aligner.type, "tags", sep = ".")) #calling our internal f_read.bam.tags
         data <- currentFormat(file.path(paste(filename, ".bam", sep = "")))
     }
     if (reads.aligner.type == "tagAlign") {
