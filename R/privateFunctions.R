@@ -125,10 +125,11 @@ f_readFile <- function(filename, reads.aligner.type) {
         #calling our internal f_read.bam.tags instead than spp default one to handle paired end reads BAM files
         currentFormat <- get(paste("f_read", reads.aligner.type, "tags", sep = ".")) #calling our internal f_read.bam.tags
         data <- currentFormat(file.path(paste(filename, ".bam", sep = "")))
-    }
-    if (reads.aligner.type == "tagAlign") {
+    } else if (reads.aligner.type == "tagAlign") {
         currentFormat <- get(paste("read", "tagalign", "tags", sep = "."))
         data <- currentFormat(file.path(paste(filename,".tagAlign", sep = "")))
+    } else {
+        stop("Only BAM or tagalign formats are currently supported")
     }
     
     ## readCount=sum(sapply(data$tags, length))
