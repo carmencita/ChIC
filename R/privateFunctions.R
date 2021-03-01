@@ -150,7 +150,7 @@ f_readFile <- function(filename, reads.aligner.type) {
 ## this function reads BAM files into a taglist object of SPP 
 ## this function code is derived from the original "read.bam.tags" from spp package by Peter Kharchenko 
 ## the version included here has been revised to hanlde BAM files containing paired end reads  
-f_read.bam.tags <- function(filename,read.tag.names=F,fix.chromosome.names=F) {
+f_read.bam.tags <- function(filename,read.tag.names=TRUE,fix.chromosome.names=F) {
   #require(Rsamtools)
   if(!is.element("Rsamtools", installed.packages()[, 1])) {
     stop("Rsamtools Bioconductor package is now required for BAM file support. Please install")
