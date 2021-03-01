@@ -919,31 +919,28 @@ f_annotationLoad <- function(annotationID)
         data("hg19_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- hg19_refseq_genes_filtered_granges
-    }
-    if (annotationID == "hg38") {
+    } else if (annotationID == "hg38") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("hg38_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- hg38_refseq_genes_filtered_granges
-    }
-
-    if (annotationID == "mm9") {
+    } else if (annotationID == "mm9") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("mm9_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- mm9_refseq_genes_filtered_granges
-    }
-    if (annotationID == "mm10") {
+    } else if (annotationID == "mm10") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("mm10_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- mm10_refseq_genes_filtered_granges
-    }
-    if (annotationID == "dm3") {
+    } else if (annotationID == "dm3") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("dm3_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- dm3_refseq_genes_filtered_granges
+    } else {
+        stop(paste("Annotations for", annotationID, "currently not supported"))
     }
 
     return(annotObject)        
@@ -959,27 +956,29 @@ f_chromInfoLoad <- function(annotationID)
     if (annotationID == "hg19") {
         # hg19_chrom_info=NULL
         data("hg19_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- hg19_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    }
-    if (annotationID == "hg38") {
+    } else if (annotationID == "hg38") {
         # hg19_chrom_info=NULL
         data("hg38_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- hg38_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    }
-    if (annotationID == "mm9") {
+    } else if (annotationID == "mm9") {
         # hg19_chrom_info=NULL
         data("mm9_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- mm9_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    }
-    if (annotationID == "mm10") {
+    } else if (annotationID == "mm10") {
         # hg19_chrom_info=NULL
         data("mm10_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- mm10_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    }
-    if (annotationID == "dm3") {
+    } else if (annotationID == "dm3") {
         # hg19_chrom_info=NULL
         data("dm3_chrom_info", package = "ChIC.data", envir = environment())
         chromInfo <- dm3_chrom_info[c("chr2L","chr2R","chr3L","chr3R","chr4")]
+    } else {
+        stop(paste("Annotations for", annotationID, "currently not supported"))
     }
 
     return(chromInfo)        
