@@ -173,7 +173,15 @@ f_read.bam.tags <- function(filename,read.tag.names=TRUE,fix.chromosome.names=F)
     # paired-end data
     ## for paired end data, we can select one (random) read out of the pair, so as to have equally represented both the positive and the negative strand mapped reads
     ## we must design the code so as to take 1 random read for each read ID (qname) so that we get 1 even if we have only one read mapped in the pair
-    oneSelectedInPair<-unlist(tapply(X=1:length(bam$pos), INDEX=bam$qname, FUN=function(ii)  {sample(ii, size=1)}))  # return only one for each pair (or one for each group if more than 2 alignments are present)
+    oneSelectedInPair<-unlist(tapply(X=1:length(bam$pos), INDEX=bam$qname, FUN=function(ii)  {
+        if (length(ii)>1) {
+            return(sample(ii, size=1))
+         } else if (length(ii)==1) {
+            return(ii)
+         } else {
+            stop("unexpected BAM file content format")
+         }
+    }))  # return only one for each pair (or one for each group if more than 2 alignments are present)
     ## the selection of indexes (oneSelectedInPair) is performed on the full vectors, thus we can use these indexes to perfrm subselections on the full BAM vectors
     rl <- list(tags=tapply(X=oneSelectedInPair, INDEX=bam$rname[oneSelectedInPair],function(ii) bam$pos[ii]*strm[ii]  - (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
     rl <- c(rl,list(quality=tapply(X=oneSelectedInPair,INDEX=bam$rname[oneSelectedInPair],function(ii) bam$mapq[ii])))
