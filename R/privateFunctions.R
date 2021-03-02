@@ -159,16 +159,16 @@ f_read.bam.tags <- function(filename,read.tag.names=FALSE,fix.chromosome.names=F
 ## this is setting the list of fileds to be extracted from the BAM file  
 ## note that "pos" is the mapping position on the reference sequence (chromosome name stored in "rname")
 ## whereas the "qname" field contains the ID of each sequencing reads (or read pairs for paired end reads in the bam file)
-  ww <- c("flag","rname","pos","isize","strand","mapq","qwidth"); if(read.tag.names) { ww <- c(ww,"qname") };
+## check if paired end reads
+  checkIfPAired<-any(bitwAnd((Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what="flag",flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]])$flag,0x1));
+  
+  ## which fileds will be read from the BAM file    
+  ww <- c("flag","rname","pos","isize","strand","mapq","qwidth");
+  if(read.tag.names || checkIfPAired) { ww <- c(ww,"qname") }; ## need this also to handle paired ends
   bam <- Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what=ww,flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]];
-
-    # force read tagnames to true for paired end reads data
-    if(any(bitwAnd(bam$flag,0x1))) { 
-        read.tag.names<-TRUE
-        if(read.tag.names) { ww <- c(ww,"qname") };
-         bam <- Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what=ww,flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]];
-       }
-    
+  ## removed unused levels (this is needed otehrwise by default we will have an element for each chromosome listed in the BAM header even if there are no reads for that chromosome)
+  bam$rname <- droplevels(bam$rname)
+   
 ## this is returning an empty tagglist object if the BAM file contains no valid alignment
   if(is.null(bam$pos) || length(bam$pos)==0) { return(list(tags=c(),quality=c())) }
 
@@ -176,10 +176,7 @@ f_read.bam.tags <- function(filename,read.tag.names=FALSE,fix.chromosome.names=F
   strm <- as.integer(bam$strand=="+")
 
 ## this is checking if the BAM file is actually containing paired end reads
-  if(any(bitwAnd(bam$flag,0x1))) { 
-      if (!read.tag.names) {
-      stop("read.tag.names must be set to TRUE to handle paired end reads BAM files")
-      }
+  if(checkIfPAired) { 
     # paired-end data
     ## for paired end data, we can select one (random) read out of the pair, so as to have equally represented both the positive and the negative strand mapped reads
     ## we must design the code so as to take 1 random read for each read ID (qname) so that we get 1 even if we have only one read mapped in the pair
@@ -197,7 +194,7 @@ f_read.bam.tags <- function(filename,read.tag.names=FALSE,fix.chromosome.names=F
     rl <- c(rl,list(quality=tapply(X=oneSelectedInPair,INDEX=bam$rname[oneSelectedInPair],function(ii) bam$mapq[ii])))
     
     ## return also the read IDS (query name = "qname") if required
-    if(read.tag.names) {
+    if (read.tag.names) {
         rl <- c(rl,list(names=tapply(X=oneSelectedInPair,INDEX=bam$rname[oneSelectedInPair],function(ii) bam$qname[ii])))
     }
       
