@@ -150,7 +150,7 @@ f_readFile <- function(filename, reads.aligner.type) {
 ## this function reads BAM files into a taglist object of SPP 
 ## this function code is derived from the original "read.bam.tags" from spp package by Peter Kharchenko 
 ## the version included here has been revised to hanlde BAM files containing paired end reads  
-f_read.bam.tags <- function(filename,read.tag.names=TRUE,fix.chromosome.names=F) {
+f_read.bam.tags <- function(filename,read.tag.names=FALSE,fix.chromosome.names=F) {
   #require(Rsamtools)
   if(!is.element("Rsamtools", installed.packages()[, 1])) {
     stop("Rsamtools Bioconductor package is now required for BAM file support. Please install")
@@ -162,6 +162,13 @@ f_read.bam.tags <- function(filename,read.tag.names=TRUE,fix.chromosome.names=F)
   ww <- c("flag","rname","pos","isize","strand","mapq","qwidth"); if(read.tag.names) { ww <- c(ww,"qname") };
   bam <- Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what=ww,flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]];
 
+    # force read tagnames to true for paired end reads data
+    if(any(bitwAnd(bam$flag,0x1))) { 
+        read.tag.names<-TRUE
+        if(read.tag.names) { ww <- c(ww,"qname") };
+         bam <- Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what=ww,flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]];
+       }
+    
 ## this is returning an empty tagglist object if the BAM file contains no valid alignment
   if(is.null(bam$pos) || length(bam$pos)==0) { return(list(tags=c(),quality=c())) }
 
@@ -170,6 +177,9 @@ f_read.bam.tags <- function(filename,read.tag.names=TRUE,fix.chromosome.names=F)
 
 ## this is checking if the BAM file is actually containing paired end reads
   if(any(bitwAnd(bam$flag,0x1))) { 
+      if (!read.tag.names) {
+      stop("read.tag.names must be set to TRUE to handle paired end reads BAM files")
+      }
     # paired-end data
     ## for paired end data, we can select one (random) read out of the pair, so as to have equally represented both the positive and the negative strand mapped reads
     ## we must design the code so as to take 1 random read for each read ID (qname) so that we get 1 even if we have only one read mapped in the pair
