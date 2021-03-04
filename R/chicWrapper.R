@@ -192,13 +192,11 @@ chicWrapper<-function(chipName, inputName, read_length,
             savePlotPath=NULL
         )
     }else{
-        message("The production of comparison plots is not 
-            supported for the \"TF\" target.")
+        message("The comparison plots will not be produced for the \"TF\" target.")
     }
 
-    if(target %in% listAvailableElements("mark") || 
-        target %in% listAvailableElements("TF") || target == "TF")
-    {
+    # adding support for generic "broad", "sharp", "RNAPol2" models
+    if (target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" ) {
         message("Calculating the prediction score...")
         
         predictedScore=predictionScore(
