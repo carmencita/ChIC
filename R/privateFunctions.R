@@ -908,16 +908,13 @@ f_metaGeneDefinition <- function(selection = "Settings")
 ## helper function to check if annotationID is valid
 f_annotationCheck <- function(annotationID)
 {
-    checkMe <- ((annotationID == "hg19") | 
-        (annotationID == "mm9")| (annotationID == "dm3")
-        | (annotationID == "mm10")| (annotationID == "hg38"))
+    supportedAnnotations<-c("hg19", "hg38", "mm9", "mm10", "dm3")
+    checkMe <- (annotationID %in% supportedAnnotations)
     if (is.character(annotationID) & checkMe)
     {
             message("\n",annotationID, " valid annotation...")
-    }else{
-        warning("annotationID not valid. Setting it back to default value 
-            (hg19). Currently supported annotations are hg19, 
-            hg38, mm9 and mm10.")
+    } else{
+        warning(paste("annotationID not valid. Setting it back to default value (hg19). Currently supported annotations are", paste(supportedAnnotations, collapse=" ")))
         annotationID <- "hg19"
     }
     return(annotationID)        
