@@ -196,7 +196,7 @@ chicWrapper<-function(chipName, inputName, read_length,
     }
 
     # adding support for generic "broad", "sharp", "RNAPol2" models
-    if (target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" ) {
+    if (target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" )) {
         message("Calculating the prediction score...")
         
         predictedScore=predictionScore(
