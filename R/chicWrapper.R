@@ -161,7 +161,7 @@ chicWrapper<-function(chipName, inputName, read_length,
     )
 
 
-    if(target != "TF"){
+    if(target %in% c( f_metaGeneDefinition("Hlist"), f_metaGeneDefinition("TFlist"))) {
         ##additional plots
         
         metagenePlotsForComparison(
@@ -192,7 +192,7 @@ chicWrapper<-function(chipName, inputName, read_length,
             savePlotPath=NULL
         )
     }else{
-        message("The comparison plots will not be produced for the \"TF\" target.")
+        message(paste("The comparison plots will not be produced for the selected target:", target))
     }
 
     # adding support for generic "broad", "sharp", "RNAPol2" models
