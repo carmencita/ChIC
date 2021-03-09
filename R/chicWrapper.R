@@ -215,7 +215,9 @@ chicWrapper<-function(chipName, inputName, read_length,
         stop( "Histone mark or TF not found. 
             Could not calculate the prediction score 
             using chicWrapper(). You might try the 
-            predictionScore() function wihtout the wrapper." )
+            predictionScore() function wihtout the wrapper.
+            Alternatively, you can use one of the more generic models (taget parameter):
+            possible options are \"TF\", \"broad\", \"sharp\", \"RNAPol2\". ")
     }
     
     dev.off()
