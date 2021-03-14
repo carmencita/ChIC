@@ -111,29 +111,39 @@ chicWrapper<-function(chipName, inputName, read_length,
     )
     
     ##save the tagshift as it is needed later
-    tag.shift=CC_Result$QCscores_ChIP$tag.shift
-
-    ##smoothed tagdensities used as input for the next steps
-    smoothedDensityInput=CC_Result$TagDensityInput
-    smoothedDensityChip=CC_Result$TagDensityChip
     
+    tag.shift=CC_Result$QCscores_ChIP$tag.shift
+    
+    ##smoothed tagdensities used as input for the next steps
+
+    ##Old
+
+    ##smoothedDensityInput=CC_Result$TagDensityInput
+    ##smoothedDensityChip=CC_Result$TagDensityChip
+
+    ##New
+
+    smoothedDensityInput=CC_Result$SelectedTagsInput
+    smoothedDensityChip=CC_Result$SelectedTagsChip
 
     ##GLOBAL features#########
     ##caluclate second set of QC-metrics
     Ch_Results=qualityScores_GM(
-        densityChip=smoothedDensityChip,
-        densityInput=smoothedDensityInput,
+        selectedTagsChip=smoothedDensityChip,
+        selectedTagsInput=smoothedDensityInput,
+        tag.shift=tag.shift,
         savePlotPath=NULL,
-        debug=debug
+        mc=mc
+        
     )
     
     
     ##LOCAL features########
     ##caluclate third set of QC-metrics
     Meta_Result=createMetageneProfile(
-        smoothedDensityChip,
-        smoothedDensityInput,
-        tag.shift,
+        selectedTagsChip=smoothedDensityChip,
+        selectedTagsInput=smoothedDensityInput,
+        tag.shift=tag.shift,
         annotationID=annotationID,
         debug=debug,
         mc=mc
@@ -143,21 +153,18 @@ chicWrapper<-function(chipName, inputName, read_length,
     TSSProfile=qualityScores_LM(
         Meta_Result$TSS,
         tag="TSS",
-        savePlotPath=NULL,
-        debug=debug
+        savePlotPath=NULL
     )
     
     TESProfile=qualityScores_LM(
         Meta_Result$TES,
         tag="TES",
-        savePlotPath=NULL,
-        debug=debug
+        savePlotPath=NULL
     )
     
     geneBody_Plot=qualityScores_LMgenebody(
         Meta_Result$geneBody,
-        savePlotPath=NULL,
-        debug=debug
+        savePlotPath=NULL
     )
 
 

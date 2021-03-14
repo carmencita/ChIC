@@ -238,6 +238,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         message("Crosscorrelation plot saved under ",savePlotPath)
         filename <- file.path(savePlotPath, paste0(tag,"CrossCorrelation.pdf"))
         pdf(file = filename)
+    }
     
         ## plot cross correlation curve with smoothing
         message("plot cross correlation curve with smoothing")
@@ -271,7 +272,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
             paste("Shift =", (phScores$peak$x)), 
             paste("Read length =", (read_length))))
         
-        
+    if (!is.null(savePlotPath)) {
         dev.off()
         message("pdf saved under", filename)
     }

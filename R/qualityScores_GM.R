@@ -34,7 +34,7 @@
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
-#'
+#' @param mc
 #' @return finalList List with 9 QC-values
 #'
 #' @export
@@ -94,7 +94,7 @@
 #'}
 
 qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
-    annotationID="hg19", savePlotPath = NULL) 
+    annotationID="hg19", savePlotPath = NULL, mc=1) 
 {
     message("***Calculating GM...***")
 
