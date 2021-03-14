@@ -122,12 +122,14 @@ f_write.probe.wig <- function(chr, pos, val, fname, append=FALSE, feature="M",
 ## reads bam file or tagalign file
 f_readFile <- function(filename, reads.aligner.type) {
     if (reads.aligner.type == "bam") {
-        currentFormat <- get(paste("read", reads.aligner.type, "tags", sep = "."))
+        #calling our internal f_read.bam.tags instead than spp default one to handle paired end reads BAM files
+        currentFormat <- get(paste("f_read", reads.aligner.type, "tags", sep = ".")) #calling our internal f_read.bam.tags
         data <- currentFormat(file.path(paste(filename, ".bam", sep = "")))
-    }
-    if (reads.aligner.type == "tagAlign") {
+    } else if (reads.aligner.type == "tagAlign") {
         currentFormat <- get(paste("read", "tagalign", "tags", sep = "."))
         data <- currentFormat(file.path(paste(filename,".tagAlign", sep = "")))
+    } else {
+        stop("Only BAM or tagalign formats are currently supported")
     }
     
     ## readCount=sum(sapply(data$tags, length))
@@ -143,7 +145,85 @@ f_readFile <- function(filename, reads.aligner.type) {
     return(data)
 }
 
+                               
+#' @keywords internal 
+## this function reads BAM files into a taglist object of SPP 
+## this function code is derived from the original "read.bam.tags" from spp package by Peter Kharchenko 
+## the version included here has been revised to hanlde BAM files containing paired end reads  
+f_read.bam.tags <- function(filename,read.tag.names=FALSE,fix.chromosome.names=F) {
+  #require(Rsamtools)
+  if(!is.element("Rsamtools", installed.packages()[, 1])) {
+    stop("Rsamtools Bioconductor package is now required for BAM file support. Please install")
+  }
 
+## this is setting the list of fileds to be extracted from the BAM file  
+## note that "pos" is the mapping position on the reference sequence (chromosome name stored in "rname")
+## whereas the "qname" field contains the ID of each sequencing reads (or read pairs for paired end reads in the bam file)
+## check if paired end reads
+  checkIfPAired<-any(bitwAnd((Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what="flag",flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]])$flag,0x1));
+  
+  ## which fileds will be read from the BAM file    
+  ww <- c("flag","rname","pos","isize","strand","mapq","qwidth");
+  if(read.tag.names || checkIfPAired) { ww <- c(ww,"qname") }; ## need this also to handle paired ends
+  bam <- Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what=ww,flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]];
+  ## removed unused levels (this is needed otehrwise by default we will have an element for each chromosome listed in the BAM header even if there are no reads for that chromosome)
+  bam$rname <- droplevels(bam$rname)
+   
+## this is returning an empty tagglist object if the BAM file contains no valid alignment
+  if(is.null(bam$pos) || length(bam$pos)==0) { return(list(tags=c(),quality=c())) }
+
+## this is just creating a 1/0 vector for postiive/negative strand mapped reads
+  strm <- as.integer(bam$strand=="+")
+
+## this is checking if the BAM file is actually containing paired end reads
+  if(checkIfPAired) { 
+    # paired-end data
+    ## for paired end data, we can select one (random) read out of the pair, so as to have equally represented both the positive and the negative strand mapped reads
+    ## we must design the code so as to take 1 random read for each read ID (qname) so that we get 1 even if we have only one read mapped in the pair
+    oneSelectedInPair<-unlist(tapply(X=1:length(bam$pos), INDEX=bam$qname, FUN=function(ii)  {
+        if (length(ii)>1) {
+            return(sample(ii, size=1))
+         } else if (length(ii)==1) {
+            return(ii)
+         } else {
+            stop("unexpected BAM file content format")
+         }
+    }))  # return only one for each pair (or one for each group if more than 2 alignments are present)
+    ## the selection of indexes (oneSelectedInPair) is performed on the full vectors, thus we can use these indexes to perfrm subselections on the full BAM vectors
+    rl <- list(tags=tapply(X=oneSelectedInPair, INDEX=bam$rname[oneSelectedInPair],function(ii) bam$pos[ii]*strm[ii]  - (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
+    rl <- c(rl,list(quality=tapply(X=oneSelectedInPair,INDEX=bam$rname[oneSelectedInPair],function(ii) bam$mapq[ii])))
+    
+    ## return also the read IDS (query name = "qname") if required
+    if (read.tag.names) {
+        rl <- c(rl,list(names=tapply(X=oneSelectedInPair,INDEX=bam$rname[oneSelectedInPair],function(ii) bam$qname[ii])))
+    }
+      
+  } else {
+    ## this is the "standard" workflow in case the BAM file contains only single end reads
+    ## most of the ChIP-seq peaks calling alogorithms expect single end reads, disributed on both positive and negative strand
+    ## this line of code is traversing the BAM file content (1:length(bam$pos)), chromosome by chromosome (bam$rname)
+    ## and keeping the annotated position as 5'end of positive strand mapped reads (bam$pos[ii]*strm[ii] )
+    ## or the "-" 3'end (i.e. the 5'-end of the reads mapped on hte negative strand (- (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
+    ## this "ifelse" condition for positive and negative strand reads is actually managed by the 1/0 vectors for strand,
+    ## as it will change to "zero" either the first or the second element in the subtraction below
+    rl <- list(tags=tapply(1:length(bam$pos),bam$rname,function(ii) bam$pos[ii]*strm[ii]  - (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
+    rl <- c(rl,list(quality=tapply(1:length(bam$pos),bam$rname,function(ii) bam$mapq[ii])))
+    ## return also the read IDS (query name = "qname") if required
+    if(read.tag.names) {
+        rl <- c(rl,list(names=tapply(1:length(bam$pos),bam$rname,function(ii) bam$qname[ii])))
+    }
+  }
+
+  if(fix.chromosome.names) {
+    # remove ".fa"
+    names(rl) <- gsub("\\.fa","",names(rl))
+  }
+  return(rl)
+}
+
+                                 
+                                 
+                                 
 #' @keywords internal 
 ## filters canonical chromosomes 
 f_clearChromStructure <- function(structure, annotationID) {
@@ -828,16 +908,13 @@ f_metaGeneDefinition <- function(selection = "Settings")
 ## helper function to check if annotationID is valid
 f_annotationCheck <- function(annotationID)
 {
-    checkMe <- ((annotationID == "hg19") | 
-        (annotationID == "mm9")| (annotationID == "dm3")
-        | (annotationID == "mm10")| (annotationID == "hg38"))
+    supportedAnnotations<-c("hg19", "hg38", "mm9", "mm10", "dm3")
+    checkMe <- (annotationID %in% supportedAnnotations)
     if (is.character(annotationID) & checkMe)
     {
             message("\n",annotationID, " valid annotation...")
-    }else{
-        warning("annotationID not valid. Setting it back to default value 
-            (hg19). Currently supported annotations are hg19, 
-            hg38, mm9 and mm10.")
+    } else{
+        warning(paste("annotationID not valid. Setting it back to default value (hg19). Currently supported annotations are", paste(supportedAnnotations, collapse=" ")))
         annotationID <- "hg19"
     }
     return(annotationID)        
@@ -854,31 +931,28 @@ f_annotationLoad <- function(annotationID)
         data("hg19_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- hg19_refseq_genes_filtered_granges
-    }
-    if (annotationID == "hg38") {
+    } else if (annotationID == "hg38") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("hg38_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- hg38_refseq_genes_filtered_granges
-    }
-
-    if (annotationID == "mm9") {
+    } else if (annotationID == "mm9") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("mm9_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- mm9_refseq_genes_filtered_granges
-    }
-    if (annotationID == "mm10") {
+    } else if (annotationID == "mm10") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("mm10_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- mm10_refseq_genes_filtered_granges
-    }
-    if (annotationID == "dm3") {
+    } else if (annotationID == "dm3") {
         # hg19_refseq_genes_filtered_granges=NULL
         data("dm3_refseq_genes_filtered_granges", 
             package = "ChIC.data", envir = environment())
         annotObject <- dm3_refseq_genes_filtered_granges
+    } else {
+        stop(paste("Annotations for", annotationID, "currently not supported"))
     }
 
     return(annotObject)        
@@ -894,27 +968,29 @@ f_chromInfoLoad <- function(annotationID)
     if (annotationID == "hg19") {
         # hg19_chrom_info=NULL
         data("hg19_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- hg19_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    }
-    if (annotationID == "hg38") {
+    } else if (annotationID == "hg38") {
         # hg19_chrom_info=NULL
         data("hg38_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- hg38_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    }
-    if (annotationID == "mm9") {
+    } else if (annotationID == "mm9") {
         # hg19_chrom_info=NULL
         data("mm9_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- mm9_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    }
-    if (annotationID == "mm10") {
+    } else if (annotationID == "mm10") {
         # hg19_chrom_info=NULL
         data("mm10_chrom_info", package = "ChIC.data", envir = environment())
+        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
         chromInfo <- mm10_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    }
-    if (annotationID == "dm3") {
+    } else if (annotationID == "dm3") {
         # hg19_chrom_info=NULL
         data("dm3_chrom_info", package = "ChIC.data", envir = environment())
         chromInfo <- dm3_chrom_info[c("chr2L","chr2R","chr3L","chr3R","chr4")]
+    } else {
+        stop(paste("Annotations for", annotationID, "currently not supported"))
     }
 
     return(chromInfo)        
@@ -1565,37 +1641,27 @@ f_getPredictionModel <- function(id) {
     allChrom <- f_metaGeneDefinition("Classes")
     data("rf_models", package = "ChIC.data", envir = environment())
     
-    if (id %in% f_metaGeneDefinition("Hlist")) {
+    if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
         message("Load chromatinmark model")
-        if (id %in% allChrom$allSharp) {
-            model <- rf_models[["sharpEncode"]]
-        }
-        
-        if (id %in% allChrom$allBroad) {
-            model <- rf_models[["broadEncode"]]
-        }
-        
-        if (id %in% allChrom$RNAPol2) {
-            model <- rf_models[["RNAPol2Encode"]]
-        }
-        
+        # give higher priority to more specific models (for individual histone marks)
         if (id == "H3K9me3") {
             model <- rf_models[["H3K9Encode"]]
-        }
-        
-        if (id == "H3K27me3") {
+        } else if (id == "H3K27me3") {
             model <- rf_models[["H3K27Encode"]]
-        }
-        
-        if (id == "H3K36me3") {
+        } else if (id == "H3K36me3") {
             model <- rf_models[["H3K36Encode"]]
-        }
+        } else if (id %in% c(allChrom$allBroad, "broad")) {
+            model <- rf_models[["broadEncode"]]
+        } else if (id %in% c(allChrom$allSharp, "sharp")) {
+            model <- rf_models[["sharpEncode"]]
+        } if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
+            model <- rf_models[["RNAPol2Encode"]]
     } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
     {
         message("Load TF model")
         model <- rf_models$TFmodel
     } else {
-        message(id, "not found")
+        message(id, "model not found")
         model=NULL
     }
     return(model)

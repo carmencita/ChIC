@@ -99,10 +99,9 @@ predictionScore <- function(target, features_cc, features_global,
 {
 
     ########## check if input format is ok
-    if ((!(target %in% f_metaGeneDefinition("Hlist"))) &
-        (!(target %in% f_metaGeneDefinition("TFlist"))) &
-        (!(target == "TF"))) 
-            stop("Chromatin mark or transcription factor not valid.
+    # adding support for generic "broad", "sharp", "RNAPol2" models
+    if ((!(target %in% c( f_metaGeneDefinition("Hlist"), f_metaGeneDefinition("TFlist"),  "TF", "broad", "sharp", "RNAPol2"  ))))
+           stop("Target model selection not valid not valid.
                 Check \"listAvailableElements()\" function for valid options.")
 
     if (!(is.list(features_cc) & (length(features_cc) == 5L)))

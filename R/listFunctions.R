@@ -33,6 +33,15 @@ listAvailableElements <- function( target )
     } else if ( target == "mark" ) { 
         message( "The following chromatin marks are available:" )
         f_metaGeneDefinition( "Hlist" )
+    } else if ( target == "broad" ) { 
+        message( "The following chromatin marks are available for the category broad:" )
+        f_metaGeneDefinition("Classes")$allBroad
+    } else if ( target == "sharp" ) { 
+        message( "The following chromatin marks are available for the category sharp:" )
+        f_metaGeneDefinition("Classes")$allSharp
+    } else if ( target == "RNAPol2" ) { 
+        message( "The following chromatin marks are available for the category RNAPol2:" )
+        f_metaGeneDefinition("Classes")$RNAPol2
     } else if ( target %in% f_metaGeneDefinition("Hlist") ) { 
         message( "Chromatin mark available for comparison analysis" )
     } else if ( target %in% f_metaGeneDefinition( "TFlist" )) { 
