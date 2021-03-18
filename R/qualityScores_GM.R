@@ -34,7 +34,8 @@
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
-#' @param mc
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
+#'
 #' @return finalList List with 9 QC-values
 #'
 #' @export
