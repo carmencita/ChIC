@@ -1654,17 +1654,19 @@ f_getPredictionModel <- function(id) {
             model <- rf_models[["broadEncode"]]
         } else if (id %in% c(allChrom$allSharp, "sharp")) {
             model <- rf_models[["sharpEncode"]]
-        } if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
+        } else if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
             model <- rf_models[["RNAPol2Encode"]]
-    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
-    {
+        } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
+
+        {
         message("Load TF model")
         model <- rf_models$TFmodel
-    } else {
+        } else {
         message(id, "model not found")
         model=NULL
+        }
+        return(model)
     }
-    return(model)
 }
 
 
