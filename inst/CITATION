@@ -1,0 +1,18 @@
+bibentry(bibtype = "unpublished",
+title = "A ChIC solution for ChIP-seq quality assessment",
+author = c(person("Carmen Maria", "Livi"),
+          person("Ilario", "Tagliaferri"),
+          person("Koustav", "Pal"),
+          person("Endre", "Sebestyén"),
+          person("Federica", "Lucini"),
+          person("Andrea", "Bianchi"),
+          person("Sara", "Valsoni"),
+          person("Chiara", "Lanzuolo"),
+          person("Francesco", "Ferrari")),
+year = 2020,
+note = "bioRxiv manuscript",
+doi = "10.1101/2020.05.19.103887",
+url = "https://www.biorxiv.org/content/10.1101/2020.05.19.103887v1",
+textVersion = 
+         "Livi C.M., Tagliaferri I., Pal K., Sebestyén E., Lucini F., Bianchi A., Valsoni S., Lanzuolo C., Ferrari F. (2020) A ChIC solution for ChIP-seq quality assessment. bioRxiv manuscript preprint: https://www.biorxiv.org/content/10.1101/2020.05.19.103887v1")
+
