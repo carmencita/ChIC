@@ -136,9 +136,9 @@ metagenePlotsForComparison <- function(data, target, tag,
     iframe <- colMeans(iframe, na.rm = TRUE)
     cframe <- colMeans(cframe, na.rm = TRUE)
     
-    iframe <- f_prepareData(c_mean, iframe)
+    iframe <- f_prepareData(i_mean, iframe)
     cframe <- f_prepareData(c_mean, cframe)
-    nframe <- f_prepareData(c_mean, nframe)
+    nframe <- f_prepareData(n_mean, nframe)
     
     ## get max and min for same y-axis values for chip and input
     newMin <- min(cframe$mean, absoluteMin, iframe$mean)
