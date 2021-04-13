@@ -1654,8 +1654,13 @@ f_getPredictionModel <- function(id) {
             model <- rf_models[["broadEncode"]]
         } else if (id %in% c(allChrom$allSharp, "sharp")) {
             model <- rf_models[["sharpEncode"]]
-        } if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
+        } else if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
             model <- rf_models[["RNAPol2Encode"]]
+        } else {
+            # considering the starting if this option should never happen
+            message(id, "error in model selction")
+            model=NULL
+        }
     } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
     {
         message("Load TF model")
