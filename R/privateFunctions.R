@@ -862,7 +862,9 @@ f_metaGeneDefinition <- function(selection = "Settings")
         return(settings)
     }
     data(classesDefList, package = "ChIC.data", envir = environment())
+    classesDefList<-get("classesDefList") #just to solve the warning on no visible binding for variable loaded from data pacakge
 
+    
     if (selection == "Hlist") {
         ## GLOBAL VARIABLES
         #Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
@@ -1465,11 +1467,13 @@ f_loadDataCompendium <- function(endung, target, tag)
         data("compendium_profiles", 
             package = "ChIC.data", 
             envir = environment())
+        compendium_profiles<-get("compendium_profiles") #just to solve the warning on no visible binding for variable loaded from data pacakge
         frame=compendium_profiles[[name]]
     }else{
         data("compendium_profiles_TF", 
             package = "ChIC.data", 
             envir = environment())
+        compendium_profiles_TF<-get("compendium_profiles_TF") #just to solve the warning on no visible binding for variable loaded from data pacakge
         frame=compendium_profiles_TF[[name]]
     }
     return(frame)
@@ -1628,6 +1632,7 @@ f_getPredictionModel <- function(id) {
     # library(randomForest)
     allChrom <- f_metaGeneDefinition("Classes")
     data("rf_models", package = "ChIC.data", envir = environment())
+    rf_models<-get("rf_models") #just to solve the warning on no visible binding for variable loaded from data pacakge
     
     if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
         message("Load chromatinmark model")
