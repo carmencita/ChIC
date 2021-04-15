@@ -47,6 +47,9 @@
 #' increases and the metrics are not used in quality prediction. 
 #' @param savePlotPath, set if Cross-correlation plot should be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout
+#' @param downSamplingChIP Boolean, to be used to downsample reads within enrichment peaks.
+#' This option was used for generating simulated low quality (low enrichment) profiles for testing the prediction models.
+#' The default is FALSE and should generally not be used by end users.
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
 #' @param writeWig Boolean, saves smoothed tag density in  
