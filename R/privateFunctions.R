@@ -1,3 +1,8 @@
+#' @import genomeIntervals
+#' @importFrom utils installed.packages
+#' @importFrom Rsamtools scanBam
+
+
 #####################################################################  
 #####FUNCTIONS QC-metrics for narrow binding PROFILES ###########
 ##################################################################### 
