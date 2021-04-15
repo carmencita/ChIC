@@ -932,31 +932,13 @@ f_annotationLoad <- function(annotationID)
 {
     message("Load gene annotation")
     ## require(ChIC.data)
-    if (annotationID == "hg19") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("hg19_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- hg19_refseq_genes_filtered_granges
-    } else if (annotationID == "hg38") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("hg38_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- hg38_refseq_genes_filtered_granges
-    } else if (annotationID == "mm9") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("mm9_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- mm9_refseq_genes_filtered_granges
-    } else if (annotationID == "mm10") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("mm10_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- mm10_refseq_genes_filtered_granges
-    } else if (annotationID == "dm3") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("dm3_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- dm3_refseq_genes_filtered_granges
+  
+    availableAnnotations<-c("hg19", "hg38", "mm9", "mm10", "dm3")
+    
+    if (annotationID %in% availableAnnotations) {
+        annotObject_name<-paste(annotationID, "refseq_genes_filtered_granges", sep="_")
+        data(list=annotObject_name, package = "ChIC.data")
+        annotObject <- get(annotObject_name)
     } else {
         stop(paste("Annotations for", annotationID, "currently not supported"))
     }
