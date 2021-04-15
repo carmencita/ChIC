@@ -953,32 +953,22 @@ f_annotationLoad <- function(annotationID)
 ## helper function to check if annotationID is valid
 f_chromInfoLoad <- function(annotationID)
 {
-    ## load chrom_info
+    
+    availableAnnotations_chrlist<-list(
+        "hg19"=paste("chr", c(seq_len(22)), sep = ""),
+        "hg38"=paste("chr", c(seq_len(22)), sep = ""),
+        "mm9"=paste("chr", c(seq_len(19)), sep = ""),
+        "mm10"=paste("chr", c(seq_len(19)), sep = ""),
+        "dm3"=c("chr2L","chr2R","chr3L","chr3R","chr4")
+    )
+        
+      ## load chrom_info
     ##message("load chrom_info")
-    if (annotationID == "hg19") {
-        # hg19_chrom_info=NULL
-        data("hg19_chrom_info", package = "ChIC.data", envir = environment())
+    if (annotationID %in% names(availableAnnotations_chrlist)) {
+        annotObject_name<-paste(annotationID, "chrom_info", sep="_")
+        data(list=annotObject_name, package = "ChIC.data")
         # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- hg19_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    } else if (annotationID == "hg38") {
-        # hg19_chrom_info=NULL
-        data("hg38_chrom_info", package = "ChIC.data", envir = environment())
-        # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- hg38_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    } else if (annotationID == "mm9") {
-        # hg19_chrom_info=NULL
-        data("mm9_chrom_info", package = "ChIC.data", envir = environment())
-        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- mm9_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    } else if (annotationID == "mm10") {
-        # hg19_chrom_info=NULL
-        data("mm10_chrom_info", package = "ChIC.data", envir = environment())
-        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- mm10_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    } else if (annotationID == "dm3") {
-        # hg19_chrom_info=NULL
-        data("dm3_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- dm3_chrom_info[c("chr2L","chr2R","chr3L","chr3R","chr4")]
+        chromInfo <- get(annotObject_name)[availableAnnotations_chrlist[[annotationID]]]
     } else {
         stop(paste("Annotations for", annotationID, "currently not supported"))
     }
