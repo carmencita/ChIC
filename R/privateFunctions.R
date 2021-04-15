@@ -1,4 +1,5 @@
 #' @import genomeIntervals
+#' @import randomForest
 #' @importFrom utils installed.packages
 #' @importFrom Rsamtools scanBam
 
