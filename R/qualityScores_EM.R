@@ -298,11 +298,16 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     if ( writeWig )
     {
-        message("saving tracks as wig...")
-        f_writewig(smoothed.densityChip, 
-            file.path(getwd(), "chip.wig"),"track chip")
-        f_writewig(smoothed.densityInput, 
-            file.path(getwd(),"input.wig"),"track input")
+        message("compute track for ChIP")
+        smoothed.densityChip<- tagDensity(data=chip.data, tag.shift=final.tag.shift, annotationID = annotationID, mc = mc)
+        message("saving ChIP track as wig...")
+        f_writewig(smoothed.densityChip, file.path(getwd(), "chip.wig"),"track chip")
+        
+        message("compute track for input")
+        smoothed.densityInput<- tagDensity(data=input.data, tag.shift=final.tag.shift, annotationID = annotationID, mc = mc)
+        message("saving input track as wig...")
+        f_writewig(smoothed.densityInput, file.path(getwd(),"input.wig"),"track input")
+
     }
     
 
