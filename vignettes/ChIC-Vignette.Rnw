@@ -1,9 +1,6 @@
 \documentclass[a4paper,11pt]{article}
 
 \usepackage[margin=1.5in]{geometry}
-%%%%\usepackage[left=3cm, right=3cm, top=3cm]{geometry}
-%%%%%\usepackage[left= 2cm, righttextwidth=10cm]{geometry}
-
 
 %\VignetteIndexEntry{ChIC}
 
@@ -12,7 +9,6 @@
 
 \usepackage[english]{babel}
 \usepackage{graphicx}
-%%%%%\usepackage[colorlinks=false, linktocpage=true]{hyperref}
 \usepackage[hidelinks]{hyperref}
 
 
@@ -26,10 +22,8 @@
 \usepackage{PTSerif} %%%%% Use the Paratype Serif font
 
 \usepackage{Sweave}
-\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.1em, 
-frame=single}%, label=Input, labelposition=topline}
-\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.1em,
-frame=single}%, label=Output}
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=1.1em, frame=single}%, label=Input, labelposition=topline}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=1.1em, frame=single}%, label=Output}
 
 
 
@@ -83,28 +77,18 @@ frame=single}%, label=Output}
 
 
 \section{Introduction}
-\textbf{ChI}P-seq quality \textbf{C}ontrol package (ChIC) provides 
-functions and data structures to assess the quality of ChIP-seq data. 
-The tool computes three different categories of quality control (QC) 
-metrics: QC-metrics designed for narrow-peak profiles and general metrics, 
-QC-metrics based on the global read distribution and QC-metrics
-from local signal enrichment around annotated genes. The user-friendly 
-functions allow performing the analysis with a single command, 
-whereas step by step functions are also available for more experienced users. 
+\textbf{ChI}P-seq quality \textbf{C}ontrol package (ChIC) provides functions and data structures to assess the quality of ChIP-seq samples \cite{CLivi}.
 
-\noindent The package comes with a large reference 
-compendium of precomputed QC-metrics from public ChIP-seq samples. 
-Key features are the calculation, visualisation and creation of summary 
-plots for QC-metrics, tools for the comparison of metagene profiles 
-against reference profiles, tools for the comparison of 
-single QC-metrics against the compendium values and 
-finally a random forest model to compute a single score 
-summarising quality control.
+In particular, we introduce a new set of quantitative quality control (QC) metrics, the Local enrichment profile Metrics (LM), by defining quantitative scores that describe the shape of ChIP-seq enrichment profiles. These metrics are not replacing, but instead extending, previously proposed quantitative metrics for scoring ChIP-seq data, that are also computed as part of a comprehensive set. These include the recommended ENCODE QC metrics (EM) and metrics describing the global enrichment (GM) in the ChIP-seq experiment. This comprehensive set of metrics is leveraged to build a machine learning classifier to obtain a single score reliably summarizing the data quality and asssessing the quality of ChIP-seq data. This random forest based quality control score is named \texttt{ChIC RF-score}.
 
-\noindent ChIC provides three wrapper functions that are used to calculate 
-a comprehensive set of metrics: \textcolor{airforceblue}{qualityScores\_EM()}, 
-\textcolor{airforceblue}{qualityScores\_GM()} 
-and \textcolor{airforceblue}{qualityScores\_LM()}.
+This package is meant to be used in conjunction with the \texttt{ChIC.data} package that contains a reference compendium with QC metrics pre-computed on thousands of ChIP-seq samples, as well as the pre-computed machine learning classifiers, that can also be used as a reference for easier evaluation of new datasets.
+
+The \texttt{ChIC} package provides a user friendly wrapper function (\texttt{chicWrapper()}) to compute all of the the QC metrics, the \texttt{ChIC RF-score}, summary 
+plots for QC-metrics, plots for the comparison of metagene profiles against reference profiles, and plots for the the comparison of 
+single QC-metrics against the compendium values.
+
+In addition to the user-friendly wrapper, the pacakge contains several additional functionalities for each analysis step by step for more experienced users. 
+
 
 
 \newpage
@@ -720,59 +704,7 @@ factor is not present in the package.
 
 \addcontentsline{toc}{section}{References}
 \bibliographystyle{unsrt}
-
-\begin{thebibliography}{10}
-
-\bibitem{Landt}
-Landt, Stephen G.
-\newblock{ChIP-seq guidelines and practices of the ENCODE
-and modENCODE consortia.}
-\newblock {Genome Research 2012}
-
-
-\bibitem{Kharchenko2008}
-Kharchenko, Peter V and Tolstorukov, Michael Y and Park, Peter J.
-\newblock{Design and analysis of ChIP-seq experiments for 
-DNA-binding proteins.}
-\newblock {Nat. Biotechnol. 2008},
-
-
-\bibitem{Diaz2012}
-Diaz, Aaron and Nellore, Abhinav and Song, Jun.
-\newblock {CHANCE: comprehensive software for quality control and validation 
-of ChIP-seq data.}
-\newblock {Genome Biol. 2012}
-
-
-
-\end{thebibliography}
-\newpage
-
-\section{Appendix} \label{Appendix}
-
-%%\includepdf[pages=-,pagecommand={},width=\textwidth]{ListOfFeatures.pdf}
-%%\includepdf[pages=-,picturecommand*={%
-%%  \put (133,660) {%
-%% \parbox{\textwidth}]{QC-metrics.pdf}
-%\includepdf[pages=-, noautoscale=true, pagecommand={}]{QC-metrics.pdf}
-
-
-\begin{figure}[htbp]
-\centering
-.\includegraphics[scale=1.5]{QC-metricsLM.pdf}
-\end{figure}
-
-
-\begin{figure}[htbp]
-\centering
-.\includegraphics[scale=2]{QC-metricsLM1.pdf}
-\end{figure}
-
-
-\begin{figure}[htbp]
-\centering
-.\includegraphics[scale=1.2]{QC-metricsGM_EM.pdf}
-\end{figure}
+\bibliography{ChIC-Vignette}
 
 
 \end{document}
