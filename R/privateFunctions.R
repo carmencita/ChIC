@@ -1628,17 +1628,17 @@ f_getPredictionModel <- function(id) {
         message("Load chromatinmark model")
         # give higher priority to more specific models (for individual histone marks)
         if (id == "H3K9me3") {
-            model <- rf_models[["H3K9Encode"]]
+            model <- rf_models[["H3K9me3"]]
         } else if (id == "H3K27me3") {
-            model <- rf_models[["H3K27Encode"]]
+            model <- rf_models[["H3K27me3"]]
         } else if (id == "H3K36me3") {
-            model <- rf_models[["H3K36Encode"]]
+            model <- rf_models[["H3K36me3"]]
         } else if (id %in% c(allChrom$allBroad, "broad")) {
-            model <- rf_models[["broadEncode"]]
+            model <- rf_models[["Broad"]]
         } else if (id %in% c(allChrom$allSharp, "sharp")) {
-            model <- rf_models[["sharpEncode"]]
+            model <- rf_models[["Sharp"]]
         } else if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
-            model <- rf_models[["RNAPol2Encode"]]
+            model <- rf_models[["RNAPol2"]]
         } else {
             # considering the starting if this option should never happen
             message(id, "error in model selction")
@@ -1647,7 +1647,7 @@ f_getPredictionModel <- function(id) {
     } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
     {
         message("Load TF model")
-        model <- rf_models$TFmodel
+        model <- rf_models$TF
     } else {
         message(id, "model not found")
         model=NULL
