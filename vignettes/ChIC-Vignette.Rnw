@@ -9,6 +9,7 @@
 
 \usepackage[english]{babel}
 \usepackage{graphicx}
+\usepackage{cite}
 \usepackage[hidelinks]{hyperref}
 
 
@@ -86,65 +87,224 @@ This package is meant to be used in conjunction with the \texttt{ChIC.data} pack
 The \texttt{ChIC} package provides a user friendly wrapper function (\texttt{chicWrapper()}) to compute all of the the QC metrics, the \texttt{ChIC RF-score}, summary 
 plots for QC-metrics, plots for the comparison of metagene profiles against reference profiles, and plots for the the comparison of 
 single QC-metrics against the compendium values.
+In addition to the user-friendly wrapper, the pacakge contains several additional functionalities for each analysis step by step for more experienced users.
 
-In addition to the user-friendly wrapper, the pacakge contains several additional functionalities for each analysis step by step for more experienced users. 
+We recommend referring to the manuscript preprint by Livi \textit{et al.} \cite{CLivi} for a more thorough discussion of the method rationale and for its benchmarking against previous solutions for ChIP-seq quality control.
 
 
 
-\newpage
-\section{Input}
-\noindent To run ChIC the user has to provide two bam files: one for ChIP and 
-one for the input. In this tutorial we illustrate ChIC functions 
-using a H3K36me3 ChIP-seq dataset from ENCODE (ID: ENCFF000BFX) 
-and its input (ID: ENCFF000BDQ). The data can can be downloaded from:
+\subsection{Overview of ChIC analysis worflow}
+The ChIC package analysis workflow includes multiple steps that can be summarized as follows:
+\begin{enumerate}
+    \item The input data (BAM files) are read into R objects.
+    \item A comprehensive set of quantitative QC-metrics are computed. These include:
+        \begin{enumerate}
+        \item ENCODE Metrics (EM): a set of QC metrics derived from ENCODE recommended best practices \cite{Landt}.
+        \item Global enrichment profile Metrics (GM): a set of quantitative metrics quantitative scores that describe the shape of ChIP-seq enrichment profiles derived from the global distribution of enrichment profiles. These are mostly quantitative metrics derived fromt the the so-called "fingerprint plot" \cite{Diaz2012,deeptools2}.  
+        \item Local enrichment profile metrics (LM) metrics: a set of quantitative scores that describe the shape of ChIP-seq enrichment profiles. We use the so-called "metagene" profiles, i.e. the average ChIP-seq signal over a set of genes, to derive a large set of quantitative features \cite{CLivi}.
+        \end{enumerate} 
+    \item A set of summary plots is drawn to show how the ChIP-seq sample analyzed compares to the reference compendium of ChIP-seq datasets in terms of:
+        \begin{enumerate}
+        \item The distribution of selected individual quality metrics
+        \item The shape of enrichment profile around the annotated gene body, the annotated transcription start sites (TSS) or annotated transcript end (TES). 
+        \end{enumerate} 
+    \item ChIC RF score: a single score summary of the sample quality with respect to the reference compendium. This score is based on a random forest machine learning classifier (see below and \cite{CLivi}).
+\end{enumerate} 
+The analysis steps, as well as the package functions to perform them, are described more in details in the following sections.
+
+
+
+
+\section{ChIC analysis in one command with \texttt{chicWrapper()}}
+
+
+
+\subsection{Example input data}
+The ChIC package takes as input aligned high throughput sequencing read files in the BAM file format (.bam). 
+For any ChIP-seq sample under investigation, the end user is expected to provide a pair of bam files: one for the chromatin immunoprecipitation experiment (ChIP) and one for the control experiment (input). For the neophytes, it must be noted that the ChIP-seq filed adopted a potentially misleading terminoligy as the control experiments consituted by crosslinked and sonicated chromatin (without immunoprecipitation) are generally called "input control" experiments, but most often they are just referred to as "input" experiment. This may cause some confusion with respect to the "input" data to any given software or algorithm. In the context of this vignette we will try to alwasy specify "input control" whenever the terminology may be misleading. We may just refer to ChIP/input pair as in this case the pairing of the two types of samples make it clear the seond one is the "input control".
+
+In this Vignette tutorial we will illustrate ChIC functionalities by using a ChIP-seq sample from the ENCODE project data portal (ID: ENCFF000BFX) and its matched input control (ID: ENCFF000BDQ). This specific ChIP-seq sample immunoprecipitation target was histone H3 lysine 4 trimethylation (H3K4me3), which is a histone post translational modification (histone mark) generally associated to the promoter of transcribed genes. The BAM files containing the alignment to human genome (hg19 build) can can be downloaded from:
 
 \noindent \url{https://www.encodeproject.org/files/ENCFF000BFX/}\\
 \url{https://www.encodeproject.org/files/ENCFF000BDQ/}
 
 
+In the example R code chunk below we are using a call to the system tool "wget" to download the data in the current working directory
 
-<<eval=FALSE, echo=TRUE >>=
-
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BFX/
-    @@download/ENCFF000BFX.bam")
-
-system("wget 
-https://www.encodeproject.org/files/ENCFF000BDQ/
-    @@download/ENCFF000BDQ.bam")
-
+<<echo=FALSE>>=
+options(width=60)
+library(ChIC)
 chipName <- "ENCFF000BFX"
 inputName <- "ENCFF000BDQ"
 @
 
 
-
-\textbf{PLEASE NOTE:} For timing reasons the tutorial will 
-use toy-bam files with a reduced number of chromosomes. 
-Input and chip data are therefore loaded 
-from our datapackage "ChIC.data":
-
-<<eval=TRUE, echo=TRUE >>=
-
+<<eval=FALSE, echo=TRUE >>=
 library(ChIC)
 
-#load tag-list with reads aligned to a subset of chromosomes
-data("chipSubset", package = "ChIC.data", 
-    envir = environment())
-chipBam <- chipSubset
+chipName <- "ENCFF000BFX"
+inputName <- "ENCFF000BDQ"
 
-data("inputSubset", package = "ChIC.data", 
-    envir = environment())
-inputBam <- inputSubset
+system(paste("wget https://www.encodeproject.org/files/",
+    chipName, "/@@download/",
+    chipName, ".bam", sep=""))
+system(paste("wget https://www.encodeproject.org/files/",
+    inputName, "/@@download/",
+    inputName, ".bam", sep=""))
 @
 
 
 
-<<options,echo=FALSE>>=
-options(width=60)
-@ 
+\subsection{The \texttt{chicWrapper()} function}
 
-\newpage
+The user friendly \texttt{"chicWrapper()"} function is a single command allowing the end users to run ChIC analysis on a ChIP/control pair of BAM files.
+The wrapper will take care of reading the BAM files, computing all the QC metrics, run the machine learning model to compute the \texttt{ChIC RF-score}.
+
+<<eval=FALSE, echo=TRUE >>=
+ChIC_RFscore<-chicWrapper(
+    chipName=chipName,
+    inputName=inputName, 
+    savePlotPath=getwd(),
+    target= "H3K4me3",
+    read_length=36,
+    annotationID="hg19"
+    )
+@
+
+The function returns as ouput on the command line the random forest based ChIC RF score. The score ranges from 0 to 1 (0 for the worst prediction and 1 for perfect one). Assessing data quality can be described as a binary classification problem with the QC-metrics as independent input variables and the data quality as the dependent output variable (class labels: good or poor quality). We built random forest based classifiers to discriminate ChIP-seq samples with good vs poor enrichment. In order to train the random forest models, for each ChIP sample in our reference compendium we simulated a "failed" counterpart with lower lower signal-to-noise by specifically down-sampling aligned reads located within enrichment peaks.
+
+Distinct random forest models were trained for different types of immunoprecipitation targets, as distincr chromatin mark types are expected to yield enrichment peaks with different shapes: see \cite{CLivi} for more details on the classifiers design. As such it is important to specify which individual protein or chromatin mark was targeted for ChIP-seq immunoprecipitation in the experiment, and/or to consider where a more generic class of chromatin mark should be used as reference for the random forest classifier. This choice is defined with the \texttt{"target"} parameter.
+Pre-computed random forest models foo various targets and chromatin mark categories are stored in the \texttt{ChIC.data} package.
+See also the paragraph below on \texttt{ChIP targets categories} for more details on the available pre-computed models.
+
+
+Other parameters that should be mentioned are the \texttt{"read\_length"} parameter, that is generally known to the users based on the sequencing machine run settings, but can also be inferred from an inspection of the BAM file or of the original raw sequencing data (FASTQ file). This parameter is used to set some analysis thresholds in the "phantom peak" analysis of cross-correlation profiles \cite{Landt,Kharchenko2008,Marinov,Carroll}.
+
+The \texttt{"annotationID"} parameter refers to the reference genome build used for aligning the sequencing reads provided in the input BAM files.  Currently supported options are "hg19", "hg38", "mm9", "mm10" and "dm3". Please note that these reference annotations are used to process the input BAM files to compute the genome/species specific metagene profiles used to compute the QC metrics. The pre-computed random forest models were trained on a compendium of human ChIP-seq samples. These can in principle be used also to assess the quality of ChIP-seq in other organisms as long as the selected targes is expected to have a similar metagene profile across species: see also cross-species test cases in \cite{CLivi}.
+
+Finally, the \texttt{"savePlotPath"} parameter defines the path to save into a single PDF a summary report containing all the QC plots related to \texttt{ChIC} analysis. In the current version of the \texttt{"chicWrapper()"} function this parameter must be set to a value different than NULL. If it is null, the file will be saved in the current working directory as for the default option. If the \texttt{"savePlotPath"} parameter contains a path to a directroy, the saved filename will be built as \texttt{"chipName"\_"inputName"\_ChIC\_report.pdf}. If the \texttt{"savePlotPath"} parameter contains a full path to a filename, the user specified filename will be used instead for the output summary PDF.
+
+
+
+
+
+
+\subsection{ChIP target categories}
+
+As described in the accompanying manuscript \cite{CLivi}, we trained distinct machine learning classifiers for specific classes of ChIP targets. These resulted in distinct random forest models for:
+
+\begin{itemize}
+\item Chromatin marks with "sharp" enrichment peaks (Sharp category)
+\item Chromatin marks with "broad" enrichment peaks (Broad category)
+\item RNA Polymerase 2, which has a dinstinctive mixed sharp/broad enrichment profile (Pol2 category)
+\item Transcription factors and/or other proteins with specific DNA binding domains and very localized binding peaks (TF category)
+\end{itemize}
+
+As discussed in the manuscript \cite{CLivi}, the "Broad" chromatin marks categody is generally the more challenging one for assessing the quality of ChIP-seq data. This is due to the fact that this category actually contains marks with very different distributions and enrichment profile shapes. As such, for three specific "Broad" chroamtin marks that are frequently profiled in literature we derived specific random forest models for each of them, including:
+\begin{itemize}
+\item H3K36me3
+\item H3K27me3
+\item H3K9me3
+\end{itemize}
+
+When specifying the \texttt{"target"} parameter in \texttt{chicWrapper()}, the end users will need to keep in mind this categorization of ChIP targets as that will have an effect on
+\begin{enumerate}
+    \item The selection of the random forest model used to compute the ChIC RF score.
+    \item The selection of the reference compendium subset of samples used to generaty summary plot for QC metrics and metagene profiles. 
+\end{enumerate} 
+
+
+
+\paragraph{ChIP target categories - model selection in \texttt{chicWrapper()}}
+When the \texttt{"target"} parameter in \texttt{chicWrapper()} is specified, the function will adopt the more "specific" random forest model, if available. This means that, when specifying H3K36me3, or H3K27me3, or H3K9me3, the histone mark specific random forest model will be used to compute the ChIC RF score.
+
+For all of the other histone marks, the random forest model of the corresponding general category will be used. For example, if the target H3K4me3 is specified, then the  random forest model for "Sharp" chromatin marks will be used. 
+We can verify which chromatin marks of the reference compendium were grouped within each category by using the function \texttt{listAvailableElements()}.
+
+For example to list all "Sharp" chromatin marks:
+<<eval=TRUE, echo=TRUE >>=
+listAvailableElements("sharp")
+@
+
+and to list all "Broad" chroamtin marks
+<<eval=TRUE, echo=TRUE >>=
+listAvailableElements("broad")
+@
+
+It should be noted that we sub-grouped chromatin mark samples by the expected shape of their enrichment peaks into “Sharp” and “Broad” following the ENCODE3 guidelines (https://www.encodeproject.org/chip-seq/histone/). 
+
+
+If the end user wishes to apply the general random forest model for "broad" or "sharp" chromatin marks with another ChIP target not included in this list, this can be achieved by just specifying the \texttt{target="broad"} or \texttt{target="sharp"} parameter in the call to \texttt{chicWrapper()}, respectively.
+
+
+Likewise, the list of trasncription factors that has been considered in the reference compendium is accessible with \texttt{listAvailableElements("TF")}. If the end users is targeting a transcription factor, or other protein with specific DNA binding domains and very localized binding peaks which is not included in this list, it is anyway possible to apply the random forest model for transcription factors. This is achieved by using the \texttt{target="TF"} parameter in \texttt{chicWrapper()}.
+
+
+
+\paragraph{ChIP target  - reference compendium subset selection for summary plots in \texttt{chicWrapper()}}
+The definition of the \texttt{"target"} parameter in \texttt{chicWrapper()} will also affect the selection of the datasets used to draw summary plots of the reference metaprofiles.
+
+The end users will be able to plot the metaprofiles for the ChIP-seq (query) sample under examination with \texttt{chicWrapper()}. However, the additional metaprofile plots where the query ChIP-seq sample is comapred to the average profile observed in the reference compendium datasets will be available only if the specified target is among the available ones that cand be displayed with the \texttt{listAvailableElements()} function as described above. 
+
+Thus, for the comaprison of metaprofiles to the "avereage" the end users will not be allowed to specify a "generic" category (borad/sharp/TF) which instead are available for the random forest model.
+As such, if  one the general categories is indicated, the coresponding random forest model will be sued to compute the ChIC RF score, the metaprofiles for the "query" ChIP-seq sample will be reporte din the sumamry, but the comaprison to the average metaprofile of the specific mark will not be included in the output PDF.
+
+
+
+
+
+
+
+
+
+
+
+\section{ChIC analysis step by step}
+
+
+\subsection{Reading BAM files}
+Then the input BAM files can be read into R objects storing the aligned reads positions and their quality scores into a \texttt{"taglist"} object as defined by the spp package \cite{Kharchenko2008}.
+
+Plase note that the \texttt{readBamFile()} function illustrated in the code chunk below will expect as input a BAM filename without the \texttt{".bam"} extension that will be automatically added by the function. The filename can also contain the pathname if the data file is not located in the current working directory.
+
+<<eval=FALSE, echo=TRUE >>=
+chipBam <- readBamFile(chipName)
+inputBam <- readBamFile(inputName)
+@
+
+
+
+
+%%%%%%   THIS IT NO MORE IN LINE WITH THE CURRENT CODE, WE NEED TO PRE-SAVE A SMALLER BAM FILE CONTAINING ONLY THE READS THAT WE NEED FOR THE TEST CASE TO ACTUALLY RUN THE FULL REPORT  %%%%%
+\textbf{PLEASE NOTE:} In order to comply with time limits for example code chunks to be executed when compiling Vignettes for Bioconductor and R packages, from now on we will actually use a smaller subset of these data input. Namely, for the subsequent analysis steps we will use only chromosomes 17, 18 and 19 from the samples described above.
+
+<<eval=FALSE, echo=TRUE >>=
+subset_chromosomes<-c("chr17","chr18","chr19")
+chipSubset<-lapply(chipBam,
+    FUN=function(x) {x[subset_chromosomes]})
+inputSubset<-lapply(inputBam,
+    FUN=function(x) {x[subset_chromosomes]})
+@
+
+These \texttt{"chipSubset"} and \texttt{"inputSubset"} objects are also available for preloading in the companion \texttt{"ChIC.data"} package.
+
+<<eval=TRUE, echo=TRUE >>=
+data("chipSubset", package = "ChIC.data", 
+    envir = environment())
+str(chipSubset)
+data("inputSubset", package = "ChIC.data", 
+ envir = environment())
+str(inputSubset)
+@
+%%%%%%   THIS IT NO MORE IN LINE WITH THE CURRENT CODE, WE NEED TO PRE-SAVE A SMALLER BAM FILE CONTAINING ONLY THE READS THAT WE NEED FOR THE TEST CASE TO ACTUALLY RUN THE FULL REPORT  %%%%%
+
+
+
+
+
+
+
+
 \section{ENCODE Metrics (EM)}
 
 \noindent \textcolor{airforceblue}{qualityScores\_EM()} is a wrapper 
@@ -224,13 +384,15 @@ binding-characteristics structure provides information about the
 peak separation distance and the cross-correlation profile (for more details 
 see \cite{Kharchenko2008}).
 
-<<eval=TRUE, echo=FALSE >>=
+%%%<<eval=TRUE, echo=FALSE >>=
+<<eval=FALSE, echo=TRUE >>=
 mc=2
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 @
 
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 
 cluster <- parallel::makeCluster( mc )
 
@@ -272,7 +434,8 @@ is shown in Figure \ref{fig:1}. Along with the visual output,
 (see \ref{Appendix} Appendix), from which 
 we have to save tag.shift value for further steps:
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 finalTagShift <- crossvalues_Chip$tag.shift
 @
 
@@ -291,7 +454,8 @@ that removes local read anomalies like regions with extremely high read
 counts compared to the neighborhood 
 (for more details see \cite{Kharchenko2008}). 
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 
 ##get chromosome information and order chip and input by it
 chrl_final <- intersect(names(chipBam$tags), 
@@ -302,7 +466,8 @@ inputBam$tags <- inputBam$tags[chrl_final]
 inputBam$quality <- inputBam$quality[chrl_final]
 @
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 ##remove positions with extremely high read counts with 
 ##respect to the neighbourhood
 selectedTags <- removeLocalTagAnomalies(chipBam, 
@@ -320,7 +485,8 @@ The last set of QC-metrics belonging to the category of EMs
 are based on the number of called peaks using 
 \textcolor{airforceblue}{getPeakCallingScores()}.
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 bindingScores <- getPeakCallingScores(chip = chipBam, 
     input = inputBam, 
     chip.dataSelected = chipBamSelected, 
@@ -337,7 +503,8 @@ is the smoothing (using a Gaussian kernel) of the read
 profile to obtain the tag density profile (for more details see 
 \cite{Kharchenko2008}). 
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 smoothedChip <- tagDensity(chipBamSelected,
     annotationID = "hg19", 
     tag.shift = finalTagShift, mc = mc)
@@ -368,6 +535,7 @@ two y-coordinates,
 the sign of the difference), (c) the fraction of reads in the top 1 
 percent of bins with highest coverage for ChIP and input. 
 
+%%%<<eval=FALSE, echo=TRUE >>=
 <<eval=FALSE, echo=TRUE >>=
 Ch_Results <- qualityScores_GM(densityChip = smoothedChip,
     densityInput = smoothedInput, 
@@ -383,7 +551,8 @@ densityInput=smoothedInput)
 
 \begin{figure}[htbp]
 \centering
-<<eval=TRUE, label=Fingerprint, fig=TRUE, echo=FALSE>>=
+%%%<<eval=TRUE, label=Fingerprint, fig=TRUE, echo=FALSE>>=
+<<eval=FALSE, label=Fingerprint, fig=TRUE, echo=TRUE>>=
 <<Fingerprint>>
 @
 \caption{Fingerprint plot of sample ENCFF000BFX and its input ENCFF000BDQ.}
@@ -391,7 +560,8 @@ densityInput=smoothedInput)
 \end{figure}
 
 
-<<eval=TRUE, echo=FALSE >>=
+%%%<<eval=TRUE, echo=FALSE >>=
+<<eval=FALSE, echo=TRUE >>=
 str(Ch_Results)
 @
 
@@ -409,7 +579,8 @@ Each item is again a list with the
 metagene profiles for ChIP and input.
 
 
-<<eval=TRUE, echo=TRUE>>=
+%%%<<eval=TRUE, echo=TRUE>>=
+<<eval=FALSE, echo=TRUE >>=
 Meta_Result <- createMetageneProfile(
     smoothed.densityChip = smoothedChip, 
     smoothed.densityInput = smoothedInput, 
@@ -443,16 +614,17 @@ The "TSS" or "TES" object and the
 are used to plot the unscaled profile (see Figure \ref{fig:TSS})
 and return the respective LM values.
 
-<<eval=TRUE, echo=TRUE>>=
+%%%<<eval=TRUE, echo=TRUE>>=
+<<eval=FALSE, echo=TRUE >>=
 TES_Scores=qualityScores_LM(data=Meta_Result$TES,
     tag="TES")
 @
 
 \begin{figure}[htbp]
     \centering
-<<eval=TRUE, label=TSS, fig=TRUE, echo=TRUE>>=
-TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, 
-    tag="TSS")
+%%%<<eval=TRUE, label=TSS, fig=TRUE, echo=TRUE>>=
+<<eval=FALSE, label=TSS, fig=TRUE, echo=TRUE>>=
+TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS")
 @
 \caption{Unscaled single-point metagene profile: Signal enrichment for 
     ChIP and Input at the TSS.}
@@ -468,7 +640,8 @@ and return the respective LM values:
 
 \begin{figure}[htbp]
     \centering
-<<eval=TRUE, label=geneBody, fig=TRUE, echo=TRUE>>=
+%%%<<eval=TRUE, label=geneBody, fig=TRUE, echo=TRUE>>=
+<<eval=FALSE, label=geneBody, fig=TRUE, echo=TRUE>>=
 geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 @
 \caption{Scaled whole gene metagene profile: Signal enrichment for 
@@ -508,7 +681,8 @@ transcription factors that are available for the comparison analysis.
 With the keywords "mark" and "TF" the respective lists with the available 
 elements are listed.
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 listAvailableElements(target="H3K36me3")
 @
 
@@ -521,7 +695,8 @@ from ENCODE and Roadmap that have been included
 in the compendium by providing the keyword 
 "ENCODE" or "Roadmap".
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 head(listDatasets(dataset="ENCODE"))
 @
 
@@ -547,7 +722,8 @@ to get a list of available targets.
 
 \begin{figure}[htbp]
     \centering
-<<eval=TRUE, label=geneBodyComparison, fig=TRUE, echo=TRUE>>=
+%%%<<eval=TRUE, label=geneBodyComparison, fig=TRUE, echo=TRUE>>=
+<<eval=FALSE, label=geneBodyComparison, fig=TRUE, echo=TRUE>>=
 
 metagenePlotsForComparison(data = Meta_Result$geneBody,
     target = "H3K4me3", 
@@ -566,7 +742,8 @@ signal (black line) and the 2x standard error (blue shadow).}
 
 \begin{figure}[htbp]
     \centering
-<<eval=TRUE, label=TSSComparison, fig=TRUE, echo=TRUE>>=
+%%%<<eval=TRUE, label=TSSComparison, fig=TRUE, echo=TRUE>>=
+<<eval=FALSE, label=TSSComparison, fig=TRUE, echo=TRUE>>=
 
 metagenePlotsForComparison(data = Meta_Result$TSS,
     target = "H3K4me3", 
@@ -623,7 +800,9 @@ to get a list of available targets.
 
 \begin{figure}[htbp]
 \centering
-<<eval=TRUE, label=ReferenceDistr, fig=TRUE, echo=TRUE>>=
+%%%<<eval=TRUE, label=ReferenceDistr, fig=TRUE, echo=TRUE>>=
+<<eval=FALSE, label=ReferenceDistr, fig=TRUE, echo=TRUE>>=
+
 plotReferenceDistribution(target = "H3K4me3", 
     metricToBePlotted = "RSC", 
     currentValue = crossvalues_Chip$CC_RSC )
@@ -645,7 +824,8 @@ profile or TF.}
 The compendium of metrics has been used to train a random forest model 
 that summarizes the sample quality in one single QC-score. 
 
-<<eval=TRUE, echo=FALSE >>=
+%%%<<eval=TRUE, echo=FALSE >>=
+<<eval=FALSE, echo=TRUE >>=
 EM_scoresNew=NULL
 
 EM_scoresNew$QCscores_ChIP <- crossvalues_Chip
@@ -656,7 +836,8 @@ EM_scoresNew$TagDensityChip <-list()
 CC_Result <- EM_scoresNew
 @
 
-<<eval=TRUE, echo=TRUE >>=
+%%%<<eval=TRUE, echo=TRUE >>=
+<<eval=FALSE, echo=TRUE >>=
 te <- predictionScore(target = "H3K4me3", 
     features_cc = CC_Result,
     features_global = Ch_Results,
@@ -673,32 +854,6 @@ transcription factors" section) the user can apply the
 keyword "TF" in the "target" argument to invoce the transcription 
 factor model. 
 
-
-\subsection{Summary report}
-When analysing many differet ChIP-seq samples the user 
-might be interested only in the visualization of the quality 
-assessment. ChIC contains also a function that produces a 
-summary report. The summary report is a single document (pdf 
-format) that contains all the produced analysis plots. 
-The function 
-returns also the predicted sample QC-score.
-
-<<eval=FALSE, echo=TRUE >>=
-prediction=chicWrapper(chipName=chipName, inputName=inputName, 
-    chromMarkToUse= "H3K4me3", read_length=36, mc=mc , 
-    savePlotPath=filepath)
-
-@
-
-\textbf{PLEASE NOTE:} If the target is not present 
-in the package not all plots will be produced. 
-To know which targets are available we refer to the 
-"Available chromatin marks and transcription factors" 
-subsetion. The keyword "TF" (target="TF") allows 
-the user to force the calculation of 
-the predictionScore() even if a particular 
-transcription 
-factor is not present in the package. 
 
 \newpage
 
