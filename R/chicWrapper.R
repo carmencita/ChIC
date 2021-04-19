@@ -30,8 +30,8 @@
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param savePlotPath path, needs to be set to save the summary plot 
-#'  under "savePlotPath" (default=NULL). 
-#' If not set the plot will not be produced.
+#' under "savePlotPath" (default=getwd()). In the current version of the code we MUST save the output summary plots in a PDF file.
+#' If the end users really needs to suppress the PDF output, they can use the "/dev/null" as output savePlotPath 
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
 #'
@@ -75,30 +75,29 @@
 
 
 chicWrapper<-function(chipName, inputName, read_length, 
-    savePlotPath=NULL, target, annotationID="hg19", 
+    savePlotPath=getwd(), target, annotationID="hg19", 
     mc=1, debug=FALSE)
 {
 
-    if (!is.null(savePlotPath))
-    {
-        tryCatch(
-        {
-            pdf(savePlotPath,onefile=TRUE)
-        },
-        error = function(e){
-            message("Creating an overall pdf report in 
-                    the working directory (ChIC_report.pdf)")
-            savePlotPath <- paste(getwd(),"ChIC_report.pdf",sep="/")
-            pdf(savePlotPath,onefile=TRUE)
+    # in the current version of the code we MUST save the output summary plots in a PDF file
+    # if the end users really needs to suppress the PDF output, they can use the "/dev/null" as output savePlotPath
+    summaryPlotsFilename<-paste(chipName, inputName, "ChIC_report.pdf", sep="_")
+    
+    if (!is.null(savePlotPath) && is.finite(savePlotPath)) { #is.finite is to avoid NAs errors
+        if (dir.exists(savePlotPath) {
+            # filepath is a directory, just add the filename
+            savePlotPath <- file.path(savePlotPath,summaryPlotsFilename)
+        } else {
+            # note that if filepath is a full file path already existing, it will be overwritten
+            savePlotPath <- file.path(savePlotPath)
         }
-        )
-    }else{
-        message("Creating an overall pdf report in 
-                    the working directory (ChIC_report.pdf)")
-        savePlotPath <- paste(getwd(),"ChIC_report.pdf",sep="/")
-        pdf(savePlotPath,onefile=TRUE)
+    } else {
+        savePlotPath <- file.path(getwd(),summaryPlotsFilename)
     }
+     message(paste("Creating summary pdf report in", savePlotPath)
+     pdf(savePlotPath, onefile=TRUE)
 
+                
     ## get Encode Metrics
     CC_Result=qualityScores_EM(
         chipName=chipName,
