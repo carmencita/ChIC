@@ -132,7 +132,7 @@ In this Vignette tutorial we will illustrate ChIC functionalities by using a ChI
 In the example R code chunk below we are using a call to the system tool "wget" to download the data in the current working directory
 
 <<echo=FALSE>>=
-options(width=60)
+options(width=60, str=strOptions(vec.len=3))
 library(ChIC)
 chipName <- "ENCFF000BFX"
 inputName <- "ENCFF000BDQ"
@@ -215,7 +215,7 @@ When specifying the \texttt{"target"} parameter in \texttt{chicWrapper()}, the e
 
 
 
-\paragraph{ChIP target categories - model selection in \texttt{chicWrapper()}}
+\subsubsection{ChIP target categories - model selection in \texttt{chicWrapper()}}
 When the \texttt{"target"} parameter in \texttt{chicWrapper()} is specified, the function will adopt the more "specific" random forest model, if available. This means that, when specifying H3K36me3, or H3K27me3, or H3K9me3, the histone mark specific random forest model will be used to compute the ChIC RF score.
 
 For all of the other histone marks, the random forest model of the corresponding general category will be used. For example, if the target H3K4me3 is specified, then the  random forest model for "Sharp" chromatin marks will be used. 
@@ -241,29 +241,55 @@ Likewise, the list of trasncription factors that has been considered in the refe
 
 
 
-\paragraph{ChIP target  - reference compendium subset selection for summary plots in \texttt{chicWrapper()}}
+\subsubsection{ChIP target  - reference compendium subset selection for summary plots in \texttt{chicWrapper()}}
 The definition of the \texttt{"target"} parameter in \texttt{chicWrapper()} will also affect the selection of the datasets used to draw summary plots of the reference metaprofiles.
 
-The end users will be able to plot the metaprofiles for the ChIP-seq (query) sample under examination with \texttt{chicWrapper()}. However, the additional metaprofile plots where the query ChIP-seq sample is comapred to the average profile observed in the reference compendium datasets will be available only if the specified target is among the available ones that cand be displayed with the \texttt{listAvailableElements()} function as described above. 
+The end users will be able to plot the metaprofiles for the ChIP-seq (query) sample under examination with \texttt{chicWrapper()}. However, the additional metaprofile plots where the query ChIP-seq sample is comapred to the average profile observed in the reference compendium datasets will be available only if the specified target is among the available ones that can be displayed with the \texttt{listAvailableElements()} function as described above. 
 
 Thus, for the comaprison of metaprofiles to the "avereage" the end users will not be allowed to specify a "generic" category (borad/sharp/TF) which instead are available for the random forest model.
 As such, if  one the general categories is indicated, the coresponding random forest model will be sued to compute the ChIC RF score, the metaprofiles for the "query" ChIP-seq sample will be reporte din the sumamry, but the comaprison to the average metaprofile of the specific mark will not be included in the output PDF.
 
 
+\subsection{Summary PDF report}
+The \texttt{chicWrapper()} will return the ChIC RF score as output in the R command line, and also write on the specified output directory a PDF with a set of summary plots. These will include (in this order):
 
+\begin{enumerate}
+    \item The cross-correlation profile along with the main metrics derived from this plot (e.g. the RSC score) \cite{CLivi, Landt}.
+    \item The fingerprint plot
+    \item The metagene profile (average profile over all genes) around the TSS, with separate lines for reads density of ChIP and input control samples
+    \item The metagene profile around the TSS for normalized log2(ChIP/input) enrichment
+    \item The metagene profile around the TES for reads density of Chip and input control samples
+    \item The metagene profile around the TES for normalized log2(ChIP/input) enrichment
+    \item The metagene profile over the gene body and flanking regions (rescaled to plot together geens of different sizes) with reads density of Chip and input control samples
+    \item he metagene profile over the gene body for normalized log2(ChIP/input) enrichment
+\end{enumerate}
 
+If the \texttt{"target"} parameter is set to one of the available ones within the reference compendium (the full list can be displayed with the \texttt{listAvailableElements()} function as described above), then additional plots comparing the average profiles against the ones in the compendium are reported as well in teh PDF. These additional pages in the output summary PDF will include:
 
-
-
-
-
+\begin{enumerate}
+\addtocounter{enumi}{8}
+   \item The metagene profile around the gene body for ChIP reads density compared to mean profile (+/-2stdErr) for the same chromatin mark samples in the reference compendium
+   \item The gene body metagene profile for input reads density compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The gene body metagene profile for normalized log2(ChIP/input) enrichment compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The TSS metagene profile for ChIP reads density compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The TSS metagene profile for input reads density compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The TSS metagene profile for normalized log2(ChIP/input) enrichment compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The TES metagene profile for ChIP reads density compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The TES metagene profile for input reads density compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The TES metagene profile for normalized log2(ChIP/input) enrichment compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The RSC score for the query sample, compared to the frequency distribution of RSC values in samples of the same class of chromatin mark in the reference compendium
+\end{enumerate}
 
 
 \section{ChIC analysis step by step}
+In the section above we have seen how to run the ChIC analysis with a single user friendly command.
+In this section we are going to examine more in details the individual analysis steps which are also included in the \texttt{chicWrapper()} function.
+However, each of these steps allows additional analyses and reporting options that more experienced R users can easily adopt to further enrich the output of ChIC.
+
 
 
 \subsection{Reading BAM files}
-Then the input BAM files can be read into R objects storing the aligned reads positions and their quality scores into a \texttt{"taglist"} object as defined by the spp package \cite{Kharchenko2008}.
+In the first analysis step, the input BAM files are  read into R objects storing the aligned reads positions and their quality scores into a \texttt{"taglist"} object as defined by the spp package \cite{Kharchenko2008}.
 
 Plase note that the \texttt{readBamFile()} function illustrated in the code chunk below will expect as input a BAM filename without the \texttt{".bam"} extension that will be automatically added by the function. The filename can also contain the pathname if the data file is not located in the current working directory.
 
@@ -273,10 +299,7 @@ inputBam <- readBamFile(inputName)
 @
 
 
-
-
-%%%%%%   THIS IT NO MORE IN LINE WITH THE CURRENT CODE, WE NEED TO PRE-SAVE A SMALLER BAM FILE CONTAINING ONLY THE READS THAT WE NEED FOR THE TEST CASE TO ACTUALLY RUN THE FULL REPORT  %%%%%
-\textbf{PLEASE NOTE:} In order to comply with time limits for example code chunks to be executed when compiling Vignettes for Bioconductor and R packages, from now on we will actually use a smaller subset of these data input. Namely, for the subsequent analysis steps we will use only chromosomes 17, 18 and 19 from the samples described above.
+\textbf{PLEASE NOTE:} In order to comply with time limits for example code chunks to be executed when compiling Vignettes for Bioconductor and R packages, from now on we will actually use a smaller subset of these data. Namely, for the subsequent analysis steps we will use only chromosomes 17, 18 and 19 from the samples described above.
 
 <<eval=FALSE, echo=TRUE >>=
 subset_chromosomes<-c("chr17","chr18","chr19")
@@ -286,9 +309,9 @@ inputSubset<-lapply(inputBam,
     FUN=function(x) {x[subset_chromosomes]})
 @
 
-These \texttt{"chipSubset"} and \texttt{"inputSubset"} objects are also available for preloading in the companion \texttt{"ChIC.data"} package.
+These \texttt{"chipSubset"} and \texttt{"inputSubset"} objects are also preloaded and available in the companion \texttt{"ChIC.data"} package.
 
-<<eval=TRUE, echo=TRUE >>=
+<<eval=TRUE, echo=FALSE >>=
 data("chipSubset", package = "ChIC.data", 
     envir = environment())
 str(chipSubset)
@@ -296,16 +319,11 @@ data("inputSubset", package = "ChIC.data",
  envir = environment())
 str(inputSubset)
 @
-%%%%%%   THIS IT NO MORE IN LINE WITH THE CURRENT CODE, WE NEED TO PRE-SAVE A SMALLER BAM FILE CONTAINING ONLY THE READS THAT WE NEED FOR THE TEST CASE TO ACTUALLY RUN THE FULL REPORT  %%%%%
 
 
 
 
-
-
-
-
-\section{ENCODE Metrics (EM)}
+\subsection{Computing ENCODE Metrics (EM)}
 
 \noindent \textcolor{airforceblue}{qualityScores\_EM()} is a wrapper 
 function that reads the 
@@ -362,18 +380,10 @@ Nevertheless each listed function is available for single
 use if the user starts from the bam file 
 and wants to perform all the steps individually.
 
-\subsection{Reading BAM files}
-The first step in the \textcolor{airforceblue}{qualityScores\_EM()} function 
-reads ChIP-seq data in .bam file format. The function 
-expects the filename, that can also contain the pathname.
-
-<<eval=FALSE, echo=TRUE >>=
-chipBam <- readBamFile(chipName)
-inputBam <- readBamFile(inputName)
-@
 
 
-\subsection{Calculate QC-metrics from CrossCorrelation analysis}
+
+\subsubsection{Calculate QC-metrics from CrossCorrelation analysis}
 \textcolor{airforceblue}{getCrossCorrelationScores()} calculates QC-metrics 
 from the cross-correlation analysis and other general metrics, e.g. the 
 non-redundant fractions of mapped reads. An important parameter 
@@ -447,7 +457,7 @@ finalTagShift <- crossvalues_Chip$tag.shift
 \end{figure}
 
 
-\subsection{Remove anomalies in the read distrbution}
+\subsubsection{Remove anomalies in the read distrbution}
 The data is processed further by using 
 \textcolor{airforceblue}{removeLocalTagAnomalies()} 
 that removes local read anomalies like regions with extremely high read 
@@ -480,7 +490,7 @@ chipBamSelected <- selectedTags$chip.dataSelected
 @
 
 
-\subsection{Calculate QC-metrics from peak calls}
+\subsubsection{Calculate QC-metrics from peak calls}
 The last set of QC-metrics belonging to the category of EMs 
 are based on the number of called peaks using 
 \textcolor{airforceblue}{getPeakCallingScores()}.
@@ -497,7 +507,7 @@ bindingScores <- getPeakCallingScores(chip = chipBam,
 @
 
 
-\subsection{Profile smoothing}
+\subsubsection{Profile smoothing}
 The last step executed in \textcolor{airforceblue}{qualityScores\_EM()} 
 is the smoothing (using a Gaussian kernel) of the read 
 profile to obtain the tag density profile (for more details see 
@@ -519,7 +529,7 @@ the Global enrichment profile Metrics (GM) and the
 local enrichment profile metrics (LM) (see \ref{Appendix} Appendix). 
 
 \newpage
-\section{Global enrichment profile Metrics (GM) and Fingerprint-plot}
+\subsection{Computing Global enrichment profile Metrics (GM)}
 
 This category of QC-metrics is based on the global read distribution along 
 the genome for ChIP and Input \cite{Diaz2012}. 
@@ -569,7 +579,7 @@ str(Ch_Results)
 
 \newpage
 
-\section{Local enrichment profile metrics (LM) and metagene profiles}
+\subsection{Computing Local enrichment profile metrics (LM)}
 
 \textcolor{airforceblue}{createMetageneProfile()} creates the 
 unscaled single-point and 
@@ -608,7 +618,7 @@ and plotted on the y-axis, whereas the genomic coordinates of the genes like
 the TSS or regions up- and downstream are shown on the x-axis. 
 
 
-\subsection{Plotting an unscaled single-point metagene profile}
+\subsubsection{Plotting an unscaled single-point metagene profile}
 The "TSS" or "TES" object and the 
 \textcolor{airforceblue}{qualityScores\_LMgenebody()} function 
 are used to plot the unscaled profile (see Figure \ref{fig:TSS})
@@ -632,7 +642,7 @@ TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS")
 \end{figure}
 
 
-\subsection{Plotting a scaled whole gene metagene profile}
+\subsubsection{Plotting a scaled whole gene metagene profile}
 The "geneBody" object and the 
 \textcolor{airforceblue}{qualityScores\_LMgenebody()} function 
 are used to plot the scaled profile (see Figure \ref{fig:MetaGenePlots})
@@ -653,14 +663,14 @@ geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
 
 \begin{figure}[htbp]
 \centering
-.\includegraphics{ScaledMetaGeneNormalized.pdf}
+\includegraphics{ScaledMetaGeneNormalized.pdf}
 \caption{Normalized profile: signal enrichment for ChIP over 
 Input along the gene body for a scaled whole gene profile.}
 \label{fig:MetaGenePlotNorm}
 \end{figure}
 
 \newpage
-\section{Quality assessment using the compendium of QC-metrics as reference}
+\subsection{Comparisons against the reference compendium}
 The comprehensive set of QC-metrics, computed over a large set of ChIP-seq 
 samples, constitutes in itself a valuable compendium that can be used as a 
 reference for comparison with new samples. ChIC provides three functions 
@@ -675,7 +685,7 @@ for that:
 \end{itemize}
 
 
-\subsection{Available chromatin marks and transcription factors}
+\subsubsection{Available chromatin marks and transcription factors}
 This useful function lists all chromatin marks and 
 transcription factors that are available for the comparison analysis.
 With the keywords "mark" and "TF" the respective lists with the available 
@@ -688,7 +698,7 @@ listAvailableElements(target="H3K36me3")
 
 
 
-\subsection{List the sample IDs of the compendium}
+\subsubsection{List the sample IDs of the compendium}
 
 Shows the IDs of all analysed ChIP-seq samples 
 from ENCODE and Roadmap that have been included 
@@ -701,7 +711,7 @@ head(listDatasets(dataset="ENCODE"))
 @
 
 
-\subsection{Comparing local enrichment profiles}
+\subsubsection{Comparing local enrichment profiles}
 The c 
 function is used to compare the 
 local enrichment profile to the reference compendium by plotting the 
@@ -787,7 +797,7 @@ signal (black line) and the 2x standard error (blue shadow).}
 %\end{figure}
 
 
-\subsection{Comparing QC-metrics to the reference values of the compendium}
+\subsubsection{Comparing QC-metrics to the reference values of the compendium}
 Plotting a single QC-metric against the reference values from a large 
 number of already published data, adds an extra level of 
 information that can be easily used by less experienced users. 
@@ -820,7 +830,7 @@ profile or TF.}
 
 
 
-\subsection{Assessing data quality with machine learning}
+\subsection{Computing the ChIC RF score}
 The compendium of metrics has been used to train a random forest model 
 that summarizes the sample quality in one single QC-score. 
 
