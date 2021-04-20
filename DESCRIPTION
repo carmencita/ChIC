@@ -12,4 +12,4 @@ Imports:
 	caret, grDevices, stats, utils, graphics, S4Vectors, BiocGenerics, genomeIntervals, Rsamtools
 Depends: spp, R (>= 3.6)
 biocViews: ChIPSeq, QualityControl
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

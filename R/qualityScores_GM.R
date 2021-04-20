@@ -97,7 +97,7 @@
 qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
     annotationID="hg19", savePlotPath = NULL, mc=1) 
 {
-    message("***Calculating GM...***")
+    message("***Calculating GM metrics...***")
 
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
         clear = FALSE, width = 60)
@@ -179,14 +179,14 @@ qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
 
     ## create Fingerprint plot
     f_fingerPrintPlot(cumSumChip, cumSumInput, savePlotPath = savePlotPath)
-    if (!is.null(savePlotPath))    
+    if (!is.null(savePlotPath))
         message("pdf saved under ", savePlotPath)
 
-    
+
     ## return QC values
     pb$tick()
 
-    message("Calculation of GM done!")
+    message("Calculation of GM metrics done!")
     return(finalList)
 }
 

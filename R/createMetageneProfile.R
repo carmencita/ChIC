@@ -122,6 +122,7 @@ createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
     }
     ########## 
     
+    message("***Computing metagene profiles...***")
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
         clear = FALSE, width = 60)
 
@@ -132,9 +133,9 @@ createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
     annotObjectNew$interval_starts <-as.integer(annotObjectNew$interval_starts)
     annotObjectNew$interval_ends <- as.integer(annotObjectNew$interval_ends)
     annotObjectNew$seq_name <- as.character(annotObjectNew$seq_name)
-    
     annotatedGenesPerChr <- split(annotObjectNew, f = annotObjectNew$seq_name)
     
+
     ## two.point.scaling create scaled metageneprofile input
     message("***Calculating scaled metageneprofile ...***")
     ## objects of smoothed tag density for ChIP and Input

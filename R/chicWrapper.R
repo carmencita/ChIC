@@ -8,22 +8,21 @@
 ############################################################################
 
 
-#'@title Wrapper function to create a single document (pdf) that summarizes  
-#' all plots produced by ChIC  
+#'@title ChIC analysis in one command  
 #'
 #' @description
 #' This function creates a single document (in pdf format) containing all 
 #' the analysis plots produced by ChIC: the CrossCorrelation profile of the 
 #' immunoprecipitation, the fingerprint plot and the different metagene 
-#' profiles.
+#' profiles and returns the ChIC RF score.
 #' 
 #' chicWrapper
 #'
 #' @param chipName String, filename and path to the ChIP bam file 
-#' (without extension)
+#' (without ".bam" extension)
 #' @param inputName String, filename and path to the Input bam file
-#' (without extension)
-#' @param read_length Integer, length of the reads
+#' (without ".bam" extension)
+#' @param read_length Integer, length of the sequencing reads
 #' @param target String, chromatin mark or transcription factor to be 
 #' analysed. Using the function "listAvailableElements" with the keywords 
 #' "mark" and "TF" shows a list with the available elements.
@@ -34,8 +33,7 @@
 #' If the end users really needs to suppress the PDF output, they can use the "/dev/null" as output savePlotPath 
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
-#'
-#' @return predictedScore, returns the prediction score of the 
+#' @return ChIC RF score, returns the rnadom forest prediction score of the 
 #' predictionScore() function, produces the summary report and saves it 
 #' under "savePlotPath".
 #'
@@ -76,15 +74,13 @@
 
 chicWrapper<-function(chipName, inputName, read_length, 
     savePlotPath=getwd(), target, annotationID="hg19", 
-    mc=1, debug=FALSE)
-{
+    mc=1, debug=FALSE) {
 
     # in the current version of the code we MUST save the output summary plots in a PDF file
     # if the end users really needs to suppress the PDF output, they can use the "/dev/null" as output savePlotPath
     summaryPlotsFilename<-paste(chipName, inputName, "ChIC_report.pdf", sep="_")
-    
-    if (!is.null(savePlotPath) && is.finite(savePlotPath)) { #is.finite is to avoid NAs errors
-        if (dir.exists(savePlotPath) {
+    if ((!is.null(savePlotPath)) && is.finite(savePlotPath)) { #is.finite is to avoid NAs errors
+        if (dir.exists(savePlotPath)) {
             # filepath is a directory, just add the filename
             savePlotPath <- file.path(savePlotPath,summaryPlotsFilename)
         } else {
@@ -94,12 +90,14 @@ chicWrapper<-function(chipName, inputName, read_length,
     } else {
         savePlotPath <- file.path(getwd(),summaryPlotsFilename)
     }
-     message(paste("Creating summary pdf report in", savePlotPath)
+     message(paste("Creating summary pdf report in", savePlotPath))
      pdf(savePlotPath, onefile=TRUE)
+
+
 
                 
     ## get Encode Metrics
-    CC_Result=qualityScores_EM(
+    EM_Results=qualityScores_EM(
         chipName=chipName,
         inputName=inputName,
         read_length=read_length, 
@@ -111,26 +109,16 @@ chicWrapper<-function(chipName, inputName, read_length,
     
     ##save the tagshift as it is needed later
     
-    tag.shift=CC_Result$QCscores_ChIP$tag.shift
+    tag.shift=EM_Results$QCscores_ChIP$tag.shift
     
-    ##smoothed tagdensities used as input for the next steps
-
-    ##Old
-
-    ##smoothedDensityInput=CC_Result$TagDensityInput
-    ##smoothedDensityChip=CC_Result$TagDensityChip
-
     ##New
-
-    smoothedDensityInput=CC_Result$SelectedTagsInput
-    smoothedDensityChip=CC_Result$SelectedTagsChip
 
     ##GLOBAL features#########
     ##caluclate second set of QC-metrics
-    Ch_Results=qualityScores_GM(
-        selectedTagsChip=smoothedDensityChip,
-        selectedTagsInput=smoothedDensityInput,
-        tag.shift=tag.shift,
+    GM_Results=qualityScores_GM(
+        selectedTagsChip=EM_Results$SelectedTagsChip,
+        selectedTagsInput=EM_Results$SelectedTagsInput,
+        tag.shift=EM_Results$QCscores_ChIP$tag.shift,
         savePlotPath=NULL,
         mc=mc
         
@@ -139,10 +127,10 @@ chicWrapper<-function(chipName, inputName, read_length,
     
     ##LOCAL features########
     ##caluclate third set of QC-metrics
-    Meta_Result=createMetageneProfile(
-        selectedTagsChip=smoothedDensityChip,
-        selectedTagsInput=smoothedDensityInput,
-        tag.shift=tag.shift,
+    Meta_Results=createMetageneProfile(
+        selectedTagsChip=EM_Results$SelectedTagsChip,
+        selectedTagsInput=EM_Results$SelectedTagsInput,
+        tag.shift=EM_Results$QCscores_ChIP$tag.shift,
         annotationID=annotationID,
         debug=debug,
         mc=mc
@@ -150,19 +138,19 @@ chicWrapper<-function(chipName, inputName, read_length,
     
     ##create plots and get values
     TSSProfile=qualityScores_LM(
-        Meta_Result$TSS,
+        Meta_Results$TSS,
         tag="TSS",
         savePlotPath=NULL
     )
     
     TESProfile=qualityScores_LM(
-        Meta_Result$TES,
+        Meta_Results$TES,
         tag="TES",
         savePlotPath=NULL
     )
     
     geneBody_Plot=qualityScores_LMgenebody(
-        Meta_Result$geneBody,
+        Meta_Results$geneBody,
         savePlotPath=NULL
     )
 
@@ -172,21 +160,21 @@ chicWrapper<-function(chipName, inputName, read_length,
         
         metagenePlotsForComparison(
             target=target,
-            data=Meta_Result$geneBody,
+            data=Meta_Results$geneBody,
             tag="geneBody",
             savePlotPath=NULL
         )
         
         metagenePlotsForComparison(
             target=target,
-            Meta_Result$TSS,
+            Meta_Results$TSS,
             tag="TSS",
             savePlotPath=NULL
         )
         
         metagenePlotsForComparison(
             target=target,
-            Meta_Result$TES,
+            Meta_Results$TES,
             tag="TES",
             savePlotPath=NULL
         )
@@ -194,12 +182,17 @@ chicWrapper<-function(chipName, inputName, read_length,
         plotReferenceDistribution(
             target=target,
             metricToBePlotted="RSC",
-            currentValue=CC_Result$QCscores_ChIP$CC_RSC,
+            currentValue=EM_Results$QCscores_ChIP$CC_RSC,
             savePlotPath=NULL
         )
-    }else{
+    } else {
         message(paste("The comparison plots will not be produced for the selected target:", target))
     }
+
+    ## close the summary PDF
+    message(paste("Closing output summary in", savePlotPath))
+    dev.off()
+
 
     # adding support for generic "broad", "sharp", "RNAPol2" models
     if (target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" )) {
@@ -207,8 +200,8 @@ chicWrapper<-function(chipName, inputName, read_length,
         
         predictedScore=predictionScore(
             target=target,
-            features_cc=CC_Result,
-            features_global=Ch_Results,
+            features_cc=EM_Results,
+            features_global=GM_Results,
             features_TSS=TSSProfile,
             features_TES=TESProfile,
             features_scaled=geneBody_Plot
@@ -216,17 +209,12 @@ chicWrapper<-function(chipName, inputName, read_length,
 
         print("prediction")
         print(predictedScore)
+        return(predictedScore)
 
     } else {
-        stop( "Histone mark or TF not found. 
-            Could not calculate the prediction score 
-            using chicWrapper(). You might try the 
-            predictionScore() function wihtout the wrapper.
-            Alternatively, you can use one of the more generic models (taget parameter):
+        message("The ChIC RF score was not computed as the specified target is not among explicitly listed in the reference compendium.
+            You can use one of the more generic machine learning models by specifying a different target parameter):
             possible options are \"TF\", \"broad\", \"sharp\", \"RNAPol2\". ")
     }
-    
-    dev.off()
-    return(predictedScore)
 }
 

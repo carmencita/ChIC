@@ -106,7 +106,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     savePlotPath = NULL, debug = FALSE) 
 {
     start_time <- Sys.time()
-    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 8, 
+   message("***Calculating EM metrics...***")
+   pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 8, 
         clear = FALSE, width = 60)
     pb$tick()
 
@@ -135,6 +136,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         mc <- 1
     }
     cluster=NULL
+
+
     ########## 
     pb$tick()
 
@@ -174,7 +177,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the ChIP
-    message("\ncalculating binding characteristics for ChIP... ")
+    message("\nCalculating binding characteristics for ChIP... ")
 
     estimating_fragment_length_range <- c(0, 500)
     estimating_fragment_length_bin <- 5
@@ -314,7 +317,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     }
     
 
-    message("Calculation of EM done!")
+    message("Calculation of EM metrics done!")
     end_time <- Sys.time()
     message("Time used: ")
     message(end_time - start_time)
