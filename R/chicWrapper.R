@@ -76,6 +76,43 @@ chicWrapper<-function(chipName, inputName, read_length,
     savePlotPath=getwd(), target, annotationID="hg19", 
     mc=1, debug=FALSE) {
 
+    ### check input data
+    checkTargetForPredictor <-(target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" ))
+    if (!checkTargetForPredictor) {
+message("
+###################
+###################
+####
+####    The ChIC RF score will not be computed as 
+####    the target is not in the reference compendium.
+####    You can use one of the more generic machine learning models
+####    by specifying a different target parameter):
+####    possible options are \"TF\", \"broad\", \"sharp\", \"RNAPol2\". 
+####
+###################
+###################
+")
+    }
+
+
+    checkTargetForComparisonplots<-(target %in% c( f_metaGeneDefinition("Hlist"), f_metaGeneDefinition("TFlist")))
+    if (!checkTargetForComparisonplots) {
+message("
+###################
+###################
+####")
+message(paste("####    The comparison plots will not be produced
+####    for the selected target:", target)
+)
+message("####    as it is not among the available ones in the reference compendium.
+####    See the package vignette for more details.
+####
+###################
+###################
+")
+    }
+
+
     # in the current version of the code we MUST save the output summary plots in a PDF file
     # if the end users really needs to suppress the PDF output, they can use the "/dev/null" as output savePlotPath
     summaryPlotsFilename<-paste(chipName, inputName, "ChIC_report.pdf", sep="_")
@@ -96,7 +133,7 @@ chicWrapper<-function(chipName, inputName, read_length,
 
 
                 
-    ## get Encode Metrics
+    ## Compute ENCODE Metrics (EM)
     EM_Results=qualityScores_EM(
         chipName=chipName,
         inputName=inputName,
@@ -107,14 +144,8 @@ chicWrapper<-function(chipName, inputName, read_length,
         savePlotPath=NULL
     )
     
-    ##save the tagshift as it is needed later
     
-    tag.shift=EM_Results$QCscores_ChIP$tag.shift
-    
-    ##New
-
-    ##GLOBAL features#########
-    ##caluclate second set of QC-metrics
+    ## Compute Global Enrichment profile Metrics (GM)
     GM_Results=qualityScores_GM(
         selectedTagsChip=EM_Results$SelectedTagsChip,
         selectedTagsInput=EM_Results$SelectedTagsInput,
@@ -125,8 +156,7 @@ chicWrapper<-function(chipName, inputName, read_length,
     )
     
     
-    ##LOCAL features########
-    ##caluclate third set of QC-metrics
+    ## Compute Local Enrichment profile Metrics (LM)
     Meta_Results=createMetageneProfile(
         selectedTagsChip=EM_Results$SelectedTagsChip,
         selectedTagsInput=EM_Results$SelectedTagsInput,
@@ -155,16 +185,15 @@ chicWrapper<-function(chipName, inputName, read_length,
     )
 
 
-    if(target %in% c( f_metaGeneDefinition("Hlist"), f_metaGeneDefinition("TFlist"))) {
-        ##additional plots
-        
-        metagenePlotsForComparison(
+    if (checkTargetForComparisonplots) {
+        ##additional plots        
+        plotReferenceDistribution(
             target=target,
-            data=Meta_Results$geneBody,
-            tag="geneBody",
+            metricToBePlotted="RSC",
+            currentValue=EM_Results$QCscores_ChIP$CC_RSC,
             savePlotPath=NULL
         )
-        
+
         metagenePlotsForComparison(
             target=target,
             Meta_Results$TSS,
@@ -178,16 +207,14 @@ chicWrapper<-function(chipName, inputName, read_length,
             tag="TES",
             savePlotPath=NULL
         )
-        
-        plotReferenceDistribution(
+        metagenePlotsForComparison(
             target=target,
-            metricToBePlotted="RSC",
-            currentValue=EM_Results$QCscores_ChIP$CC_RSC,
+            data=Meta_Results$geneBody,
+            tag="geneBody",
             savePlotPath=NULL
         )
-    } else {
-        message(paste("The comparison plots will not be produced for the selected target:", target))
-    }
+           
+    } 
 
     ## close the summary PDF
     message(paste("Closing output summary in", savePlotPath))
@@ -195,7 +222,8 @@ chicWrapper<-function(chipName, inputName, read_length,
 
 
     # adding support for generic "broad", "sharp", "RNAPol2" models
-    if (target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" )) {
+ 
+    if (checkTargetForPredictor) {
         message("Calculating the prediction score...")
         
         predictedScore=predictionScore(
@@ -210,11 +238,8 @@ chicWrapper<-function(chipName, inputName, read_length,
         print("prediction")
         print(predictedScore)
         return(predictedScore)
-
     } else {
-        message("The ChIC RF score was not computed as the specified target is not among explicitly listed in the reference compendium.
-            You can use one of the more generic machine learning models by specifying a different target parameter):
-            possible options are \"TF\", \"broad\", \"sharp\", \"RNAPol2\". ")
+        return(NA)
     }
 }
 

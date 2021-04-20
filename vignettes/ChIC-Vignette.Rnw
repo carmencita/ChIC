@@ -266,18 +266,17 @@ The \texttt{chicWrapper()} will return the ChIC RF score as output in the R comm
 
 If the \texttt{"target"} parameter is set to one of the available ones within the reference compendium (the full list can be displayed with the \texttt{listAvailableElements()} function as described above), then additional plots comparing the average profiles against the ones in the compendium are reported as well in teh PDF. These additional pages in the output summary PDF will include:
 
-\begin{enumerate}
-\addtocounter{enumi}{8}
-   \item The metagene profile around the gene body for ChIP reads density compared to mean profile (+/-2stdErr) for the same chromatin mark samples in the reference compendium
-   \item The gene body metagene profile for input reads density compared to mean profile (+/-2stdErr) of the reference compendium
-   \item The gene body metagene profile for normalized log2(ChIP/input) enrichment compared to mean profile (+/-2stdErr) of the reference compendium
-   \item The TSS metagene profile for ChIP reads density compared to mean profile (+/-2stdErr) of the reference compendium
+\begin{enumerate}\addtocounter{enumi}{8}
+   \item The RSC score for the query sample, compared to the frequency distribution of RSC values in samples of the same class of chromatin mark in the reference compendium
+   \item The TSS metagene profile for ChIP reads density compared to mean profile (+/-2stdErr) for the same chromatin mark samples in the reference compendium
    \item The TSS metagene profile for input reads density compared to mean profile (+/-2stdErr) of the reference compendium
    \item The TSS metagene profile for normalized log2(ChIP/input) enrichment compared to mean profile (+/-2stdErr) of the reference compendium
    \item The TES metagene profile for ChIP reads density compared to mean profile (+/-2stdErr) of the reference compendium
    \item The TES metagene profile for input reads density compared to mean profile (+/-2stdErr) of the reference compendium
    \item The TES metagene profile for normalized log2(ChIP/input) enrichment compared to mean profile (+/-2stdErr) of the reference compendium
-   \item The RSC score for the query sample, compared to the frequency distribution of RSC values in samples of the same class of chromatin mark in the reference compendium
+   \item The gene body metagene profile for ChIP reads density compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The gene body metagene profile for input reads density compared to mean profile (+/-2stdErr) of the reference compendium
+   \item The gene body metagene profile for normalized log2(ChIP/input) enrichment compared to mean profile (+/-2stdErr) of the reference compendium
 \end{enumerate}
 
 
@@ -309,9 +308,9 @@ inputSubset<-lapply(inputBam,
     FUN=function(x) {x[subset_chromosomes]})
 @
 
-These \texttt{"chipSubset"} and \texttt{"inputSubset"} objects are also preloaded and available in the companion \texttt{"ChIC.data"} package.
+These \texttt{"chipSubset"} and \texttt{"inputSubset"} objects are also preloaded and available in the companion \texttt{"ChIC.data"} package and can be easily imported in the workspace as follows:
 
-<<eval=TRUE, echo=FALSE >>=
+<<eval=TRUE, echo=TRUE >>=
 data("chipSubset", package = "ChIC.data", 
     envir = environment())
 str(chipSubset)
@@ -332,19 +331,14 @@ cross-correlation analysis and peak-calling. We will refer to
 the output measures as ENCODE Metrics EM, as originally proposed 
 by ENCODE consortium \cite{Landt}.
 
+
 <<eval=FALSE, echo=TRUE >>=
-
-##calculating EM
-
-mc=4 ##for parallelisation
-
-CC_Result <- qualityScores_EM(chipName=chipName, 
+EM_Results <- qualityScores_EM(chipName=chipName, 
     inputName=inputName, 
     annotationID="hg19",
-    read_length=36, 
-    mc=mc)
+    read_length=36)
 
-finalTagShift <- CC_Result$QCscores_ChIP$tag.shift
+finalTagShift <- EM_Results$QCscores_ChIP$tag.shift
 @
 
 \noindent The function expects two bam files: one for the immunoprecipitation 
@@ -396,7 +390,6 @@ see \cite{Kharchenko2008}).
 
 %%%<<eval=TRUE, echo=FALSE >>=
 <<eval=FALSE, echo=TRUE >>=
-mc=2
 data("crossvalues_Chip", package = "ChIC.data", envir = environment())
 @
 
