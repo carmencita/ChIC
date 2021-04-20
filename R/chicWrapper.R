@@ -131,12 +131,18 @@ message("####    as it is not among the available ones in the reference compendi
      pdf(savePlotPath, onefile=TRUE)
 
 
+    ## Read BAM files
+    message("Reading input data BAM files")
+        chip.data <- readBamFile(chipName)
+        input.data <- readBamFile(inputName)
 
                 
     ## Compute ENCODE Metrics (EM)
     EM_Results=qualityScores_EM(
         chipName=chipName,
         inputName=inputName,
+        chip.data=chip.data,
+        input.data=input.data,
         read_length=read_length, 
         debug=debug,
         mc=mc,
@@ -151,15 +157,20 @@ message("####    as it is not among the available ones in the reference compendi
         selectedTagsInput=EM_Results$SelectedTagsInput,
         tag.shift=EM_Results$QCscores_ChIP$tag.shift,
         savePlotPath=NULL,
-        mc=mc
-        
+        mc=mc,
+        returnDensities=TRUE
     )
     
-    
+    smoothed.densityChip<-GM_Results$densities$densityChip
+    smoothed.densityInput<-GM_Results$densities$densityInput
+    GM_Results<-GM_Results[(-1*which(names(GM_Results)=="densities"))]  ## drop densities
+
     ## Compute Local Enrichment profile Metrics (LM)
     Meta_Results=createMetageneProfile(
         selectedTagsChip=EM_Results$SelectedTagsChip,
         selectedTagsInput=EM_Results$SelectedTagsInput,
+        smoothed.densityChip=smoothed.densityChip,
+        smoothed.densityInput=smoothed.densityInput,
         tag.shift=EM_Results$QCscores_ChIP$tag.shift,
         annotationID=annotationID,
         debug=debug,

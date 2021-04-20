@@ -7,6 +7,8 @@
 createMetageneProfile(
   selectedTagsChip,
   selectedTagsInput,
+  smoothed.densityChip = NULL,
+  smoothed.densityInput = NULL,
   tag.shift,
   annotationID = "hg19",
   debug = FALSE,
@@ -19,6 +21,14 @@ createMetageneProfile(
 
 \item{selectedTagsInput}{Data-structure with selected tag information for Input 
 (returned by qualityScores_EM)}
+
+\item{smoothed.densityChip}{Optional, output of tagDensity on the ChIP taglist object.
+It is just used as part of the ChIC_wrapper workflow to skip
+the call to tagDensity function as it is already performed in the qualityScores_GM function.}
+
+\item{smoothed.densityInput}{Optional, output of tagDensity on the Input taglist object.
+It is just used as part of the ChIC_wrapper workflow to skip
+the call to tagDensity function as it is already performed in the qualityScores_GM function.}
 
 \item{tag.shift}{Integer containing the value of the tag shif, calculated by
 getCrossCorrelationScores()}

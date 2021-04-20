@@ -35,6 +35,7 @@
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @param returnDensities Boolean, default FALSE. Whether smoothed Chip and Input reads densities should be returned. This is used only for optimizing the flow od fata in the ChIC_wrapper function
 #'
 #' @return finalList List with 9 QC-values
 #'
@@ -95,7 +96,7 @@
 #'}
 
 qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
-    annotationID="hg19", savePlotPath = NULL, mc=1) 
+    annotationID="hg19", savePlotPath = NULL, mc=1, returnDensities=FALSE) 
 {
     message("***Calculating GM metrics...***")
 
@@ -176,6 +177,15 @@ qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
         Ch_Fractions_without_reads_chip = round(chipFracOfBinsWithoutReads, 3),
         Ch_Fractions_without_reads_input = round(inputFracWithoutReads, 3), 
         Ch_DistanceInputChip = dist)
+
+    if (returnDensities) {
+      finalList <-c(finalist, 
+                    densities=list(
+                        densityChip=densityChip,
+                        densityInput=densityInput
+                        )
+                    )  
+    }
 
     ## create Fingerprint plot
     f_fingerPrintPlot(cumSumChip, cumSumInput, savePlotPath = savePlotPath)

@@ -10,7 +10,8 @@ qualityScores_GM(
   tag.shift,
   annotationID = "hg19",
   savePlotPath = NULL,
-  mc = 1
+  mc = 1,
+  returnDensities = FALSE
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ by getCrossCorrelationScores()}
 Default=NULL and plot will be forwarded to stdout.}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
+
+\item{returnDensities}{Boolean, default FALSE. Whether smoothed Chip and Input reads densities should be returned. This is used only for optimizing the flow od fata in the ChIC_wrapper function}
 }
 \value{
 finalList List with 9 QC-values

@@ -8,6 +8,8 @@ qualityScores_EM(
   chipName,
   inputName,
   read_length,
+  chip.data = NULL,
+  input.data = NULL,
   readAlignerType = "bam",
   annotationID = "hg19",
   mc = 1,
@@ -19,17 +21,19 @@ qualityScores_EM(
 )
 }
 \arguments{
-\item{chipName}{String, filename and path to the ChIP bam file 
-(without extension)}
+\item{chipName}{Character, filename (and optional path) for the ChIP bam file (without the .bam extension)}
 
-\item{inputName}{String, filename and path to the Input bam file
-(without extension)}
+\item{inputName}{Character, filename (and optional path) for the Input control bam file (without the .bam extension)}
 
 \item{read_length}{Integer, length of the reads}
 
+\item{chip.data}{Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from}
+
+\item{input.data}{Optional, taglist object for Input control reads as returned by spp or readBamFile() function}
+
 \item{readAlignerType}{string, bam (default) tagAlign file format are supported}
 
-\item{annotationID}{String, indicating the genome assembly (Default="hg19")}
+\item{annotationID}{Character, indicating the genome assembly (Default="hg19")}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 

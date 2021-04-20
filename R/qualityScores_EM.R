@@ -34,13 +34,13 @@
 #'
 #' qualityScores_EM
 #'
-#' @param chipName String, filename and path to the ChIP bam file 
-#' (without extension)
-#' @param inputName String, filename and path to the Input bam file
-#' (without extension)
+#' @param chipName Character, filename (and optional path) for the ChIP bam file (without the .bam extension)
+#' @param inputName Character, filename (and optional path) for the Input control bam file (without the .bam extension)
 #' @param read_length Integer, length of the reads
+#' @param chip.data Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from 
+#' @param input.data Optional, taglist object for Input control reads as returned by spp or readBamFile() function
 #' @param readAlignerType string, bam (default) tagAlign file format are supported
-#' @param annotationID String, indicating the genome assembly (Default="hg19")
+#' @param annotationID Character, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param crossCorrelation_Input Boolean, calculates cross-correlation and 
 #' and EM metrics for the input. The default=FALSE as the running time 
@@ -99,9 +99,9 @@
 
 
 
-qualityScores_EM <- function(chipName, inputName, read_length, 
-    readAlignerType = "bam",
-    annotationID = "hg19", mc = 1, crossCorrelation_Input=FALSE,
+qualityScores_EM <- function(chipName, inputName, read_length,  
+    chip.data=NULL, input.data=NULL, readAlignerType = "bam",
+    annotationID = "hg19",  mc = 1, crossCorrelation_Input=FALSE,
     downSamplingChIP=FALSE, writeWig=FALSE,
     savePlotPath = NULL, debug = FALSE) 
 {
@@ -136,32 +136,30 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         mc <- 1
     }
     cluster=NULL
-
-
-    ########## 
     pb$tick()
 
-    message("reading bam files")
-    message("...for ChIP")
-    chip.data <- readBamFile(chipName,readAlignerType = readAlignerType)
-    
-    pb$tick()
-
-    message("\n...for Input")
-    input.data <- readBamFile(inputName,readAlignerType = readAlignerType)
-
-
-    if ( debug ) {
-        message("Debugging mode ON")
-        save(chip.data, input.data, 
-            file = file.path(getwd(), "bamFiles.RData"))
+    # read input data from bamfile (unless they are passed as taglist object among input parameters)
+    if (is.null(chip.data)) {
+        message("reading bam file for ChIP")
+        chip.data <- readBamFile(chipName,readAlignerType = readAlignerType)
+        pb$tick()
+    }
+    if (is.null(input.data)) {
+        message("reading bam file for Input control")
+        input.data <- readBamFile(inputName,readAlignerType = readAlignerType)
+        pb$tick()
     }
 
-    pb$tick()
+        if ( debug ) {
+            message("Debugging mode ON, saving taglist objects to bamFiles.RData")
+            save(chip.data, input.data, 
+                file = file.path(getwd(), "bamFiles.RData"))
+        }
+        pb$tick()
+
 
     if (downSamplingChIP){
-        message("downsampling ChIP data. This can take
-            a while!")
+        message("downsampling ChIP data. This can take a while!")
         chip.dataNew=downsample_ChIPpeaks(chip.data=chip.data, input.data=input.data,
             read_length=read_length,
             annotationID=annotationID,mc=mc,debug=debug)

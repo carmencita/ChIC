@@ -25,6 +25,12 @@
 #' (returned by qualityScores_EM). 
 #' @param selectedTagsInput Data-structure with selected tag information for Input 
 #' (returned by qualityScores_EM)
+#' @param smoothed.densityChip Optional, output of tagDensity on the ChIP taglist object.
+#' It is just used as part of the ChIC_wrapper workflow to skip
+#' the call to tagDensity function as it is already performed in the qualityScores_GM function.
+#' @param smoothed.densityInput Optional, output of tagDensity on the Input taglist object.
+#' It is just used as part of the ChIC_wrapper workflow to skip
+#' the call to tagDensity function as it is already performed in the qualityScores_GM function.
 #' @param tag.shift Integer containing the value of the tag shif, calculated by
 #' getCrossCorrelationScores()
 #' @param annotationID String indicating the genome assembly (Default="hg19")
@@ -96,6 +102,7 @@
 #'}
 
 createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
+    smoothed.densityChip=NULL, smoothed.densityInput=NULL,
     tag.shift, annotationID = "hg19", debug = FALSE, mc = 1) 
 {
     ########## check if input format is ok
@@ -139,13 +146,18 @@ createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
     ## two.point.scaling create scaled metageneprofile input
     message("***Calculating scaled metageneprofile ...***")
     ## objects of smoothed tag density for ChIP and Input
-    message("Tag smoothing ...")
 
+    if (is.null(smoothed.densityChip)) {
+    message("Computing reads density profile for ChIP ...")
     smoothed.densityChip <- tagDensity(selectedTagsChip, tag.shift, 
         annotationID = annotationID, mc = mc)
+    }
 
+    if (is.null(smoothed.densityInput)) {
+    message("Computing reads density profile for Input control ...")
     smoothed.densityInput <- tagDensity(selectedTagsInput, tag.shift, 
         annotationID = annotationID, mc = mc)
+    }
 
     smoothingBandwidth <- 50
     smoothingStep <- 20 
