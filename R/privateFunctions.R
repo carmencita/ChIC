@@ -1447,24 +1447,26 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
 f_loadDataCompendium <- function(endung, target, tag) 
 {
     # compendium_profiles=ChIC.data::compendium_profiles
-    if (tag == "geneBody") {
-        name <- paste(target, "_", "TWO", endung, sep = "")
-    } else {
-        name <- paste(target, "_", tag, endung, sep = "")
-    }
+    # if (tag == "geneBody") {
+    #     name <- paste(target, "_", "TWO", endung, sep = "")
+    # } else {
+    #     name <- paste(target, "_", tag, endung, sep = "")
+    # }
+    name <- paste(target, tag, endung, sep = "_")
+
     #load profiles
     if (target %in% f_metaGeneDefinition("Hlist")){
         data("compendium_profiles", 
             package = "ChIC.data", 
             envir = environment())
         compendium_profiles<-get("compendium_profiles") #just to solve the warning on no visible binding for variable loaded from data pacakge
-        frame=compendium_profiles[[name]]
+        frame<-compendium_profiles[[name]]
     }else{
         data("compendium_profiles_TF", 
             package = "ChIC.data", 
             envir = environment())
         compendium_profiles_TF<-get("compendium_profiles_TF") #just to solve the warning on no visible binding for variable loaded from data pacakge
-        frame=compendium_profiles_TF[[name]]
+        frame<-compendium_profiles_TF[[name]]
     }
     return(frame)
 }

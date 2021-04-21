@@ -1,1 +1,1 @@
-CHIC: CHIp-seq quality Control package
+ChIC: ChIp-seq quality Control package
