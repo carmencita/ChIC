@@ -1632,7 +1632,6 @@ f_plotValueDistribution <- function(compendium, title, coordinateLine,
 }
 
 
-
 #' @keywords internal 
 ## helper function to select the random forest model for the respective
 ## chromatinmark or TF
@@ -1640,33 +1639,41 @@ f_getPredictionModel <- function(id) {
     # library(randomForest)
     allChrom <- f_metaGeneDefinition("Classes")
     data("rf_models", package = "ChIC.data", envir = environment())
-    
-    if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
+    if (id %in% f_metaGeneDefinition("Hlist")) {
         message("Load chromatinmark model")
-        # give higher priority to more specific models (for individual histone marks)
+        if (id %in% allChrom$allSharp) {
+            model <- rf_models[["Sharp"]]
+        }
+        
+        if (id %in% allChrom$allBroad) {
+            model <- rf_models[["Broad"]]
+        }
+        
+        if (id %in% allChrom$RNAPol2) {
+            model <- rf_models[["RNAPol2"]]
+        }
+        
         if (id == "H3K9me3") {
-            model <- rf_models[["H3K9Encode"]]
-        } else if (id == "H3K27me3") {
-            model <- rf_models[["H3K27Encode"]]
-        } else if (id == "H3K36me3") {
-            model <- rf_models[["H3K36Encode"]]
-        } else if (id %in% c(allChrom$allBroad, "broad")) {
-            model <- rf_models[["broadEncode"]]
-        } else if (id %in% c(allChrom$allSharp, "sharp")) {
-            model <- rf_models[["sharpEncode"]]
-        } if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
-            model <- rf_models[["RNAPol2Encode"]]
+            model <- rf_models[["H3K9me3"]]
+        }
+        
+        if (id == "H3K27me3") {
+            model <- rf_models[["H3K27me3"]]
+        }
+        
+        if (id == "H3K36me3") {
+            model <- rf_models[["H3K36me3"]]
+        }
     } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
     {
         message("Load TF model")
-        model <- rf_models$TFmodel
+        model <- rf_models$TF
     } else {
-        message(id, "model not found")
+        message(id, "not found")
         model=NULL
     }
     return(model)
 }
-
 
 #' @keywords internal 
 ## helper function that converts frame with chip and normalized values to one
@@ -1674,12 +1681,15 @@ f_getPredictionModel <- function(id) {
 f_convertframe <- function(oldframe) {
     values <- c(oldframe$Chip, oldframe$Norm)
     newframe <- data.frame(values)
-    nn <- c(paste("chip", rownames(oldframe), sep = "_"), 
-        paste("norm", rownames(oldframe), 
+    #nn <- c(paste("chip", rownames(oldframe), sep = "_"), 
+    #    paste("norm", rownames(oldframe), 
+    #    sep = "_"))
+    nn <- c(rownames(oldframe), 
+        paste("Norm", rownames(oldframe), 
         sep = "_"))
+    
     rownames(newframe) <- nn
     return(newframe)
 }
-
 
 

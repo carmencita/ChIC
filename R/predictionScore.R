@@ -21,7 +21,7 @@
 #'
 #' @export
 #'
-#' @return prediction
+#' @return predictions for positive and negative class
 #'
 #' @examples
 #'
@@ -90,8 +90,6 @@
 #' predictionScore(target="CTCF", features_cc=CC_Result,
 #' features_global=Ch_Results,features_TSS=TSSProfile, features_TES=TESProfile,
 #' features_scaled=geneBody_Plot)
-
-
 #'}
 
 predictionScore <- function(target, features_cc, features_global, 
@@ -121,8 +119,7 @@ predictionScore <- function(target, features_cc, features_global,
     ## loaad prediction model
     pmodel <- f_getPredictionModel(id = target)
     ## get features
-    selectedFeat <- c(colnames(pmodel$trainingData))
-    selectedFeat <- selectedFeat[-(which(selectedFeat == ".outcome"))]
+    selectedFeat <- names(pmodel$forest$xlevels)
 
     TSS <- f_convertframe(features_TSS)
     TES <- f_convertframe(features_TES)
@@ -131,57 +128,47 @@ predictionScore <- function(target, features_cc, features_global,
     p1 <- c(features_cc$QCscores_ChIP, 
         features_cc$QCscores_binding, 
         features_global)
-    fframe <- data.frame(matrix(p1), nrow = 35, byrow = TRUE)
-    rownames(fframe) <- names(p1)
 
+    fframe <- data.frame(matrix(unlist(p1)), nrow = 35, byrow = TRUE)
+    rownames(fframe) <- names(p1)
+    message("collecting features...")
     fframe$nrow <- NULL
     fframe$byrow <- NULL
     colnames(fframe) <- "values"
 
     helper <- rbind(TSS, TES, geneBody, fframe)
 
-    a <- lapply(as.list(rownames(helper)), function(element) {
-        word <- strsplit(element, "-")[[1]]
-        if (length(word) > 1) {
-            new <- paste(word[1], word[2], sep = ".")
-            word <- new
+    a1 <- lapply(rownames(helper), function(element) {
+        word=element
+        ##delete % , otherwise it is not matching 
+        ##the features of the model
+        if (length(grep("%", element)) > 0) {
+            word <- strsplit(element, "%")[[1]]
         }
-
-        if (length(grep("%", word)) > 0) {
-            word <- strsplit(word, "%")[[1]]
-            new <- paste(word, ".", sep = "")
-            word <- new
-        }
-
-        ## Remove this part once featuresname 'twopoint' is 
-        ## substitued by 'geneBody' in
-        ## the prediction modeds
-        #if (length(grep("geneBody", element)) > 0) {
-        #    word <- strsplit(element, "geneBody")[[1]]
-        #    new <- paste(word[1], "twopoint", word[2], sep = "")
-        #    word <- new
-        #    if (length(grep("norm_localMax", word)) > 0) {
-        #        new <- strsplit(word, "twopoint")[[1]]
-        #        word <- paste(new[1], "twopoints", new[2], sep = "")
-        #    }
-        #    if (length(grep("norm_auc", word)) > 0) {
-        #        new <- strsplit(word, "twopoint")[[1]]
-        #        word <- paste(new[1], "twopoints", new[2], sep = "")
-        #    }
-        #}
-
         return(word)
     })
-    rownames(helper) <- a
-    selectedFeat[!(selectedFeat %in% rownames(helper))]
+    a <- lapply(a1, function(element) {
+        word=element
+        ##substitue - with ., otherwise it is not matching 
+        ##the features of the model
+        if (length(grep("-", element)) > 0) { 
+            word <- paste(strsplit(element, "-")[[1]][1],
+                strsplit(element, "-")[[1]][2],sep=".")
+        }
+        return(word)
+    })
+    rownames(helper) = unlist(a)
+    #selectedFeat[!(which(selectedFeat %in% rownames(helper)))]
     fVector <- data.frame(values = unlist(
-        helper[rownames(helper) %in% selectedFeat, ]))
+        helper[which(rownames(helper) %in% selectedFeat), ]))
     rownames(fVector) <- rownames(helper)[rownames(helper) %in% selectedFeat]
     fVector <- data.frame(t(fVector))
     fVector$Class <- as.factor("P")
-    
+    message("selecting features...")
+    #getFeat=rownames(helper)[which(rownames(helper) %in% selectedFeat)]
     prediction <- predict(pmodel, newdata = fVector, type = "prob")
-    message("Predicted QC score is ", prediction$P )
-    return(prediction$P)
+    message("Predicted QC score for positive class is ", round(prediction[[1]],4) )
+    message("Predicted QC score for negative class is ", round(prediction[[2]],4) )
+    return(prediction)
 }
 
