@@ -106,9 +106,9 @@ metagenePlotsForComparison <- function(data, target, tag,
     ########## 
     
     message("Calculating metagene profiles...")
-    iframe <- log2(do.call(rbind, data$input) + psc)
-    cframe <- log2(do.call(rbind, data$chip) + psc)
-    norm <- do.call(rbind, data$norm)
+    iframe <- log2(do.call(rbind, data[[tag]]$input) + psc)
+    cframe <- log2(do.call(rbind, data[[tag]]$chip) + psc)
+    norm <- do.call(rbind, data[[tag]]$norm)
 
     # load average dataframe normalized
     n_mean <- f_loadDataCompendium(endung = "norm", 
@@ -132,36 +132,39 @@ metagenePlotsForComparison <- function(data, target, tag,
     }
     
     #nframe <- colMeans(t(t(cframe) - t(iframe)), na.rm = TRUE)
-    nframe <- colMeans(norm, na.rm = TRUE)
-    iframe <- colMeans(iframe, na.rm = TRUE)
-    cframe <- colMeans(cframe, na.rm = TRUE)
+    nframeB <- colMeans(norm, na.rm = TRUE)
+    iframeB <- colMeans(iframe, na.rm = TRUE)
+    cframeB <- colMeans(cframe, na.rm = TRUE)
     
-    iframe <- f_prepareData(i_mean, iframe)
-    cframe <- f_prepareData(c_mean, cframe)
-    nframe <- f_prepareData(n_mean, nframe)
+    iframeC <- f_prepareData(i_mean, iframeB)
+    iframeC["mean"]=as.numeric(as.character(iframeC$mean))
+    cframeC <- f_prepareData(c_mean, cframeB)
+    cframeC["mean"]=as.numeric(as.character(cframeC$mean))
+    nframeC <- f_prepareData(n_mean, nframeB)
+    nframeC["mean"]=as.numeric(as.character(nframeC$mean))
     
     ## get max and min for same y-axis values for chip and input
-    newMin <- min(cframe$mean, absoluteMin, iframe$mean)
-    newMax <- max(cframe$mean, absoluteMax, iframe$mean)
+    newMin <- min(cframeC$mean, absoluteMin, iframeC$mean)
+    newMax <- max(cframeC$mean, absoluteMax, iframeC$mean)
     
     ## get max and min for y-axis values for input
-    normMin <- min(nframe$mean, normMin)
-    normMax <- max(nframe$mean, normMax)
+    normMin <- min(nframeC$mean, normMin)
+    normMax <- max(nframeC$mean, normMax)
     
     # create comparison plots
     message ("Creating comparison plots...")
 
-    f_plotProfiles(c_mean, cframe, tag, c(newMin - 0.001, newMax + 0.001), 
+    f_plotProfiles(c_mean, cframeC, tag, c(newMin - 0.001, newMax + 0.001), 
         maintitel = paste(target, tag, "Chip", sep = "_"), 
         savePlotPath = savePlotPath)
 
 
-    f_plotProfiles(i_mean, iframe, tag, c(newMin - 0.001, newMax + 0.001), 
+    f_plotProfiles(i_mean, iframeC, tag, c(newMin - 0.001, newMax + 0.001), 
         maintitel = paste(target, tag, "Input", sep = "_"), 
         savePlotPath = savePlotPath)
 
 
-    f_plotProfiles(n_mean, nframe, tag, c(normMin - 0.001, normMax + 0.001), 
+    f_plotProfiles(n_mean, nframeC, tag, c(normMin - 0.001, normMax + 0.001), 
         maintitel = paste(target, tag, "norm", sep = "_"), 
         ylab = "mean log2 enrichment (signal/input)", 
         savePlotPath = savePlotPath)

@@ -1467,11 +1467,9 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
 f_loadDataCompendium <- function(endung, target, tag) 
 {
     # compendium_profiles=ChIC.data::compendium_profiles
-    if (tag == "geneBody") {
-        name <- paste(target, "_", "TWO", endung, sep = "")
-    } else {
-        name <- paste(target, "_", tag, endung, sep = "")
-    }
+   
+    name <- paste(target,tag, endung, sep = "_")
+   
     #load profiles
     if (target %in% f_metaGeneDefinition("Hlist")){
         data("compendium_profiles", 
@@ -1515,6 +1513,10 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
     }
     break_points_2P <- settings$break_points_2P
     break_points <- settings$break_points
+
+    ##security check 
+    currentFrame["mean"]=as.numeric(as.character(currentFrame$mean))
+    currentFrame["x"]=as.numeric(as.character(currentFrame$x))
     ## The standard error of the mean (SEM) is the standard deviation of the
     ## sample-mean's estimate of a population mean.  
     ## (It can also be seen as the standard deviation of the error in the 
