@@ -238,7 +238,6 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         message("Crosscorrelation plot saved under ",savePlotPath)
         filename <- file.path(savePlotPath, paste0(tag,"CrossCorrelation.pdf"))
         pdf(file = filename)
-    }
     
         ## plot cross correlation curve with smoothing
         message("plot cross correlation curve with smoothing")
@@ -272,7 +271,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
             paste("Shift =", (phScores$peak$x)), 
             paste("Read length =", (read_length))))
         
-    if (!is.null(savePlotPath)) {
+        
         dev.off()
         message("pdf saved under", filename)
     }
@@ -280,10 +279,10 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     phantomScores <- list(CC_NSC = round(phScores$NSC, 3), 
         CC_RSC = round(phScores$RSC, 3), 
         CC_QualityFlag = phScores$quality_flag, 
-        CC_shift. = phScores$peak$x, 
-        CC_A. = round(phScores$peak$y, 3), 
-        CC_B. = round(phScores$phantom_cc$y, 3), 
-        CC_C. = round(phScores$min_cc$y, 3))
+        CC_shift = phScores$peak$x, 
+        CC_A = round(phScores$peak$y, 3), 
+        CC_B = round(phScores$phantom_cc$y, 3), 
+        CC_C = round(phScores$min_cc$y, 3))
     
     pb$tick()
     ## 4 NRF calculation

@@ -78,7 +78,7 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
     }else{
         ## get the values of respective set
         subset <- finalCompendium[
-            which(finalCompendium$CC_TF %in% profileInfo$profileSet), alias]
+            which(finalCompendium$target %in% profileInfo$profileSet), alias]
     }
     ## plot distribution
     f_plotValueDistribution(subset, 

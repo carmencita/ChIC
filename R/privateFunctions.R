@@ -1447,6 +1447,7 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
 f_loadDataCompendium <- function(endung, target, tag) 
 {
     # compendium_profiles=ChIC.data::compendium_profiles
+
     # if (tag == "geneBody") {
     #     name <- paste(target, "_", "TWO", endung, sep = "")
     # } else {
@@ -1454,7 +1455,7 @@ f_loadDataCompendium <- function(endung, target, tag)
     # }
     name <- paste(target, tag, endung, sep = "_")
 
-    #load profiles
+  #load profiles
     if (target %in% f_metaGeneDefinition("Hlist")){
         data("compendium_profiles", 
             package = "ChIC.data", 
@@ -1499,6 +1500,10 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
     }
     break_points_2P <- settings$break_points_2P
     break_points <- settings$break_points
+
+    ##security check 
+    currentFrame["mean"]=as.numeric(as.character(currentFrame$mean))
+    currentFrame["x"]=as.numeric(as.character(currentFrame$x))
     ## The standard error of the mean (SEM) is the standard deviation of the
     ## sample-mean's estimate of a population mean.  
     ## (It can also be seen as the standard deviation of the error in the 
@@ -1616,7 +1621,6 @@ f_plotValueDistribution <- function(compendium, title, coordinateLine,
 }
 
 
-
 #' @keywords internal 
 ## helper function to select the random forest model for the respective
 ## chromatinmark or TF
@@ -1627,8 +1631,20 @@ f_getPredictionModel <- function(id) {
     rf_models<-get("rf_models") #just to solve the warning on no visible binding for variable loaded from data pacakge
     
     if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
+
         message("Load chromatinmark model")
-        # give higher priority to more specific models (for individual histone marks)
+        if (id %in% allChrom$allSharp) {
+            model <- rf_models[["Sharp"]]
+        }
+        
+        if (id %in% allChrom$allBroad) {
+            model <- rf_models[["Broad"]]
+        }
+        
+        if (id %in% allChrom$RNAPol2) {
+            model <- rf_models[["RNAPol2"]]
+        }
+        
         if (id == "H3K9me3") {
             model <- rf_models[["H3K9me3"]]
         } else if (id == "H3K27me3") {
@@ -1651,12 +1667,11 @@ f_getPredictionModel <- function(id) {
         message("Load TF model")
         model <- rf_models$TF
     } else {
-        message(id, "model not found")
+        message(id, "not found")
         model=NULL
     }
     return(model)
 }
-
 
 #' @keywords internal 
 ## helper function that converts frame with chip and normalized values to one
@@ -1664,12 +1679,15 @@ f_getPredictionModel <- function(id) {
 f_convertframe <- function(oldframe) {
     values <- c(oldframe$Chip, oldframe$Norm)
     newframe <- data.frame(values)
-    nn <- c(paste("chip", rownames(oldframe), sep = "_"), 
-        paste("norm", rownames(oldframe), 
+    #nn <- c(paste("chip", rownames(oldframe), sep = "_"), 
+    #    paste("norm", rownames(oldframe), 
+    #    sep = "_"))
+    nn <- c(rownames(oldframe), 
+        paste("Norm", rownames(oldframe), 
         sep = "_"))
+    
     rownames(newframe) <- nn
     return(newframe)
 }
-
 
 
