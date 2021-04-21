@@ -179,7 +179,7 @@ qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
         Ch_DistanceInputChip = dist)
 
     if (returnDensities) {
-      finalList <-c(finalist, 
+      finalList <-c(finalList, 
                     densities=list(
                         densityChip=densityChip,
                         densityInput=densityInput

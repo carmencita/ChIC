@@ -1,5 +1,5 @@
 
-#'@title Shows available chromatin marks and factors
+#' @title Shows available chromatin marks and factors
 #'
 #' @description
 #' Lists chromatin marks and transcription factors that are available 
@@ -24,7 +24,6 @@
 #' listAvailableElements(target="TF")
 #' listAvailableElements(target="mark")
 #'
-
 listAvailableElements <- function( target )
 {
     if ( target == "TF" ) {
@@ -52,7 +51,7 @@ listAvailableElements <- function( target )
 }
 
 
-#'@title Lists the IDs of samples included in the compendium
+#' @title Lists the IDs of samples included in the compendium
 #'
 #' @description
 #' Shows the IDs of all analysed ChIP-seq samples 

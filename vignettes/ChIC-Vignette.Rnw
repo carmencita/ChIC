@@ -324,37 +324,42 @@ str(inputSubset)
 
 \subsection{Computing ENCODE Metrics (EM)}
 
-\noindent \textcolor{airforceblue}{qualityScores\_EM()} is a wrapper 
-function that reads the 
-provided bam files and calculates a number of QC-metrics from 
-cross-correlation analysis and peak-calling. We will refer to 
-the output measures as ENCODE Metrics EM, as originally proposed 
-by ENCODE consortium \cite{Landt}.
+Then we proceed with computing the first set of quantitative quality control metrics, which is derived from the recommendation by ENCODE consortium \cite{Landt}.
+The set of ENCODE Metrics (EM) as described in \cite{CLivi} can by computed in ChIC by a convenient wrapper function \texttt{"qualityScores\_EM()"}.
 
 
 <<eval=FALSE, echo=TRUE >>=
-EM_Results <- qualityScores_EM(chipName=chipName, 
-    inputName=inputName, 
+EM_Results <- qualityScores_EM(
+    chipName=chipName, 
+    inputName=inputName,
+    chip.data=chipSubset, 
+    input.data=inputSubset,
     annotationID="hg19",
     read_length=36)
-
-finalTagShift <- EM_Results$QCscores_ChIP$tag.shift
 @
 
-\noindent The function expects two bam files: one for the immunoprecipitation 
-(ChIP) and one for the control (Input). The read length 
-(read\_length parameter) 
-can be taken from the bam file itself. The 'mc' parameter is set to 1 
-by default, when changed it triggers the parallelisation and 
-speeds up the calculations of a few analysis steps
-that allow using multiple computing cores. 'annotationID' refers to the 
-genome annotation used.  Currently hg19 and mm9 (dm3 in preparation) are 
-supported. 
+The main parameters are again the same (with the same meaning and value) as described above for the \texttt{"chicWrapper"} function. In addition, the \texttt{"chip.data"} and \texttt{"input.data"} are optional parameters that can be used to pass as input a pair of R objects already containing the aligend reads inported into a \texttt{"taglist"} as described above.
+
+If the \texttt{"chip.data"} and \texttt{"input.data"} are omitted (defaulte value is \texttt{"NULL"}), the texttt{"qualityScores\_EM()"} function will take care of importing the aligned reads data from the BAM files specfied in \texttt{"chipName"} and \texttt{"inputName"}, similarly to waht described above.
+
+Here we are taking advantage of the posibility to provide as input a pair of \texttt{"taglist"} R objects, so that we can perform these analyses on the smaller subset of data (only chromosomes 17, 18 and 19), so as to allow a faster execution fo the vignette examples.
+
+\textbf{Please note} that the \texttt{"qualityScores\_EM()"} is actually performing many analyses in background, including performing peaks calling with multiple alternative parameters and algorithms as implemented in the spp package \cite{Kharchenko2008}. The end users can speed up the ChIC analysis by taking adavanted of parallel computations on mulitple computing cores in the CPU of their machine. This can be achieved by simply specifying a number of cores to be used in the analysis with the \texttt{"mc"} parameter (default value is 1). The \texttt{"mc"} parameter is available in all of the "wrapper" functions implemented in ChIC. If a number larger than 1 is specified, the software will try to use the user defined number of CPUs/cores for the analysis steps allowing parallelization.
+
+
+
+
+
+
 \textcolor{airforceblue}{qualityScores\_EM()} produces the Cross-correlation 
 plot (see Figure \ref{fig:1}) and returns a number of 
 QC-metrics (see: \ref{Appendix} Appendix). 
 Amongst others the tag.shift value, which represents an input parameter for 
 further steps (i.e. peak-calling and metagene calculation). 
+
+
+
+
 \textcolor{airforceblue}{qualityScores\_EM()} executes the following single 
 steps:
 \begin{enumerate}

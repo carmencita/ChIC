@@ -132,7 +132,7 @@ message("####    as it is not among the available ones in the reference compendi
 
 
     ## Read BAM files
-    message("Reading input data BAM files")
+    message("Reading BAM files")
         chip.data <- readBamFile(chipName)
         input.data <- readBamFile(inputName)
 

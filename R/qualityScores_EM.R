@@ -37,8 +37,8 @@
 #' @param chipName Character, filename (and optional path) for the ChIP bam file (without the .bam extension)
 #' @param inputName Character, filename (and optional path) for the Input control bam file (without the .bam extension)
 #' @param read_length Integer, length of the reads
-#' @param chip.data Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from 
-#' @param input.data Optional, taglist object for Input control reads as returned by spp or readBamFile() function
+#' @param chip.data Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "chipName"
+#' @param input.data Optional, taglist object for Input control reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "inputName"
 #' @param readAlignerType string, bam (default) tagAlign file format are supported
 #' @param annotationID Character, indicating the genome assembly (Default="hg19")
 #' @param mc Integer, the number of CPUs for parallelization (default=1)

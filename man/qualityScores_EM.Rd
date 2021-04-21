@@ -27,9 +27,9 @@ qualityScores_EM(
 
 \item{read_length}{Integer, length of the reads}
 
-\item{chip.data}{Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from}
+\item{chip.data}{Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "chipName"}
 
-\item{input.data}{Optional, taglist object for Input control reads as returned by spp or readBamFile() function}
+\item{input.data}{Optional, taglist object for Input control reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "inputName"}
 
 \item{readAlignerType}{string, bam (default) tagAlign file format are supported}
 

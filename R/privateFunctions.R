@@ -141,7 +141,7 @@ f_readFile <- function(filename, reads.aligner.type) {
     ## readCount=sum(sapply(data$tags, length))
     ## readCount <- sum(unlist(lapply(data$tags, length)))
     readCount <- sum(lengths(data$tags))
-    message(readCount," reads")
+    message(paste(readCount,"reads from", filename))
     ##double check data structure to make sure the structure contains
     ##two lists called $tags and $quality
     helper=data

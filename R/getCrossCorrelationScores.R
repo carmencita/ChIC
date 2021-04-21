@@ -300,7 +300,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     
     ## to compensate for lib size differences
     pb$tick()
-    message("\ncalculate different QC values...")
+    message("\ncalculate alternative QC scores...")
     ## nomi<-rep(names(data$tags), sapply(data$tags, length))
     nomi <- rep(names(data$tags), lapply(data$tags, length))
     
@@ -308,20 +308,30 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     names(dataNRF) <- NULL
     dataNRF <- paste(nomi, dataNRF, sep = "")
     pb$tick()
-    if (ALL_TAGS > 1e+07) {
-        
-        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, 
-            FUN = function(x) {
-            return(length(unique(sample(dataNRF, size = 1e+07))))
-        })))
-        
+
+
+
+    ### simplified and parallelized version
+    checkIfReplacementInRandomization<-(ALL_TAGS <= 1e+07)
+    randIterations<-100
+
+    if (mc > 1) {
+    cluster <- parallel::makeCluster( mc )
+    parallel::clusterExport(cl = cluster, varlist=c("dataNRF", "checkIfReplacementInRandomization"))
+        randomizedUniqueCount<-parallel::parSapplyLB(cl=cluster, X=1:randIterations, FUN = function(x) {
+        return(length(unique(sample(dataNRF, size = 1e+07, replace = checkIfReplacementInRandomization))))
+        })
+    parallel::stopCluster( cluster )
     } else {
-        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, #6053517
-            FUN = function(x) {
-            return(length(unique(sample(dataNRF, 
-                size = 1e+07, replace = TRUE))))
-        })))
+        randomizedUniqueCount<-sapply(X=1:randIterations, FUN = function(x) {
+        return(length(unique(sample(dataNRF, size = 1e+07, replace = checkIfReplacementInRandomization))))
+        })
     }
+    UNIQUE_TAGS_LibSizeadjusted <- round(mean(randomizedUniqueCount ))
+        
+
+
+
     pb$tick()
     NRF_LibSizeadjusted <- UNIQUE_TAGS_LibSizeadjusted/1e+07
 
