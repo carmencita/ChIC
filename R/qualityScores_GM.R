@@ -34,7 +34,9 @@
 #' @param annotationID String, indicating the genome assembly (Default="hg19")
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
-#' @param mc
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @param returnDensities Boolean, default FALSE. Whether smoothed Chip and Input reads densities should be returned. This is used only for optimizing the flow od fata in the ChIC_wrapper function
+#'
 #' @return finalList List with 9 QC-values
 #'
 #' @export
@@ -94,9 +96,9 @@
 #'}
 
 qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
-    annotationID="hg19", savePlotPath = NULL, mc=1) 
+    annotationID="hg19", savePlotPath = NULL, mc=1, returnDensities=FALSE) 
 {
-    message("***Calculating GM...***")
+    message("***Calculating GM metrics...***")
 
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
         clear = FALSE, width = 60)
@@ -176,16 +178,25 @@ qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
         Ch_Fractions_without_reads_input = round(inputFracWithoutReads, 3), 
         Ch_DistanceInputChip = dist)
 
+    if (returnDensities) {
+      finalList <-c(finalList, 
+                    densities=list(
+                        densityChip=densityChip,
+                        densityInput=densityInput
+                        )
+                    )  
+    }
+
     ## create Fingerprint plot
     f_fingerPrintPlot(cumSumChip, cumSumInput, savePlotPath = savePlotPath)
-    if (!is.null(savePlotPath))    
+    if (!is.null(savePlotPath))
         message("pdf saved under ", savePlotPath)
 
-    
+
     ## return QC values
     pb$tick()
 
-    message("Calculation of GM done!")
+    message("Calculation of GM metrics done!")
     return(finalList)
 }
 

@@ -1,3 +1,9 @@
+#' @import genomeIntervals
+#' @import randomForest
+#' @importFrom utils installed.packages
+#' @importFrom Rsamtools scanBam
+
+
 #####################################################################  
 #####FUNCTIONS QC-metrics for narrow binding PROFILES ###########
 ##################################################################### 
@@ -135,7 +141,7 @@ f_readFile <- function(filename, reads.aligner.type) {
     ## readCount=sum(sapply(data$tags, length))
     ## readCount <- sum(unlist(lapply(data$tags, length)))
     readCount <- sum(lengths(data$tags))
-    message(readCount," reads")
+    message(paste(readCount,"reads from", filename))
     ##double check data structure to make sure the structure contains
     ##two lists called $tags and $quality
     helper=data
@@ -856,7 +862,9 @@ f_metaGeneDefinition <- function(selection = "Settings")
         return(settings)
     }
     data(classesDefList, package = "ChIC.data", envir = environment())
+    classesDefList<-get("classesDefList") #just to solve the warning on no visible binding for variable loaded from data pacakge
 
+    
     if (selection == "Hlist") {
         ## GLOBAL VARIABLES
         #Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
@@ -926,31 +934,13 @@ f_annotationLoad <- function(annotationID)
 {
     message("Load gene annotation")
     ## require(ChIC.data)
-    if (annotationID == "hg19") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("hg19_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- hg19_refseq_genes_filtered_granges
-    } else if (annotationID == "hg38") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("hg38_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- hg38_refseq_genes_filtered_granges
-    } else if (annotationID == "mm9") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("mm9_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- mm9_refseq_genes_filtered_granges
-    } else if (annotationID == "mm10") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("mm10_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- mm10_refseq_genes_filtered_granges
-    } else if (annotationID == "dm3") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("dm3_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- dm3_refseq_genes_filtered_granges
+  
+    availableAnnotations<-c("hg19", "hg38", "mm9", "mm10", "dm3")
+    
+    if (annotationID %in% availableAnnotations) {
+        annotObject_name<-paste(annotationID, "refseq_genes_filtered_granges", sep="_")
+        data(list=annotObject_name, package = "ChIC.data")
+        annotObject <- get(annotObject_name)
     } else {
         stop(paste("Annotations for", annotationID, "currently not supported"))
     }
@@ -963,32 +953,22 @@ f_annotationLoad <- function(annotationID)
 ## helper function to check if annotationID is valid
 f_chromInfoLoad <- function(annotationID)
 {
-    ## load chrom_info
+    
+    availableAnnotations_chrlist<-list(
+        "hg19"=paste("chr", c(seq_len(22)), sep = ""),
+        "hg38"=paste("chr", c(seq_len(22)), sep = ""),
+        "mm9"=paste("chr", c(seq_len(19)), sep = ""),
+        "mm10"=paste("chr", c(seq_len(19)), sep = ""),
+        "dm3"=c("chr2L","chr2R","chr3L","chr3R","chr4")
+    )
+        
+      ## load chrom_info
     ##message("load chrom_info")
-    if (annotationID == "hg19") {
-        # hg19_chrom_info=NULL
-        data("hg19_chrom_info", package = "ChIC.data", envir = environment())
+    if (annotationID %in% names(availableAnnotations_chrlist)) {
+        annotObject_name<-paste(annotationID, "chrom_info", sep="_")
+        data(list=annotObject_name, package = "ChIC.data")
         # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- hg19_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    } else if (annotationID == "hg38") {
-        # hg19_chrom_info=NULL
-        data("hg38_chrom_info", package = "ChIC.data", envir = environment())
-        # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- hg38_chrom_info[paste("chr", c(seq_len(22)), sep = "")]
-    } else if (annotationID == "mm9") {
-        # hg19_chrom_info=NULL
-        data("mm9_chrom_info", package = "ChIC.data", envir = environment())
-        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- mm9_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    } else if (annotationID == "mm10") {
-        # hg19_chrom_info=NULL
-        data("mm10_chrom_info", package = "ChIC.data", envir = environment())
-        # this is keeping only chromsomes 1-19 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
-        chromInfo <- mm10_chrom_info[paste("chr", c(seq_len(19)), sep = "")]
-    } else if (annotationID == "dm3") {
-        # hg19_chrom_info=NULL
-        data("dm3_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- dm3_chrom_info[c("chr2L","chr2R","chr3L","chr3R","chr4")]
+        chromInfo <- get(annotObject_name)[availableAnnotations_chrlist[[annotationID]]]
     } else {
         stop(paste("Annotations for", annotationID, "currently not supported"))
     }
@@ -1467,20 +1447,27 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
 f_loadDataCompendium <- function(endung, target, tag) 
 {
     # compendium_profiles=ChIC.data::compendium_profiles
-   
-    name <- paste(target,tag, endung, sep = "_")
-   
-    #load profiles
+
+    # if (tag == "geneBody") {
+    #     name <- paste(target, "_", "TWO", endung, sep = "")
+    # } else {
+    #     name <- paste(target, "_", tag, endung, sep = "")
+    # }
+    name <- paste(target, tag, endung, sep = "_")
+
+  #load profiles
     if (target %in% f_metaGeneDefinition("Hlist")){
         data("compendium_profiles", 
             package = "ChIC.data", 
             envir = environment())
-        frame=compendium_profiles[[name]]
+        compendium_profiles<-get("compendium_profiles") #just to solve the warning on no visible binding for variable loaded from data pacakge
+        frame<-compendium_profiles[[name]]
     }else{
         data("compendium_profiles_TF", 
             package = "ChIC.data", 
             envir = environment())
-        frame=compendium_profiles_TF[[name]]
+        compendium_profiles_TF<-get("compendium_profiles_TF") #just to solve the warning on no visible binding for variable loaded from data pacakge
+        frame<-compendium_profiles_TF[[name]]
     }
     return(frame)
 }
@@ -1641,7 +1628,10 @@ f_getPredictionModel <- function(id) {
     # library(randomForest)
     allChrom <- f_metaGeneDefinition("Classes")
     data("rf_models", package = "ChIC.data", envir = environment())
-    if (id %in% f_metaGeneDefinition("Hlist")) {
+    rf_models<-get("rf_models") #just to solve the warning on no visible binding for variable loaded from data pacakge
+    
+    if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
+
         message("Load chromatinmark model")
         if (id %in% allChrom$allSharp) {
             model <- rf_models[["Sharp"]]
@@ -1657,14 +1647,20 @@ f_getPredictionModel <- function(id) {
         
         if (id == "H3K9me3") {
             model <- rf_models[["H3K9me3"]]
-        }
-        
-        if (id == "H3K27me3") {
+        } else if (id == "H3K27me3") {
             model <- rf_models[["H3K27me3"]]
-        }
-        
-        if (id == "H3K36me3") {
+        } else if (id == "H3K36me3") {
             model <- rf_models[["H3K36me3"]]
+        } else if (id %in% c(allChrom$allBroad, "broad")) {
+            model <- rf_models[["Broad"]]
+        } else if (id %in% c(allChrom$allSharp, "sharp")) {
+            model <- rf_models[["Sharp"]]
+        } else if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
+            model <- rf_models[["RNAPol2"]]
+        } else {
+            # considering the starting if this option should never happen
+            message(id, "error in model selction")
+            model=NULL
         }
     } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
     {

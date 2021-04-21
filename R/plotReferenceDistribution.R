@@ -45,11 +45,15 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
     if (target %in% f_metaGeneDefinition("TFlist"))
     {
         data("compendium_db_tf", package = "ChIC.data", envir = environment())
+        compendium_db_tf<-get("compendium_db_tf") #just to solve the warning on no visible binding for variable loaded from data pacakge
+
         finalCompendium <- compendium_db_tf
     }else{
         #allChrom <- f_metaGeneDefinition("Classes")
         ## reading compendium compendium_db=NULL
         data("compendium_db", package = "ChIC.data", envir = environment())
+        compendium_db<-get("compendium_db") #just to solve the warning on no visible binding for variable loaded from data pacakge
+        
         finalCompendium <- compendium_db
         profileInfo <- f_getBindingClass( target ) 
         message( profileInfo$tag )
