@@ -77,7 +77,7 @@ chicWrapper<-function(chipName, inputName, read_length,
     mc=1, debug=FALSE) {
 
     ### check input data
-    checkTargetForPredictor <-(target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" ))
+    checkTargetForPredictor <-suppressMessages(target %in% c(listAvailableElements("mark"), listAvailableElements("TF") , "TF", "broad", "sharp", "RNAPol2" ))
     if (!checkTargetForPredictor) {
 message("
 ###################
