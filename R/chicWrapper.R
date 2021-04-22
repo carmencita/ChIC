@@ -179,19 +179,20 @@ message("####    as it is not among the available ones in the reference compendi
     
     ##create plots and get values
     TSSProfile=qualityScores_LM(
-        Meta_Results$TSS,
+        data=Meta_Results,
         tag="TSS",
         savePlotPath=NULL
     )
     
     TESProfile=qualityScores_LM(
-        Meta_Results$TES,
+        data=Meta_Results,
         tag="TES",
         savePlotPath=NULL
     )
     
-    geneBody_Plot=qualityScores_LMgenebody(
-        Meta_Results$geneBody,
+    geneBody_Plot=qualityScores_LM(
+        data=Meta_Results,
+        tag="geneBody",
         savePlotPath=NULL
     )
 
