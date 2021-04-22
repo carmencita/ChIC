@@ -96,7 +96,7 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, plot="all")
     }
 
     if (tag=="geneBody") {
-           result<- qualityScores_LMgenebody(data=data, tag=tag, savePlotPath = savePlotPath)
+           result<- qualityScores_LMgenebody(data=data, tag=tag, savePlotPath = savePlotPath, plot=plot)
         } else {
     
             binnedChip <- data[[tag]]$chip
