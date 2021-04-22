@@ -238,7 +238,9 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         message("Crosscorrelation plot saved under ",savePlotPath)
         filename <- file.path(savePlotPath, paste0(tag,"CrossCorrelation.pdf"))
         pdf(file = filename)
-    
+    } # the plot is drawn even with savePlotPath=NULL 
+      # we need this to draw the plot even in the chicwrapper function
+
         ## plot cross correlation curve with smoothing
         message("plot cross correlation curve with smoothing")
         par(mar = c(3.5, 3.5, 1, 0.5), mgp = c(2, 0.65, 0), cex = 0.8)
@@ -270,8 +272,9 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
             paste("Quality flag =", phScores$quality_flag), "", 
             paste("Shift =", (phScores$peak$x)), 
             paste("Read length =", (read_length))))
-        
-        
+    
+    # we need this to draw the plot even in the chicwrapper function
+    if (!is.null(savePlotPath)) {    
         dev.off()
         message("pdf saved under", filename)
     }
