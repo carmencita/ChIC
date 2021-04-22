@@ -21,6 +21,8 @@
 #' TES profile should be calcualted (Default='TSS')
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
+#' @param plot character, possible values "norm", "split", "all" (default) to plot metaprofiles for 
+#' normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots (respectively)
 #'
 #' @export
 #'
@@ -83,11 +85,15 @@
 #' savePlotPath=filepath))
 #'}
 
-qualityScores_LM <- function(data, tag, savePlotPath = NULL) 
+qualityScores_LM <- function(data, tag, savePlotPath = NULL, plot="all") 
 {
     if (!(tag %in% c("geneBody", "TES", "TSS"))) {
         stop("tag not valid! Please use: geneBody, TES or TSS") }
     stopifnot(length(data[[tag]]) == 3L)
+
+    if (!(plot %in% c("all","norm","split")) ) {
+        stop("wrong plot parameter value")
+    }
 
     if (tag=="geneBody") {
            result<- qualityScores_LMgenebody(data=data, tag=tag, savePlotPath = savePlotPath)
@@ -133,38 +139,39 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL)
 
             ## make plots
             colori <- c(rev(rainbow(ncol(all.noNorm) - 1)), "black")
-            if (!is.null(savePlotPath)) {
-                filename <- file.path(savePlotPath, 
-                    paste("ChIP_Input_", tag, ".pdf", sep = ""))
-                pdf(file = filename, width = 10, height = 7)
+            if (plot %in% c("all", "split")) {
+                if (!is.null(savePlotPath)) {
+                    filename <- file.path(savePlotPath, 
+                        paste("ChIP_Input_", tag, ".pdf", sep = ""))
+                    pdf(file = filename, width = 10, height = 7)
+                }
+                par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+                matplot(x = as.numeric(rownames(all.noNorm)),
+                    y=all.noNorm,
+                    type = "l", lwd = 2, 
+                    lty = 1, col = colori, xlab = "metagene coordinates", 
+                    ylab = "mean of log2 read density", 
+                    main = tag, xaxt = "n")
+
+
+                newbreak_points <- break_points[-c(4)]  
+                # c(-2000,-1000,-500,500,1000,2000)
+                abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)
+                abline(v = newbreak_points, lty = 3, col = "darkgrey", lwd = 2)
+                ## abline(v=0,lty=2,col='darkgrey', lwd=2)###plot TSS
+                ## plotPoints=c(-2000,-1000,-500,500,1000,2000)###plot remaining be
+                ## abline(v=plotPoints,lty=3,col='darkgrey', lwd=2)
+                axis(side = 1, at = break_points, 
+                    labels = c("-2KB", "-1KB", "-500", tag, "500", "+1KB", "+2KB"))
+                legend(x = "topleft", fill = colori, legend = colnames(all.noNorm), 
+                    bg = "white", 
+                    cex = 0.8)
+
+                if (!is.null(savePlotPath)) {
+                    dev.off()
+                    message("pdf saved under ", filename)
+                }
             }
-            par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
-            matplot(x = as.numeric(rownames(all.noNorm)),
-                y=all.noNorm,
-                type = "l", lwd = 2, 
-                lty = 1, col = colori, xlab = "metagene coordinates", 
-                ylab = "mean of log2 read density", 
-                main = tag, xaxt = "n")
-
-
-            newbreak_points <- break_points[-c(4)]  
-            # c(-2000,-1000,-500,500,1000,2000)
-            abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)
-            abline(v = newbreak_points, lty = 3, col = "darkgrey", lwd = 2)
-            ## abline(v=0,lty=2,col='darkgrey', lwd=2)###plot TSS
-            ## plotPoints=c(-2000,-1000,-500,500,1000,2000)###plot remaining be
-            ## abline(v=plotPoints,lty=3,col='darkgrey', lwd=2)
-            axis(side = 1, at = break_points, 
-                labels = c("-2KB", "-1KB", "-500", tag, "500", "+1KB", "+2KB"))
-            legend(x = "topleft", fill = colori, legend = colnames(all.noNorm), 
-                bg = "white", 
-                cex = 0.8)
-
-            if (!is.null(savePlotPath)) {
-                dev.off()
-                message("pdf saved under ", filename)
-            }
-
 
             ## normalized plot and values
             #common_genes <- rownames(input)[rownames(input) %in% rownames(chip)]
@@ -187,31 +194,32 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL)
             variabilityValuesNorm <- f_variabilityValuesNorm(normFinal, 
                 break_points, tag = tag)
 
+            if (plot %in% c("all", "norm")) {
+                if (!is.null(savePlotPath)) {
+                    filename <- file.path(savePlotPath, 
+                        paste("Normalized_", tag, ".pdf", sep = ""))
+                    pdf(file = filename, width = 10, height = 7)
+                }
+                par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+                plot(x = as.numeric(rownames(normFinal)),
+                    y=normFinal$norm, 
+                    type = "l", lwd = 2, lty = 1, 
+                    col = "orange", xlab = "metagene coordinates", 
+                    ylab = "mean of log2 enrichment (signal/input)", 
+                    main = paste("normalized", tag, sep = " "), xaxt = "n")
 
-            if (!is.null(savePlotPath)) {
-                filename <- file.path(savePlotPath, 
-                    paste("Normalized_", tag, ".pdf", sep = ""))
-                pdf(file = filename, width = 10, height = 7)
-            }
-            par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
-            plot(x = as.numeric(rownames(normFinal)),
-                y=normFinal$norm, 
-                type = "l", lwd = 2, lty = 1, 
-                col = "orange", xlab = "metagene coordinates", 
-                ylab = "mean of log2 enrichment (signal/input)", 
-                main = paste("normalized", tag, sep = " "), xaxt = "n")
+                abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)
+                abline(v = newbreak_points, lty = 3, col = "darkgrey", lwd = 2)
+                axis(side = 1, at = break_points, 
+                    labels = c("-2KB", "-1KB", "-500", tag, "500", "+1KB", "+2KB"))
+                legend(x = "topleft", fill = "orange", 
+                    legend = "Normalized", bg = "white", 
+                    cex = 0.8)
 
-            abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)
-            abline(v = newbreak_points, lty = 3, col = "darkgrey", lwd = 2)
-            axis(side = 1, at = break_points, 
-                labels = c("-2KB", "-1KB", "-500", tag, "500", "+1KB", "+2KB"))
-            legend(x = "topleft", fill = "orange", 
-                legend = "Normalized", bg = "white", 
-                cex = 0.8)
-
-            if (!is.null(savePlotPath)) {
-                dev.off()
-                message("pdf saved under ", filename)
+                if (!is.null(savePlotPath)) {
+                    dev.off()
+                    message("pdf saved under ", filename)
+                }
             }
 
             # convert values and features to one frame

@@ -399,7 +399,7 @@ the distance calculated as absolute difference between the two y-coordinates,
 the sign of the difference), (c) the fraction of reads in the top 1 
 percent of bins with highest coverage for ChIP and input. 
 
-<<eval=FALSE,  echo=TRUE >>=
+<<eval=FALSE, label=Fingerprint,  echo=TRUE >>=
 GM_Results<-qualityScores_GM(
         selectedTagsChip=selectedTagsChip,
         selectedTagsInput=selectedTagsInput,
@@ -410,12 +410,8 @@ GM_Results<-qualityScores_GM(
 
 \begin{figure}[!htb]
 \centering
-<<eval=TRUE, label=Fingerprint, fig=TRUE, echo=FALSE>>=
-GM_Results<-qualityScores_GM(
-        selectedTagsChip=selectedTagsChip,
-        selectedTagsInput=selectedTagsInput,
-        tag.shift=finalTagshift,
-        annotationID="hg19")
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<Fingerprint>>
 @
 \caption{Fingerprint plot of the ChIP sample and its input control.}
 \label{fig:Fingerprint}
@@ -427,34 +423,38 @@ str(GM_Results)
 @
 
 
-
-\newpage
-
 \subsection{Computing Local enrichment profile metrics (LM)}
 
-\textcolor{airforceblue}{createMetageneProfile()} creates the 
-unscaled single-point and 
-a scaled whole gene metagene profile and returns a list with 
-three items: "TSS", "TES" and "geneBody". 
-Each item is again a list with the 
-metagene profiles for ChIP and input.
+The third set of quantitative quality control metrics, is based on the local (gene centered) shape of enrichment profiles and we name them Local enrichment profile Metrics (LM) \cite{CLivi}. 
+First we must compute the gene centered profiles of reads distribution (in ChIP and input samples) as well as the normalized ChIP over input enrichment (log2 ratio).
+The function \texttt{createMetageneProfile()} creates the metagene profiles and returns a list with three items: "TSS", "TES" and "geneBody". 
 
-
-%%%<<eval=TRUE, echo=TRUE>>=
-<<eval=FALSE, echo=TRUE >>=
-Meta_Result <- createMetageneProfile(
-    smoothed.densityChip = smoothedChip, 
-    smoothed.densityInput = smoothedInput, 
-    annotationID="hg19",
-    tag.shift = finalTagShift, 
-    mc = mc)
+<<eval=TRUE, echo=TRUE>>=
+Meta_Results=createMetageneProfile(
+        selectedTagsChip=selectedTagsChip,
+        selectedTagsInput=selectedTagsInput,
+        tag.shift=finalTagshift,
+        annotationID="hg19")
 @
 
 
-\noindent The objects in "Meta\_Result" are needed to create the 
+
+The content of the object \texttt{"Meta\_Result"} is used to create the 
 metagene plots and to extract the LMs for the different profiles.
 
-\noindent Metagene profiles show the signal enrichment around a region of 
+
+
+
+
+
+
+
+
+
+
+
+
+Metagene profiles show the signal enrichment around a region of 
 interest like the transcription start site (TSS) or over the gene body. 
 ChIC creates two types of metagene profiles: an unscaled single-point profile 
 for the TSS and transcription end site, and a scaled whole gene metagene 
@@ -470,27 +470,28 @@ the TSS or regions up- and downstream are shown on the x-axis.
 
 
 \subsubsection{Plotting an unscaled single-point metagene profile}
-The "TSS" or "TES" object and the 
-\textcolor{airforceblue}{qualityScores\_LMgenebody()} function 
+The "Meta_Results" object and the 
+\texttt{qualityScores\_LM()} function 
 are used to plot the unscaled profile (see Figure \ref{fig:TSS})
 and return the respective LM values.
 
-%%%<<eval=TRUE, echo=TRUE>>=
-<<eval=FALSE, echo=TRUE >>=
-TES_Scores=qualityScores_LM(data=Meta_Result$TES,
-    tag="TES")
+
+<<eval=FALSE, label=TSS, echo=TRUE >>=
+TSSProfile<-qualityScores_LM(
+        data=Meta_Results,
+        tag="TSS", plot="split")
 @
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
     \centering
-%%%<<eval=TRUE, label=TSS, fig=TRUE, echo=TRUE>>=
-<<eval=FALSE, label=TSS, fig=TRUE, echo=TRUE>>=
-TSS_Scores=qualityScores_LM(data=Meta_Result$TSS, tag="TSS")
+<<eval=TRUE,  fig=TRUE, echo=TRUE>>=
+<<TSS>>
 @
-\caption{Unscaled single-point metagene profile: Signal enrichment for 
-    ChIP and Input at the TSS.}
+\caption{Unscaled single-point metagene profile: reads distribution profile for ChIP and Input at the TSS.}
 \label{fig:TSS}
 \end{figure}
+
+
 
 
 \subsubsection{Plotting a scaled whole gene metagene profile}
@@ -499,20 +500,20 @@ The "geneBody" object and the
 are used to plot the scaled profile (see Figure \ref{fig:MetaGenePlots})
 and return the respective LM values:
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
     \centering
-%%%<<eval=TRUE, label=geneBody, fig=TRUE, echo=TRUE>>=
-<<eval=FALSE, label=geneBody, fig=TRUE, echo=TRUE>>=
-geneBody_Scores <- qualityScores_LMgenebody(Meta_Result$geneBody)
+<<eval=TRUE, label=geneBody, fig=TRUE, echo=TRUE>>=
+geneBodyProfile=qualityScores_LM(
+        data=Meta_Results,
+        tag="geneBody", plot="split")
 @
-\caption{Scaled whole gene metagene profile: Signal enrichment for 
-    ChIP and Input along the gene body.}
+\caption{Scaled whole gene metagene profile: reads distribution profile for ChIP and Input along the gene body.}
 \label{fig:MetaGenePlots}
 \end{figure}
 
 
 
-\begin{figure}[htbp]
+\begin{figure}[!htb]
 \centering
 \includegraphics{ScaledMetaGeneNormalized.pdf}
 \caption{Normalized profile: signal enrichment for ChIP over 

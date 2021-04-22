@@ -167,7 +167,7 @@ message("####    as it is not among the available ones in the reference compendi
     GM_Results<-GM_Results[(-1*which(names(GM_Results)=="densities"))]  ## drop densities
 
     ## Compute Local Enrichment profile Metrics (LM)
-    Meta_Results=createMetageneProfile(
+    Meta_Results<-createMetageneProfile(
         selectedTagsChip=EM_Results$SelectedTagsChip,
         selectedTagsInput=EM_Results$SelectedTagsInput,
         smoothed.densityChip=smoothed.densityChip,
@@ -179,19 +179,19 @@ message("####    as it is not among the available ones in the reference compendi
     )
     
     ##create plots and get values
-    TSSProfile=qualityScores_LM(
+    TSSProfile<-qualityScores_LM(
         data=Meta_Results,
         tag="TSS",
         savePlotPath=NULL
     )
     
-    TESProfile=qualityScores_LM(
+    TESProfile<-qualityScores_LM(
         data=Meta_Results,
         tag="TES",
         savePlotPath=NULL
     )
     
-    geneBody_Plot=qualityScores_LM(
+    geneBodyProfile<-qualityScores_LM(
         data=Meta_Results,
         tag="geneBody",
         savePlotPath=NULL
@@ -239,13 +239,13 @@ message("####    as it is not among the available ones in the reference compendi
     if (checkTargetForPredictor) {
         message("Calculating the prediction score...")
         
-        predictedScore=predictionScore(
+        predictedScore<-predictionScore(
             target=target,
             features_cc=EM_Results,
             features_global=GM_Results,
             features_TSS=TSSProfile,
             features_TES=TESProfile,
-            features_scaled=geneBody_Plot
+            features_scaled=geneBodyProfile
         )
 
         print("prediction")
