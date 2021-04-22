@@ -26,7 +26,7 @@
 #' @param target String, chromatin mark or transcription factor to be 
 #' analysed. Using the function "listAvailableElements" with the keywords 
 #' "mark" and "TF" shows a list with the available elements.
-#' @param annotationID String, indicating the genome assembly (Default="hg19")
+#' @param annotationID String, indicating the genome assembly
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param savePlotPath path, needs to be set to save the summary plot 
 #' under "savePlotPath" (default=getwd()). In the current version of the code we MUST save the output summary plots in a PDF file.
@@ -73,7 +73,7 @@
 
 
 chicWrapper<-function(chipName, inputName, read_length, 
-    savePlotPath=getwd(), target, annotationID="hg19", 
+    savePlotPath=getwd(), target, annotationID, 
     mc=1, debug=FALSE) {
 
     ### check input data
@@ -149,15 +149,16 @@ message("####    as it is not among the available ones in the reference compendi
         annotationID=annotationID,
         savePlotPath=NULL
     )
-    
-    
+    finalTagshift<-EM_Results$QCscores_ChIP$tag.shift
+
     ## Compute Global Enrichment profile Metrics (GM)
     GM_Results=qualityScores_GM(
         selectedTagsChip=EM_Results$SelectedTagsChip,
         selectedTagsInput=EM_Results$SelectedTagsInput,
-        tag.shift=EM_Results$QCscores_ChIP$tag.shift,
+        tag.shift=finalTagshift,
         savePlotPath=NULL,
         mc=mc,
+        annotationID=annotationID,
         returnDensities=TRUE
     )
     
@@ -171,7 +172,7 @@ message("####    as it is not among the available ones in the reference compendi
         selectedTagsInput=EM_Results$SelectedTagsInput,
         smoothed.densityChip=smoothed.densityChip,
         smoothed.densityInput=smoothed.densityInput,
-        tag.shift=EM_Results$QCscores_ChIP$tag.shift,
+        tag.shift=finalTagshift,
         annotationID=annotationID,
         debug=debug,
         mc=mc

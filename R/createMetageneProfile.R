@@ -33,7 +33,7 @@
 #' the call to tagDensity function as it is already performed in the qualityScores_GM function.
 #' @param tag.shift Integer containing the value of the tag shif, calculated by
 #' getCrossCorrelationScores()
-#' @param annotationID String indicating the genome assembly (Default="hg19")
+#' @param annotationID String indicating the genome assembly
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
@@ -103,7 +103,7 @@
 
 createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
     smoothed.densityChip=NULL, smoothed.densityInput=NULL,
-    tag.shift, annotationID = "hg19", debug = FALSE, mc = 1) 
+    tag.shift, annotationID , debug = FALSE, mc = 1) 
 {
     ########## check if input format is ok
     if (!is.list(selectedTagsChip)) 
