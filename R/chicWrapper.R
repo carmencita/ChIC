@@ -207,20 +207,20 @@ message("####    as it is not among the available ones in the reference compendi
 
         metagenePlotsForComparison(
             target=target,
-            Meta_Results$TSS,
+            data=Meta_Results,
             tag="TSS",
             savePlotPath=NULL
         )
         
         metagenePlotsForComparison(
             target=target,
-            Meta_Results$TES,
+            data=Meta_Results,
             tag="TES",
             savePlotPath=NULL
         )
         metagenePlotsForComparison(
             target=target,
-            data=Meta_Results$geneBody,
+            data=Meta_Results,
             tag="geneBody",
             savePlotPath=NULL
         )
