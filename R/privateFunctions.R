@@ -1502,8 +1502,8 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
     break_points <- settings$break_points
 
     ##security check 
-    currentFrame["mean"]=as.numeric(as.character(currentFrame$mean))
-    currentFrame["x"]=as.numeric(as.character(currentFrame$x))
+    currentFrame["mean"]<-as.numeric(as.character(currentFrame$mean))
+    currentFrame["x"]<-as.numeric(as.character(currentFrame$x))
     ## The standard error of the mean (SEM) is the standard deviation of the
     ## sample-mean's estimate of a population mean.  
     ## (It can also be seen as the standard deviation of the error in the 
@@ -1633,18 +1633,8 @@ f_getPredictionModel <- function(id) {
     if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
 
         message("Load chromatinmark model")
-        if (id %in% allChrom$allSharp) {
-            model <- rf_models[["Sharp"]]
-        }
-        
-        if (id %in% allChrom$allBroad) {
-            model <- rf_models[["Broad"]]
-        }
-        
-        if (id %in% allChrom$RNAPol2) {
-            model <- rf_models[["RNAPol2"]]
-        }
-        
+        ## in the ifelse structure we are giving higher priority to the more "specific" model
+        ## e.g. if target is "H3K27me3", thenw e use that mark specific model instead than the "broad" one
         if (id == "H3K9me3") {
             model <- rf_models[["H3K9me3"]]
         } else if (id == "H3K27me3") {
@@ -1658,16 +1648,15 @@ f_getPredictionModel <- function(id) {
         } else if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
             model <- rf_models[["RNAPol2"]]
         } else {
-            # considering the starting if this option should never happen
+            # considering the starting "if" clause, this option should never happen
             message(id, "error in model selction")
             model=NULL
         }
-    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
-    {
+    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))  {
         message("Load TF model")
         model <- rf_models$TF
     } else {
-        message(id, "not found")
+        message(id, "model not found")
         model=NULL
     }
     return(model)
