@@ -5,7 +5,7 @@
 \title{Wrapper function to plot the scaled metagene- profile and to 
 collect the QC-metrics}
 \usage{
-qualityScores_LMgenebody(data, savePlotPath = NULL)
+qualityScores_LMgenebody(data, savePlotPath = NULL, tag = "geneBody")
 }
 \arguments{
 \item{data}{metagene-list for input and chip sample of the genebody profile
@@ -13,6 +13,8 @@ returned by createMetageneProfile()}
 
 \item{savePlotPath}{if set the plot will be saved under 'savePlotPath'. 
 Default=NULL and plot will be forwarded to stdout.}
+
+\item{tag, }{character, it should always be "geneBody" in the current impplementation. This is just for simmetry with qualityScores_LM function}
 }
 \value{
 returnList

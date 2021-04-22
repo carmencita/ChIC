@@ -8,7 +8,7 @@ to collect the QC-metrics}
 qualityScores_LM(data, tag, savePlotPath = NULL)
 }
 \arguments{
-\item{data}{metagene-list for input and chip sample for TSS or TES returned 
+\item{data}{metagene-list for input and chip samples as returned 
 by createMetageneProfile()}
 
 \item{tag}{String that can be 'TSS' or 'TES',indicating if the TSS or the 
