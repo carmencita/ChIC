@@ -74,10 +74,6 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     read_length, savePlotPath = NULL, mc=1,tag="ChIP") 
 {
 
-  message("\nDEBUGGIN ONGOING")
-  message("\nDEBUGGIN ONGOING")
-  message("\nDEBUGGIN ONGOING")
-
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 12, 
         clear = FALSE, width = 60)
 

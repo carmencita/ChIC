@@ -284,15 +284,16 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     
     ## get QC-values from peak calling
     message("\n***Calculating QC-metrics from peak-calling...***")
-    bindingScores <- getPeakCallingScores(chip.data, 
-        input.data, 
-        chip.tagsSelected, 
-        input.tagsSelected, 
-        final.tag.shift, 
+    bindingScores <- getPeakCallingScores(chip=chip.data, 
+        input=input.data, 
+        chip.dataSelected=chip.tagsSelected, 
+        input.dataSelected=input.tagsSelected, 
+        tag.shift =final.tag.shift, 
         mc=mc,
         annotationID=annotationID,
         debug=debug)
-    
+
+
     returnList <- list(QCscores_ChIP = crossvalues_Chip, 
         QCscores_Input = crossvalues_Input, 
         QCscores_binding = bindingScores, 
