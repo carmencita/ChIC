@@ -351,7 +351,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
         mc.cores  = mc,   
         FUN = function(current_chr_list) {
             current_chr <- names(current_chr_list)
-            str(current_chr_list)
+            #str(current_chr_list)
             if (length(current_chr) != 1) {
                 stop("unexpected dataSelected structure")
             }
