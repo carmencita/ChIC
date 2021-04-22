@@ -10,7 +10,7 @@ createMetageneProfile(
   smoothed.densityChip = NULL,
   smoothed.densityInput = NULL,
   tag.shift,
-  annotationID = "hg19",
+  annotationID,
   debug = FALSE,
   mc = 1
 )
@@ -33,7 +33,7 @@ the call to tagDensity function as it is already performed in the qualityScores_
 \item{tag.shift}{Integer containing the value of the tag shif, calculated by
 getCrossCorrelationScores()}
 
-\item{annotationID}{String indicating the genome assembly (Default="hg19")}
+\item{annotationID}{String indicating the genome assembly}
 
 \item{debug}{Boolean, to enter debugging mode. Intermediate files are 
 saved in working directory}
