@@ -73,6 +73,11 @@
 getCrossCorrelationScores <- function(data, bchar, annotationID="hg19", 
     read_length, savePlotPath = NULL, mc=1,tag="ChIP") 
 {
+
+  message("\nDEBUGGIN ONGOING")
+  message("\nDEBUGGIN ONGOING")
+  message("\nDEBUGGIN ONGOING")
+
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 12, 
         clear = FALSE, width = 60)
 
@@ -319,7 +324,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
 
     if (mc > 1) {
     cluster <- parallel::makeCluster( mc )
-    parallel::clusterExport(cl = cluster, varlist=c("dataNRF", "checkIfReplacementInRandomization"))
+    parallel::clusterExport(cl = cluster, varlist=c("dataNRF", "checkIfReplacementInRandomization"), envir=environment())
         randomizedUniqueCount<-parallel::parSapplyLB(cl=cluster, X=1:randIterations, FUN = function(x) {
         return(length(unique(sample(dataNRF, size = 1e+07, replace = checkIfReplacementInRandomization))))
         })
