@@ -16,6 +16,7 @@
 #'
 #' @param data metagene-list for input and chip sample of the genebody profile
 #' returned by createMetageneProfile()
+#' @param tag, character, it should always be "geneBody" in the current impplementation. This is just for simmetry with qualityScores_LM function
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
 #'
@@ -79,13 +80,16 @@
 #'}
 
 
-qualityScores_LMgenebody <- function(data, savePlotPath = NULL)
+qualityScores_LMgenebody <- function(data, savePlotPath = NULL, tag="geneBody")
 {
-    stopifnot(length(data) == 3L)
+    if (!(tag %in% c("geneBody"))) {
+        stop("tag not valid! Please use: geneBody for qualityScores_LMgenebody() function")}
     
-    binnedChip <- data$chip
-    binnedInput <- data$input
-    binnedNorm <- data$norm
+    stopifnot(length(data[[tag]]) == 3L)
+    
+    binnedChip <- data[[tag]]$chip
+    binnedInput <- data[[tag]]$input
+    binnedNorm <- data[[tag]]$norm
     message("load metagene setting")
     settings <- f_metaGeneDefinition(selection = "Settings")
     ## pseudocount## required to avoid log2 of 0
