@@ -1469,19 +1469,20 @@ f_loadDataCompendium <- function(endung, target, tag)
         compendium_profiles_TF<-get("compendium_profiles_TF") #just to solve the warning on no visible binding for variable loaded from data pacakge
         frame<-compendium_profiles_TF[[name]]
     }
+    frame$x= as.numeric(frame$x)
     return(frame)
 }
 
-#' @keywords internal 
-## helper function to prepare dataframe
-f_prepareData <- function(fmean, frame) 
-{
-    finalframe <- cbind(fmean$x, frame)
-    rownames(finalframe) <- NULL
-    finalframe <- as.data.frame(finalframe)
-    colnames(finalframe) <- c("x", "mean")
-    return(finalframe)
-}
+# #' @keywords internal 
+# ## helper function to prepare dataframe
+# f_prepareData <- function(fmean, frame) 
+# {
+#     finalframe <- cbind(fmean$x, frame)
+#     rownames(finalframe) <- NULL
+#     finalframe <- as.data.frame(finalframe)
+#     colnames(finalframe) <- c("x", "mean")
+#     return(finalframe)
+# }
 
 
 

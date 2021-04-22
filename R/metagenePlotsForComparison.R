@@ -132,34 +132,33 @@ metagenePlotsForComparison <- function(data, target, tag,
     }
     
     #nframe <- colMeans(t(t(cframe) - t(iframe)), na.rm = TRUE)
+    ##average columns
     nframeB <- colMeans(norm, na.rm = TRUE)
     iframeB <- colMeans(iframe, na.rm = TRUE)
     cframeB <- colMeans(cframe, na.rm = TRUE)
     
-    iframeC <- f_prepareData(i_mean, iframeB)
-    iframeC["mean"]=as.numeric(as.character(iframeC$mean))
-    cframeC <- f_prepareData(c_mean, cframeB)
-    cframeC["mean"]=as.numeric(as.character(cframeC$mean))
-    nframeC <- f_prepareData(n_mean, nframeB)
-    nframeC["mean"]=as.numeric(as.character(nframeC$mean))
-    
+    #format data frame
+    iframeC= data.frame("x"=as.numeric(names(iframeB)),"mean"=iframeB)
+    cframeC= data.frame("x"=as.numeric(names(cframeB)),"mean"=cframeB)
+    nframeC= data.frame("x"=as.numeric(names(nframeB)),"mean"=nframeB)
+
     ## get max and min for same y-axis values for chip and input
     newMin <- min(cframeC$mean, absoluteMin, iframeC$mean)
     newMax <- max(cframeC$mean, absoluteMax, iframeC$mean)
     
-    ## get max and min for y-axis values for input
+    ## get max and min for y-axis values for norm
     normMin <- min(nframeC$mean, normMin)
     normMax <- max(nframeC$mean, normMax)
     
     # create comparison plots
     message ("Creating comparison plots...")
 
-    f_plotProfiles(c_mean, cframeC, tag, c(newMin - 0.001, newMax + 0.001), 
+    f_plotProfiles(c_mean, cframeC, tag, c(newMin - (newMin/10), newMax + (newMax/10)), 
         maintitel = paste(target, tag, "Chip", sep = "_"), 
         savePlotPath = savePlotPath)
 
 
-    f_plotProfiles(i_mean, iframeC, tag, c(newMin - 0.001, newMax + 0.001), 
+    f_plotProfiles(i_mean, iframeC, tag, c(newMin - (newMin/10), newMax + (newMax/10)), 
         maintitel = paste(target, tag, "Input", sep = "_"), 
         savePlotPath = savePlotPath)
 
