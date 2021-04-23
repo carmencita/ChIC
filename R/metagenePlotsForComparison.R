@@ -140,6 +140,7 @@ metagenePlotsForComparison <- function(data, target, tag,
 
     
     #nframe <- colMeans(t(t(cframe) - t(iframe)), na.rm = TRUE)
+    ##average columns
     nframeB <- colMeans(norm, na.rm = TRUE)
     iframeB <- colMeans(iframe, na.rm = TRUE)
     cframeB <- colMeans(cframe, na.rm = TRUE)
@@ -158,12 +159,13 @@ metagenePlotsForComparison <- function(data, target, tag,
     newMin <- min(cframeC$mean, absoluteMin, iframeC$mean)
     newMax <- max(cframeC$mean, absoluteMax, iframeC$mean)
     
-    ## get max and min for y-axis values for input
+    ## get max and min for y-axis values for norm
     normMin <- min(nframeC$mean, normMin)
     normMax <- max(nframeC$mean, normMax)
     
     # create comparison plots
     message ("Creating comparison plots...")
+
 
     if (!is.null(savePlotPath)) {
         filename <- file.path(savePlotPath, paste("metageneComparisons", target, plot,"pdf", sep="."))

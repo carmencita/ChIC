@@ -106,8 +106,8 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     savePlotPath = NULL, debug = FALSE) 
 {
     start_time <- Sys.time()
-   message("***Calculating EM metrics...***")
-   pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 8, 
+    message("***Calculating EM metrics...***")
+    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 8, 
         clear = FALSE, width = 60)
     pb$tick()
 
@@ -150,12 +150,12 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         pb$tick()
     }
 
-        if ( debug ) {
-            message("Debugging mode ON, saving taglist objects to bamFiles.RData")
-            save(chip.data, input.data, 
-                file = file.path(getwd(), "bamFiles.RData"))
-        }
-        pb$tick()
+    if ( debug ) {
+        message("Debugging mode ON, saving taglist objects to bamFiles.RData")
+        save(chip.data, input.data, 
+        file = file.path(getwd(), "bamFiles.RData"))
+    }
+    pb$tick()
 
 
     if (downSamplingChIP){
