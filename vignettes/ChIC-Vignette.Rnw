@@ -703,7 +703,7 @@ of the same metric in the the compendium for the respective binding profile cate
 \label{fig:ValueComparison}
 \end{figure}
 
-\paragraph{Available values for \texttt{plotReferenceDistribution()}
+\paragraph{Available values for \texttt{plotReferenceDistribution()}}
 You can use the function \texttt{listMetrics()} to visualize the possible values to be passed as parameter \texttt{"metricToBePlotted"}.
 Example:
 
