@@ -76,9 +76,15 @@ listAvailableElements <- function( target )
 
 listDatasets <- function( dataset )
 {
-    ALLIDs_histones<-as.character(ChIC.data::compendium_db$ID)
+
+    data("compendium_db", package = "ChIC.data", envir = environment())
+    compendium_db<-get("compendium_db") #just to solve the warning on no visible binding for variable loaded from data pacakge
+    ALLIDs_histones<-as.character(compendium_db$ID)
     EIDs <- ALLIDs_histones[grep("ENC", ALLIDs_histones)]
-    ALLIDs_TFs<-as.character(ChIC.data::compendium_db_tf$ID)
+
+    data("compendium_db_tf", package = "ChIC.data", envir = environment())
+    compendium_db_tf<-get("compendium_db_tf") #just to solve the warning on no visible binding for variable loaded from data pacakge
+    ALLIDs_TFs<-as.character(compendium_db_tf$ID)
 
     if ( dataset == "ENCODE" ) {
         message( "ENCODE IDs: " )
