@@ -164,11 +164,11 @@ predictionScore <- function(target, features_cc, features_global,
     rownames(fVector) <- rownames(helper)[rownames(helper) %in% selectedFeat]
     fVector <- data.frame(t(fVector))
     fVector$Class <- as.factor("P")
-    message("selecting features...")
+    message("computing prediction score...")
     #getFeat=rownames(helper)[which(rownames(helper) %in% selectedFeat)]
     prediction <- predict(pmodel, newdata = fVector, type = "prob")
-    message("Predicted QC score for positive class is ", round(prediction[[1]],4) )
-    message("Predicted QC score for negative class is ", round(prediction[[2]],4) )
+    print("Predicted RF score for positive class is ", round(prediction[[1]],4) )
+    print("Predicted RF score for negative class is ", round(prediction[[2]],4) )
     return(prediction)
 }
 

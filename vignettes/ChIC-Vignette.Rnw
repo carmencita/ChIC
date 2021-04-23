@@ -353,6 +353,18 @@ Here we are taking advantage of the posibility to provide as input a pair of \te
 \textbf{Please note} that the \texttt{"qualityScores\_EM()"} is actually performing many analyses in background, including performing peaks calling with multiple alternative parameters and algorithms as implemented in the spp package \cite{Kharchenko2008}. The end users can speed up the ChIC analysis by taking adavanted of parallel computations on mulitple computing cores in the CPU of their machine. This can be achieved by simply specifying a number of cores to be used in the analysis with the \texttt{"mc"} parameter (default value is 1). The \texttt{"mc"} parameter is available in all of the "wrapper" functions implemented in ChIC. If a number larger than 1 is specified, the software will try to use the user defined number of CPUs/cores for the analysis steps allowing parallelization.
 
 
+<<eval=FALSE, echo=TRUE >>=
+EM_Results <- qualityScores_EM(
+    chipName=chipName, 
+    inputName=inputName,
+    chip.data=chipSubset, 
+    input.data=inputSubset,
+    annotationID="hg19",
+    read_length=36,
+    mc=20)
+@
+
+
 \subsubsection{EM cross correlation profile and QC metrics}
 
 The \texttt{"qualityScores\_EM()"} function produces the Cross-correlation  plot (see Figure \ref{fig:crosscorrelation}) and returns a number of QC-metrics \cite{CLivi}. The \texttt{"savePlotPath"} parameters defines the path in which the Cross-Correlation plot (as pdf) should be saved. If nothing is provided the plot will be forwarded to default DISPLAY. For a more detailed discussion about the meaning of the cross correlation profile and its associated scores we must refer the user to the reference literature \cite{Landt,Marinov,Carroll}.
@@ -430,7 +442,7 @@ First we must compute the gene centered profiles of reads distribution (in ChIP 
 The function \texttt{createMetageneProfile()} creates the metagene profiles and returns a list with three items: "TSS", "TES" and "geneBody". 
 
 <<eval=TRUE, echo=TRUE>>=
-Meta_Results=createMetageneProfile(
+Meta_Results<-createMetageneProfile(
         selectedTagsChip=selectedTagsChip,
         selectedTagsInput=selectedTagsInput,
         tag.shift=finalTagshift,
@@ -443,25 +455,15 @@ The content of the object \texttt{"Meta\_Result"} is used to create the
 metagene plots and to extract the LMs for the different profiles.
 
 
+\subsubsection{Plotting metagene profiles}
 
+Metagene profiles show the average ChIP-seq reads distribution (for ChIP or control samples separately) or the average ChIP-seq "signal", i.e. the ChIP over input control enrichment (Log2(ChIP/input)) around a set of genomic regions of 
+interest. These may include like the transcription start site (TSS) of annotated genes or their entire gene body.
 
+ChIC creates two types of metagene profiles: (1) the unscaled single-point metagene and (2) the scaled whole gene metagene.
+In the unscaled single-point metagene, the annotated TSS or annotated transcript end (TES) are used as central point. In the scaled whole gene, the metagene prfiles encompass the entire gene body including 2Kb upstream (promoter) and 1Kb downstream flanking regions. 
 
-
-
-
-
-
-
-
-
-Metagene profiles show the signal enrichment around a region of 
-interest like the transcription start site (TSS) or over the gene body. 
-ChIC creates two types of metagene profiles: an unscaled single-point profile 
-for the TSS and transcription end site, and a scaled whole gene metagene 
-profile 
-including the gene body like in Figure \ref{fig:MetaGenePlots}. 
-For the metagene profiles the tag density of the immunoprecipitation is 
-taken over all RefSeq annotated human genes, 
+For the metagene profiles  \ref{fig:MetaGenePlots} the tag density of the immunoprecipitation is taken over all RefSeq annotated human genes, 
 averaged and log2 transformed. The same is done for the input.
 The normalised profile (Figure \ref{fig:MetaGenePlotNorm}) 
 is calculated as the signal enrichment (immunoprecipitation over the input) 
@@ -469,252 +471,268 @@ and plotted on the y-axis, whereas the genomic coordinates of the genes like
 the TSS or regions up- and downstream are shown on the x-axis. 
 
 
-\subsubsection{Plotting an unscaled single-point metagene profile}
-The "Meta_Results" object and the 
-\texttt{qualityScores\_LM()} function 
-are used to plot the unscaled profile (see Figure \ref{fig:TSS})
+\paragraph{Plotting an unscaled single-point metagene profile}
+The "Meta\_Results" object and the \texttt{qualityScores\_LM()} function 
+can be used to plot the unscaled profile (see Figure \ref{fig:TSSplot})
 and return the respective LM values.
 
-
-<<eval=FALSE, label=TSS, echo=TRUE >>=
+<<eval=FALSE, label=TSSplot, echo=TRUE >>=
 TSSProfile<-qualityScores_LM(
         data=Meta_Results,
         tag="TSS", plot="split")
 @
 
 \begin{figure}[!htb]
-    \centering
-<<eval=TRUE,  fig=TRUE, echo=TRUE>>=
-<<TSS>>
+\centering
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<TSSplot>>
 @
 \caption{Unscaled single-point metagene profile: reads distribution profile for ChIP and Input at the TSS.}
-\label{fig:TSS}
+\label{fig:TSSplot}
 \end{figure}
 
+The \texttt{"tag"} parameter allows specifying if computing metrics for "TSS", "TES" or "geneBody" regions.
+The \texttt{"plot"} parameter allows to specify if plotting ChIP and input control metaprofiles separately (\texttt{plot="split"}), or the normalized ChIP/input signal (\texttt{plot="norm"}), or both (\texttt{plot="all"} - which is the default parameter but the output plot should be redirected to a PDF to see both plots on different pages), or none (\texttt{plot="none"} - in this latter case only QC metrics are returned but the plots is not drawn).
+Please note that these output QC metrics are a complex object, not meant to be "human readable", but it is instead meant to be fed to the \texttt{predictionScore()} function for computing the ChIC-RF score (see below).
 
 
 
-\subsubsection{Plotting a scaled whole gene metagene profile}
-The "geneBody" object and the 
-\textcolor{airforceblue}{qualityScores\_LMgenebody()} function 
-are used to plot the scaled profile (see Figure \ref{fig:MetaGenePlots})
+\paragraph{Plotting a scaled whole gene metagene profile}
+The \texttt{tag="geneBody"} option is used to plot the scaled metagene profile over the entire length of annotated genes (see Figure \ref{fig:geneBodyplot})
 and return the respective LM values:
 
-\begin{figure}[!htb]
-    \centering
-<<eval=TRUE, label=geneBody, fig=TRUE, echo=TRUE>>=
-geneBodyProfile=qualityScores_LM(
+
+
+<<eval=FALSE, label=geneBodyplot, echo=TRUE >>=
+geneBodyProfile<-qualityScores_LM(
         data=Meta_Results,
         tag="geneBody", plot="split")
 @
-\caption{Scaled whole gene metagene profile: reads distribution profile for ChIP and Input along the gene body.}
-\label{fig:MetaGenePlots}
-\end{figure}
-
-
 
 \begin{figure}[!htb]
 \centering
-\includegraphics{ScaledMetaGeneNormalized.pdf}
-\caption{Normalized profile: signal enrichment for ChIP over 
-Input along the gene body for a scaled whole gene profile.}
-\label{fig:MetaGenePlotNorm}
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<geneBodyplot>>
+\caption{Scaled whole gene metagene profile: reads distribution profile for ChIP and Input along the gene body.}
+\label{fig:geneBodyplot}
 \end{figure}
 
-\newpage
+
+\paragraph{Plotting a scaled whole gene metagene profile, with normalized ChIP/input enrichment signal}
+The \texttt{plot="norm"} option is used to plot the normalized ChIP/input enrichment metagene profile over the entire length of annotated genes (see Figure \ref{fig:geneBodyplotNorm})
+and return the respective LM values:
+
+
+
+<<eval=FALSE, label=geneBodyplotNorm, echo=TRUE >>=
+geneBodyProfile<-qualityScores_LM(
+        data=Meta_Results,
+        tag="geneBody", plot="norm")
+@
+
+\begin{figure}[!htb]
+\centering
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<geneBodyplotNorm>>
+\caption{Normalized profile: signal enrichment for ChIP over 
+Input along the gene body for a scaled whole gene profile.}
+\label{fig:geneBodyplotNorm}
+\end{figure}
+
+
+
+
 \subsection{Comparisons against the reference compendium}
 The comprehensive set of QC-metrics, computed over a large set of ChIP-seq 
 samples, constitutes in itself a valuable compendium that can be used as a 
 reference for comparison with new samples. ChIC provides three functions 
 for that:
 \begin{itemize}
-    \item \textit{metagenePlotsForComparison} to compare the metagene plots 
+    \item \texttt{metagenePlotsForComparison()} to compare the metagene plots 
     with the compendium
-    \item \textit{plotReferenceDistribution} to compare a single QC-metric 
+    \item \texttt{plotReferenceDistribution()} to compare a single QC-metric 
     with the compendium values
-    \item \textit{predictionScore} to obtain a single quality score from 
-    the random forest models trained on the previously computed QC-metrics 
+    \item \texttt{predictionScore()} to obtain a single quality score (ChIC RF score) from 
+    the random forest models trained on the previously computed QC-metrics.
 \end{itemize}
 
 
-\subsubsection{Available chromatin marks and transcription factors}
-This useful function lists all chromatin marks and 
-transcription factors that are available for the comparison analysis.
-With the keywords "mark" and "TF" the respective lists with the available 
-elements are listed.
 
-%%%<<eval=TRUE, echo=TRUE >>=
-<<eval=FALSE, echo=TRUE >>=
-listAvailableElements(target="H3K36me3")
-@
+\paragraph{List the sample IDs of the compendium}
 
-
-
-\subsubsection{List the sample IDs of the compendium}
-
-Shows the IDs of all analysed ChIP-seq samples 
+To see the IDs of all pre-analyzed ChIP-seq samples 
 from ENCODE and Roadmap that have been included 
 in the compendium by providing the keyword 
 "ENCODE" or "Roadmap".
 
-%%%<<eval=TRUE, echo=TRUE >>=
-<<eval=FALSE, echo=TRUE >>=
+<<eval=TRUE, echo=TRUE >>=
 head(listDatasets(dataset="ENCODE"))
 @
 
 
+
 \subsubsection{Comparing local enrichment profiles}
-The c 
-function is used to compare the 
+The \texttt{metagenePlotsForComparison()} function can be used to compare the 
 local enrichment profile to the reference compendium by plotting the 
 metagene profile against the expected metagene for the same type of 
 chromatin mark. The expected metagene profile is 
 provided by the compendium mean (black line) and standard error 
 (blue shadow). Examples are shown in Figures 
-\ref{fig:MetaProfileComparisonGeneBody} and 
-\ref{fig:MetaProfileComparisonTSS}.
+\ref{fig:geneBodyplotComparison}, \ref{fig:geneBodyplotComparisonNorm} and 
+\ref{fig:TSSplotComparison}.
 
 
-\textbf{PLEASE NOTE:} In this function the user has to specify
-the name of the chromatin mark or transcription factor. Please see 
-the \textcolor{airforceblue}{listAvailableElements()} function 
-to get a list of available targets. 
-
-
-
-\begin{figure}[htbp]
-    \centering
-%%%<<eval=TRUE, label=geneBodyComparison, fig=TRUE, echo=TRUE>>=
-<<eval=FALSE, label=geneBodyComparison, fig=TRUE, echo=TRUE>>=
-
-metagenePlotsForComparison(data = Meta_Result$geneBody,
+<<eval=FALSE, label=geneBodyplotComparison,  echo=TRUE >>=
+metagenePlotsForComparison(
+    data = Meta_Results,
     target = "H3K4me3", 
-    tag = "geneBody")
-    
-@
+    tag = "geneBody",
+    plot="chip")
+@    
 
-\caption{Enrichment profile plotted against the pre-computed 
-profiles of the compendium. The metagene profile shows the sample signal 
-(red line) for the ChIP compared to the compendium mean 
+
+\begin{figure}[!htb]
+\centering
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<geneBodyplotComparison>>
+@
+\caption{Reads distribution profile plotted against the pre-computed 
+profiles of the compendium. The metagene profile shows the ChIP sample reads distribution 
+(red line) compared to the compendium mean 
 signal (black line) and the 2x standard error (blue shadow).}
-\label{fig:MetaProfileComparisonGeneBody}
+\label{fig:geneBodyplotComparison}
+\end{figure}
+
+The \texttt{"plot"} parameter allows to specify if plotting ChIP and input control metaprofiles only (\texttt{plot="chip"} or \texttt{plot="input"}, respectively), or the normalized ChIP/input signal (\texttt{plot="norm"}), or all the three plots (\texttt{plot="all"} - which is the default parameter but the output plot should be redirected to a PDF to see each plot on a different page)
+
+
+<<eval=FALSE, label=geneBodyplotComparisonNorm,  echo=TRUE >>=
+metagenePlotsForComparison(
+    data = Meta_Results,
+    target = "H3K4me3", 
+    tag = "geneBody",
+    plot="norm")
+@    
+
+
+\begin{figure}[!htb]
+\centering
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<geneBodyplotComparisonNorm>>
+@
+\caption{Same as above but plotting the normalized ChIP/input control enrichment}
+\label{fig:geneBodyplotComparisonNorm}
 \end{figure}
 
 
+Likewise we can change the \texttt{"tag"} parameter to show the profile around TSS or TES, instead than over the \texttt{"geneBody"}.
 
-\begin{figure}[htbp]
-    \centering
-%%%<<eval=TRUE, label=TSSComparison, fig=TRUE, echo=TRUE>>=
-<<eval=FALSE, label=TSSComparison, fig=TRUE, echo=TRUE>>=
 
-metagenePlotsForComparison(data = Meta_Result$TSS,
+
+<<eval=FALSE, label=TSSplotComparison,  echo=TRUE >>=
+metagenePlotsForComparison(
+    data = Meta_Results,
     target = "H3K4me3", 
-    tag = "TSS")
-@
+    tag = "TSS",
+    plot="norm")
+@    
 
-\caption{The metagene profile shows the sample signal 
-for the ChIP (red line) compared to the compendium mean 
-signal (black line) and the 2x standard error (blue shadow).}
-\label{fig:MetaProfileComparisonTSS}
+
+\begin{figure}[!htb]
+\centering
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<TSSplotComparison>>
+@
+\caption{Same as above but plotting the normalized ChIP/input control enrichment around the TSS}
+\label{fig:TSSplotComparison}
 \end{figure}
 
 
-
-%\begin{figure}[htbp]
-%\centering
-%.\includegraphics{Comparison.pdf}
-%\caption{Enrichment profile plotted against the pre-computed 
-%profiles of the compendium. The metagene profiles show the sample signal 
-%(red line) for the ChIP (A) and the enrichment (chip over input) (B) 
-%when compared to the compendium mean signal (black line) and its 2x standard 
-%error (blue shadow).}
-%\label{fig:MetaProfileComparison}
-%\end{figure}
+\textbf{Please note:} In this function the user has to specify the name of the chromatin mark or transcription factor. Please see the \texttt{listAvailableElements()} function in the previous paragraphs and sections to get a list of available targets. 
 
 
+\paragraph{Available chromatin marks and transcription factors}
+To visualize the lists of chromatin marks and 
+transcription factors that are available in the compendium for the comparative metagene plots you can use the \texttt{listAvailableElements()} as described above.
+Example:
 
-%<<eval=FALSE, label=ComparisonInput, include=FALSE, echo=FALSE>>=
-%metagenePlotsForComparison(data = Meta_Result$geneBody,
-%   target = "H3K4me3", tag = "geneBody")
-%@
+<<eval=TRUE, echo=TRUE >>=
+listAvailableElements(target="mark")
+@
 
-%\begin{figure}[htbp]
-%\centering
-%<<eval=TRUE,label=ComparisonInput, fig=TRUE, echo=FALSE>>=
-%<<ComparisonInput>>
-%@
-%\caption{The metagene profile shows the signal (red line) 
-%of the input compared to the compendium.}
-%\label{fig:MetaProfileComparisonInput}
-%\end{figure}
+
 
 
 \subsubsection{Comparing QC-metrics to the reference values of the compendium}
 Plotting a single QC-metric against the reference values from a large 
-number of already published data, adds an extra level of 
-information that can be easily used by less experienced users. 
+number of already published data adds an extra level of 
+information that can be easily accessed. 
 An example is shown in Figure \ref{fig:ValueComparison}.
 
-\textbf{PLEASE NOTE:} To use this function the user has to specify
+\textbf{Please note:} To use this function the user has to specify
 the name of the chromatin mark or transcription factor. Please see 
-\textcolor{airforceblue}{listAvailableElements()}  
-to get a list of available targets. 
+\texttt{listAvailableElements()} as described above to get a list of available targets. 
 
-\begin{figure}[htbp]
-\centering
-%%%<<eval=TRUE, label=ReferenceDistr, fig=TRUE, echo=TRUE>>=
-<<eval=FALSE, label=ReferenceDistr, fig=TRUE, echo=TRUE>>=
 
-plotReferenceDistribution(target = "H3K4me3", 
+<<eval=FALSE, label=ValueComparison, echo=TRUE>>=
+plotReferenceDistribution(
+    target = "H3K4me3", 
     metricToBePlotted = "RSC", 
-    currentValue = crossvalues_Chip$CC_RSC )
+    currentValue = EM_Results$QCscores_ChIP$CC_RSC
+    )
 @
 
+\begin{figure}[!htb]
+\centering
+<<eval=TRUE, fig=TRUE, echo=FALSE>>=
+<<ValueComparison>>
+@
 \caption{The QC-metric of a newly analysed ChIP-seq sample can be 
 compared to the reference values of the compendium. The density plot shows 
 the QC-metric RSC (red dashed line) of the sample versus the distribution 
-of the same metric in the the compendium for the respective binding 
-profile or TF.}
+of the same metric in the the compendium for the respective binding profile category (in this case "Sharp class" as indicated in the plot title).}
 \label{fig:ValueComparison}
 \end{figure}
 
+\paragraph{Available values for \texttt{plotReferenceDistribution()}
+You can use the function \texttt{listMetrics()} to visualize the possible values to be passed as parameter \texttt{"metricToBePlotted"}.
+Example:
 
+<<eval=TRUE, echo=TRUE>>=
+listMetrics("EM")
+@
 
 
 
 \subsection{Computing the ChIC RF score}
-The compendium of metrics has been used to train a random forest model 
-that summarizes the sample quality in one single QC-score. 
+Finally, as discussed in details in the accompanying manuscript \cite{CLivi} the compendium of metrics has been used to train a random forest model that can provide a single score summarizing the sample quality: the ChIC RF score, that can be computed with the \texttt{"predictionScore()"} function as in the example below. 
 
-%%%<<eval=TRUE, echo=FALSE >>=
-<<eval=FALSE, echo=TRUE >>=
-EM_scoresNew=NULL
-
-EM_scoresNew$QCscores_ChIP <- crossvalues_Chip
-EM_scoresNew$QCscores_binding <- bindingScores
-EM_scoresNew$TagDensityInput <- list()
-EM_scoresNew$TagDensityChip <-list()
-
-CC_Result <- EM_scoresNew
+<<eval=TRUE, echo=FALSE >>=
+# compute the missing part
+TESProfile<-qualityScores_LM(
+        data=Meta_Results,
+        tag="TES", plot="none")
 @
 
-%%%<<eval=TRUE, echo=TRUE >>=
-<<eval=FALSE, echo=TRUE >>=
-te <- predictionScore(target = "H3K4me3", 
-    features_cc = CC_Result,
-    features_global = Ch_Results,
-    features_TSS = TSS_Scores, 
-    features_TES = TES_Scores, 
-    features_scaled = geneBody_Scores)
-print(te)
+
+<<eval=TRUE, echo=TRUE >>=
+ChIC_RFscore <-predictionScore(
+target=target,
+features_cc=EM_Results,
+features_global=GM_Results,
+features_TSS=TSSProfile,
+features_TES=TESProfile,
+features_scaled=geneBodyProfile
+)
 @
 
-\textbf{PLEASE NOTE:} To use this function on 
-transcription factors that are not available in the package 
-(see "Available chromatin marks and 
-transcription factors" section) the user can apply the 
-keyword "TF" in the "target" argument to invoce the transcription 
-factor model. 
+The final ChIC RF score accounting for the good (positive) quality of the sample is:
+
+<<eval=TRUE, echo=TRUE >>=
+ChIC_RFscore["values", "P"]
+@
+
+
 
 
 \newpage

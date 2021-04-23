@@ -19,8 +19,8 @@
 #' @param tag, character, it should always be "geneBody" in the current impplementation. This is just for simmetry with qualityScores_LM function
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param plot character, possible values "norm", "split", "all" (default) to plot metaprofiles for 
-#' normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots (respectively)
+#' @param plot character, possible values "norm", "split", "all" (default) or "none" to plot metaprofiles for 
+#' normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots, or none (respectively)
 #'
 #' @export
 #'
@@ -89,7 +89,7 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, tag="geneBody", 
     
     stopifnot(length(data[[tag]]) == 3L)
     
-    if (!(plot %in% c("all","norm","split")) ) {
+    if (!(plot %in% c("all","norm","split","none")) ) {
         stop("wrong plot parameter value")
     }
 
@@ -122,6 +122,8 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, tag="geneBody", 
     
     ## make plots
     colori <- c(rev(rainbow(ncol(all.noNorm) - 1)), "black")
+    currBreak_points <- break_points_2P[c(-2, -5)]  ##c(-2000,500,2500,4000)
+
     if (plot %in% c("all", "split")) {
 
         if (!is.null(savePlotPath)) {
@@ -135,7 +137,6 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, tag="geneBody", 
             ylab = "mean of log2 read density", 
             main = "scaled metagene profile", xaxt = "n")
         
-        currBreak_points <- break_points_2P[c(-2, -5)]
         abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
             col = "darkgrey", lwd = 3)
         abline(v = currBreak_points, lty = 3, 
@@ -183,7 +184,6 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL, tag="geneBody", 
             main = "normalized scaled metagene profile", xaxt = "n")  
                 #,cex.axis=1.3,cex.lab=1.3)
         
-        currBreak_points <- break_points_2P[c(-2, -5)]  ##c(-2000,500,2500,4000)
         abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
             col = "darkgrey", lwd = 3)
         abline(v = currBreak_points, lty = 3, 

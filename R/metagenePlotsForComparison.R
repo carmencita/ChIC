@@ -20,6 +20,9 @@
 #' geneBody, TES or TSS.
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
+#' @param plot character, possible values "norm", "chip", "input", "all" (default). To plot metaprofiles for 
+#' normalized ChIP/input enrichment, or only ChIP reads density, or only input control reads density
+#' or all three plots (respectively)
 #'
 #' @return Creates a pdf figure under 'savePlotPath'
 #'
@@ -89,7 +92,7 @@
 #'}
 
 metagenePlotsForComparison <- function(data, target, tag, 
-    savePlotPath = NULL)
+    savePlotPath = NULL, plot="all")
 {
     # pseudocount, required to avoid log2 of 0
     psc <- 1
@@ -103,6 +106,11 @@ metagenePlotsForComparison <- function(data, target, tag,
         stop("Chromatin mark or TF not valid. Check manual for valid options.")
     if (!(tag %in% c("geneBody", "TES", "TSS"))) 
         stop("tag not valid! Please use: geneBody, TES or TSS")
+
+    if (!(plot %in% c("all","norm","chip","input")) ) {
+        stop("Wrong plot parameter value in metagenePlotsForComparison().
+            Possible values are \"all\",\"norm\",\"chip\",\"input\"")
+    }
     ########## 
     
     message("Calculating metagene profiles...")
@@ -113,23 +121,23 @@ metagenePlotsForComparison <- function(data, target, tag,
     # load average dataframe normalized
     n_mean <- f_loadDataCompendium(endung = "norm", 
         target = target, tag = tag)
+    if (!is.numeric(n_mean$x)) { n_mean$x<-as.numeric(as.character(n_mean$x)) } # fix a problem with characters in the positions that are derived from rownames
     normMin <- min(n_mean$mean - n_mean$sderr)
     normMax <- max(n_mean$mean + n_mean$sderr)
+
     ## load average dataframe chip
     c_mean <- f_loadDataCompendium(endung = "chip", 
         target = target, tag = tag)
-    absoluteMin <- min(c_mean$mean - c_mean$sderr)
-    absoluteMax <- max(c_mean$mean + c_mean$sderr)
+    if (!is.numeric(c_mean$x)) { c_mean$x<-as.numeric(as.character(c_mean$x)) } # fix a problem with characters in the positions that are derived from rownames
+   
     ## load average dataframe input
     i_mean <- f_loadDataCompendium(endung = "input", 
         target = target, tag = tag)
+    if (!is.numeric(i_mean$x)) { i_mean$x<-as.numeric(as.character(i_mean$x)) } # fix a problem with characters in the positions that are derived from rownames
     ## get the range for x-y axis fro the final plot
-    if ((min(i_mean$mean - i_mean$sderr)) < absoluteMin) {
-        absoluteMin <- min(i_mean$mean - i_mean$sderr)
-    }
-    if ((max(i_mean$mean + i_mean$sderr)) > absoluteMax) {
-        absoluteMax <- max(i_mean$mean + i_mean$sderr)
-    }
+    absoluteMin <- min(c(min(c_mean$mean - c_mean$sderr), min(i_mean$mean - i_mean$sderr)))
+    absoluteMax <- max(c(max(c_mean$mean + c_mean$sderr), max(i_mean$mean + i_mean$sderr)))
+
     
     #nframe <- colMeans(t(t(cframe) - t(iframe)), na.rm = TRUE)
     nframeB <- colMeans(norm, na.rm = TRUE)
@@ -137,12 +145,15 @@ metagenePlotsForComparison <- function(data, target, tag,
     cframeB <- colMeans(cframe, na.rm = TRUE)
     
     iframeC <- f_prepareData(i_mean, iframeB)
-    iframeC["mean"]<-as.numeric(as.character(iframeC$mean))
     cframeC <- f_prepareData(c_mean, cframeB)
-    cframeC["mean"]<-as.numeric(as.character(cframeC$mean))
     nframeC <- f_prepareData(n_mean, nframeB)
-    nframeC["mean"]<-as.numeric(as.character(nframeC$mean))
-    
+
+    for (column in c("x","mean")) {
+        if (!is.numeric(iframeC[[column]])) { iframeC[[column]]<-as.numeric(as.character(iframeC[[column]]))}
+        if (!is.numeric(cframeC[[column]])) { cframeC[[column]]<-as.numeric(as.character(cframeC[[column]]))}
+        if (!is.numeric(nframeC[[column]])) { nframeC[[column]]<-as.numeric(as.character(nframeC[[column]]))}
+    }
+
     ## get max and min for same y-axis values for chip and input
     newMin <- min(cframeC$mean, absoluteMin, iframeC$mean)
     newMax <- max(cframeC$mean, absoluteMax, iframeC$mean)
@@ -154,23 +165,39 @@ metagenePlotsForComparison <- function(data, target, tag,
     # create comparison plots
     message ("Creating comparison plots...")
 
-    f_plotProfiles(c_mean, cframeC, tag, c(newMin - 0.001, newMax + 0.001), 
+    if (!is.null(savePlotPath)) {
+        filename <- file.path(savePlotPath, paste("metageneComparisons", target, plot,"pdf", sep="."))
+        pdf(file = filename, width = 10, height = 7)
+    }
+
+   if (plot %in% c("all", "chip")) {
+    f_plotProfiles(meanFrame=c_mean, currentFrame=cframeC, endung=tag,
+        absoluteMinMax=c(newMin - 0.001, newMax + 0.001), 
         maintitel = paste(target, tag, "Chip", sep = "_"), 
+        ylab = "mean of log2 read density",
         savePlotPath = savePlotPath)
+    }
 
-
-    f_plotProfiles(i_mean, iframeC, tag, c(newMin - 0.001, newMax + 0.001), 
+   if (plot %in% c("all", "input")) {
+    f_plotProfiles(meanFrame=i_mean, currentFrame=iframeC, endung=tag,
+        absoluteMinMax=c(newMin - 0.001, newMax + 0.001), 
         maintitel = paste(target, tag, "Input", sep = "_"), 
+        ylab = "mean of log2 read density",
         savePlotPath = savePlotPath)
+    }
 
 
-    f_plotProfiles(n_mean, nframeC, tag, c(normMin - 0.001, normMax + 0.001), 
+   if (plot %in% c("all", "norm")) {
+    f_plotProfiles(meanFrame=n_mean, currentFrame=nframeC, endung=tag,
+        absoluteMinMax=c(normMin - 0.001, normMax + 0.001), 
         maintitel = paste(target, tag, "norm", sep = "_"), 
         ylab = "mean log2 enrichment (signal/input)", 
-        savePlotPath = savePlotPath)
-    
-    if ( !is.null(savePlotPath) )
-    {
+        savePlotPath = savePlotPath, currentCol="orange")
+    }
+
+
+    if ( !is.null(savePlotPath)) {
+        dev.off()
         message("Plots have been saved under ", savePlotPath)
     }
 }

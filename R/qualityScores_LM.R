@@ -21,8 +21,8 @@
 #' TES profile should be calcualted (Default='TSS')
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
-#' @param plot character, possible values "norm", "split", "all" (default) to plot metaprofiles for 
-#' normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots (respectively)
+#' @param plot character, possible values "norm", "split", "all" (default) or "none" to plot metaprofiles for 
+#' normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots, or none (respectively)
 #'
 #' @export
 #'
@@ -89,9 +89,10 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, plot="all")
 {
     if (!(tag %in% c("geneBody", "TES", "TSS"))) {
         stop("tag not valid! Please use: geneBody, TES or TSS") }
+
     stopifnot(length(data[[tag]]) == 3L)
 
-    if (!(plot %in% c("all","norm","split")) ) {
+    if (!(plot %in% c("all","norm","split", "none")) ) {
         stop("wrong plot parameter value")
     }
 
@@ -139,6 +140,8 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, plot="all")
 
             ## make plots
             colori <- c(rev(rainbow(ncol(all.noNorm) - 1)), "black")
+            newbreak_points <- break_points[-c(4)]  
+
             if (plot %in% c("all", "split")) {
                 if (!is.null(savePlotPath)) {
                     filename <- file.path(savePlotPath, 
@@ -153,8 +156,6 @@ qualityScores_LM <- function(data, tag, savePlotPath = NULL, plot="all")
                     ylab = "mean of log2 read density", 
                     main = tag, xaxt = "n")
 
-
-                newbreak_points <- break_points[-c(4)]  
                 # c(-2000,-1000,-500,500,1000,2000)
                 abline(v = 0, lty = 2, col = "darkgrey", lwd = 2)
                 abline(v = newbreak_points, lty = 3, col = "darkgrey", lwd = 2)

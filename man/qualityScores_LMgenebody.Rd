@@ -21,8 +21,8 @@ Default=NULL and plot will be forwarded to stdout.}
 
 \item{tag, }{character, it should always be "geneBody" in the current impplementation. This is just for simmetry with qualityScores_LM function}
 
-\item{plot}{character, possible values "norm", "split", "all" (default) to plot metaprofiles for 
-normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots (respectively)}
+\item{plot}{character, possible values "norm", "split", "all" (default) or "none" to plot metaprofiles for 
+normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots, or none (respectively)}
 }
 \value{
 returnList

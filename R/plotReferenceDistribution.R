@@ -48,7 +48,7 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
         compendium_db_tf<-get("compendium_db_tf") #just to solve the warning on no visible binding for variable loaded from data pacakge
 
         finalCompendium <- compendium_db_tf
-    }else{
+    } else{
         #allChrom <- f_metaGeneDefinition("Classes")
         ## reading compendium compendium_db=NULL
         data("compendium_db", package = "ChIC.data", envir = environment())
@@ -61,21 +61,23 @@ plotReferenceDistribution <- function(target, metricToBePlotted = "RSC",
     }
 
     # get values for target alias=paste('CC',metricToBePlotted,sep='_')
-    alias <- NULL
-    if (paste("CC", metricToBePlotted, sep = "_") %in% 
-        colnames(finalCompendium))
-    {
+    if (metricToBePlotted %in% colnames(finalCompendium)) {
+        alias <- metricToBePlotted
+    } else if (paste("CC", metricToBePlotted, sep = "_") %in% colnames(finalCompendium)) {
         alias <- paste("CC", metricToBePlotted, sep = "_")
     } else {
         helpi <- paste("Ch", metricToBePlotted, sep = "_")
         if (helpi %in% colnames(finalCompendium)) {
             alias <- paste("Ch", metricToBePlotted, sep = "_")
-        }
+        } else {
+        stop("the selected metric is not among the supported ones
+            for plotReferenceDistribution(). See listMetrics() for possible values") 
+        }       
     }
 
-    if(target %in% f_metaGeneDefinition("TFlist")){
+    if (target %in% f_metaGeneDefinition("TFlist")){
         subset <- finalCompendium[ ,alias]
-    }else{
+    } else{
         ## get the values of respective set
         subset <- finalCompendium[
             which(finalCompendium$target %in% profileInfo$profileSet), alias]

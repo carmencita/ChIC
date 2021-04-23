@@ -17,8 +17,8 @@ TES profile should be calcualted (Default='TSS')}
 \item{savePlotPath}{if set the plot will be saved under 'savePlotPath'. 
 Default=NULL and plot will be forwarded to stdout.}
 
-\item{plot}{character, possible values "norm", "split", "all" (default) to plot metaprofiles for 
-normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots (respectively)}
+\item{plot}{character, possible values "norm", "split", "all" (default) or "none" to plot metaprofiles for 
+normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots, or none (respectively)}
 }
 \value{
 result Dataframe with QC-values for chip, input and normalized 
