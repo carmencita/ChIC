@@ -441,7 +441,7 @@ The third set of quantitative quality control metrics, is based on the local (ge
 First we must compute the gene centered profiles of reads distribution (in ChIP and input samples) as well as the normalized ChIP over input enrichment (log2 ratio).
 The function \texttt{createMetageneProfile()} creates the metagene profiles and returns a list with three items: "TSS", "TES" and "geneBody". 
 
-<<eval=TRUE, echo=TRUE>>=
+<<eval=TRUE, echo=FALSE>>=
 Meta_Results<-createMetageneProfile(
         selectedTagsChip=selectedTagsChip,
         selectedTagsInput=selectedTagsInput,
@@ -449,6 +449,13 @@ Meta_Results<-createMetageneProfile(
         annotationID="hg19")
 @
 
+<<eval=FALSE, echo=TRUE>>=
+Meta_Results<-createMetageneProfile(
+        selectedTagsChip=selectedTagsChip,
+        selectedTagsInput=selectedTagsInput,
+        tag.shift=finalTagshift,
+        annotationID="hg19")
+@
 
 
 The content of the object \texttt{"Meta\_Result"} is used to create the 
@@ -513,6 +520,7 @@ geneBodyProfile<-qualityScores_LM(
 \centering
 <<eval=TRUE, fig=TRUE, echo=FALSE>>=
 <<geneBodyplot>>
+@
 \caption{Scaled whole gene metagene profile: reads distribution profile for ChIP and Input along the gene body.}
 \label{fig:geneBodyplot}
 \end{figure}
@@ -534,6 +542,7 @@ geneBodyProfile<-qualityScores_LM(
 \centering
 <<eval=TRUE, fig=TRUE, echo=FALSE>>=
 <<geneBodyplotNorm>>
+@
 \caption{Normalized profile: signal enrichment for ChIP over 
 Input along the gene body for a scaled whole gene profile.}
 \label{fig:geneBodyplotNorm}
@@ -717,7 +726,7 @@ TESProfile<-qualityScores_LM(
 
 <<eval=TRUE, echo=TRUE >>=
 ChIC_RFscore <-predictionScore(
-target=target,
+target="H3K4me3",
 features_cc=EM_Results,
 features_global=GM_Results,
 features_TSS=TSSProfile,
