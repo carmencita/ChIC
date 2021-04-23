@@ -470,10 +470,8 @@ interest. These may include like the transcription start site (TSS) of annotated
 ChIC creates two types of metagene profiles: (1) the unscaled single-point metagene and (2) the scaled whole gene metagene.
 In the unscaled single-point metagene, the annotated TSS or annotated transcript end (TES) are used as central point. In the scaled whole gene, the metagene prfiles encompass the entire gene body including 2Kb upstream (promoter) and 1Kb downstream flanking regions. 
 
-For the metagene profiles  \ref{fig:MetaGenePlots} the tag density of the immunoprecipitation is taken over all RefSeq annotated human genes, 
-averaged and log2 transformed. The same is done for the input.
-The normalised profile (Figure \ref{fig:MetaGenePlotNorm}) 
-is calculated as the signal enrichment (immunoprecipitation over the input) 
+For the metagene profiles the reads density of the sample is taken over all RefSeq annotated human genes, averaged and log2 transformed. The same is done for the input.
+The normalised profile is calculated as the signal enrichment (immunoprecipitation over the input) 
 and plotted on the y-axis, whereas the genomic coordinates of the genes like 
 the TSS or regions up- and downstream are shown on the x-axis. 
 
@@ -624,7 +622,7 @@ metagenePlotsForComparison(
 @    
 
 
-\begin{figure}[!htb]
+\begin{figure}[!htbp]
 \centering
 <<eval=TRUE, fig=TRUE, echo=FALSE>>=
 <<geneBodyplotComparisonNorm>>
@@ -647,7 +645,7 @@ metagenePlotsForComparison(
 @    
 
 
-\begin{figure}[!htb]
+\begin{figure}[!htbp]
 \centering
 <<eval=TRUE, fig=TRUE, echo=FALSE>>=
 <<TSSplotComparison>>
@@ -691,7 +689,7 @@ plotReferenceDistribution(
     )
 @
 
-\begin{figure}[!htb]
+\begin{figure}[!htbp]
 \centering
 <<eval=TRUE, fig=TRUE, echo=FALSE>>=
 <<ValueComparison>>
@@ -708,7 +706,7 @@ You can use the function \texttt{listMetrics()} to visualize the possible values
 Example:
 
 <<eval=TRUE, echo=TRUE>>=
-listMetrics("EM")
+head(listMetrics("EM"))
 @
 
 
