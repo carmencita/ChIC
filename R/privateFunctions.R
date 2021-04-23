@@ -1473,16 +1473,16 @@ f_loadDataCompendium <- function(endung, target, tag)
     return(frame)
 }
 
-# #' @keywords internal 
-# ## helper function to prepare dataframe
-# f_prepareData <- function(fmean, frame) 
-# {
-#     finalframe <- cbind(fmean$x, frame)
-#     rownames(finalframe) <- NULL
-#     finalframe <- as.data.frame(finalframe)
-#     colnames(finalframe) <- c("x", "mean")
-#     return(finalframe)
-# }
+#' @keywords internal 
+## helper function to prepare dataframe
+f_prepareData <- function(fmean, frame) 
+{
+    finalframe <- cbind(fmean$x, frame)
+    rownames(finalframe) <- NULL
+    finalframe <- as.data.frame(finalframe)
+    colnames(finalframe) <- c("x", "mean")
+    return(finalframe)
+}
 
 
 
