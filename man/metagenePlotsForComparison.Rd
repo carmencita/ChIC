@@ -4,7 +4,13 @@
 \alias{metagenePlotsForComparison}
 \title{Function to create metage plots for comparison}
 \usage{
-metagenePlotsForComparison(data, target, tag, savePlotPath = NULL)
+metagenePlotsForComparison(
+  data,
+  target,
+  tag,
+  savePlotPath = NULL,
+  plot = "all"
+)
 }
 \arguments{
 \item{data}{metagene-object of metagene profile by createMetageneProfile() 
@@ -18,6 +24,10 @@ geneBody, TES or TSS.}
 
 \item{savePlotPath}{if set the plot will be saved under 'savePlotPath'. 
 Default=NULL and plot will be forwarded to stdout.}
+
+\item{plot}{character, possible values "norm", "chip", "input", "all" (default). To plot metaprofiles for 
+normalized ChIP/input enrichment, or only ChIP reads density, or only input control reads density
+or all three plots (respectively)}
 }
 \value{
 Creates a pdf figure under 'savePlotPath'
