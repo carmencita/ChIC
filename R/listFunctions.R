@@ -142,10 +142,10 @@ listMetrics <- function( category = "all" )
         allAvailableMetricsForPlot<-allAvailableMetricsForPlot
     } else if (category == "EM") {
         allAvailableMetricsForPlot<-allAvailableMetricsForPlot[c(which(allAvailableMetricsForPlot %in% c("tag.shift", "N1", "Nd")), grep(pattern="^CC_", perl=TRUE,  x=allAvailableMetricsForPlot))]
-        allAvailableMetricsForPlot<-gsub(pattern="^CC_", perl=TRUE,  rep="", x=allAvailableMetricsForPlot)
+        allAvailableMetricsForPlot<-gsub(pattern="^CC_", perl=TRUE,  replacement="", x=allAvailableMetricsForPlot)
     } else if (category == "GM") {
         allAvailableMetricsForPlot<-grep(pattern="^Ch_", perl=TRUE, value=TRUE,  x=allAvailableMetricsForPlot)
-        allAvailableMetricsForPlot<-gsub(pattern="^Ch_", perl=TRUE,  rep="", x=allAvailableMetricsForPlot)
+        allAvailableMetricsForPlot<-gsub(pattern="^Ch_", perl=TRUE,  replacement="", x=allAvailableMetricsForPlot)
     } else if (category == "LM") {
         allAvailableMetricsForPlot<-allAvailableMetricsForPlot[which(!(allAvailableMetricsForPlot %in% c("tag.shift", "N1", "Nd")))]
         allAvailableMetricsForPlot<-grep(pattern="^CC_", perl=TRUE, value=TRUE, invert=TRUE, x=allAvailableMetricsForPlot)
