@@ -49,7 +49,7 @@
 #'    annotationID="hg19", mc=mc, debug=FALSE)
 #'
 #' message(" downsampling from", sum(unlist(lapply(chipBam$tags,length)))," to ",
-#' sum(unlist(lapply(chip.dataNew$tags,length))))'
+#' sum(unlist(lapply(chip.dataNew$tags,length))))
 #'}
 
 

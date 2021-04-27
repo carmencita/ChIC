@@ -108,12 +108,13 @@ getPeakCallingScores <- function(chip, input, chip.dataSelected,
     #chrorder <- paste("chr", c(1:19, "X", "Y"), sep = "")
     if (annotationID=="dm3")
     {   
-        chrorder <- names(ChIC.data::dm3_chrom_info)
+        chrorder=c("chr2L","chr2R","chr3L","chr3R","chr4")
+        ##chrorder <- names(ChIC.data::dm3_chrom_info)
         ##without M!! remove M from
 
     }else{
         #chrorder <- paste("chr", c(seq_len(19), "X", "Y"), sep = "")
-        chrorder <- paste("chr", c(seq_len(22), "X", "Y"), sep = "")
+        chrorder <- paste("chr", c(seq_len(22)), sep = "")
     }
     
     ## 5 broadRegions 6 enrichment broad regions zthresh_list<-c(3,4)

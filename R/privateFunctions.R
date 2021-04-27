@@ -1,3 +1,9 @@
+#' @import genomeIntervals
+#' @import randomForest
+#' @importFrom utils installed.packages
+#' @importFrom Rsamtools scanBam
+
+
 #####################################################################  
 #####FUNCTIONS QC-metrics for narrow binding PROFILES ###########
 ##################################################################### 
@@ -121,18 +127,21 @@ f_write.probe.wig <- function(chr, pos, val, fname, append=FALSE, feature="M",
 #' @keywords internal 
 ## reads bam file or tagalign file
 f_readFile <- function(filename, reads.aligner.type) {
-    currentFormat <- get(paste("read", reads.aligner.type, "tags", sep = "."))
     if (reads.aligner.type == "bam") {
+        #calling our internal f_read.bam.tags instead than spp default one to handle paired end reads BAM files
+        currentFormat <- get(paste("f_read", reads.aligner.type, "tags", sep = ".")) #calling our internal f_read.bam.tags
         data <- currentFormat(file.path(paste(filename, ".bam", sep = "")))
-    }
-    if (reads.aligner.type == "tagalign") {
+    } else if (reads.aligner.type == "tagAlign") {
+        currentFormat <- get(paste("read", "tagalign", "tags", sep = "."))
         data <- currentFormat(file.path(paste(filename,".tagAlign", sep = "")))
+    } else {
+        stop("Only BAM or tagalign formats are currently supported")
     }
     
     ## readCount=sum(sapply(data$tags, length))
     ## readCount <- sum(unlist(lapply(data$tags, length)))
     readCount <- sum(lengths(data$tags))
-    message(readCount," reads")
+    message(paste(readCount,"reads from", filename))
     ##double check data structure to make sure the structure contains
     ##two lists called $tags and $quality
     helper=data
@@ -142,7 +151,85 @@ f_readFile <- function(filename, reads.aligner.type) {
     return(data)
 }
 
+                               
+#' @keywords internal 
+## this function reads BAM files into a taglist object of SPP 
+## this function code is derived from the original "read.bam.tags" from spp package by Peter Kharchenko 
+## the version included here has been revised to hanlde BAM files containing paired end reads  
+f_read.bam.tags <- function(filename,read.tag.names=FALSE,fix.chromosome.names=F) {
+  #require(Rsamtools)
+  if(!is.element("Rsamtools", installed.packages()[, 1])) {
+    stop("Rsamtools Bioconductor package is now required for BAM file support. Please install")
+  }
 
+## this is setting the list of fileds to be extracted from the BAM file  
+## note that "pos" is the mapping position on the reference sequence (chromosome name stored in "rname")
+## whereas the "qname" field contains the ID of each sequencing reads (or read pairs for paired end reads in the bam file)
+## check if paired end reads
+  checkIfPAired<-any(bitwAnd((Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what="flag",flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]])$flag,0x1));
+  
+  ## which fileds will be read from the BAM file    
+  ww <- c("flag","rname","pos","isize","strand","mapq","qwidth");
+  if(read.tag.names || checkIfPAired) { ww <- c(ww,"qname") }; ## need this also to handle paired ends
+  bam <- Rsamtools::scanBam(filename,param=Rsamtools::ScanBamParam(what=ww,flag=Rsamtools::scanBamFlag(isUnmappedQuery=FALSE)))[[1]];
+  ## removed unused levels (this is needed otehrwise by default we will have an element for each chromosome listed in the BAM header even if there are no reads for that chromosome)
+  bam$rname <- droplevels(bam$rname)
+   
+## this is returning an empty tagglist object if the BAM file contains no valid alignment
+  if(is.null(bam$pos) || length(bam$pos)==0) { return(list(tags=c(),quality=c())) }
+
+## this is just creating a 1/0 vector for postiive/negative strand mapped reads
+  strm <- as.integer(bam$strand=="+")
+
+## this is checking if the BAM file is actually containing paired end reads
+  if(checkIfPAired) { 
+    # paired-end data
+    ## for paired end data, we can select one (random) read out of the pair, so as to have equally represented both the positive and the negative strand mapped reads
+    ## we must design the code so as to take 1 random read for each read ID (qname) so that we get 1 even if we have only one read mapped in the pair
+    oneSelectedInPair<-unlist(tapply(X=1:length(bam$pos), INDEX=bam$qname, FUN=function(ii)  {
+        if (length(ii)>1) {
+            return(sample(ii, size=1))
+         } else if (length(ii)==1) {
+            return(ii)
+         } else {
+            stop("unexpected BAM file content format")
+         }
+    }))  # return only one for each pair (or one for each group if more than 2 alignments are present)
+    ## the selection of indexes (oneSelectedInPair) is performed on the full vectors, thus we can use these indexes to perfrm subselections on the full BAM vectors
+    rl <- list(tags=tapply(X=oneSelectedInPair, INDEX=bam$rname[oneSelectedInPair],function(ii) bam$pos[ii]*strm[ii]  - (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
+    rl <- c(rl,list(quality=tapply(X=oneSelectedInPair,INDEX=bam$rname[oneSelectedInPair],function(ii) bam$mapq[ii])))
+    
+    ## return also the read IDS (query name = "qname") if required
+    if (read.tag.names) {
+        rl <- c(rl,list(names=tapply(X=oneSelectedInPair,INDEX=bam$rname[oneSelectedInPair],function(ii) bam$qname[ii])))
+    }
+      
+  } else {
+    ## this is the "standard" workflow in case the BAM file contains only single end reads
+    ## most of the ChIP-seq peaks calling alogorithms expect single end reads, disributed on both positive and negative strand
+    ## this line of code is traversing the BAM file content (1:length(bam$pos)), chromosome by chromosome (bam$rname)
+    ## and keeping the annotated position as 5'end of positive strand mapped reads (bam$pos[ii]*strm[ii] )
+    ## or the "-" 3'end (i.e. the 5'-end of the reads mapped on hte negative strand (- (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
+    ## this "ifelse" condition for positive and negative strand reads is actually managed by the 1/0 vectors for strand,
+    ## as it will change to "zero" either the first or the second element in the subtraction below
+    rl <- list(tags=tapply(1:length(bam$pos),bam$rname,function(ii) bam$pos[ii]*strm[ii]  - (1-strm[ii])*(bam$pos[ii]+bam$qwidth[ii])))
+    rl <- c(rl,list(quality=tapply(1:length(bam$pos),bam$rname,function(ii) bam$mapq[ii])))
+    ## return also the read IDS (query name = "qname") if required
+    if(read.tag.names) {
+        rl <- c(rl,list(names=tapply(1:length(bam$pos),bam$rname,function(ii) bam$qname[ii])))
+    }
+  }
+
+  if(fix.chromosome.names) {
+    # remove ".fa"
+    names(rl) <- gsub("\\.fa","",names(rl))
+  }
+  return(rl)
+}
+
+                                 
+                                 
+                                 
 #' @keywords internal 
 ## filters canonical chromosomes 
 f_clearChromStructure <- function(structure, annotationID) {
@@ -264,7 +351,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
         mc.cores  = mc,   
         FUN = function(current_chr_list) {
             current_chr <- names(current_chr_list)
-            str(current_chr_list)
+            #str(current_chr_list)
             if (length(current_chr) != 1) {
                 stop("unexpected dataSelected structure")
             }
@@ -775,7 +862,9 @@ f_metaGeneDefinition <- function(selection = "Settings")
         return(settings)
     }
     data(classesDefList, package = "ChIC.data", envir = environment())
+    classesDefList<-get("classesDefList") #just to solve the warning on no visible binding for variable loaded from data pacakge
 
+    
     if (selection == "Hlist") {
         ## GLOBAL VARIABLES
         #Hlist <- c("H3K36me3", "POLR2A", "H3K4me3", "H3K79me2", "H4K20me1",
@@ -827,16 +916,13 @@ f_metaGeneDefinition <- function(selection = "Settings")
 ## helper function to check if annotationID is valid
 f_annotationCheck <- function(annotationID)
 {
-    checkMe <- ((annotationID == "hg19") | 
-        (annotationID == "mm9")| (annotationID == "dm3")
-        | (annotationID == "mm10")| (annotationID == "hg38"))
+    supportedAnnotations<-c("hg19", "hg38", "mm9", "mm10", "dm3")
+    checkMe <- (annotationID %in% supportedAnnotations)
     if (is.character(annotationID) & checkMe)
     {
             message("\n",annotationID, " valid annotation...")
-    }else{
-        warning("annotationID not valid. Setting it back to default value 
-            (hg19). Currently supported annotations are hg19, 
-            hg38, mm9 and mm10.")
+    } else{
+        warning(paste("annotationID not valid. Setting it back to default value (hg19). Currently supported annotations are", paste(supportedAnnotations, collapse=" ")))
         annotationID <- "hg19"
     }
     return(annotationID)        
@@ -848,36 +934,15 @@ f_annotationLoad <- function(annotationID)
 {
     message("Load gene annotation")
     ## require(ChIC.data)
-    if (annotationID == "hg19") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("hg19_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- hg19_refseq_genes_filtered_granges
-    }
-    if (annotationID == "hg38") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("hg38_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- hg38_refseq_genes_filtered_granges
-    }
-
-    if (annotationID == "mm9") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("mm9_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- mm9_refseq_genes_filtered_granges
-    }
-    if (annotationID == "mm10") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("mm10_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- mm10_refseq_genes_filtered_granges
-    }
-    if (annotationID == "dm3") {
-        # hg19_refseq_genes_filtered_granges=NULL
-        data("dm3_refseq_genes_filtered_granges", 
-            package = "ChIC.data", envir = environment())
-        annotObject <- dm3_refseq_genes_filtered_granges
+  
+    availableAnnotations<-c("hg19", "hg38", "mm9", "mm10", "dm3")
+    
+    if (annotationID %in% availableAnnotations) {
+        annotObject_name<-paste(annotationID, "refseq_genes_filtered_granges", sep="_")
+        data(list=annotObject_name, package = "ChIC.data")
+        annotObject <- get(annotObject_name)
+    } else {
+        stop(paste("Annotations for", annotationID, "currently not supported"))
     }
 
     return(annotObject)        
@@ -888,32 +953,24 @@ f_annotationLoad <- function(annotationID)
 ## helper function to check if annotationID is valid
 f_chromInfoLoad <- function(annotationID)
 {
-    ## load chrom_info
+    
+    availableAnnotations_chrlist<-list(
+        "hg19"=paste("chr", c(seq_len(22)), sep = ""),
+        "hg38"=paste("chr", c(seq_len(22)), sep = ""),
+        "mm9"=paste("chr", c(seq_len(19)), sep = ""),
+        "mm10"=paste("chr", c(seq_len(19)), sep = ""),
+        "dm3"=c("chr2L","chr2R","chr3L","chr3R","chr4")
+    )
+        
+      ## load chrom_info
     ##message("load chrom_info")
-    if (annotationID == "hg19") {
-        # hg19_chrom_info=NULL
-        data("hg19_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- hg19_chrom_info
-    }
-    if (annotationID == "hg38") {
-        # hg19_chrom_info=NULL
-        data("hg38_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- hg38_chrom_info
-    }
-    if (annotationID == "mm9") {
-        # hg19_chrom_info=NULL
-        data("mm9_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- mm9_chrom_info
-    }
-    if (annotationID == "mm10") {
-        # hg19_chrom_info=NULL
-        data("mm10_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- mm10_chrom_info
-    }
-    if (annotationID == "dm3") {
-        # hg19_chrom_info=NULL
-        data("dm3_chrom_info", package = "ChIC.data", envir = environment())
-        chromInfo <- dm3_chrom_info
+    if (annotationID %in% names(availableAnnotations_chrlist)) {
+        annotObject_name<-paste(annotationID, "chrom_info", sep="_")
+        data(list=annotObject_name, package = "ChIC.data")
+        # this is keeping only chromsomes 1-22 (excluding X/Y and other non nuclear (Mitocondrial genome) or not in the  main assembly
+        chromInfo <- get(annotObject_name)[availableAnnotations_chrlist[[annotationID]]]
+    } else {
+        stop(paste("Annotations for", annotationID, "currently not supported"))
     }
 
     return(chromInfo)        
@@ -1003,7 +1060,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
     ## lapply(chrl[chrl %in% names(chipTags_current$td)],function(chr) {
     ## BiocParallel::bplapply(chrl[chrl %in% names(chipTags_current$td)], 
     ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
-    mclapply(chrl[chrl %in% names(chipTags_current$td)], 
+    #mclapply(chrl[chrl %in% names(chipTags_current$td)], 
+    mclapply(chrl[chrl %in% names(chipTags_current)], 
         mc.preschedule = FALSE, 
         mc.cores = mc, 
         FUN = function(chr) {
@@ -1013,7 +1071,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
             current_gene_names <- gdl[[chr]]$geneSymbol
             if ((sum(!nsi) > 0)) {
                 ## if ((sum(!nsi)>1)) {
-                px <- f_feature.bin.averages(chipTags_current$td[[chr]], 
+                #px <- f_feature.bin.averages(chipTags_current$td[[chr]], 
+                px <- f_feature.bin.averages(chipTags_current[[chr]], 
                     data.frame(s = gdl[[chr]]$txStart[!nsi], 
                         e = gdl[[chr]]$txEnd[!nsi]), 
                     lom = lom, rom = rom, im = im, bs = bs, 
@@ -1025,7 +1084,8 @@ f_t.get.gene.av.density <- function(chipTags_current, gdl, im, lom,
             }
             if ((sum(nsi) > 0)) {
                 ## if ((sum(nsi)>1)) {
-                nd <- chipTags_current$td[[chr]]
+                #nd <- chipTags_current$td[[chr]]
+                nd <- chipTags_current[[chr]]
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(s = -1 * gdl[[chr]]$txEnd[nsi], 
@@ -1063,7 +1123,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
     ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
     ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
     
-    mclapply(chrl[chrl %in% names(tl_current$td)], 
+    mclapply(chrl[chrl %in% names(tl_current)], 
         mc.preschedule = FALSE, 
         mc.cores = mc,     
         FUN = function(chr) {
@@ -1075,7 +1135,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
                 ## px <- f_feature.bin.averages(tl_current$td[[chr]],
                 ## data.frame(x=gdl[[chr]]$txStart[!nsi]),m=m, 
                 ## nbins=nbins,nu.point.omit=FALSE)
-                px <- f_feature.bin.averages(tl_current$td[[chr]], 
+                px <- f_feature.bin.averages(tl_current[[chr]], 
                     data.frame(x = gdl[[chr]]$txStart[!nsi]), 
                 m = m,
                 min.feature.size=NULL,
@@ -1087,7 +1147,7 @@ f_t.get.gene.av.density_TSS <- function(tl_current, gdl, m = 4020,
             
             if ((sum(nsi) > 0)) {
                 ## if ((sum(nsi)>0)) {
-                nd <- tl_current$td[[chr]]
+                nd <- tl_current[[chr]]
                 nd$x <- -1 * nd$x
                 ## nx <- f_feature.bin.averages(nd,data.frame
                 ## (x=-1*gdl[[chr]]$txEnd[nsi]),m=m,nbins=nbins,
@@ -1125,7 +1185,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
     ## BiocParallel::bplapply(chrl[chrl %in% names(tl_current$td)], 
     ## BPPARAM = BiocParallel::MulticoreParam(workers = mc), 
     
-    mclapply(chrl[chrl %in% names(tl_current$td)], 
+    mclapply(chrl[chrl %in% names(tl_current)], 
         mc.preschedule = FALSE, 
         mc.cores = mc,
         FUN = function(chr) {
@@ -1138,7 +1198,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
                 ##function(dat,feat,nu.feat.omit=F, nu.point.omit=T,
                 ## scaling=NULL, return.scaling=F, trim=0,
                 ## min.feature.size=NULL, ... ) {
-                px <- f_feature.bin.averages(tl_current$td[[chr]], 
+                px <- f_feature.bin.averages(tl_current[[chr]], 
                     data.frame(x = gdl[[chr]]$txEnd[!nsi]), 
                 m = m, 
                 min.feature.size=NULL,
@@ -1149,7 +1209,7 @@ f_t.get.gene.av.density_TES <- function(tl_current, gdl, m = 4020,
             }
             ## if ((sum(nsi)>1)) {
             if ((sum(nsi) > 0)) {
-                nd <- tl_current$td[[chr]]
+                nd <- tl_current[[chr]]
                 nd$x <- -1 * nd$x
                 nx <- f_feature.bin.averages(nd, 
                     data.frame(x = -1 * gdl[[chr]]$txStart[nsi]), 
@@ -1387,23 +1447,29 @@ f_variabilityValuesNorm <- function(dframe, breaks, tag) {
 f_loadDataCompendium <- function(endung, target, tag) 
 {
     # compendium_profiles=ChIC.data::compendium_profiles
-    if (tag == "geneBody") {
-        name <- paste(target, "_", "TWO", endung, sep = "")
-    } else {
-        name <- paste(target, "_", tag, endung, sep = "")
-    }
-    #load profiles
+
+    # if (tag == "geneBody") {
+    #     name <- paste(target, "_", "TWO", endung, sep = "")
+    # } else {
+    #     name <- paste(target, "_", tag, endung, sep = "")
+    # }
+    name <- paste(target, tag, endung, sep = "_")
+
+  #load profiles
     if (target %in% f_metaGeneDefinition("Hlist")){
         data("compendium_profiles", 
             package = "ChIC.data", 
             envir = environment())
-        frame=compendium_profiles[[name]]
+        compendium_profiles<-get("compendium_profiles") #just to solve the warning on no visible binding for variable loaded from data pacakge
+        frame<-compendium_profiles[[name]]
     }else{
         data("compendium_profiles_TF", 
             package = "ChIC.data", 
             envir = environment())
-        frame=compendium_profiles_TF[[name]]
+        compendium_profiles_TF<-get("compendium_profiles_TF") #just to solve the warning on no visible binding for variable loaded from data pacakge
+        frame<-compendium_profiles_TF[[name]]
     }
+    frame$x= as.numeric(frame$x)
     return(frame)
 }
 
@@ -1424,7 +1490,7 @@ f_prepareData <- function(fmean, frame)
 ## plot profiles compendium versus current dataset
 f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody", 
     absoluteMinMax, maintitel = "title", ylab = "mean of log2 read density", 
-    savePlotPath = NULL) 
+    savePlotPath = NULL, currentCol="red") 
 {
     message("Load settings")
     settings <- f_metaGeneDefinition(selection = "Settings")
@@ -1435,6 +1501,14 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
     }
     break_points_2P <- settings$break_points_2P
     break_points <- settings$break_points
+
+    # ##security check 
+    ### There was a problem in the upstream function I already fixed it
+    if (!all(is.numeric(currentFrame$mean), is.numeric(currentFrame$x), is.numeric(meanFrame$mean), is.numeric(meanFrame$x))) {
+        stop("non numeric input to function f_plotProfiles()")
+    }
+    # currentFrame["mean"]<-as.numeric(as.character(currentFrame$mean))
+    # currentFrame["x"]<-as.numeric(as.character(currentFrame$x))
     ## The standard error of the mean (SEM) is the standard deviation of the
     ## sample-mean's estimate of a population mean.  
     ## (It can also be seen as the standard deviation of the error in the 
@@ -1446,9 +1520,9 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
     ## statistical independence of the values in the sample)
     plot(x = c(min(meanFrame$x), max(meanFrame$x)), 
         y = c(absoluteMinMax[1], absoluteMinMax[2]), 
-        type = "n", xlab = "metagene coordinates", ylab = ylab, 
+        xlab = "metagene coordinates", ylab = ylab, 
         main = maintitel, 
-        xaxt = "n")
+        type = "n", xaxt = "n")
     polygon(x = c(meanFrame$x, rev(meanFrame$x)), 
         y = c(meanFrame$mean + 2 * meanFrame$sderr, 
         rev(meanFrame$mean)), col = "lightblue", border = NA)
@@ -1456,7 +1530,7 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
         y = c(meanFrame$mean - 2 * meanFrame$sderr, 
         rev(meanFrame$mean)), col = "lightblue", border = NA)
     lines(x = meanFrame$x, y = meanFrame$mean, col = "black", lwd = 2)
-    lines(x = currentFrame$x, y = currentFrame$mean, col = "red", lwd = 2)
+    lines(x = currentFrame$x, y = currentFrame$mean, col = currentCol, lwd = 2)
     if (endung == "geneBody") {
         currBreak_points <- break_points_2P[c(-2, -5)]  
         ##c(-2000,500,2500,4000)
@@ -1552,7 +1626,6 @@ f_plotValueDistribution <- function(compendium, title, coordinateLine,
 }
 
 
-
 #' @keywords internal 
 ## helper function to select the random forest model for the respective
 ## chromatinmark or TF
@@ -1560,43 +1633,45 @@ f_getPredictionModel <- function(id) {
     # library(randomForest)
     allChrom <- f_metaGeneDefinition("Classes")
     data("rf_models", package = "ChIC.data", envir = environment())
+    rf_models<-get("rf_models") #just to solve the warning on no visible binding for variable loaded from data pacakge
     
-    if (id %in% f_metaGeneDefinition("Hlist")) {
-        message("Load chromatinmark model")
-        if (id %in% allChrom$allSharp) {
-            model <- rf_models[["sharpEncode"]]
-        }
-        
-        if (id %in% allChrom$allBroad) {
-            model <- rf_models[["broadEncode"]]
-        }
-        
-        if (id %in% allChrom$RNAPol2) {
-            model <- rf_models[["RNAPol2Encode"]]
-        }
-        
+    if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
+
+        message("Load chromatinmark model:")
+        ## in the ifelse structure we are giving higher priority to the more "specific" model
+        ## e.g. if target is "H3K27me3", thenw e use that mark specific model instead than the "broad" one
         if (id == "H3K9me3") {
-            model <- rf_models[["H3K9Encode"]]
+            model <- rf_models[["H3K9me3"]]
+            message("H3K9me3 model")
+        } else if (id == "H3K27me3") {
+            model <- rf_models[["H3K27me3"]]
+            message("H3K27me3 model")
+        } else if (id == "H3K36me3") {
+            model <- rf_models[["H3K36me3"]]
+            message("H3K36me3 model")
+        } else if (id %in% c(allChrom$allBroad, "broad")) {
+            model <- rf_models[["Broad"]]
+            message("Broad marks model")
+        } else if (id %in% c(allChrom$allSharp, "sharp")) {
+            model <- rf_models[["Sharp"]]
+            message("Sharp marks model")
+        } else if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
+            model <- rf_models[["RNAPol2"]]
+            message("RNAPol2 model")
+        } else {
+            # considering the starting "if" clause, this option should never happen
+            message(id, "error in model selction")
+            model=NULL
         }
-        
-        if (id == "H3K27me3") {
-            model <- rf_models[["H3K27Encode"]]
-        }
-        
-        if (id == "H3K36me3") {
-            model <- rf_models[["H3K36Encode"]]
-        }
-    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
-    {
-        message("Load TF model")
-        model <- rf_models$TFmodel
+    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))  {
+        message("Load generic TF model")
+        model <- rf_models$TF
     } else {
-        message(id, "not found")
+        message(id, "model not found")
         model=NULL
     }
     return(model)
 }
-
 
 #' @keywords internal 
 ## helper function that converts frame with chip and normalized values to one
@@ -1604,9 +1679,15 @@ f_getPredictionModel <- function(id) {
 f_convertframe <- function(oldframe) {
     values <- c(oldframe$Chip, oldframe$Norm)
     newframe <- data.frame(values)
-    nn <- c(paste("chip", rownames(oldframe), sep = "_"), 
-        paste("norm", rownames(oldframe), 
+    #nn <- c(paste("chip", rownames(oldframe), sep = "_"), 
+    #    paste("norm", rownames(oldframe), 
+    #    sep = "_"))
+    nn <- c(rownames(oldframe), 
+        paste("Norm", rownames(oldframe), 
         sep = "_"))
+    
     rownames(newframe) <- nn
     return(newframe)
 }
+
+

@@ -7,6 +7,8 @@
 #' readBamFile
 #'
 #' @param filename, name/path of the bam file to be read (without extension)
+#' @param readAlignerType, format of the input file. Currently only 'bam' 
+#' (default) and 'tagAlign' are supported
 #'
 #' @return result list of lists, every list corresponds to a chromosome and 
 #' contains a vector of coordinates of the 5' ends of the aligned tags.
@@ -31,12 +33,14 @@
 #' chipBam=readBamFile(bamName)
 #' }
 
-readBamFile <- function(filename) {
+readBamFile <- function(filename, readAlignerType = "bam") {
     ########## check if input format is ok
     if (!is.character(filename)) 
         stop("Invalid filename (String required)")
+    if (!(readAlignerType %in% c("bam","tagAlign"))) 
+        stop("Invalid filename (String required)")
     ######### 
-    fileContent <- f_readFile(filename = filename, reads.aligner.type = "bam")
+    fileContent <- f_readFile(filename = filename, reads.aligner.type = readAlignerType)
     result=f_checkOfChrNames(fileContent)
     return(result)
 }

@@ -1,5 +1,5 @@
 
-#'@title Shows available chromatin marks and factors
+#' @title Shows available chromatin marks and factors
 #'
 #' @description
 #' Lists chromatin marks and transcription factors that are available 
@@ -24,7 +24,6 @@
 #' listAvailableElements(target="TF")
 #' listAvailableElements(target="mark")
 #'
-
 listAvailableElements <- function( target )
 {
     if ( target == "TF" ) {
@@ -33,6 +32,15 @@ listAvailableElements <- function( target )
     } else if ( target == "mark" ) { 
         message( "The following chromatin marks are available:" )
         f_metaGeneDefinition( "Hlist" )
+    } else if ( target == "broad" ) { 
+        message( "The following chromatin marks are available for the category broad:" )
+        f_metaGeneDefinition("Classes")$allBroad
+    } else if ( target == "sharp" ) { 
+        message( "The following chromatin marks are available for the category sharp:" )
+        f_metaGeneDefinition("Classes")$allSharp
+    } else if ( target == "RNAPol2" ) { 
+        message( "The following chromatin marks are available for the category RNAPol2:" )
+        f_metaGeneDefinition("Classes")$RNAPol2
     } else if ( target %in% f_metaGeneDefinition("Hlist") ) { 
         message( "Chromatin mark available for comparison analysis" )
     } else if ( target %in% f_metaGeneDefinition( "TFlist" )) { 
@@ -43,7 +51,7 @@ listAvailableElements <- function( target )
 }
 
 
-#'@title Lists the IDs of samples included in the compendium
+#' @title Lists the IDs of samples included in the compendium
 #'
 #' @description
 #' Shows the IDs of all analysed ChIP-seq samples 
@@ -69,23 +77,87 @@ listAvailableElements <- function( target )
 listDatasets <- function( dataset )
 {
 
-    EIDs <- rownames( ChIC.data::compendium_db )[
-        grep( "ENC", rownames( ChIC.data::compendium_db ))]
+    data("compendium_db", package = "ChIC.data", envir = environment())
+    compendium_db<-get("compendium_db") #just to solve the warning on no visible binding for variable loaded from data pacakge
+    ALLIDs_histones<-as.character(compendium_db$ID)
+    EIDs <- ALLIDs_histones[grep("ENC", ALLIDs_histones)]
+
+    data("compendium_db_tf", package = "ChIC.data", envir = environment())
+    compendium_db_tf<-get("compendium_db_tf") #just to solve the warning on no visible binding for variable loaded from data pacakge
+    ALLIDs_TFs<-as.character(compendium_db_tf$ID)
 
     if ( dataset == "ENCODE" ) {
         message( "ENCODE IDs: " )
-        c( EIDs, rownames(ChIC.data::compendium_db_tf) )
+        return(c( EIDs,  ALLIDs_TFs))
 
     } else if ( dataset == "Roadmap" ) { 
 
         message( "Roadmap IDs: " )
-        rownames( ChIC.data::compendium_db ) [
-            ! rownames (ChIC.data::compendium_db) %in% EIDs ]
+        return(ALLIDs_histones[(!(ALLIDs_histones %in% EIDs))])
 
     } else {
         stop( "No match found. Please use the keywords: 
             \"ENCODE\" or \"Roadmap\"" )
     }
 }
+
+
+#' @title Lists the metrics available in the compendium 
+#'
+#' @description
+#' Lists the metrics available in the compendium that can be used with plotReferenceDistribution()
+#' 
+#' listMetrics
+#'
+#' @param category String, to specify the category for which the list of metrics 
+#' should to be returned. Valid keywords are "all", "EM", "GM", "LM".
+#'
+#' @return returns a character vecor of metrics available in the
+#' compendium that can be used with plotReferenceDistribution() as "metricToBePlotted" parameter
+#'
+#' @export
+#'
+#' @examples
+#'
+#' listMetrics(category="all")
+#' listMetrics(category="EM")
+#'
+
+listMetrics <- function( category = "all" )
+{
+
+    if (!(category %in% c("all","EM","GM","LM"))) {
+        stop("Invalid value for category. Possible values are \"all\",\"EM\",\"GM\",\"LM\"")
+    }
+
+    data("compendium_db_tf", package = "ChIC.data", envir = environment())
+    compendium_db_tf<-get("compendium_db_tf") #just to solve the warning on no visible binding for variable loaded from data pacakge
+
+    data("compendium_db", package = "ChIC.data", envir = environment())
+    compendium_db<-get("compendium_db") #just to solve the warning on no visible binding for variable loaded from data pacakge
+    
+    if (!all(names(compendium_db_tf) == names(compendium_db))) {
+        stop("compendium_db_tf and compendium_dd have different featrue names")
+    }
+
+    finalCompendium <- compendium_db_tf
+    allAvailableMetricsForPlot<-colnames(finalCompendium)
+    allAvailableMetricsForPlot<-allAvailableMetricsForPlot[(!(allAvailableMetricsForPlot %in% c("ID", "target")))]
+    
+    if (category == "all") {
+        allAvailableMetricsForPlot<-allAvailableMetricsForPlot
+    } else if (category == "EM") {
+        allAvailableMetricsForPlot<-allAvailableMetricsForPlot[c(which(allAvailableMetricsForPlot %in% c("tag.shift", "N1", "Nd")), grep(pattern="^CC_", perl=TRUE,  x=allAvailableMetricsForPlot))]
+        allAvailableMetricsForPlot<-gsub(pattern="^CC_", perl=TRUE,  replacement="", x=allAvailableMetricsForPlot)
+    } else if (category == "GM") {
+        allAvailableMetricsForPlot<-grep(pattern="^Ch_", perl=TRUE, value=TRUE,  x=allAvailableMetricsForPlot)
+        allAvailableMetricsForPlot<-gsub(pattern="^Ch_", perl=TRUE,  replacement="", x=allAvailableMetricsForPlot)
+    } else if (category == "LM") {
+        allAvailableMetricsForPlot<-allAvailableMetricsForPlot[which(!(allAvailableMetricsForPlot %in% c("tag.shift", "N1", "Nd")))]
+        allAvailableMetricsForPlot<-grep(pattern="^CC_", perl=TRUE, value=TRUE, invert=TRUE, x=allAvailableMetricsForPlot)
+        allAvailableMetricsForPlot<-grep(pattern="^Ch_", perl=TRUE, value=TRUE, invert=TRUE, x=allAvailableMetricsForPlot)
+    } 
+    return(allAvailableMetricsForPlot)
+}        
 
 

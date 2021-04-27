@@ -73,6 +73,7 @@
 getCrossCorrelationScores <- function(data, bchar, annotationID="hg19", 
     read_length, savePlotPath = NULL, mc=1,tag="ChIP") 
 {
+
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 12, 
         clear = FALSE, width = 60)
 
@@ -238,7 +239,9 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
         message("Crosscorrelation plot saved under ",savePlotPath)
         filename <- file.path(savePlotPath, paste0(tag,"CrossCorrelation.pdf"))
         pdf(file = filename)
-    
+    } # the plot is drawn even with savePlotPath=NULL 
+      # we need this to draw the plot even in the chicwrapper function
+
         ## plot cross correlation curve with smoothing
         message("plot cross correlation curve with smoothing")
         par(mar = c(3.5, 3.5, 1, 0.5), mgp = c(2, 0.65, 0), cex = 0.8)
@@ -270,8 +273,9 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
             paste("Quality flag =", phScores$quality_flag), "", 
             paste("Shift =", (phScores$peak$x)), 
             paste("Read length =", (read_length))))
-        
-        
+    
+    # we need this to draw the plot even in the chicwrapper function
+    if (!is.null(savePlotPath)) {    
         dev.off()
         message("pdf saved under", filename)
     }
@@ -279,10 +283,10 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     phantomScores <- list(CC_NSC = round(phScores$NSC, 3), 
         CC_RSC = round(phScores$RSC, 3), 
         CC_QualityFlag = phScores$quality_flag, 
-        CC_shift. = phScores$peak$x, 
-        CC_A. = round(phScores$peak$y, 3), 
-        CC_B. = round(phScores$phantom_cc$y, 3), 
-        CC_C. = round(phScores$min_cc$y, 3))
+        CC_shift = phScores$peak$x, 
+        CC_A = round(phScores$peak$y, 3), 
+        CC_B = round(phScores$phantom_cc$y, 3), 
+        CC_C = round(phScores$min_cc$y, 3))
     
     pb$tick()
     ## 4 NRF calculation
@@ -299,7 +303,7 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     
     ## to compensate for lib size differences
     pb$tick()
-    message("\ncalculate different QC values...")
+    message("\ncalculate alternative QC scores...")
     ## nomi<-rep(names(data$tags), sapply(data$tags, length))
     nomi <- rep(names(data$tags), lapply(data$tags, length))
     
@@ -307,20 +311,30 @@ getCrossCorrelationScores <- function(data, bchar, annotationID="hg19",
     names(dataNRF) <- NULL
     dataNRF <- paste(nomi, dataNRF, sep = "")
     pb$tick()
-    if (ALL_TAGS > 1e+07) {
-        
-        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, 
-            FUN = function(x) {
-            return(length(unique(sample(dataNRF, size = 1e+07))))
-        })))
-        
+
+
+
+    ### simplified and parallelized version
+    checkIfReplacementInRandomization<-(ALL_TAGS <= 1e+07)
+    randIterations<-100
+
+    if (mc > 1) {
+    cluster <- parallel::makeCluster( mc )
+    parallel::clusterExport(cl = cluster, varlist=c("dataNRF", "checkIfReplacementInRandomization"), envir=environment())
+        randomizedUniqueCount<-parallel::parSapplyLB(cl=cluster, X=1:randIterations, FUN = function(x) {
+        return(length(unique(sample(dataNRF, size = 1e+07, replace = checkIfReplacementInRandomization))))
+        })
+    parallel::stopCluster( cluster )
     } else {
-        UNIQUE_TAGS_LibSizeadjusted <- round(mean(sapply(1:100, #6053517
-            FUN = function(x) {
-            return(length(unique(sample(dataNRF, 
-                size = 1e+07, replace = TRUE))))
-        })))
+        randomizedUniqueCount<-sapply(X=1:randIterations, FUN = function(x) {
+        return(length(unique(sample(dataNRF, size = 1e+07, replace = checkIfReplacementInRandomization))))
+        })
     }
+    UNIQUE_TAGS_LibSizeadjusted <- round(mean(randomizedUniqueCount ))
+        
+
+
+
     pb$tick()
     NRF_LibSizeadjusted <- UNIQUE_TAGS_LibSizeadjusted/1e+07
 

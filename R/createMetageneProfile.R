@@ -21,13 +21,19 @@
 #' 
 #' CreateMetageneProfile
 #'
-#' @param smoothed.densityChip Smoothed tag-density object for ChIP (returned 
-#' by qualityScores_EM)
-#' @param smoothed.densityInput Smoothed tag-density object for Input (returned
-#' by qualityScores_EM)
+#' @param selectedTagsChip Data-structure with selected tag information for ChIP 
+#' (returned by qualityScores_EM). 
+#' @param selectedTagsInput Data-structure with selected tag information for Input 
+#' (returned by qualityScores_EM)
+#' @param smoothed.densityChip Optional, output of tagDensity on the ChIP taglist object.
+#' It is just used as part of the ChIC_wrapper workflow to skip
+#' the call to tagDensity function as it is already performed in the qualityScores_GM function.
+#' @param smoothed.densityInput Optional, output of tagDensity on the Input taglist object.
+#' It is just used as part of the ChIC_wrapper workflow to skip
+#' the call to tagDensity function as it is already performed in the qualityScores_GM function.
 #' @param tag.shift Integer containing the value of the tag shif, calculated by
 #' getCrossCorrelationScores()
-#' @param annotationID String indicating the genome assembly (Default="hg19")
+#' @param annotationID String indicating the genome assembly
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
@@ -95,13 +101,14 @@
 #'     tag.shift = finalTagShift, mc = mc)
 #'}
 
-createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput, 
-    tag.shift, annotationID = "hg19", debug = FALSE, mc = 1) 
+createMetageneProfile <- function( selectedTagsChip, selectedTagsInput,
+    smoothed.densityChip=NULL, smoothed.densityInput=NULL,
+    tag.shift, annotationID , debug = FALSE, mc = 1) 
 {
     ########## check if input format is ok
-    if (!is.list(smoothed.densityChip)) 
+    if (!is.list(selectedTagsChip)) 
         stop("Invalid format for smoothed.densityChip")
-    if (!is.list(smoothed.densityInput)) 
+    if (!is.list(selectedTagsInput)) 
         stop("Invalid format for smoothed.densityInput")
     
     if (!is.numeric(tag.shift)) 
@@ -122,6 +129,7 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     }
     ########## 
     
+    message("***Computing metagene profiles...***")
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 6, 
         clear = FALSE, width = 60)
 
@@ -132,23 +140,35 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     annotObjectNew$interval_starts <-as.integer(annotObjectNew$interval_starts)
     annotObjectNew$interval_ends <- as.integer(annotObjectNew$interval_ends)
     annotObjectNew$seq_name <- as.character(annotObjectNew$seq_name)
-    
     annotatedGenesPerChr <- split(annotObjectNew, f = annotObjectNew$seq_name)
     
-    ## two.point.scaling create scaled metageneprofile input
-    message("Calculating scaled metageneprofile ...")
 
-    smoothed.densityInput <- list(td = smoothed.densityInput)
-    message("process input")
-    pb$tick()
-    
-    binned_Input <- masked_t.get.gene.av.density(smoothed.densityInput, 
-        gdl = annotatedGenesPerChr, 
-        mc = mc)
-    pb$tick()
+    ## two.point.scaling create scaled metageneprofile input
+    message("***Calculating scaled metageneprofile ...***")
+    ## objects of smoothed tag density for ChIP and Input
+
+    if (is.null(smoothed.densityChip)) {
+    message("Computing reads density profile for ChIP ...")
+    smoothed.densityChip <- tagDensity(selectedTagsChip, tag.shift, 
+        annotationID = annotationID, mc = mc)
+    }
+
+    if (is.null(smoothed.densityInput)) {
+    message("Computing reads density profile for Input control ...")
+    smoothed.densityInput <- tagDensity(selectedTagsInput, tag.shift, 
+        annotationID = annotationID, mc = mc)
+    }
+
+    smoothingBandwidth <- 50
+    smoothingStep <- 20 
+    normalizedProfile= spp::get.smoothed.enrichment.mle(
+        selectedTagsChip, selectedTagsInput,background.density.scaling = T, bandwidth=smoothingBandwidth, 
+        step=smoothingStep,tag.shift=tag.shift)
+
+    #smoothed.densityInput <- list(td = smoothed.densityInput)
     
     ## Chip
-    smoothed.densityChip <- list(td = smoothed.densityChip)
+    #smoothed.densityChip <- list(td = smoothed.densityChip)
     message("\nprocess ChIP")
     pb$tick()
 
@@ -156,8 +176,24 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
         gdl = annotatedGenesPerChr, 
         mc = mc)
     pb$tick()
+
+    message("process input")
+    pb$tick()
     
-    geneBody <- list(chip = binned_Chip, input = binned_Input)
+    binned_Input <- masked_t.get.gene.av.density(smoothed.densityInput, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc)
+    pb$tick()
+        
+
+    message("\nprocess ChIP over Input")
+   
+
+    binned_Norm <- masked_t.get.gene.av.density(normalizedProfile, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc)
+
+    geneBody <- list(chip = binned_Chip, input = binned_Input, norm=binned_Norm)
     
     ## one.point.scaling create non-scaled metageneprofile for TSS
     message("\nCreating non-scaled metageneprofiles...")
@@ -169,7 +205,12 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     binnedChip_TSS <- masked_getGeneAvDensity_TES_TSS(smoothed.densityChip, 
         gdl = annotatedGenesPerChr, 
         mc = mc, tag = "TSS")
-    onepointTSS <- list(chip = binnedChip_TSS, input = binnedInput_TSS)
+    binnedNorm_TSS <- masked_getGeneAvDensity_TES_TSS(normalizedProfile, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc, tag = "TSS")
+
+    onepointTSS <- list(chip = binnedChip_TSS, input = binnedInput_TSS,
+        norm=binnedNorm_TSS)
     pb$tick()
 
     ## one.point.scaling create non-scaled metageneprofile for TES
@@ -180,18 +221,22 @@ createMetageneProfile <- function(smoothed.densityChip, smoothed.densityInput,
     binnedChip_TES <- masked_getGeneAvDensity_TES_TSS(smoothed.densityChip, 
         gdl = annotatedGenesPerChr, 
         mc = mc, tag = "TES")
-    onepointTES <- list(chip = binnedChip_TES, input = binnedInput_TES)
+    binnedNorm_TES <- masked_getGeneAvDensity_TES_TSS(normalizedProfile, 
+        gdl = annotatedGenesPerChr, 
+        mc = mc, tag = "TES")
+    onepointTES <- list(chip = binnedChip_TES, input = binnedInput_TES, 
+        norm=binnedNorm_TES)
     pb$tick()
 
     if ( debug ) {
         message("Debuggin mode ON...")
         message("writing metageneprofiles Rdata objects")
-        save(binned_Chip, binned_Input, file = file.path(getwd(), 
-            paste("geneBody.RData", sep = "_")))
-        save(binnedChip_TSS, binnedInput_TSS, file = file.path(getwd(), 
-            paste("OnePointTSS.RData", sep = "_")))
-        save(binnedChip_TES, binnedInput_TES, file = file.path(getwd(), 
-            paste("OnePointTES.RData", sep = "_")))
+        save(binned_Chip, binned_Input, binned_Norm, 
+            file = file.path(getwd(), "geneBody.RData"))
+        save(binnedChip_TSS, binnedInput_TSS, binnedNorm_TSS, 
+            file = file.path(getwd(), "OnePointTSS.RData"))
+        save(binnedChip_TES, binnedInput_TES, binnedNorm_TSS,
+            file = file.path(getwd(), "OnePointTES.RData"))
     }
     message("Metageneprofile objects created!")
     return(list(geneBody = geneBody, TSS = onepointTSS, TES = onepointTES))

@@ -34,20 +34,26 @@
 #'
 #' qualityScores_EM
 #'
-#' @param chipName String, filename and path to the ChIP bam file 
-#' (without extension)
-#' @param inputName String, filename and path to the Input bam file
-#' (without extension)
+#' @param chipName Character, filename (and optional path) for the ChIP bam file (without the .bam extension)
+#' @param inputName Character, filename (and optional path) for the Input control bam file (without the .bam extension)
 #' @param read_length Integer, length of the reads
-#' @param annotationID String, indicating the genome assembly (Default="hg19")
+#' @param chip.data Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "chipName"
+#' @param input.data Optional, taglist object for Input control reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "inputName"
+#' @param readAlignerType string, bam (default) tagAlign file format are supported
+#' @param annotationID Character, indicating the genome assembly 
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param crossCorrelation_Input Boolean, calculates cross-correlation and 
 #' and EM metrics for the input. The default=FALSE as the running time 
 #' increases and the metrics are not used in quality prediction. 
 #' @param savePlotPath, set if Cross-correlation plot should be saved under 
 #' "savePlotPath". Default=NULL and plot will be forwarded to stdout
+#' @param downSamplingChIP Boolean, to be used to downsample reads within enrichment peaks.
+#' This option was used for generating simulated low quality (low enrichment) profiles for testing the prediction models.
+#' The default is FALSE and should generally not be used by end users.
 #' @param debug Boolean, to enter debugging mode. Intermediate files are 
 #' saved in working directory
+#' @param writeWig Boolean, saves smoothed tag density in  
+#' wig format in working directory for Input and ChIP
 #'
 #' @return returnList, contains
 #' QCscores_ChIP List of QC-metrics with crosscorrelation values for the ChIP
@@ -93,12 +99,14 @@
 
 
 
-qualityScores_EM <- function(chipName, inputName, read_length, 
-    annotationID = "hg19", mc = 1, crossCorrelation_Input=FALSE,
-    downSamplingChIP=FALSE,
+qualityScores_EM <- function(chipName, inputName, read_length,  
+    chip.data=NULL, input.data=NULL, readAlignerType = "bam",
+    annotationID,  mc = 1, crossCorrelation_Input=FALSE,
+    downSamplingChIP=FALSE, writeWig=FALSE,
     savePlotPath = NULL, debug = FALSE) 
 {
     start_time <- Sys.time()
+    message("***Calculating EM metrics...***")
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 8, 
         clear = FALSE, width = 60)
     pb$tick()
@@ -128,30 +136,30 @@ qualityScores_EM <- function(chipName, inputName, read_length,
         mc <- 1
     }
     cluster=NULL
-    ########## 
     pb$tick()
 
-    message("reading bam files")
-    message("...for ChIP")
-    chip.data <- readBamFile(chipName)
-    
-    pb$tick()
-
-    message("\n...for Input")
-    input.data <- readBamFile(inputName)
-
-
-    if ( debug ) {
-        message("Debugging mode ON")
-        save(chip.data, input.data, 
-            file = file.path(getwd(), "bamFiles.RData"))
+    # read input data from bamfile (unless they are passed as taglist object among input parameters)
+    if (is.null(chip.data)) {
+        message("reading bam file for ChIP")
+        chip.data <- readBamFile(chipName,readAlignerType = readAlignerType)
+        pb$tick()
+    }
+    if (is.null(input.data)) {
+        message("reading bam file for Input control")
+        input.data <- readBamFile(inputName,readAlignerType = readAlignerType)
+        pb$tick()
     }
 
+    if ( debug ) {
+        message("Debugging mode ON, saving taglist objects to bamFiles.RData")
+        save(chip.data, input.data, 
+        file = file.path(getwd(), "bamFiles.RData"))
+    }
     pb$tick()
 
+
     if (downSamplingChIP){
-        message("downsampling ChIP data. This can take
-            a while!")
+        message("downsampling ChIP data. This can take a while!")
         chip.dataNew=downsample_ChIPpeaks(chip.data=chip.data, input.data=input.data,
             read_length=read_length,
             annotationID=annotationID,mc=mc,debug=debug)
@@ -167,7 +175,7 @@ qualityScores_EM <- function(chipName, inputName, read_length,
 
     ## plot and calculate cross correlation and phantom 
     ## characteristics for the ChIP
-    message("\ncalculating binding characteristics for ChIP... ")
+    message("\nCalculating binding characteristics for ChIP... ")
 
     estimating_fragment_length_range <- c(0, 500)
     estimating_fragment_length_bin <- 5
@@ -266,76 +274,49 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     remove(chip_binding.characteristics)
     #remove(input_binding.characteristics)
 
-    input.dataSelected <- selectedTags$input.dataSelected
-    chip.dataSelected <- selectedTags$chip.dataSelected
+    input.tagsSelected <- selectedTags$input.dataSelected
+    chip.tagsSelected <- selectedTags$chip.dataSelected
     
     if ( debug) {
-        save(chip.dataSelected, input.dataSelected, 
+        save(chip.tagsSelected, input.tagsSelected, 
             file = file.path(getwd(),"dataSelected.RData"))
     }
     
     ## get QC-values from peak calling
     message("\n***Calculating QC-metrics from peak-calling...***")
-    bindingScores <- getPeakCallingScores(chip.data, 
-        input.data, 
-        chip.dataSelected, 
-        input.dataSelected, 
-        final.tag.shift, 
+    bindingScores <- getPeakCallingScores(chip=chip.data, 
+        input=input.data, 
+        chip.dataSelected=chip.tagsSelected, 
+        input.dataSelected=input.tagsSelected, 
+        tag.shift =final.tag.shift, 
         mc=mc,
         annotationID=annotationID,
         debug=debug)
-    
-    message("\n***Tag smooting...***")
-    
-    pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 3, 
-        clear = FALSE, width = 60)
-    pb$tick()
 
-    ## objects of smoothed tag density for ChIP and Input
-    smoothed.densityChip <- tagDensity(chip.dataSelected, final.tag.shift, 
-        annotationID = annotationID, mc = mc)
-    pb$tick()
-
-    smoothed.densityInput <- tagDensity(input.dataSelected, final.tag.shift, 
-        annotationID = annotationID, mc = mc)
-    pb$tick()
-    
-    if ( debug )
-    {
-        message("saving tracks as wig...")
-        f_writewig(smoothed.densityChip, 
-            file.path(getwd(), "chip.wig"),"track chip")
-        f_writewig(smoothed.densityInput, 
-            file.path(getwd(),"input.wig"),"track input")
-    }
 
     returnList <- list(QCscores_ChIP = crossvalues_Chip, 
         QCscores_Input = crossvalues_Input, 
         QCscores_binding = bindingScores, 
-        TagDensityChip = smoothed.densityChip, 
-        TagDensityInput = smoothed.densityInput)
-    
-    if ( debug ) {
+        SelectedTagsChip = chip.tagsSelected, 
+        SelectedTagsInput = input.tagsSelected
+        )
 
-        writeout = data.frame( cc_binding_valuesChIP= 
-            unlist(crossvalues_Chip))
-        writeout=rbind(writeout, data.frame( 
-            cc_binding_valuesChIP=unlist(bindingScores)))
-        writeout$crossvalues_Input="NA"
-        if ( crossCorrelation_Input )
-        {
-            writeout$crossvalues_Input=data.frame( 
-                crossvalues_Input=c(unlist (crossvalues_Chip),
-                 rep("NA",6)))
-        }
-        filename <- file.path(getwd(), "CC.results")
-        write.table(writeout, file = filename,
-            row.names = TRUE, col.names = TRUE, 
-            append = FALSE, quote = FALSE)
-        save(smoothed.densityChip, smoothed.densityInput, 
-            file = file.path(getwd(), "smoothed.RData"))
+    if ( writeWig )
+    {
+        message("compute track for ChIP")
+        smoothed.densityChip<- tagDensity(data=chip.data, tag.shift=final.tag.shift, annotationID = annotationID, mc = mc)
+        message("saving ChIP track as wig...")
+        f_writewig(smoothed.densityChip, file.path(getwd(), "chip.wig"),"track chip")
+        
+        message("compute track for input")
+        smoothed.densityInput<- tagDensity(data=input.data, tag.shift=final.tag.shift, annotationID = annotationID, mc = mc)
+        message("saving input track as wig...")
+        f_writewig(smoothed.densityInput, file.path(getwd(),"input.wig"),"track input")
+
     }
-    message("Calculation of EM done!")
+    
+
+    message("Calculation of EM metrics done!")
     end_time <- Sys.time()
     message("Time used: ")
     message(end_time - start_time)

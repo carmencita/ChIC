@@ -1,15 +1,15 @@
 Package: ChIC
 Title: Quality Control Pipeline for ChIP-Seq Data
-Version: 1.7.4
+Version: 1.7.17
 Author: Carmen Maria Livi
-Maintainer: Carmen Maria Livi <carmen.livi@ifom.eu>
+Maintainer: Carmen Maria Livi <carmen.livi@external.ifom.eu>
 Description: Quality control (QC) pipeline for ChIP-seq data using a comprehensive set of QC metrics, including previously proposed metrics as well as novel ones, based on local characteristics of the enrichment profile. The package provides functions to calculate a set of QC metrics, a compendium with reference values and machine learning models to score sample quality.
 License: GPL-2
 Encoding: UTF-8
 LazyData: TRUE
 Imports:
-	ChIC.data (>= 1.7.1), caTools, methods,GenomicRanges, IRanges, parallel, progress,
-	caret, grDevices, stats, utils, graphics, S4Vectors, BiocGenerics
+	ChIC.data (>= 1.7.1), caTools, methods, GenomicRanges, IRanges, parallel, progress, randomForest,
+	caret, grDevices, stats, utils, graphics, S4Vectors, BiocGenerics, genomeIntervals, Rsamtools
 Depends: spp, R (>= 3.6)
 biocViews: ChIPSeq, QualityControl
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

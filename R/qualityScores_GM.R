@@ -25,14 +25,17 @@
 
 #' qualityScores_GM
 #'
-#' @param densityChip Smoothed tag-density object for ChIP (returned by
-#' qualityScores_EM). 
-#' @param densityInput Smoothed tag density object for Input (returned by
-#' qualityScores_EM)
+#' @param selectedTagsChip Data-structure with selected tag information for ChIP 
+#' (returned by qualityScores_EM). 
+#' @param selectedTagsInput Data-structure with selected tag information for Input 
+#' (returned by qualityScores_EM)
+#' @param tag.shift, Integer containing the value of the tag shif, calculated 
+#' by getCrossCorrelationScores()
+#' @param annotationID String, indicating the genome assembly
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
-#' @param debug Boolean, to enter debugging mode. Intermediate files are 
-#' saved in working directory
+#' @param mc Integer, the number of CPUs for parallelization (default=1)
+#' @param returnDensities Boolean, default FALSE. Whether smoothed Chip and Input reads densities should be returned. This is used only for optimizing the flow od fata in the ChIC_wrapper function
 #'
 #' @return finalList List with 9 QC-values
 #'
@@ -92,21 +95,34 @@
 #'     densityInput = smoothedInput, savePlotPath = filepath)
 #'}
 
-qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL, 
-    debug = FALSE) 
+qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
+    annotationID, savePlotPath = NULL, mc=1, returnDensities=FALSE) 
 {
-    message("***Calculating GM...***")
+    message("***Calculating GM metrics...***")
 
     pb <- progress_bar$new(format = "(:spin) [:bar] :percent",total = 5, 
         clear = FALSE, width = 60)
     pb$tick()
 
     ########## check if input format is ok
-    if (!is.list(densityChip)) 
-        stop("Invalid format for densityChip")
-    if (!is.list(densityInput)) 
-        stop("Invalid format for densityInput")
+    if (!is.list(selectedTagsChip)) 
+        stop("Invalid format for selectedChip")
+    if (!is.list(selectedTagsInput)) 
+        stop("Invalid format for selectedInput")
+
+    if ( !is.numeric(tag.shift) ) 
+        stop( "tag.shift must be numeric" )
+    if ( tag.shift < 1 ) 
+        stop( "tag.shift must be > 0" )
+
     ########## 
+    
+    ## objects of smoothed tag density for ChIP and Input
+    densityChip <- tagDensity(selectedTagsChip, tag.shift, 
+        annotationID = annotationID, mc = mc)
+
+    densityInput <- tagDensity(selectedTagsInput, tag.shift, 
+        annotationID = annotationID, mc = mc)
     
     ## shorten frame and reduce resolution
     message("shorten frame...")
@@ -162,21 +178,26 @@ qualityScores_GM <- function(densityChip, densityInput, savePlotPath = NULL,
         Ch_Fractions_without_reads_input = round(inputFracWithoutReads, 3), 
         Ch_DistanceInputChip = dist)
 
+    if (returnDensities) {
+      finalList <-c(finalList, 
+                    list(densities=list(
+                            densityChip=densityChip,
+                            densityInput=densityInput
+                            )
+                        )
+                    )  
+    }
+
     ## create Fingerprint plot
     f_fingerPrintPlot(cumSumChip, cumSumInput, savePlotPath = savePlotPath)
-    if (!is.null(savePlotPath))    
+    if (!is.null(savePlotPath))
         message("pdf saved under ", savePlotPath)
 
-    if ( debug ) {
-        message("Debugging mode ON")
-        outname <- file.path(getwd(), "Chance.result")        
-        write.table(finalList, file = outname, row.names = TRUE, 
-            col.names = TRUE, quote = FALSE, append=FALSE)
-    }
+
     ## return QC values
     pb$tick()
 
-    message("Calculation of GM done!")
+    message("Calculation of GM metrics done!")
     return(finalList)
 }
 
