@@ -16,8 +16,11 @@
 #'
 #' @param data metagene-list for input and chip sample of the genebody profile
 #' returned by createMetageneProfile()
+#' @param tag, character, it should always be "geneBody" in the current impplementation. This is just for simmetry with qualityScores_LM function
 #' @param savePlotPath if set the plot will be saved under 'savePlotPath'. 
 #' Default=NULL and plot will be forwarded to stdout. 
+#' @param plot character, possible values "norm", "split", "all" (default) or "none" to plot metaprofiles for 
+#' normalized ChIP/input enrichment, or the two samples reads densities separated, or both plots, or none (respectively)
 #'
 #' @export
 #'
@@ -79,13 +82,20 @@
 #'}
 
 
-qualityScores_LMgenebody <- function(data, savePlotPath = NULL)
+qualityScores_LMgenebody <- function(data, savePlotPath = NULL, tag="geneBody", plot="all")
 {
-    stopifnot(length(data) == 3L)
+    if (!(tag %in% c("geneBody"))) {
+        stop("tag not valid! Please use: geneBody for qualityScores_LMgenebody() function")}
     
-    binnedChip <- data$chip
-    binnedInput <- data$input
-    binnedNorm <- data$norm
+    stopifnot(length(data[[tag]]) == 3L)
+    
+    if (!(plot %in% c("all","norm","split","none")) ) {
+        stop("wrong plot parameter value")
+    }
+
+    binnedChip <- data[[tag]]$chip
+    binnedInput <- data[[tag]]$input
+    binnedNorm <- data[[tag]]$norm
     message("load metagene setting")
     settings <- f_metaGeneDefinition(selection = "Settings")
     ## pseudocount## required to avoid log2 of 0
@@ -112,34 +122,37 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL)
     
     ## make plots
     colori <- c(rev(rainbow(ncol(all.noNorm) - 1)), "black")
-    if (!is.null(savePlotPath)) {
-        filename <- file.path(savePlotPath, "ScaledMetaGene_ChIP_Input.pdf")
-        pdf(file = filename, width = 10, height = 7)
-    }
-    par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
-    matplot(x = as.numeric(rownames(all.noNorm)), 
-        y = all.noNorm, type = "l", lwd = 2, 
-        lty = 1, col = colori, xlab = "metagene coordinates", 
-        ylab = "mean of log2 read density", 
-        main = "scaled metagene profile", xaxt = "n")
-    
-    currBreak_points <- break_points_2P[c(-2, -5)]
-    abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
-        col = "darkgrey", lwd = 3)
-    abline(v = currBreak_points, lty = 3, 
-        col = "darkgrey", lwd = 2)
-    axis(side = 1, at = break_points_2P, 
-        labels = c("-2KB", "TSS", "TSS+500", "TES-500", "TES", "+1KB"))
-    
-    legend(x = "topleft", fill = colori, legend = colnames(all.noNorm), 
-        bg = "white", 
-        cex = 0.8)
-    
-    if (!is.null(savePlotPath)) {
-        dev.off()
-        message("pdf saved under ", filename)
-    }
-    
+    currBreak_points <- break_points_2P[c(-2, -5)]  ##c(-2000,500,2500,4000)
+
+    if (plot %in% c("all", "split")) {
+
+        if (!is.null(savePlotPath)) {
+            filename <- file.path(savePlotPath, "ScaledMetaGene_ChIP_Input.pdf")
+            pdf(file = filename, width = 10, height = 7)
+        }
+        par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+        matplot(x = as.numeric(rownames(all.noNorm)), 
+            y = all.noNorm, type = "l", lwd = 2, 
+            lty = 1, col = colori, xlab = "metagene coordinates", 
+            ylab = "mean of log2 read density", 
+            main = "scaled metagene profile", xaxt = "n")
+        
+        abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
+            col = "darkgrey", lwd = 3)
+        abline(v = currBreak_points, lty = 3, 
+            col = "darkgrey", lwd = 2)
+        axis(side = 1, at = break_points_2P, 
+            labels = c("-2KB", "TSS", "TSS+500", "TES-500", "TES", "+1KB"))
+        
+        legend(x = "topleft", fill = colori, legend = colnames(all.noNorm), 
+            bg = "white", 
+            cex = 0.8)
+        
+        if (!is.null(savePlotPath)) {
+            dev.off()
+            message("pdf saved under ", filename)
+        }
+    }   
     #################### normalized plot and values
     
     # common_genes <- rownames(input)[rownames(input) %in% rownames(chip)]
@@ -156,37 +169,37 @@ qualityScores_LMgenebody <- function(data, savePlotPath = NULL)
         breaks = break_points_2P, 
         estBinSize = estimated_bin_size_2P, tag = "geneBody")
 
-    if (!is.null(savePlotPath)) {
-        filename <- file.path(savePlotPath, "ScaledMetaGene_normalized.pdf")
-        pdf(filename, width = 10, height = 7)
+    if (plot %in% c("all", "norm")) {
+        if (!is.null(savePlotPath)) {
+            filename <- file.path(savePlotPath, "ScaledMetaGene_normalized.pdf")
+            pdf(filename, width = 10, height = 7)
+        }
+        par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
+        plot(x = as.numeric(rownames(normFinal)), 
+            y = normFinal$norm, 
+            type = "l", 
+            lwd = 2, lty = 1, col = "orange", 
+            xlab = "metagene coordinates", 
+            ylab = "mean of log2 enrichment (signal/input)", 
+            main = "normalized scaled metagene profile", xaxt = "n")  
+                #,cex.axis=1.3,cex.lab=1.3)
+        
+        abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
+            col = "darkgrey", lwd = 3)
+        abline(v = currBreak_points, lty = 3, 
+            col = "darkgrey", lwd = 2)
+        axis(side = 1, at = break_points_2P, 
+            labels = c("-2KB", "TSS", "TSS+500", "TES-500", "TES", "+1KB"))
+        
+        legend(x = "topleft", fill = "orange", 
+            legend = colnames(normFinal), bg = "white", 
+            cex = 0.8)
+        
+        if (!is.null(savePlotPath)) {
+            dev.off()
+            message("pdf saved under ", filename)
+        }
     }
-    par(mar = c(3.5, 3.5, 2, 0.5), mgp = c(2, 0.65, 0), cex = 1)
-    plot(x = as.numeric(rownames(normFinal)), 
-        y = normFinal$norm, 
-        type = "l", 
-        lwd = 2, lty = 1, col = "orange", 
-        xlab = "metagene coordinates", 
-        ylab = "mean of log2 enrichment (signal/input)", 
-        main = "normalized scaled metagene profile", xaxt = "n")  
-            #,cex.axis=1.3,cex.lab=1.3)
-    
-    currBreak_points <- break_points_2P[c(-2, -5)]  ##c(-2000,500,2500,4000)
-    abline(v = c(break_points_2P[c(2, 5)]), lty = 2, 
-        col = "darkgrey", lwd = 3)
-    abline(v = currBreak_points, lty = 3, 
-        col = "darkgrey", lwd = 2)
-    axis(side = 1, at = break_points_2P, 
-        labels = c("-2KB", "TSS", "TSS+500", "TES-500", "TES", "+1KB"))
-    
-    legend(x = "topleft", fill = "orange", 
-        legend = colnames(normFinal), bg = "white", 
-        cex = 0.8)
-    
-    if (!is.null(savePlotPath)) {
-        dev.off()
-        message("pdf saved under ", filename)
-    }
-    
     result=data.frame(rbind(
         cbind(round(hotSpotsValues,3),round(hotSpotsValuesNorm,3)),
         cbind(round(maxAucValues,3),round(maxAucValuesNorm,3))))

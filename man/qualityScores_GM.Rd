@@ -8,7 +8,7 @@ qualityScores_GM(
   selectedTagsChip,
   selectedTagsInput,
   tag.shift,
-  annotationID = "hg19",
+  annotationID,
   savePlotPath = NULL,
   mc = 1,
   returnDensities = FALSE
@@ -24,7 +24,7 @@ qualityScores_GM(
 \item{tag.shift, }{Integer containing the value of the tag shif, calculated 
 by getCrossCorrelationScores()}
 
-\item{annotationID}{String, indicating the genome assembly (Default="hg19")}
+\item{annotationID}{String, indicating the genome assembly}
 
 \item{savePlotPath}{if set the plot will be saved under "savePlotPath". 
 Default=NULL and plot will be forwarded to stdout.}

@@ -34,7 +34,7 @@ qualityScores_LM() with option TES}
 qualityScores_LMgenebody()}
 }
 \value{
-prediction
+predictions for positive and negative class
 }
 \description{
 predictionScore

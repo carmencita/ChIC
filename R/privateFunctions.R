@@ -351,7 +351,7 @@ f_tagDensity <- function(data, tag.shift, chromDef, mc = 1) {
         mc.cores  = mc,   
         FUN = function(current_chr_list) {
             current_chr <- names(current_chr_list)
-            str(current_chr_list)
+            #str(current_chr_list)
             if (length(current_chr) != 1) {
                 stop("unexpected dataSelected structure")
             }
@@ -1473,16 +1473,16 @@ f_loadDataCompendium <- function(endung, target, tag)
     return(frame)
 }
 
-# #' @keywords internal 
-# ## helper function to prepare dataframe
-# f_prepareData <- function(fmean, frame) 
-# {
-#     finalframe <- cbind(fmean$x, frame)
-#     rownames(finalframe) <- NULL
-#     finalframe <- as.data.frame(finalframe)
-#     colnames(finalframe) <- c("x", "mean")
-#     return(finalframe)
-# }
+#' @keywords internal 
+## helper function to prepare dataframe
+f_prepareData <- function(fmean, frame) 
+{
+    finalframe <- cbind(fmean$x, frame)
+    rownames(finalframe) <- NULL
+    finalframe <- as.data.frame(finalframe)
+    colnames(finalframe) <- c("x", "mean")
+    return(finalframe)
+}
 
 
 
@@ -1490,7 +1490,7 @@ f_loadDataCompendium <- function(endung, target, tag)
 ## plot profiles compendium versus current dataset
 f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody", 
     absoluteMinMax, maintitel = "title", ylab = "mean of log2 read density", 
-    savePlotPath = NULL) 
+    savePlotPath = NULL, currentCol="red") 
 {
     message("Load settings")
     settings <- f_metaGeneDefinition(selection = "Settings")
@@ -1502,9 +1502,13 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
     break_points_2P <- settings$break_points_2P
     break_points <- settings$break_points
 
-    ##security check 
-    currentFrame["mean"]=as.numeric(as.character(currentFrame$mean))
-    currentFrame["x"]=as.numeric(as.character(currentFrame$x))
+    # ##security check 
+    ### There was a problem in the upstream function I already fixed it
+    if (!all(is.numeric(currentFrame$mean), is.numeric(currentFrame$x), is.numeric(meanFrame$mean), is.numeric(meanFrame$x))) {
+        stop("non numeric input to function f_plotProfiles()")
+    }
+    # currentFrame["mean"]<-as.numeric(as.character(currentFrame$mean))
+    # currentFrame["x"]<-as.numeric(as.character(currentFrame$x))
     ## The standard error of the mean (SEM) is the standard deviation of the
     ## sample-mean's estimate of a population mean.  
     ## (It can also be seen as the standard deviation of the error in the 
@@ -1516,9 +1520,9 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
     ## statistical independence of the values in the sample)
     plot(x = c(min(meanFrame$x), max(meanFrame$x)), 
         y = c(absoluteMinMax[1], absoluteMinMax[2]), 
-        type = "n", xlab = "metagene coordinates", ylab = ylab, 
+        xlab = "metagene coordinates", ylab = ylab, 
         main = maintitel, 
-        xaxt = "n")
+        type = "n", xaxt = "n")
     polygon(x = c(meanFrame$x, rev(meanFrame$x)), 
         y = c(meanFrame$mean + 2 * meanFrame$sderr, 
         rev(meanFrame$mean)), col = "lightblue", border = NA)
@@ -1526,7 +1530,7 @@ f_plotProfiles <- function(meanFrame, currentFrame, endung = "geneBody",
         y = c(meanFrame$mean - 2 * meanFrame$sderr, 
         rev(meanFrame$mean)), col = "lightblue", border = NA)
     lines(x = meanFrame$x, y = meanFrame$mean, col = "black", lwd = 2)
-    lines(x = currentFrame$x, y = currentFrame$mean, col = "red", lwd = 2)
+    lines(x = currentFrame$x, y = currentFrame$mean, col = currentCol, lwd = 2)
     if (endung == "geneBody") {
         currBreak_points <- break_points_2P[c(-2, -5)]  
         ##c(-2000,500,2500,4000)
@@ -1633,42 +1637,37 @@ f_getPredictionModel <- function(id) {
     
     if (id %in% c(f_metaGeneDefinition("Hlist"), "sharp", "broad", "RNAPol2")) {
 
-        message("Load chromatinmark model")
-        if (id %in% allChrom$allSharp) {
-            model <- rf_models[["Sharp"]]
-        }
-        
-        if (id %in% allChrom$allBroad) {
-            model <- rf_models[["Broad"]]
-        }
-        
-        if (id %in% allChrom$RNAPol2) {
-            model <- rf_models[["RNAPol2"]]
-        }
-        
+        message("Load chromatinmark model:")
+        ## in the ifelse structure we are giving higher priority to the more "specific" model
+        ## e.g. if target is "H3K27me3", thenw e use that mark specific model instead than the "broad" one
         if (id == "H3K9me3") {
             model <- rf_models[["H3K9me3"]]
+            message("H3K9me3 model")
         } else if (id == "H3K27me3") {
             model <- rf_models[["H3K27me3"]]
+            message("H3K27me3 model")
         } else if (id == "H3K36me3") {
             model <- rf_models[["H3K36me3"]]
+            message("H3K36me3 model")
         } else if (id %in% c(allChrom$allBroad, "broad")) {
             model <- rf_models[["Broad"]]
+            message("Broad marks model")
         } else if (id %in% c(allChrom$allSharp, "sharp")) {
             model <- rf_models[["Sharp"]]
+            message("Sharp marks model")
         } else if (id %in% c(allChrom$RNAPol2, "RNAPol2")) {
             model <- rf_models[["RNAPol2"]]
+            message("RNAPol2 model")
         } else {
-            # considering the starting if this option should never happen
+            # considering the starting "if" clause, this option should never happen
             message(id, "error in model selction")
             model=NULL
         }
-    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))
-    {
-        message("Load TF model")
+    } else if ((id %in% f_metaGeneDefinition("TFlist")) | (id== "TF"))  {
+        message("Load generic TF model")
         model <- rf_models$TF
     } else {
-        message(id, "not found")
+        message(id, "model not found")
         model=NULL
     }
     return(model)

@@ -40,7 +40,7 @@
 #' @param chip.data Optional, taglist object for ChIP reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "chipName"
 #' @param input.data Optional, taglist object for Input control reads as returned by spp or readBamFile() function. If not set (NULL) the data will be read from the BAM file with name specified by "inputName"
 #' @param readAlignerType string, bam (default) tagAlign file format are supported
-#' @param annotationID Character, indicating the genome assembly (Default="hg19")
+#' @param annotationID Character, indicating the genome assembly 
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
 #' @param crossCorrelation_Input Boolean, calculates cross-correlation and 
 #' and EM metrics for the input. The default=FALSE as the running time 
@@ -101,7 +101,7 @@
 
 qualityScores_EM <- function(chipName, inputName, read_length,  
     chip.data=NULL, input.data=NULL, readAlignerType = "bam",
-    annotationID = "hg19",  mc = 1, crossCorrelation_Input=FALSE,
+    annotationID,  mc = 1, crossCorrelation_Input=FALSE,
     downSamplingChIP=FALSE, writeWig=FALSE,
     savePlotPath = NULL, debug = FALSE) 
 {
@@ -284,15 +284,16 @@ qualityScores_EM <- function(chipName, inputName, read_length,
     
     ## get QC-values from peak calling
     message("\n***Calculating QC-metrics from peak-calling...***")
-    bindingScores <- getPeakCallingScores(chip.data, 
-        input.data, 
-        chip.tagsSelected, 
-        input.tagsSelected, 
-        final.tag.shift, 
+    bindingScores <- getPeakCallingScores(chip=chip.data, 
+        input=input.data, 
+        chip.dataSelected=chip.tagsSelected, 
+        input.dataSelected=input.tagsSelected, 
+        tag.shift =final.tag.shift, 
         mc=mc,
         annotationID=annotationID,
         debug=debug)
-    
+
+
     returnList <- list(QCscores_ChIP = crossvalues_Chip, 
         QCscores_Input = crossvalues_Input, 
         QCscores_binding = bindingScores, 

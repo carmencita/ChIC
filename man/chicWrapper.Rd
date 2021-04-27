@@ -10,7 +10,7 @@ chicWrapper(
   read_length,
   savePlotPath = getwd(),
   target,
-  annotationID = "hg19",
+  annotationID,
   mc = 1,
   debug = FALSE
 )
@@ -32,7 +32,7 @@ If the end users really needs to suppress the PDF output, they can use the "/dev
 analysed. Using the function "listAvailableElements" with the keywords 
 "mark" and "TF" shows a list with the available elements.}
 
-\item{annotationID}{String, indicating the genome assembly (Default="hg19")}
+\item{annotationID}{String, indicating the genome assembly}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 

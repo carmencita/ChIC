@@ -31,7 +31,7 @@
 #' (returned by qualityScores_EM)
 #' @param tag.shift, Integer containing the value of the tag shif, calculated 
 #' by getCrossCorrelationScores()
-#' @param annotationID String, indicating the genome assembly (Default="hg19")
+#' @param annotationID String, indicating the genome assembly
 #' @param savePlotPath if set the plot will be saved under "savePlotPath". 
 #' Default=NULL and plot will be forwarded to stdout.
 #' @param mc Integer, the number of CPUs for parallelization (default=1)
@@ -96,7 +96,7 @@
 #'}
 
 qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
-    annotationID="hg19", savePlotPath = NULL, mc=1, returnDensities=FALSE) 
+    annotationID, savePlotPath = NULL, mc=1, returnDensities=FALSE) 
 {
     message("***Calculating GM metrics...***")
 
@@ -180,9 +180,10 @@ qualityScores_GM <- function(selectedTagsChip, selectedTagsInput, tag.shift,
 
     if (returnDensities) {
       finalList <-c(finalList, 
-                    densities=list(
-                        densityChip=densityChip,
-                        densityInput=densityInput
+                    list(densities=list(
+                            densityChip=densityChip,
+                            densityInput=densityInput
+                            )
                         )
                     )  
     }

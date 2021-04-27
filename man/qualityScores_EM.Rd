@@ -11,7 +11,7 @@ qualityScores_EM(
   chip.data = NULL,
   input.data = NULL,
   readAlignerType = "bam",
-  annotationID = "hg19",
+  annotationID,
   mc = 1,
   crossCorrelation_Input = FALSE,
   downSamplingChIP = FALSE,
@@ -33,7 +33,7 @@ qualityScores_EM(
 
 \item{readAlignerType}{string, bam (default) tagAlign file format are supported}
 
-\item{annotationID}{Character, indicating the genome assembly (Default="hg19")}
+\item{annotationID}{Character, indicating the genome assembly}
 
 \item{mc}{Integer, the number of CPUs for parallelization (default=1)}
 
